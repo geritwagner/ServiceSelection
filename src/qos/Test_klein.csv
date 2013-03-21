@@ -1,7 +1,0 @@
-serviceClassId;serviceClassName;ID;Name;Provider;Price;Costs;Response Time;Availability;Reliability;Utility
-1;ServiceClass1;1;WebService1;Provider1;3.0;3.0;100.0;0.99;0.98;Utility
-2;ServiceClass2;2;WebService2;Provider1;9.0;7.0;50.0;0.96;0.97;Utility
-2;ServiceClass2;3;WebService3;Provider1;8.0;6.0;60.0;0.97;0.98;Utility
-3;ServiceClass3;4;WebService4;Provider1;14.0;15.0;120.0;0.99;1.00;Utility
-3;ServiceClass3;5;WebService5;Provider1;13.0;14.0;110.0;0.97;0.98;Utility
-4;ServiceClass4;6;WebService6;Provider1;2.0;2.0;40.0;1.00;1.00;Utility
