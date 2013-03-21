@@ -1,0 +1,21 @@
+serviceClassId;serviceClassName;ID;Name;Provider;Price;Costs;Response Time;Availability;Reliability;Utility
+1;ServiceClass1;1;WebService1;Provider1;3.0;3.0;100.0;0.99;0.98;
+2;ServiceClass2;2;WebService2;Provider1;9.0;7.5;50.0;0.96;0.97;
+1;ServiceClass1;3;WebService3;Provider1;3.5;2.5;90.0;1.00;0.99;
+3;ServiceClass3;4;WebService4;Provider1;25.0;24.0;75.0;0.98;0.99;
+4;ServiceClass4;5;WebService5;Provider1;13.0;14.0;120.0;1.00;0.99;
+2;ServiceClass2;6;WebService6;Provider1;10.0;8.0;45.0;0.99;0.96;
+1;ServiceClass1;7;WebService7;Provider1;4.0;3.0;110.0;0.96;0.98;
+1;ServiceClass1;8;WebService8;Provider2;5.0;6.0;105.0;0.99;0.98;
+2;ServiceClass2;9;WebService9;Provider2;12.0;11.0;60.0;0.98;0.99;
+3;ServiceClass3;10;WebService10;Provider2;14.0;13.0;70.0;0.98;1.00;
+4;ServiceClass4;11;WebService11;Provider2;23.0;24.0;130.0;0.99;0.96;
+4;ServiceClass4;12;WebService12;Provider3;21.0;21.0;130.0;1.00;1.00;
+3;ServiceClass3;13;WebService13;Provider3;13.0;13.0;80.5;0.98;0.96;
+1;ServiceClass1;14;WebService14;Provider3;2.5;3.0;102.0;0.99;0.96;
+2;ServiceClass2;15;WebService15;Provider3;8.0;8.0;58.5;0.96;1.00;
+3;ServiceClass3;16;WebService16;Provider3;12.0;11.0;76.5;1.00;0.99;
+2;ServiceClass2;17;WebService17;Provider3;8.0;10.0;47.5;0.99;0.96;
+4;ServiceClass4;18;WebService18;Provider3;24.0;26.0;128.5;0.98;0.98;
+3;ServiceClass3;19;WebService19;Provider4;13.0;12.0;69.5;1.00;0.98;
+3;ServiceClass3;20;WebService20;Provider4;10.0;9.0;71.0;0.96;0.99;
