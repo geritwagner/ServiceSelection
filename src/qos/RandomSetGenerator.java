@@ -6,16 +6,17 @@ import java.util.List;
 public class RandomSetGenerator {
 	
 	public static List<ServiceClass> generateSet(int numClasses, int numCandidates) {		
-		List<ServiceClass> serviceClassList = new LinkedList<ServiceClass>();		
+		List<ServiceClass> serviceClassList = new LinkedList<ServiceClass>();
+		// GENERATE SERVICE CLASSES
 		for (int i=0; i<numClasses; i++) {
 			List<ServiceCandidate> serviceCandidateList = new LinkedList<ServiceCandidate>();
 			// GENERATE SERVICE CANDIDATES
 			for (int j=0; j<numCandidates; j++) {
 				int serviceID = (i+1)*(j+1);
 				
-				double cost = 0;
-				double time = 0;
-				double availability = 0;
+				double cost = myRandom(0,100);
+				double time = myRandom(0,100);
+				double availability = myRandom(0.85,0.99);
 				
 				QosVector qosVector = new QosVector(0, cost, time, availability, 0);				
 				serviceCandidateList.add(new ServiceCandidate(i+1, "ServiceClass"+(i+1), 
@@ -27,6 +28,10 @@ public class RandomSetGenerator {
 		
 		
 		return serviceClassList;		
+	}
+	
+	public static double myRandom(double low, double high) {
+		return Math.random() * (high - low) + low;
 	}
 
 }
