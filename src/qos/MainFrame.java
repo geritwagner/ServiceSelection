@@ -52,72 +52,72 @@ public class MainFrame extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private JPanel contentPane;
-	
-	private JCheckBox jCheckBoxMaxPrice;
 	private JCheckBox jCheckBoxMaxCosts;
 	private JCheckBox jCheckBoxMaxResponseTime;
 	private JCheckBox jCheckBoxMinAvailability;
 	private JCheckBox jCheckBoxMinReliability;
-	
-	private JTextField jTextFieldMaxPrice;
 	private JTextField jTextFieldMaxCosts;
 	private JTextField jTextFieldMaxResponseTime;
 	private JTextField jTextFieldMinAvailability;
 	private JTextField jTextFieldMinReliability;
-	
+
 	private JSpinner jSpinnerNumberResultTiers;
-	
-	private JSlider jSliderMaxPrice;
 	private JSlider jSliderMaxCosts;
 	private JSlider jSliderMaxResponseTime;
 	private JSlider jSliderMinAvailability;
 	private JSlider jSliderMinReliability;
-	
+
 	private JTable jTableServiceClasses;
 	private JTable jTableWebServices;
-	
+
 	private JLabel jLabelNumerator;
 	private JLabel jLabelDenominator;
 	private JLabel jLabelWeightedPenalty;
-	
+
 	private JCheckBox jCheckboxGeneticAlgorithm;
 	private JCheckBox jCheckBoxAntColonyOptimization;
 	private JCheckBox jCheckBoxAnalyticAlgorithm;
-	
+
 	private JTable jTableGeneticAlgorithm;
 	private JTable jTableAntAlgorithm;
 	private JTable jTableAnalyticAlgorithm;
-	
+
 	private JProgressBar jProgressBarGeneticAlgorithm;
 	private JProgressBar jProgressBarAntAlgorithm;
 	private JProgressBar jProgressBarAnalyticAlgorithm;
-	
+
 	private JTable jTableGeneralResults;
 	private JTable jTableTier;
 
 	private JTabbedPane jTabbedPane;
 	private JScrollPane jScrollPaneGeneticAlgorithm;
-	
+
 	private JButton jButtonStart;
 	private JButton jButtonVisualize;
-	
+
+	private JLabel lblWeightSum;
+
 	private static MainFrame frame;
-	
-	
+
+
 	public static final int MAX_PRICE = 10000;
 	public static final int MAX_COSTS = 10000;
 	public static final int MAX_RESPONSE_TIME = 10000;
 	public static final int MAX_AVAILABILITY = 100;
 	public static final int MAX_RELIABILITY = 100;
 	public static final int MAX_PENALTY_FACTOR = 100;
-	
-	
+
+
 	private List<ServiceClass> serviceClassesList = 
-			new LinkedList<ServiceClass>();
+		new LinkedList<ServiceClass>();
 	private List<ServiceCandidate> serviceCandidatesList = 
-    		new LinkedList<ServiceCandidate>();
+		new LinkedList<ServiceCandidate>();
+	private JTextField txtCostsWeight;
+	private JTextField txtResponseTimeWeight;
+	private JTextField txtAvailabilityWeight;
+	private JTextField txtReliabilityWeight;
 
 	/**
 	 * Launch the application.
@@ -143,7 +143,7 @@ public class MainFrame extends JFrame {
 		// FRAME SETTINGS
 		setTitle("test_gui");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1000, 850);
+		setBounds(100, 0, 1000, 850);
 
 		// MAIN CONTENT PANEL CONFIGURATION
 		contentPane = new JPanel();
@@ -156,7 +156,7 @@ public class MainFrame extends JFrame {
 		contentPane.setLayout(gblContentPane);
 		Font generalFont = new Font(
 				"generalSettingsFont", Font.BOLD, 16);
-		
+
 		JLabel jLabelSettings = new JLabel("Settings");
 		jLabelSettings.setFont(generalFont);
 		GridBagConstraints gbcJLabelSettings = new GridBagConstraints();
@@ -165,7 +165,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelSettings.gridx = 0;
 		gbcJLabelSettings.gridy = 0;
 		contentPane.add(jLabelSettings, gbcJLabelSettings);
-		
+
 		JSeparator jSeparatorSettingsResults = new JSeparator();
 		GridBagConstraints gbcJSeparatorSettingsResults = 
 			new GridBagConstraints();
@@ -176,7 +176,7 @@ public class MainFrame extends JFrame {
 		gbcJSeparatorSettingsResults.gridy = 4;
 		contentPane.add(jSeparatorSettingsResults, 
 				gbcJSeparatorSettingsResults);
-		
+
 		JLabel jLabelResults = new JLabel("Results");
 		jLabelResults.setFont(generalFont);
 		GridBagConstraints gbcJLabelResults = new GridBagConstraints();
@@ -185,7 +185,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelResults.gridx = 0;
 		gbcJLabelResults.gridy = 5;
 		contentPane.add(jLabelResults, gbcJLabelResults);
-		
+
 		jButtonVisualize = new JButton("Visualize");
 		jButtonVisualize.setEnabled(false);
 		GridBagConstraints gbcJButtonVisualize = new GridBagConstraints();
@@ -193,7 +193,7 @@ public class MainFrame extends JFrame {
 		gbcJButtonVisualize.gridx = 2;
 		gbcJButtonVisualize.gridy = 5;
 		contentPane.add(jButtonVisualize, gbcJButtonVisualize);
-		
+
 		initializeMenuBar();
 		initializeGeneralSettingsPanel(contentPane);
 		initializeCenterArea(contentPane);
@@ -207,7 +207,7 @@ public class MainFrame extends JFrame {
 	private void initializeMenuBar() {
 		JMenuBar jMenuBar = new JMenuBar();
 		setJMenuBar(jMenuBar);
-		
+
 		JMenu jMenuFile = new JMenu("File");
 		jMenuBar.add(jMenuFile);
 		JMenuItem jMenuItemReset = new JMenuItem("Reset");
@@ -218,39 +218,39 @@ public class MainFrame extends JFrame {
 		});
 		jMenuFile.add(jMenuItemReset);
 		JMenuItem jMenuItemLoad = new JMenuItem("Load");
-		
+
 		final JFileChooser fileChooser = new JFileChooser() {
-	        {
-	            setFileFilter(new FileFilter() {
-	                @Override
-	                public boolean accept(File f) {
-	                    return f.getName().toLowerCase().endsWith("csv") || 
-	                    		f.isDirectory();
-	                }
-	                @Override
-	                public String getDescription() {
-	                    return "CSV Datei (Comma Seperated Values)";
-	                }
-	            });
-	        }
-	    };
-	    
-	    jMenuItemLoad.addActionListener(new ActionListener() {
+			{
+				setFileFilter(new FileFilter() {
+					@Override
+					public boolean accept(File f) {
+						return f.getName().toLowerCase().endsWith("csv") || 
+						f.isDirectory();
+					}
+					@Override
+					public String getDescription() {
+						return "CSV Datei (Comma Seperated Values)";
+					}
+				});
+			}
+		};
+
+		jMenuItemLoad.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (!(fileChooser.showOpenDialog(MainFrame.this) == 
-						JFileChooser.APPROVE_OPTION)) {
-                    return;
+					JFileChooser.APPROVE_OPTION)) {
+					return;
 				}
-                final File file = fileChooser.getSelectedFile();
-                if (file == null) {
-                    return;
-                }
-                loadWebServices(file);
-                jButtonStart.setEnabled(true);
+				final File file = fileChooser.getSelectedFile();
+				if (file == null) {
+					return;
+				}
+				loadWebServices(file);
+				jButtonStart.setEnabled(true);
 			}
 		});
-		
+
 		jMenuFile.add(jMenuItemLoad);
 		JMenuItem jMenuItemSave = new JMenuItem("Save");
 		jMenuFile.add(jMenuItemSave);
@@ -265,7 +265,7 @@ public class MainFrame extends JFrame {
 		JMenu jMenuEdit = new JMenu("Constraints");
 		jMenuBar.add(jMenuEdit);
 		JMenuItem jMenuItemLoadDefaultConstraints = 
-				new JMenuItem("Use Default Values");
+			new JMenuItem("Use Default Values");
 		jMenuItemLoadDefaultConstraints.addActionListener(
 				new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -274,7 +274,7 @@ public class MainFrame extends JFrame {
 				});
 		jMenuEdit.add(jMenuItemLoadDefaultConstraints);
 		JMenuItem jMenuItemLoadRandomConstraints = 
-				new JMenuItem("Use Random Values");
+			new JMenuItem("Use Random Values");
 		jMenuItemLoadRandomConstraints.addActionListener(
 				new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
@@ -296,11 +296,11 @@ public class MainFrame extends JFrame {
 		JMenuItem jMenuItemAbout = new JMenuItem("About");
 		jMenuOther.add(jMenuItemAbout);
 	}
-	
+
 	private void initializeGeneralSettingsPanel (JPanel contentPane) {
 		JPanel jPanelGeneralSettings = new JPanel();
 		GridBagConstraints gbcJPanelGeneralSettings = 
-				new GridBagConstraints();
+			new GridBagConstraints();
 		GridBagLayout gblJPanelGeneralSettings = new GridBagLayout();
 		gblJPanelGeneralSettings.columnWeights = new double[]{0.2, 0.2, 0.6};
 		gblJPanelGeneralSettings.rowWeights = new double[]{1.0};
@@ -315,7 +315,7 @@ public class MainFrame extends JFrame {
 		initializeWebServicesPanel(jPanelGeneralSettings);
 		contentPane.add(jPanelGeneralSettings, gbcJPanelGeneralSettings);
 	}
-	
+
 	private void initializeQosConstraintsPanel(JPanel contentPane) {
 		JPanel jPanelQosConstraints = new JPanel();
 		GridBagConstraints gbcJPanelQosConstraints = new GridBagConstraints();
@@ -327,27 +327,28 @@ public class MainFrame extends JFrame {
 		contentPane.add(jPanelQosConstraints, gbcJPanelQosConstraints);
 		GridBagLayout gblJPanelQosConstraints = new GridBagLayout();
 		gblJPanelQosConstraints.columnWeights = new double[]{
-				0.15, 0.6, 0.1, 0.05};
+				0.15, 0.3, 0.4, 0.05, 0.05, 0.05};
 		gblJPanelQosConstraints.rowWeights = new double[]{
-				0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125};
+				0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125};
 		jPanelQosConstraints.setLayout(gblJPanelQosConstraints);
-		
+
 		JLabel jLabelQosConstraints = new JLabel("QoS Constraints:");
 		GridBagConstraints gbcJLabelQosConstraints = new GridBagConstraints();
 		gbcJLabelQosConstraints.gridwidth = 4;
-		gbcJLabelQosConstraints.insets = new Insets(0, 0, 5, 0);
+		gbcJLabelQosConstraints.insets = new Insets(0, 0, 5, 5);
 		gbcJLabelQosConstraints.gridx = 0;
 		gbcJLabelQosConstraints.gridy = 0;
-		jPanelQosConstraints.add(jLabelQosConstraints, gbcJLabelQosConstraints);
-		
+		jPanelQosConstraints.add(
+				jLabelQosConstraints, gbcJLabelQosConstraints);
+
 		JLabel jLabelResultTiers = new JLabel("Number of Result Tiers");
 		GridBagConstraints gbcJLabelResultTiers = new GridBagConstraints();
-		gbcJLabelResultTiers.insets = new Insets(0, 18, 5, 5);
+		gbcJLabelResultTiers.insets = new Insets(0, 5, 5, 5);
 		gbcJLabelResultTiers.gridx = 0;
 		gbcJLabelResultTiers.gridy = 1;
 		gbcJLabelResultTiers.anchor = GridBagConstraints.WEST;
 		jPanelQosConstraints.add(jLabelResultTiers, gbcJLabelResultTiers);
-		
+
 		jSpinnerNumberResultTiers = 
 			new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
 		jSpinnerNumberResultTiers.addChangeListener(new ChangeListener() {
@@ -356,73 +357,37 @@ public class MainFrame extends JFrame {
 		});
 		jSpinnerNumberResultTiers.setPreferredSize(new Dimension(35, 25));
 		GridBagConstraints gbcJSpinnerNumberResultTiers = 
-				new GridBagConstraints();
+			new GridBagConstraints();
 		gbcJSpinnerNumberResultTiers.insets = new Insets(0, 0, 5, 5);
-		gbcJSpinnerNumberResultTiers.gridx = 2;
+		gbcJSpinnerNumberResultTiers.gridx = 1;
 		gbcJSpinnerNumberResultTiers.gridy = 1;
 		jPanelQosConstraints.add(
 				jSpinnerNumberResultTiers, gbcJSpinnerNumberResultTiers);
-		
-		jCheckBoxMaxPrice = new JCheckBox("Max. Price");
-		jCheckBoxMaxPrice.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				buildGeneticAlgorithmWeightsTable();
-			}
-		});
-		jCheckBoxMaxPrice.setSelected(true);
-		GridBagConstraints gbcJCheckBoxMaxPrice = new GridBagConstraints();
-		gbcJCheckBoxMaxPrice.insets = new Insets(0, 0, 5, 5);
-		gbcJCheckBoxMaxPrice.gridx = 0;
-		gbcJCheckBoxMaxPrice.gridy = 2;
-		gbcJCheckBoxMaxPrice.anchor = GridBagConstraints.WEST;
-		jPanelQosConstraints.add(jCheckBoxMaxPrice, gbcJCheckBoxMaxPrice);
-		
-		jSliderMaxPrice = new JSlider();
-		GridBagConstraints gbcJSliderMaxPrice = new GridBagConstraints();
-		gbcJSliderMaxPrice.insets = new Insets(0, 0, 5, 5);
-		gbcJSliderMaxPrice.gridx = 1;
-		gbcJSliderMaxPrice.gridy = 2;
-		gbcJSliderMaxPrice.fill = GridBagConstraints.BOTH;
-		jPanelQosConstraints.add(jSliderMaxPrice, gbcJSliderMaxPrice);
-		jSliderMaxPrice.setMaximum(MAX_PRICE);
-		jSliderMaxPrice.setMinimum(0);
-		jSliderMaxPrice.setValue(MAX_PRICE / 2);
-		jSliderMaxPrice.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-				useConstraintSlider(jTextFieldMaxPrice, jSliderMaxPrice);
-			}
-		});
-		
-		jTextFieldMaxPrice = 
-				new JTextField(String.valueOf(jSliderMaxPrice.getValue()));
-		GridBagConstraints gbcJTextFieldMaxPrice = new GridBagConstraints();
-		gbcJTextFieldMaxPrice.insets = new Insets(0, 0, 5, 5);
-		gbcJTextFieldMaxPrice.fill = GridBagConstraints.HORIZONTAL;
-		gbcJTextFieldMaxPrice.gridx = 2;
-		gbcJTextFieldMaxPrice.gridy = 2;
-		jPanelQosConstraints.add(jTextFieldMaxPrice, gbcJTextFieldMaxPrice);
-		
-		JLabel jLabelMaxPrice = new JLabel("\u20AC");
-		GridBagConstraints gbcJLabelMaxPrice = new GridBagConstraints();
-		gbcJLabelMaxPrice.insets = new Insets(0, 0, 5, 0);
-		gbcJLabelMaxPrice.gridx = 3;
-		gbcJLabelMaxPrice.gridy = 2;
-		jPanelQosConstraints.add(jLabelMaxPrice, gbcJLabelMaxPrice);
-		
+
+		JLabel lblWeight = new JLabel("Weight");
+		GridBagConstraints gbc_lblWeight = new GridBagConstraints();
+		gbc_lblWeight.insets = new Insets(0, 0, 5, 5);
+		gbc_lblWeight.gridx = 4;
+		gbc_lblWeight.gridy = 1;
+		jPanelQosConstraints.add(lblWeight, gbc_lblWeight);
+
 		jCheckBoxMaxCosts = new JCheckBox("Max. Costs");
 		jCheckBoxMaxCosts.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// TODO: REMOVE THE ALGORITHMWEIGHTSTABLE
+				// (ALSO IN OTHER CHECKBOXACTIONLISTENERS)
 				buildGeneticAlgorithmWeightsTable();
+				changeConstraintCheckboxStatus("Costs");
 			}
 		});
 		jCheckBoxMaxCosts.setSelected(true);
 		GridBagConstraints gbcJCheckBoxMaxCosts = new GridBagConstraints();
 		gbcJCheckBoxMaxCosts.insets = new Insets(0, 0, 5, 5);
 		gbcJCheckBoxMaxCosts.gridx = 0;
-		gbcJCheckBoxMaxCosts.gridy = 3;
+		gbcJCheckBoxMaxCosts.gridy = 2;
 		gbcJCheckBoxMaxCosts.anchor = GridBagConstraints.WEST;
 		jPanelQosConstraints.add(jCheckBoxMaxCosts, gbcJCheckBoxMaxCosts);
-		
+
 		jSliderMaxCosts = new JSlider();
 		jSliderMaxCosts.setMaximum(MAX_COSTS);
 		jSliderMaxCosts.setMinimum(0);
@@ -435,30 +400,58 @@ public class MainFrame extends JFrame {
 		GridBagConstraints gbcJSliderMaxCosts = new GridBagConstraints();
 		gbcJSliderMaxCosts.insets = new Insets(0, 0, 5, 5);
 		gbcJSliderMaxCosts.gridx = 1;
-		gbcJSliderMaxCosts.gridy = 3;
+		gbcJSliderMaxCosts.gridy = 2;
 		gbcJSliderMaxCosts.fill = GridBagConstraints.BOTH;
 		jPanelQosConstraints.add(jSliderMaxCosts, gbcJSliderMaxCosts);
-		
+
 		jTextFieldMaxCosts = 
-				new JTextField(String.valueOf(jSliderMaxCosts.getValue()));
+			new JTextField(String.valueOf(jSliderMaxCosts.getValue()));
+		jTextFieldMaxCosts.setHorizontalAlignment(JTextField.RIGHT);
 		GridBagConstraints gbcJTextFieldMaxCosts = new GridBagConstraints();
 		gbcJTextFieldMaxCosts.insets = new Insets(0, 0, 5, 5);
 		gbcJTextFieldMaxCosts.fill = GridBagConstraints.HORIZONTAL;
 		gbcJTextFieldMaxCosts.gridx = 2;
-		gbcJTextFieldMaxCosts.gridy = 3;
+		gbcJTextFieldMaxCosts.gridy = 2;
 		jPanelQosConstraints.add(jTextFieldMaxCosts, gbcJTextFieldMaxCosts);
-		
+
 		JLabel jLabelMaxCosts = new JLabel("\u20AC");
 		GridBagConstraints gbcJLabelMaxCosts = new GridBagConstraints();
-		gbcJLabelMaxCosts.insets = new Insets(0, 0, 5, 0);
+		gbcJLabelMaxCosts.anchor = GridBagConstraints.WEST;
+		gbcJLabelMaxCosts.insets = new Insets(0, 0, 5, 5);
 		gbcJLabelMaxCosts.gridx = 3;
-		gbcJLabelMaxCosts.gridy = 3;
+		gbcJLabelMaxCosts.gridy = 2;
 		jPanelQosConstraints.add(jLabelMaxCosts, gbcJLabelMaxCosts);
-		
+
+		txtCostsWeight = new JTextField("0");
+		txtCostsWeight.setHorizontalAlignment(JTextField.RIGHT);
+		txtCostsWeight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				changeWeight(txtCostsWeight);
+			}
+		});
+		GridBagConstraints gbc_txtCostsWeight = new GridBagConstraints();
+		gbc_txtCostsWeight.insets = new Insets(0, 0, 5, 5);
+		gbc_txtCostsWeight.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtCostsWeight.gridx = 4;
+		gbc_txtCostsWeight.gridy = 2;
+		jPanelQosConstraints.add(txtCostsWeight, gbc_txtCostsWeight);
+
+		JLabel lblPercentageCostsWeight = new JLabel("%");
+		GridBagConstraints gbc_lblPercentageCostsWeight = 
+			new GridBagConstraints();
+		gbc_lblPercentageCostsWeight.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPercentageCostsWeight.gridx = 5;
+		gbc_lblPercentageCostsWeight.gridy = 2;
+		jPanelQosConstraints.add(
+				lblPercentageCostsWeight, gbc_lblPercentageCostsWeight);
+
+
+
 		jCheckBoxMaxResponseTime = new JCheckBox("Max. Response Time");
 		jCheckBoxMaxResponseTime.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				buildGeneticAlgorithmWeightsTable();
+				changeConstraintCheckboxStatus("Response Time");
 			}
 		});
 		jCheckBoxMaxResponseTime.setSelected(true);
@@ -466,11 +459,11 @@ public class MainFrame extends JFrame {
 			new GridBagConstraints();
 		gbcJCheckBoxMaxResponseTime.insets = new Insets(0, 0, 5, 5);
 		gbcJCheckBoxMaxResponseTime.gridx = 0;
-		gbcJCheckBoxMaxResponseTime.gridy = 4;
+		gbcJCheckBoxMaxResponseTime.gridy = 3;
 		gbcJCheckBoxMaxResponseTime.anchor = GridBagConstraints.WEST;
 		jPanelQosConstraints.add(
 				jCheckBoxMaxResponseTime, gbcJCheckBoxMaxResponseTime);
-		
+
 		jSliderMaxResponseTime = new JSlider();
 		jSliderMaxResponseTime.setMaximum(MAX_RESPONSE_TIME);
 		jSliderMaxResponseTime.setMinimum(0);
@@ -485,35 +478,66 @@ public class MainFrame extends JFrame {
 			new GridBagConstraints();
 		gbcJSliderMaxResponseTime.insets = new Insets(0, 0, 5, 5);
 		gbcJSliderMaxResponseTime.gridx = 1;
-		gbcJSliderMaxResponseTime.gridy = 4;
+		gbcJSliderMaxResponseTime.gridy = 3;
 		gbcJSliderMaxResponseTime.fill = GridBagConstraints.BOTH;
 		jPanelQosConstraints.add(
 				jSliderMaxResponseTime, gbcJSliderMaxResponseTime);
-		
+
 		jTextFieldMaxResponseTime = new JTextField(
 				String.valueOf(jSliderMaxResponseTime.getValue()));
+		jTextFieldMaxResponseTime.setHorizontalAlignment(JTextField.RIGHT);
 		GridBagConstraints gbcJTextFieldMaxResponseTime = 
 			new GridBagConstraints();
 		gbcJTextFieldMaxResponseTime.insets = new Insets(0, 0, 5, 5);
 		gbcJTextFieldMaxResponseTime.fill = GridBagConstraints.HORIZONTAL;
 		gbcJTextFieldMaxResponseTime.gridx = 2;
-		gbcJTextFieldMaxResponseTime.gridy = 4;
+		gbcJTextFieldMaxResponseTime.gridy = 3;
 		jPanelQosConstraints.add(
 				jTextFieldMaxResponseTime, gbcJTextFieldMaxResponseTime);
-		
+
 		JLabel jLabelMaxResponseTime = new JLabel("ms");
 		GridBagConstraints gbcJLabelMaxResponseTime = 
 			new GridBagConstraints();
-		gbcJLabelMaxResponseTime.insets = new Insets(0, 0, 5, 0);
+		gbcJLabelMaxResponseTime.anchor = GridBagConstraints.WEST;
+		gbcJLabelMaxResponseTime.insets = new Insets(0, 0, 5, 5);
 		gbcJLabelMaxResponseTime.gridx = 3;
-		gbcJLabelMaxResponseTime.gridy = 4;
+		gbcJLabelMaxResponseTime.gridy = 3;
 		jPanelQosConstraints.add(
 				jLabelMaxResponseTime, gbcJLabelMaxResponseTime);
-		
+
+		txtResponseTimeWeight = new JTextField("0");
+		txtResponseTimeWeight.setHorizontalAlignment(JTextField.RIGHT);
+		txtResponseTimeWeight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				changeWeight(txtResponseTimeWeight);
+			}
+		});
+		GridBagConstraints gbc_txtResponseTimeWeight = 
+			new GridBagConstraints();
+		gbc_txtResponseTimeWeight.insets = new Insets(0, 0, 5, 5);
+		gbc_txtResponseTimeWeight.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtResponseTimeWeight.gridx = 4;
+		gbc_txtResponseTimeWeight.gridy = 3;
+		jPanelQosConstraints.add(
+				txtResponseTimeWeight, gbc_txtResponseTimeWeight);
+
+		JLabel lblPercentageResponseTimeWeight = new JLabel("%");
+		GridBagConstraints gbc_lblPercentageResponseTimeWeight = 
+			new GridBagConstraints();
+		gbc_lblPercentageResponseTimeWeight.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPercentageResponseTimeWeight.gridx = 5;
+		gbc_lblPercentageResponseTimeWeight.gridy = 3;
+		jPanelQosConstraints.add(
+				lblPercentageResponseTimeWeight, 
+				gbc_lblPercentageResponseTimeWeight);
+
+
+
 		jCheckBoxMinAvailability = new JCheckBox("Min. Availability");
 		jCheckBoxMinAvailability.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				buildGeneticAlgorithmWeightsTable();
+				changeConstraintCheckboxStatus("Availability");
 			}
 		});
 		jCheckBoxMinAvailability.setSelected(true);
@@ -521,11 +545,11 @@ public class MainFrame extends JFrame {
 			new GridBagConstraints();
 		gbcJCheckBoxMinAvailability.insets = new Insets(0, 0, 5, 5);
 		gbcJCheckBoxMinAvailability.gridx = 0;
-		gbcJCheckBoxMinAvailability.gridy = 5;
+		gbcJCheckBoxMinAvailability.gridy = 4;
 		gbcJCheckBoxMinAvailability.anchor = GridBagConstraints.WEST;
 		jPanelQosConstraints.add(
 				jCheckBoxMinAvailability, gbcJCheckBoxMinAvailability);
-		
+
 		jSliderMinAvailability = new JSlider();
 		jSliderMinAvailability.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -537,47 +561,80 @@ public class MainFrame extends JFrame {
 			new GridBagConstraints();
 		gbcJSliderMinAvailability.insets = new Insets(0, 0, 5, 5);
 		gbcJSliderMinAvailability.gridx = 1;
-		gbcJSliderMinAvailability.gridy = 5;
+		gbcJSliderMinAvailability.gridy = 4;
 		gbcJSliderMinAvailability.fill = GridBagConstraints.BOTH;
 		jPanelQosConstraints.add(
 				jSliderMinAvailability, gbcJSliderMinAvailability);
-		
+
 		jTextFieldMinAvailability = new JTextField(
 				String.valueOf(jSliderMinAvailability.getValue()));
+		jTextFieldMinAvailability.setHorizontalAlignment(JTextField.RIGHT);
 		GridBagConstraints gbcJTextFieldMinAvailability = 
 			new GridBagConstraints();
 		gbcJTextFieldMinAvailability.insets = new Insets(0, 0, 5, 5);
 		gbcJTextFieldMinAvailability.fill = GridBagConstraints.HORIZONTAL;
 		gbcJTextFieldMinAvailability.gridx = 2;
-		gbcJTextFieldMinAvailability.gridy = 5;
+		gbcJTextFieldMinAvailability.gridy = 4;
 		jPanelQosConstraints.add(
 				jTextFieldMinAvailability, gbcJTextFieldMinAvailability);
-		
+
 		JLabel jLabelMinAvailability = new JLabel("%");
 		GridBagConstraints gbcJLabelMinAvailability = new GridBagConstraints();
-		gbcJLabelMinAvailability.insets = new Insets(0, 0, 5, 0);
+		gbcJLabelMinAvailability.anchor = GridBagConstraints.WEST;
+		gbcJLabelMinAvailability.insets = new Insets(0, 0, 5, 5);
 		gbcJLabelMinAvailability.gridx = 3;
-		gbcJLabelMinAvailability.gridy = 5;
+		gbcJLabelMinAvailability.gridy = 4;
 		jPanelQosConstraints.add(
 				jLabelMinAvailability, gbcJLabelMinAvailability);
-		
+
+		txtAvailabilityWeight = new JTextField("0");
+		txtAvailabilityWeight.setHorizontalAlignment(JTextField.RIGHT);
+		txtAvailabilityWeight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				changeWeight(txtAvailabilityWeight);
+			}
+		});
+		GridBagConstraints gbc_txtAvailabilityWeight = 
+			new GridBagConstraints();
+		gbc_txtAvailabilityWeight.insets = new Insets(0, 0, 5, 5);
+		gbc_txtAvailabilityWeight.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtAvailabilityWeight.gridx = 4;
+		gbc_txtAvailabilityWeight.gridy = 4;
+		jPanelQosConstraints.add(
+				txtAvailabilityWeight, gbc_txtAvailabilityWeight);
+
+		JLabel lblPercentageAvailabilityWeight = new JLabel("%");
+		GridBagConstraints gbc_lblPercentageAvailabilityWeight = 
+			new GridBagConstraints();
+		gbc_lblPercentageAvailabilityWeight.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPercentageAvailabilityWeight.gridx = 5;
+		gbc_lblPercentageAvailabilityWeight.gridy = 4;
+		jPanelQosConstraints.add(
+				lblPercentageAvailabilityWeight, 
+				gbc_lblPercentageAvailabilityWeight);
+
+
+
+
 		jCheckBoxMinReliability = new JCheckBox("Min. Reliability");
+		jCheckBoxMinReliability.setSelected(false);
 		jCheckBoxMinReliability.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				buildGeneticAlgorithmWeightsTable();
+				changeConstraintCheckboxStatus("Reliability");
 			}
 		});
-		jCheckBoxMinReliability.setSelected(true);
 		GridBagConstraints gbcJCheckBoxMinReliability = 
-				new GridBagConstraints();
-		gbcJCheckBoxMinReliability.insets = new Insets(0, 0, 0, 5);
+			new GridBagConstraints();
+		gbcJCheckBoxMinReliability.insets = new Insets(0, 0, 5, 5);
 		gbcJCheckBoxMinReliability.gridx = 0;
-		gbcJCheckBoxMinReliability.gridy = 6;
+		gbcJCheckBoxMinReliability.gridy = 5;
 		gbcJCheckBoxMinReliability.anchor = GridBagConstraints.WEST;
 		jPanelQosConstraints.add(
 				jCheckBoxMinReliability, gbcJCheckBoxMinReliability);
-		
+
 		jSliderMinReliability = new JSlider();
+		jSliderMinReliability.setEnabled(false);
 		jSliderMinReliability.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				useConstraintSlider(
@@ -585,32 +642,88 @@ public class MainFrame extends JFrame {
 			}
 		});
 		GridBagConstraints gbcJSliderMinReliability = new GridBagConstraints();
-		gbcJSliderMinReliability.insets = new Insets(0, 0, 0, 5);
+		gbcJSliderMinReliability.insets = new Insets(0, 0, 5, 5);
 		gbcJSliderMinReliability.gridx = 1;
-		gbcJSliderMinReliability.gridy = 6;
+		gbcJSliderMinReliability.gridy = 5;
 		gbcJSliderMinReliability.fill = GridBagConstraints.BOTH;
 		jPanelQosConstraints.add(
 				jSliderMinReliability, gbcJSliderMinReliability);
-		
+
 		jTextFieldMinReliability = new JTextField(
 				String.valueOf(jSliderMinReliability.getValue()));
+		jTextFieldMinReliability.setEditable(false);
+		jTextFieldMinReliability.setHorizontalAlignment(JTextField.RIGHT);
 		GridBagConstraints gbcJTextFieldMinReliability = 
 			new GridBagConstraints();
-		gbcJTextFieldMinReliability.insets = new Insets(0, 0, 0, 5);
+		gbcJTextFieldMinReliability.insets = new Insets(0, 0, 5, 5);
 		gbcJTextFieldMinReliability.fill = GridBagConstraints.HORIZONTAL;
 		gbcJTextFieldMinReliability.gridx = 2;
-		gbcJTextFieldMinReliability.gridy = 6;
+		gbcJTextFieldMinReliability.gridy = 5;
 		jPanelQosConstraints.add(
 				jTextFieldMinReliability, gbcJTextFieldMinReliability);
-		
+
 		JLabel jLabelMinReliability = new JLabel("%");
 		GridBagConstraints gbcJLabelMinReliability = new GridBagConstraints();
+		gbcJLabelMinReliability.anchor = GridBagConstraints.WEST;
+		gbcJLabelMinReliability.insets = new Insets(0, 0, 5, 5);
 		gbcJLabelMinReliability.gridx = 3;
-		gbcJLabelMinReliability.gridy = 6;
+		gbcJLabelMinReliability.gridy = 5;
 		jPanelQosConstraints.add(
 				jLabelMinReliability, gbcJLabelMinReliability);
+
+		txtReliabilityWeight = new JTextField("0");
+		txtReliabilityWeight.setEditable(false);
+		txtReliabilityWeight.setHorizontalAlignment(JTextField.RIGHT);
+		txtReliabilityWeight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				changeWeight(txtAvailabilityWeight);
+			}
+		});
+		GridBagConstraints gbc_txtReliabilityWeight = new GridBagConstraints();
+		gbc_txtReliabilityWeight.insets = new Insets(0, 0, 5, 5);
+		gbc_txtReliabilityWeight.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtReliabilityWeight.gridx = 4;
+		gbc_txtReliabilityWeight.gridy = 5;
+		jPanelQosConstraints.add(
+				txtReliabilityWeight, gbc_txtReliabilityWeight);
+
+		JLabel lblPercentageReliabilityWeight = new JLabel("%");
+		GridBagConstraints gbc_lblPercentageReliabilityWeight = 
+			new GridBagConstraints();
+		gbc_lblPercentageReliabilityWeight.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPercentageReliabilityWeight.gridx = 5;
+		gbc_lblPercentageReliabilityWeight.gridy = 5;
+		jPanelQosConstraints.add(
+				lblPercentageReliabilityWeight, 
+				gbc_lblPercentageReliabilityWeight);
+
+		JSeparator separatorWeights = new JSeparator();
+		GridBagConstraints gbc_separatorWeights = new GridBagConstraints();
+		gbc_separatorWeights.insets = new Insets(0, 0, 5, 5);
+		gbc_separatorWeights.fill = GridBagConstraints.HORIZONTAL;
+		gbc_separatorWeights.gridwidth = 2;
+		gbc_separatorWeights.gridx = 4;
+		gbc_separatorWeights.gridy = 6;
+		jPanelQosConstraints.add(separatorWeights, gbc_separatorWeights);
+
+		lblWeightSum = new JLabel("\u03A3 0");
+		GridBagConstraints gbc_lblWeightSum = new GridBagConstraints();
+		gbc_lblWeightSum.insets = new Insets(0, 0, 0, 5);
+		gbc_lblWeightSum.gridx = 4;
+		gbc_lblWeightSum.gridy = 7;
+		gbc_lblWeightSum.anchor = GridBagConstraints.WEST;
+		jPanelQosConstraints.add(lblWeightSum, gbc_lblWeightSum);
+
+		JLabel lblPercentageWeightSum = new JLabel("%");
+		GridBagConstraints gbc_lblPercentageWeightSum = 
+			new GridBagConstraints();
+		gbc_lblPercentageWeightSum.insets = new Insets(0, 0, 0, 0);
+		gbc_lblPercentageWeightSum.gridx = 5;
+		gbc_lblPercentageWeightSum.gridy = 7;
+		jPanelQosConstraints.add(
+				lblPercentageWeightSum, gbc_lblPercentageWeightSum);
 	}
-	
+
 	private void initializeServiceClassesPanel(JPanel contentPane) {
 		JPanel jPanelServiceClasses = new JPanel();
 		GridBagConstraints gbcJPanelServiceClasses = 
@@ -625,16 +738,16 @@ public class MainFrame extends JFrame {
 		gblJPanelServiceClasses.columnWeights = new double[]{1.0};
 		gblJPanelServiceClasses.rowWeights = new double[]{0.0, 1.0};
 		jPanelServiceClasses.setLayout(gblJPanelServiceClasses);
-		
+
 		JLabel jLabelServiceFunctions = new JLabel("Service Classes:");
 		GridBagConstraints gbcJLabelServiceFunctions = 
-				new GridBagConstraints();
+			new GridBagConstraints();
 		gbcJLabelServiceFunctions.insets = new Insets(0, 0, 5, 0);
 		gbcJLabelServiceFunctions.gridx = 0;
 		gbcJLabelServiceFunctions.gridy = 0;
 		jPanelServiceClasses.add(
 				jLabelServiceFunctions, gbcJLabelServiceFunctions);
-		
+
 		JScrollPane jScrollPaneServiceClasses = new JScrollPane();
 		GridBagConstraints gbcJScrollPaneServiceClasses = 
 			new GridBagConstraints();
@@ -649,13 +762,13 @@ public class MainFrame extends JFrame {
 		jTableServiceClasses.getColumnModel().getColumn(0).setHeaderValue(
 				"Selection");
 		jTableServiceClasses.getColumnModel().getColumn(1).setHeaderValue(
-				"ID");
+		"ID");
 		jTableServiceClasses.getColumnModel().getColumn(2).setHeaderValue(
-				"Name");
-		
+		"Name");
+
 		jScrollPaneServiceClasses.setViewportView(jTableServiceClasses);
 	}
-	
+
 	private void initializeWebServicesPanel(JPanel contentPane) {
 		JPanel jPanelWebServices = new JPanel();
 		GridBagConstraints gbcJPanelWebServices = new GridBagConstraints();
@@ -669,14 +782,14 @@ public class MainFrame extends JFrame {
 		gblJPanelWebServices.columnWeights = new double[]{1.0};
 		gblJPanelWebServices.rowWeights = new double[]{0.0, 1.0};
 		jPanelWebServices.setLayout(gblJPanelWebServices);
-		
+
 		JLabel jLabelWebServices = new JLabel("Web Services:");
 		GridBagConstraints gbcJLabelWebServices = new GridBagConstraints();
 		gbcJLabelWebServices.insets = new Insets(0, 0, 5, 0);
 		gbcJLabelWebServices.gridx = 0;
 		gbcJLabelWebServices.gridy = 0;
 		jPanelWebServices.add(jLabelWebServices, gbcJLabelWebServices);
-		
+
 		JScrollPane jScrollPaneWebServices = new JScrollPane();
 		jScrollPaneWebServices.setVerticalScrollBarPolicy(
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -687,33 +800,33 @@ public class MainFrame extends JFrame {
 		gbcJScrollPaneWebServices.gridy = 1;
 		jPanelWebServices.add(
 				jScrollPaneWebServices, gbcJScrollPaneWebServices);
-		
+
 		jTableWebServices = new JTable();
 		jTableWebServices.setModel(new BasicTableModel(0, 10, true));
 		jTableWebServices.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		jTableWebServices.getColumnModel().getColumn(0).setHeaderValue(
 				"Selection");
 		jTableWebServices.getColumnModel().getColumn(1).setHeaderValue(
-				"ID");
+		"ID");
 		jTableWebServices.getColumnModel().getColumn(2).setHeaderValue(
-				"Name");
+		"Name");
 		jTableWebServices.getColumnModel().getColumn(3).setHeaderValue(
-				"Provider");
+		"Provider");
 		jTableWebServices.getColumnModel().getColumn(4).setHeaderValue(
-				"Price");
+		"Price");
 		jTableWebServices.getColumnModel().getColumn(5).setHeaderValue(
-				"Costs");
+		"Costs");
 		jTableWebServices.getColumnModel().getColumn(6).setHeaderValue(
-				"Response Time");
+		"Response Time");
 		jTableWebServices.getColumnModel().getColumn(7).setHeaderValue(
-				"Availability");
+		"Availability");
 		jTableWebServices.getColumnModel().getColumn(8).setHeaderValue(
-				"Reliability");
+		"Reliability");
 		jTableWebServices.getColumnModel().getColumn(9).setHeaderValue(
-				"Utility");
+		"Utility");
 		jScrollPaneWebServices.setViewportView(jTableWebServices);
 	}
-	
+
 	private void initializeCenterArea(JPanel contentPane) {
 		JPanel jPanelUtilityFunction = new JPanel();
 		jPanelUtilityFunction.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -730,7 +843,7 @@ public class MainFrame extends JFrame {
 			new double[]{0.25, 0.5, 0.2, 0.05};
 		gblJPanelUtilityFunction.rowWeights = new double[]{0.33, 0.33, 0.33};
 		jPanelUtilityFunction.setLayout(gblJPanelUtilityFunction);
-		
+
 		Font fontUtilityFunction = 
 			new Font("utilityFunction", Font.BOLD, 16);
 		JLabel jLabelUtilityFunction = new JLabel("Utility Function:");
@@ -744,7 +857,7 @@ public class MainFrame extends JFrame {
 		gbc_lblUtilityFunction.gridy = 0;
 		jPanelUtilityFunction.add(
 				jLabelUtilityFunction, gbc_lblUtilityFunction);
-		
+
 		Font fontFormula = new Font("formula", Font.ITALIC, 14);
 		jLabelNumerator = new JLabel("Numerator");
 		jLabelNumerator.setFont(fontFormula);
@@ -753,7 +866,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelNumerator.gridx = 1;
 		gbcJLabelNumerator.gridy = 0;
 		jPanelUtilityFunction.add(jLabelNumerator, gbcJLabelNumerator);
-		
+
 		JSeparator jSeparatorFormula = new JSeparator();
 		GridBagConstraints gbcJSeparatorFormula = new GridBagConstraints();
 		gbcJSeparatorFormula.insets = new Insets(2, 0, 5, 5);
@@ -761,7 +874,7 @@ public class MainFrame extends JFrame {
 		gbcJSeparatorFormula.gridx = 1;
 		gbcJSeparatorFormula.gridy = 1;
 		jPanelUtilityFunction.add(jSeparatorFormula, gbcJSeparatorFormula);
-		
+
 		jLabelDenominator = new JLabel("Denominator");
 		jLabelDenominator.setFont(fontFormula);
 		GridBagConstraints gbcJLabelDenominator = new GridBagConstraints();
@@ -769,7 +882,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelDenominator.gridx = 1;
 		gbcJLabelDenominator.gridy = 2;
 		jPanelUtilityFunction.add(jLabelDenominator, gbcJLabelDenominator);
-		
+
 		jLabelWeightedPenalty = new JLabel("+ Weighted Penalty Factor");
 		jLabelWeightedPenalty.setFont(fontFormula);
 		GridBagConstraints gbc_lblWeightedPenalty = new GridBagConstraints();
@@ -778,8 +891,9 @@ public class MainFrame extends JFrame {
 		gbc_lblWeightedPenalty.insets = new Insets(5, 3, 5, 5);
 		gbc_lblWeightedPenalty.gridx = 2;
 		gbc_lblWeightedPenalty.gridy = 0;
-		jPanelUtilityFunction.add(jLabelWeightedPenalty, gbc_lblWeightedPenalty);
-		
+		jPanelUtilityFunction.add(
+				jLabelWeightedPenalty, gbc_lblWeightedPenalty);
+
 		jButtonStart = new JButton("Start");
 		jButtonStart.setEnabled(false);
 		jButtonStart.addActionListener(new ActionListener() {
@@ -796,11 +910,11 @@ public class MainFrame extends JFrame {
 		gbcJButtonStart.gridy = 0;
 		jPanelUtilityFunction.add(jButtonStart, gbcJButtonStart);
 	}
-	
+
 	private void initializeGeneticAlgorithmPanel(JPanel contentPane) {
 		JPanel jPanelGeneticAlgorithm = new JPanel();
-//		jPanelGeneticAlgorithm.setBorder(
-//				new LineBorder(new Color(0, 0, 0)));
+		//		jPanelGeneticAlgorithm.setBorder(
+		//				new LineBorder(new Color(0, 0, 0)));
 		GridBagConstraints gbcGeneticAlgorithm = new GridBagConstraints();
 		gbcGeneticAlgorithm.gridheight = 1;
 		gbcGeneticAlgorithm.insets = new Insets(0, 5, 5, 5);
@@ -812,7 +926,7 @@ public class MainFrame extends JFrame {
 		gblJPanelGeneticAlgorithm.columnWeights = new double[]{1.0};
 		gblJPanelGeneticAlgorithm.rowWeights = new double[]{0.0, 1.0, 0.0};
 		jPanelGeneticAlgorithm.setLayout(gblJPanelGeneticAlgorithm);
-		
+
 		jCheckboxGeneticAlgorithm = new JCheckBox("Genetic Algorithm");
 		jCheckboxGeneticAlgorithm.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -821,31 +935,31 @@ public class MainFrame extends JFrame {
 		});
 		jCheckboxGeneticAlgorithm.setSelected(true);
 		GridBagConstraints gbcJCheckboxGeneticAlgorithm = 
-				new GridBagConstraints();
+			new GridBagConstraints();
 		gbcJCheckboxGeneticAlgorithm.anchor = GridBagConstraints.NORTH;
 		gbcJCheckboxGeneticAlgorithm.insets = new Insets(0, 0, 5, 0);
 		gbcJCheckboxGeneticAlgorithm.gridx = 0;
 		gbcJCheckboxGeneticAlgorithm.gridy = 0;
 		jPanelGeneticAlgorithm.add(
 				jCheckboxGeneticAlgorithm, gbcJCheckboxGeneticAlgorithm);
-		
+
 		jScrollPaneGeneticAlgorithm = new JScrollPane();
 		jScrollPaneGeneticAlgorithm.setVerticalScrollBarPolicy(
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		GridBagConstraints gbcJScrollPaneGeneticAlgorithm = 
-				new GridBagConstraints();
+			new GridBagConstraints();
 		gbcJScrollPaneGeneticAlgorithm.insets = new Insets(0, 0, 5, 0);
 		gbcJScrollPaneGeneticAlgorithm.fill = GridBagConstraints.BOTH;
 		gbcJScrollPaneGeneticAlgorithm.gridx = 0;
 		gbcJScrollPaneGeneticAlgorithm.gridy = 1;
 		jPanelGeneticAlgorithm.add(
 				jScrollPaneGeneticAlgorithm, gbcJScrollPaneGeneticAlgorithm);
-		
+
 		buildGeneticAlgorithmWeightsTable();
 		jProgressBarGeneticAlgorithm = new JProgressBar();
 		jProgressBarGeneticAlgorithm.setStringPainted(true);
 		GridBagConstraints gbcJProgressBarGeneticAlgorithm = 
-				new GridBagConstraints();
+			new GridBagConstraints();
 		gbcJProgressBarGeneticAlgorithm.fill = GridBagConstraints.HORIZONTAL;
 		gbcJProgressBarGeneticAlgorithm.insets = new Insets(0, 0, 5, 0);
 		gbcJProgressBarGeneticAlgorithm.gridx = 0;
@@ -853,10 +967,10 @@ public class MainFrame extends JFrame {
 		jPanelGeneticAlgorithm.add(
 				jProgressBarGeneticAlgorithm, gbcJProgressBarGeneticAlgorithm);
 	}
-	
+
 	private void initializeAntAlgorithmPanel(JPanel contentPane) {
 		JPanel jPanelAntAlgorithm = new JPanel();
-//		jPanelAntAlgorithm.setBorder(new LineBorder(new Color(0, 0, 0)));
+		//	jPanelAntAlgorithm.setBorder(new LineBorder(new Color(0, 0, 0)));
 		GridBagConstraints gbcPanelAntAlgorithm = new GridBagConstraints();
 		gbcPanelAntAlgorithm.gridheight = 1;
 		gbcPanelAntAlgorithm.insets = new Insets(0, 0, 5, 5);
@@ -868,7 +982,7 @@ public class MainFrame extends JFrame {
 		gblJPanelAntAlgorithm.columnWeights = new double[]{1.0};
 		gblJPanelAntAlgorithm.rowWeights = new double[]{0.0, 1.0, 0.0};
 		jPanelAntAlgorithm.setLayout(gblJPanelAntAlgorithm);
-		
+
 		jCheckBoxAntColonyOptimization = 
 			new JCheckBox("Ant Colony Optimization Algorithm");
 		jCheckBoxAntColonyOptimization.addActionListener(new ActionListener() {
@@ -885,26 +999,26 @@ public class MainFrame extends JFrame {
 		gbcJCheckBoxAntAlgorithm.gridy = 0;
 		jPanelAntAlgorithm.add(jCheckBoxAntColonyOptimization, 
 				gbcJCheckBoxAntAlgorithm);
-		
+
 		JScrollPane jScrollPaneAntAlgorithm = new JScrollPane();
 		jScrollPaneAntAlgorithm.setVerticalScrollBarPolicy(
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		GridBagConstraints gbcJScrollPaneAntAlgorithm = 
-				new GridBagConstraints();
+			new GridBagConstraints();
 		gbcJScrollPaneAntAlgorithm.insets = new Insets(0, 0, 5, 0);
 		gbcJScrollPaneAntAlgorithm.fill = GridBagConstraints.BOTH;
 		gbcJScrollPaneAntAlgorithm.gridx = 0;
 		gbcJScrollPaneAntAlgorithm.gridy = 1;
 		jPanelAntAlgorithm.add(
 				jScrollPaneAntAlgorithm, gbcJScrollPaneAntAlgorithm);
-		
+
 		jTableAntAlgorithm = new JTable();
 		jScrollPaneAntAlgorithm.setViewportView(jTableAntAlgorithm);
-		
+
 		jProgressBarAntAlgorithm = new JProgressBar();
 		jProgressBarAntAlgorithm.setStringPainted(true);
 		GridBagConstraints gbcJProgressBarAntAlgorithm = 
-				new GridBagConstraints();
+			new GridBagConstraints();
 		gbcJProgressBarAntAlgorithm.fill = GridBagConstraints.HORIZONTAL;
 		gbcJProgressBarAntAlgorithm.insets = new Insets(0, 0, 5, 0);
 		gbcJProgressBarAntAlgorithm.gridx = 0;
@@ -912,13 +1026,13 @@ public class MainFrame extends JFrame {
 		jPanelAntAlgorithm.add(
 				jProgressBarAntAlgorithm, gbcJProgressBarAntAlgorithm);
 	}
-	
+
 	private void initializeAnalyticAlgorithmPanel(JPanel contentPane) {
 		JPanel jPanelAnalyticAlgorithm = new JPanel();
-//		jPanelAnalyticAlgorithm.setBorder(
-//				new LineBorder(new Color(0, 0, 0)));
+		//		jPanelAnalyticAlgorithm.setBorder(
+		//				new LineBorder(new Color(0, 0, 0)));
 		GridBagConstraints gbcJPanelAnalyticAlgorithm =
-				new GridBagConstraints();
+			new GridBagConstraints();
 		gbcJPanelAnalyticAlgorithm.gridheight = 1;
 		gbcJPanelAnalyticAlgorithm.insets = new Insets(0, 0, 5, 5);
 		gbcJPanelAnalyticAlgorithm.fill = GridBagConstraints.BOTH;
@@ -929,9 +1043,9 @@ public class MainFrame extends JFrame {
 		gblJPanelAnalyticAlgorithm.columnWeights = new double[]{1.0};
 		gblJPanelAnalyticAlgorithm.rowWeights = new double[]{0.0, 1.0, 0.0};
 		jPanelAnalyticAlgorithm.setLayout(gblJPanelAnalyticAlgorithm);
-		
+
 		jCheckBoxAnalyticAlgorithm = 
-				new JCheckBox("Analytic Algorithm");
+			new JCheckBox("Analytic Algorithm");
 		jCheckBoxAnalyticAlgorithm.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				chooseAlgorithm("analyticAlg");
@@ -946,7 +1060,7 @@ public class MainFrame extends JFrame {
 		gbcJCheckBoxAnalyticAlgorithm.gridy = 0;
 		jPanelAnalyticAlgorithm.add(
 				jCheckBoxAnalyticAlgorithm, gbcJCheckBoxAnalyticAlgorithm);
-		
+
 		JScrollPane jScrollPaneAnalyticAlgorithm = new JScrollPane();
 		GridBagConstraints gbcJScrollPaneAnalyticAlgorithm = 
 			new GridBagConstraints();
@@ -956,14 +1070,15 @@ public class MainFrame extends JFrame {
 		gbcJScrollPaneAnalyticAlgorithm.gridy = 1;
 		jPanelAnalyticAlgorithm.add(
 				jScrollPaneAnalyticAlgorithm, gbcJScrollPaneAnalyticAlgorithm);
-		
+
 		jTableAnalyticAlgorithm = new JTable();
 		// TODO: BETTER SOLUTION FOR THIS LISTENER...
 		jTableAnalyticAlgorithm.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (jTableAnalyticAlgorithm.getSelectedRow() == 0 && 
 						jTableAnalyticAlgorithm.getSelectedColumn() == 0) {
-					if ((boolean) jTableAnalyticAlgorithm.getValueAt(0, 0)) {
+					if (jTableAnalyticAlgorithm.getValueAt(
+							0, 0).equals(true)) {
 						jTableAnalyticAlgorithm.setValueAt(false, 1, 0);
 					}
 					else {
@@ -972,7 +1087,8 @@ public class MainFrame extends JFrame {
 				}
 				else if (jTableAnalyticAlgorithm.getSelectedRow() == 1 && 
 						jTableAnalyticAlgorithm.getSelectedColumn() == 0) {
-					if ((boolean) jTableAnalyticAlgorithm.getValueAt(1, 0)) {
+					if (jTableAnalyticAlgorithm.getValueAt(
+							1, 0).equals(true)) {
 						jTableAnalyticAlgorithm.setValueAt(false, 0, 0);
 					}
 					else {
@@ -983,15 +1099,15 @@ public class MainFrame extends JFrame {
 		});
 		jTableAnalyticAlgorithm.setModel(new BasicTableModel(2, 2, true));
 		jTableAnalyticAlgorithm.getColumnModel().getColumn(0).setHeaderValue(
-				"Selection");
+		"Selection");
 		jTableAnalyticAlgorithm.getColumnModel().getColumn(1).setHeaderValue(
-				"Service Title");
+		"Service Title");
 		jTableAnalyticAlgorithm.setValueAt(true, 0, 0);
 		jTableAnalyticAlgorithm.setValueAt(false, 1, 0);
 		jTableAnalyticAlgorithm.setValueAt("Enumeration", 0, 1);
 		jTableAnalyticAlgorithm.setValueAt("Branch and Bound", 1, 1);
 		jScrollPaneAnalyticAlgorithm.setViewportView(jTableAnalyticAlgorithm);
-		
+
 		jProgressBarAnalyticAlgorithm = new JProgressBar();
 		jProgressBarAnalyticAlgorithm.setStringPainted(true);
 		GridBagConstraints gbcJProgressBarAnalyticAlgorithm = 
@@ -1004,7 +1120,7 @@ public class MainFrame extends JFrame {
 				jProgressBarAnalyticAlgorithm, 
 				gbcJProgressBarAnalyticAlgorithm);
 	}
-	
+
 	private void initializeTabbedResultsPanel(JPanel contentPane) {
 		jTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		GridBagConstraints gbcJTabbedPane = new GridBagConstraints();
@@ -1017,7 +1133,7 @@ public class MainFrame extends JFrame {
 		contentPane.add(jTabbedPane, gbcJTabbedPane);
 		jTabbedPane.setPreferredSize(new Dimension(0, 0));
 	}
-	
+
 	private void initializeGeneralResultsPanel(JPanel contentPane) {
 		JPanel jPanelGeneralResults = new JPanel();
 		GridBagConstraints gbcJPanelGeneralResults = new GridBagConstraints();
@@ -1030,7 +1146,7 @@ public class MainFrame extends JFrame {
 		gblJPanelGeneralResults.columnWeights = new double[]{1.0};
 		gblJPanelGeneralResults.rowWeights = new double[]{1.0};
 		jPanelGeneralResults.setLayout(gblJPanelGeneralResults);
-		
+
 		String[][] generalResultsData = {
 				{"Runtime:", "x ms"},
 				{"Runtime (Gen Alg):", "x1 ms"},
@@ -1041,7 +1157,7 @@ public class MainFrame extends JFrame {
 				{"#Services Tier 3:", "y3"},
 		};
 		String[] generalResultsColumnNames = {"Variable", "Value"};
-		
+
 		JScrollPane jScrollPaneResults = new JScrollPane();
 		jScrollPaneResults.setVerticalScrollBarPolicy(
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -1059,151 +1175,151 @@ public class MainFrame extends JFrame {
 		jTableGeneralResults.setEnabled(false);
 		jScrollPaneResults.setViewportView(jTableGeneralResults);
 	}
-	
-	
+
+
 	private void loadWebServices(File file) {
 		// Delete previously loaded web services.
 		serviceCandidatesList.removeAll(serviceCandidatesList);
 		serviceClassesList.removeAll(serviceClassesList);
-		
+
 		BufferedReader bufferedReader = null;
-        try {
-            bufferedReader = new BufferedReader(new FileReader(file));
-            
-            // Load service candidates headers.
-            String[] headerArray = bufferedReader.readLine().split(";");
-            
-            // Load web services data.
-            String[] serviceCandidateArray;
-            while (bufferedReader.ready()) {
-                serviceCandidateArray = bufferedReader.readLine().split(";");
-                int serviceClassId = Integer.parseInt(
-                		serviceCandidateArray[0]);
-                String serviceClassName = serviceCandidateArray[1];
-                int serviceCandidateId = Integer.parseInt(
-                		serviceCandidateArray[2]);
-                String name = serviceCandidateArray[3];
-                String provider = serviceCandidateArray[4];
-                double price = Double.parseDouble(serviceCandidateArray[5]);
-                double costs = Double.parseDouble(serviceCandidateArray[6]);
-                double responseTime = Double.parseDouble(
-                		serviceCandidateArray[7]);
-                double availability = Double.parseDouble(
-                		serviceCandidateArray[8]);
-                double reliability = Double.parseDouble(
-                		serviceCandidateArray[9]);
-                
-                // Create and save service candidates.
-                QosVector qosVector = new QosVector(price, costs, 
-                		responseTime, availability, reliability);
-                ServiceCandidate serviceCandidate = new ServiceCandidate(
-                		serviceClassId, serviceClassName, serviceCandidateId, 
-                		name, provider, qosVector);
-                serviceCandidatesList.add(serviceCandidate);
-                
-                // Create and save service classes. Assign service candidates 
-                // to service classes.
-                boolean serviceClassAlreadyCreated = false;
-                for (ServiceClass serviceClass : serviceClassesList) {
-                	if (serviceClass.getServiceClassId() == serviceClassId) {
-                		serviceClassAlreadyCreated = true;
-                		serviceClass.getServiceCandidateList().add(serviceCandidate);
-                		break;
-                	}
-                }
-                if (! serviceClassAlreadyCreated) {
-                	ServiceClass serviceClass = new ServiceClass(serviceClassId, 
-                			serviceClassName, new LinkedList<ServiceCandidate>());
-                	serviceClassesList.add(serviceClass);
-                	serviceClass.getServiceCandidateList().add(serviceCandidate);
-                }
-            }
-            
-            // Write service classes headers.
-            jTableServiceClasses.setModel(new BasicTableModel(
-            		serviceClassesList.size(), 3, true));
-            setColumnWidthRelative(jTableServiceClasses, 
-            		new double[] {0.3, 0.1, 0.6});
-            TableColumnModel serviceClassesColumnModel = 
-            		jTableServiceClasses.getColumnModel();
-            serviceClassesColumnModel.getColumn(0).setHeaderValue("Selection");
-            serviceClassesColumnModel.getColumn(1).setHeaderValue("ID");
-            serviceClassesColumnModel.getColumn(2).setHeaderValue("Name");
-            setColumnTextAlignment(
-            		jTableServiceClasses, 1, DefaultTableCellRenderer.CENTER);
-            
-            // Write service classes data.
-            for (int k = 0 ; k < serviceClassesList.size() ; k++) {
-            	ServiceClass serviceClass = serviceClassesList.get(k);
-            	jTableServiceClasses.setValueAt(true, k, 0);
-            	jTableServiceClasses.setValueAt(
-            			serviceClass.getServiceClassId(), k, 1);
-            	jTableServiceClasses.setValueAt(serviceClass.getName(), k, 2);
-            }
-            
-            // Write service candidates headers (first line of input file!). 
-            // Columns "serviceClassId" and "serviceClassName" will not be
-            // shown here.
-            jTableWebServices.setModel(new BasicTableModel(
-            		serviceCandidatesList.size(), 10, true));
-            TableColumnModel webServicesColumnModel = 
-            		jTableWebServices.getColumnModel();
-            webServicesColumnModel.getColumn(0).setHeaderValue("Selection");
-            for (int k = 1 ; k < 10 ; k++) {
-            	webServicesColumnModel.getColumn(k).setHeaderValue(
-            			headerArray[k+1]);
-            }
-            setColumnTextAlignment(
-    				jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
-    		for (int count = 4; count < 10; count++) {
-    			setColumnTextAlignment(jTableWebServices, count, 
-    					DefaultTableCellRenderer.RIGHT);
-    		}
-            // Write service candidates data.
-            for (int k = 0 ; k < serviceCandidatesList.size() ; k++) {
-            	ServiceCandidate serviceCandidate = 
-            			serviceCandidatesList.get(k);
-            	QosVector qosVector = serviceCandidate.getQosVector();
-            	jTableWebServices.setValueAt(true, k, 0);
-                jTableWebServices.setValueAt(
-                		serviceCandidate.getServiceCandidateId(), k, 1);
-                jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
-                jTableWebServices.setValueAt(
-                		serviceCandidate.getProvider(), k, 3);
-                jTableWebServices.setValueAt(qosVector.getPrice(), k, 4);
-                jTableWebServices.setValueAt(qosVector.getCosts(), k, 5);
-                jTableWebServices.setValueAt(
-                		qosVector.getResponseTime(), k, 6);
-                jTableWebServices.setValueAt
-                (qosVector.getAvailability(), k, 7);
-                jTableWebServices.setValueAt(qosVector.getReliability(), k, 8);
-                jTableWebServices.setValueAt("Utility", k, 9);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                bufferedReader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+		try {
+			bufferedReader = new BufferedReader(new FileReader(file));
+
+			// Load service candidates headers.
+			String[] headerArray = bufferedReader.readLine().split(";");
+
+			// Load web services data.
+			String[] serviceCandidateArray;
+			while (bufferedReader.ready()) {
+				serviceCandidateArray = bufferedReader.readLine().split(";");
+				int serviceClassId = Integer.parseInt(
+						serviceCandidateArray[0]);
+				String serviceClassName = serviceCandidateArray[1];
+				int serviceCandidateId = Integer.parseInt(
+						serviceCandidateArray[2]);
+				String name = serviceCandidateArray[3];
+				String provider = serviceCandidateArray[4];
+				double price = Double.parseDouble(serviceCandidateArray[5]);
+				double costs = Double.parseDouble(serviceCandidateArray[6]);
+				double responseTime = Double.parseDouble(
+						serviceCandidateArray[7]);
+				double availability = Double.parseDouble(
+						serviceCandidateArray[8]);
+				double reliability = Double.parseDouble(
+						serviceCandidateArray[9]);
+
+				// Create and save service candidates.
+				QosVector qosVector = new QosVector(price, costs, 
+						responseTime, availability, reliability);
+				ServiceCandidate serviceCandidate = new ServiceCandidate(
+						serviceClassId, serviceClassName, serviceCandidateId, 
+						name, provider, qosVector);
+				serviceCandidatesList.add(serviceCandidate);
+
+				// Create and save service classes. Assign service candidates 
+				// to service classes.
+				boolean serviceClassAlreadyCreated = false;
+				for (ServiceClass serviceClass : serviceClassesList) {
+					if (serviceClass.getServiceClassId() == serviceClassId) {
+						serviceClassAlreadyCreated = true;
+						serviceClass.getServiceCandidateList(
+								).add(serviceCandidate);
+						break;
+					}
+				}
+				if (! serviceClassAlreadyCreated) {
+					ServiceClass serviceClass = new ServiceClass(
+							serviceClassId, serviceClassName, 
+							new LinkedList<ServiceCandidate>());
+					serviceClassesList.add(serviceClass);
+					serviceClass.getServiceCandidateList().add(
+							serviceCandidate);
+				}
+			}
+
+			// Write service classes headers.
+			jTableServiceClasses.setModel(new BasicTableModel(
+					serviceClassesList.size(), 3, true));
+			setColumnWidthRelative(jTableServiceClasses, 
+					new double[] {0.3, 0.1, 0.6});
+			TableColumnModel serviceClassesColumnModel = 
+				jTableServiceClasses.getColumnModel();
+			serviceClassesColumnModel.getColumn(0).setHeaderValue("Selection");
+			serviceClassesColumnModel.getColumn(1).setHeaderValue("ID");
+			serviceClassesColumnModel.getColumn(2).setHeaderValue("Name");
+			setColumnTextAlignment(
+					jTableServiceClasses, 1, DefaultTableCellRenderer.CENTER);
+
+			// Write service classes data.
+			for (int k = 0 ; k < serviceClassesList.size() ; k++) {
+				ServiceClass serviceClass = serviceClassesList.get(k);
+				jTableServiceClasses.setValueAt(true, k, 0);
+				jTableServiceClasses.setValueAt(
+						serviceClass.getServiceClassId(), k, 1);
+				jTableServiceClasses.setValueAt(serviceClass.getName(), k, 2);
+			}
+
+			// Write service candidates headers (first line of input file!). 
+			// Columns "serviceClassId" and "serviceClassName" will not be
+			// shown here.
+			jTableWebServices.setModel(new BasicTableModel(
+					serviceCandidatesList.size(), 10, true));
+			TableColumnModel webServicesColumnModel = 
+				jTableWebServices.getColumnModel();
+			webServicesColumnModel.getColumn(0).setHeaderValue("Selection");
+			for (int k = 1 ; k < 10 ; k++) {
+				webServicesColumnModel.getColumn(k).setHeaderValue(
+						headerArray[k+1]);
+			}
+			setColumnTextAlignment(
+					jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
+			for (int count = 4; count < 10; count++) {
+				setColumnTextAlignment(jTableWebServices, count, 
+						DefaultTableCellRenderer.RIGHT);
+			}
+			// Write service candidates data.
+			for (int k = 0 ; k < serviceCandidatesList.size() ; k++) {
+				ServiceCandidate serviceCandidate = 
+					serviceCandidatesList.get(k);
+				QosVector qosVector = serviceCandidate.getQosVector();
+				jTableWebServices.setValueAt(true, k, 0);
+				jTableWebServices.setValueAt(
+						serviceCandidate.getServiceCandidateId(), k, 1);
+				jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
+				jTableWebServices.setValueAt(
+						serviceCandidate.getProvider(), k, 3);
+				jTableWebServices.setValueAt(qosVector.getPrice(), k, 4);
+				jTableWebServices.setValueAt(qosVector.getCosts(), k, 5);
+				jTableWebServices.setValueAt(
+						qosVector.getResponseTime(), k, 6);
+				jTableWebServices.setValueAt
+				(qosVector.getAvailability(), k, 7);
+				jTableWebServices.setValueAt(qosVector.getReliability(), k, 8);
+				jTableWebServices.setValueAt("Utility", k, 9);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				bufferedReader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
-	
+
 	private void useConstraintSlider(JTextField textfield, JSlider slider) {
 		textfield.setText(String.valueOf(slider.getValue()));
 	}
-	
+
 	private void buildResultTable() {
 		if (jSpinnerNumberResultTiers.getValue() instanceof Integer) {
-			
+
 			String chosenConstraintsCs = "Algorithm;# Composition;" +
-					"# Service;Service Title;Service Class; Utility Value;";
+			"# Service;Service Title;Service Class; Utility Value;";
 			if (jCheckBoxMaxCosts.isSelected()) {
 				chosenConstraintsCs += "Costs;";
-			}
-			if (jCheckBoxMaxPrice.isSelected()) {
-				chosenConstraintsCs += "Price;";
 			}
 			if (jCheckBoxMaxResponseTime.isSelected()) {
 				chosenConstraintsCs += "Response Time;";
@@ -1219,8 +1335,8 @@ public class MainFrame extends JFrame {
 			if (this.jTabbedPane.getTabCount() > 0) {
 				jTabbedPane.removeAll();
 			}
-			for (int count = 0; count < (int) jSpinnerNumberResultTiers.
-					getValue(); count++) {
+			for (int count = 0; count < (Integer) jSpinnerNumberResultTiers.
+			getValue(); count++) {
 				JScrollPane jScrollPane = new JScrollPane();
 				this.jTabbedPane.addTab("Tier " + String.valueOf(count + 1), 
 						jScrollPane);
@@ -1228,7 +1344,7 @@ public class MainFrame extends JFrame {
 						20, tierTablesColumnNames.length, false));
 				jTableTier.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 				for (int innerCount = 0; innerCount < 
-						tierTablesColumnNames.length; innerCount++) {
+				tierTablesColumnNames.length; innerCount++) {
 					jTableTier.getColumnModel().getColumn(
 							innerCount).setHeaderValue(
 									tierTablesColumnNames[innerCount]);
@@ -1236,10 +1352,10 @@ public class MainFrame extends JFrame {
 				jTableTier.setEnabled(false);
 				jScrollPane.setViewportView(jTableTier);
 			}			
-			
+
 		}
 	}
-	
+
 	// TODO: EXPAND LATER...
 	private void pressStartButton() {
 		buildResultTable();
@@ -1248,7 +1364,7 @@ public class MainFrame extends JFrame {
 		doEnumeration(constraintsMap);
 		jButtonVisualize.setEnabled(true);
 	}
-	
+
 	private void chooseAlgorithm(String algorithm) {
 		if (algorithm.equals("genAlg")) {
 			if (!jCheckboxGeneticAlgorithm.isSelected()) {
@@ -1259,7 +1375,7 @@ public class MainFrame extends JFrame {
 			}
 		}
 		else if (algorithm.equals("antAlg")) {
-			
+
 		}
 		else {
 			if (!jCheckBoxAnalyticAlgorithm.isSelected()) {
@@ -1270,31 +1386,21 @@ public class MainFrame extends JFrame {
 			}
 		}
 	}
-	
+
 	private void buildGeneticAlgorithmWeightsTable() {
 		jTableGeneticAlgorithm = new JTable();
 		int weightCount = 1;
 		String numerator = "";
 		String denominator = "";
 		String geneticAlgorithmWeights = "";
-		if (jCheckBoxMaxPrice.isSelected()) {
-			geneticAlgorithmWeights += "w" + weightCount + " (Price),15,%;";
-			numerator = "w" + weightCount + " * MaxPrice";
-			weightCount++;
-		}
 		if (jCheckBoxMaxCosts.isSelected()) {
 			geneticAlgorithmWeights += "w" + weightCount + " (Costs),15,%;";
-			if (numerator.equals("")) {
-				numerator = "w" + weightCount + " * MaxCosts";
-			}
-			else {
-				numerator += " + w" + weightCount + " * MaxCosts";
-			}
+			numerator = "w" + weightCount + " * MaxCosts";
 			weightCount++;
 		}
 		if (jCheckBoxMaxResponseTime.isSelected()) {
 			geneticAlgorithmWeights += 
-					"w" + weightCount + " (Response Time),15,%;";
+				"w" + weightCount + " (Response Time),15,%;";
 			if (numerator.equals("")) {
 				numerator = "w" + weightCount + " * MaxResponseTime";
 			}
@@ -1305,13 +1411,13 @@ public class MainFrame extends JFrame {
 		}
 		if (jCheckBoxMinAvailability.isSelected()) {
 			geneticAlgorithmWeights += 
-					"w" + weightCount + " (Availability),15,%;";
+				"w" + weightCount + " (Availability),15,%;";
 			denominator = "w" + weightCount + " * MinAvailability ";
 			weightCount++;
 		}
 		if (jCheckBoxMinReliability.isSelected()) {
 			geneticAlgorithmWeights += 
-					"w" + weightCount + " (Reliability),15,%;";
+				"w" + weightCount + " (Reliability),15,%;";
 			if (denominator.equals("")) {
 				denominator = "w" + weightCount + " * MinReliability";
 			}
@@ -1329,37 +1435,37 @@ public class MainFrame extends JFrame {
 		jLabelNumerator.setText(numerator);
 		jLabelDenominator.setText(denominator);
 		geneticAlgorithmWeights += 
-				"w" + weightCount + " (Penalty Factor),25,%;";
+			"w" + weightCount + " (Penalty Factor),25,%;";
 		jLabelWeightedPenalty.setText(
 				"+ w" + weightCount + " * PenaltyFactor");
 		jTableGeneticAlgorithm.setModel(
 				new BasicTableModel(weightCount, 3, false));
 		String[] geneticAlgorithmColumnNames = 
-				geneticAlgorithmWeights.split(";");
+			geneticAlgorithmWeights.split(";");
 		for (int count = 0; count < weightCount; count++) {
 			for (int innerCount = 0; innerCount < 3; innerCount++) {
 				jTableGeneticAlgorithm.setValueAt(
 						geneticAlgorithmColumnNames[count].split(
-								",")[innerCount], count, innerCount);
+						",")[innerCount], count, innerCount);
 			}
 		}
 		jTableGeneticAlgorithm.getColumnModel().getColumn(0).setHeaderValue(
-				"Weight");
+		"Weight");
 		jTableGeneticAlgorithm.getColumnModel().getColumn(1).setHeaderValue(
-				"Value");
+		"Value");
 		jTableGeneticAlgorithm.getColumnModel().getColumn(2).setHeaderValue(
-				"Unit");
+		"Unit");
 		setColumnTextAlignment(jTableGeneticAlgorithm, 0,  
 				DefaultTableCellRenderer.LEFT);
 		setColumnTextAlignment(jTableGeneticAlgorithm, 1,  
 				DefaultTableCellRenderer.CENTER);
 		setColumnTextAlignment(jTableGeneticAlgorithm, 2,  
 				DefaultTableCellRenderer.CENTER);
-		setColumnWidthRelative(jTableGeneticAlgorithm, new double[] 
-				{0.8, 0.1, 0.1});
+		setColumnWidthRelative(jTableGeneticAlgorithm, 
+				new double[]{0.8, 0.1, 0.1});
 		jScrollPaneGeneticAlgorithm.setViewportView(jTableGeneticAlgorithm);
 	}
-	
+
 	private void doEnumeration(Map<String, Constraint> constraintsMap) {
 		long runtime = System.currentTimeMillis();
 		AnalyticAlgorithm analyticAlgorithm = new AnalyticAlgorithm(
@@ -1370,7 +1476,7 @@ public class MainFrame extends JFrame {
 		runtime = System.currentTimeMillis() - runtime;
 		jTableGeneralResults.setValueAt(runtime + " ms", 3, 1);
 	}
-	
+
 	// ELEMENTS OF DOUBLE[] COLUMNWIDTHPERCENTAGES 
 	// HAVE TO BE 1 IN SUM
 	private void setColumnWidthRelative(
@@ -1381,35 +1487,26 @@ public class MainFrame extends JFrame {
 					(int)((columnWidthPercentages[count] * tableWidth) + 0.5));
 		}
 	}
-	
+
 	private void setColumnTextAlignment(
 			JTable table, int column, int columnAlignment) {
 		DefaultTableCellRenderer defaultRenderer = 
-				new DefaultTableCellRenderer();
+			new DefaultTableCellRenderer();
 		defaultRenderer.setHorizontalAlignment(columnAlignment);
 		table.getColumnModel().getColumn(column).setCellRenderer(
 				defaultRenderer);
 	}
-	
+
 	private Map<String, Constraint> getChosenConstraints() {
 		Map<String, Constraint> constraintsMap = 
-				new HashMap<String, Constraint>();
+			new HashMap<String, Constraint>();
 		int numberOfChosenConstraints = 0;
-		if (jCheckBoxMaxPrice.isSelected()) {
-			Constraint constraintPrice = new Constraint(Constraint.PRICE, 
-					Double.valueOf(jTextFieldMaxPrice.getText()), 
-					Double.parseDouble(
-							(String) jTableGeneticAlgorithm.getValueAt(
-							numberOfChosenConstraints, 1)));
-			constraintsMap.put(constraintPrice.getTitle(), constraintPrice);
-			numberOfChosenConstraints++;
-		}
 		if (jCheckBoxMaxCosts.isSelected()) {
 			Constraint constraintCosts = new Constraint(Constraint.COSTS, 
 					Double.valueOf(jTextFieldMaxCosts.getText()), 
 					Double.parseDouble(
 							(String) jTableGeneticAlgorithm.getValueAt(
-							numberOfChosenConstraints, 1)));
+									numberOfChosenConstraints, 1)));
 			constraintsMap.put(constraintCosts.getTitle(), constraintCosts);
 			numberOfChosenConstraints++;
 		}
@@ -1418,8 +1515,8 @@ public class MainFrame extends JFrame {
 					Constraint.RESPONSE_TIME, Double.valueOf(
 							jTextFieldMaxResponseTime.getText()), 
 							Double.parseDouble(
-							(String) jTableGeneticAlgorithm.getValueAt(
-							numberOfChosenConstraints, 1)));
+									(String) jTableGeneticAlgorithm.getValueAt(
+											numberOfChosenConstraints, 1)));
 			constraintsMap.put(constraintResponseTime.getTitle(), 
 					constraintResponseTime);
 			numberOfChosenConstraints++;
@@ -1429,8 +1526,8 @@ public class MainFrame extends JFrame {
 					Constraint.AVAILABILITY, (Double.valueOf(
 							jTextFieldMinAvailability.getText())) / 100.0, 
 							Double.parseDouble(
-							(String) jTableGeneticAlgorithm.getValueAt(
-							numberOfChosenConstraints, 1)));
+									(String) jTableGeneticAlgorithm.getValueAt(
+											numberOfChosenConstraints, 1)));
 			constraintsMap.put(constraintAvailability.getTitle(), 
 					constraintAvailability);
 			numberOfChosenConstraints++;
@@ -1440,8 +1537,8 @@ public class MainFrame extends JFrame {
 					Constraint.RELIABILITY, (Double.valueOf(
 							jTextFieldMinReliability.getText())) / 100.0, 
 							Double.parseDouble(
-							(String) jTableGeneticAlgorithm.getValueAt(
-							numberOfChosenConstraints, 1)));
+									(String) jTableGeneticAlgorithm.getValueAt(
+											numberOfChosenConstraints, 1)));
 			constraintsMap.put(constraintReliability.getTitle(), 
 					constraintReliability);
 			numberOfChosenConstraints++;
@@ -1449,12 +1546,12 @@ public class MainFrame extends JFrame {
 		Constraint constraintPenaltyFactor = new Constraint(
 				Constraint.PENALTY_FACTOR, 0, Double.parseDouble(
 						(String) jTableGeneticAlgorithm.getValueAt(
-						numberOfChosenConstraints, 1)));
+								numberOfChosenConstraints, 1)));
 		constraintsMap.put(constraintPenaltyFactor.getTitle(), 
 				constraintPenaltyFactor);
 		return constraintsMap;
 	}
-	
+
 	private void printChosenConstraintsToConsole(
 			Map<String, Constraint> constraintsMap) {
 		System.out.println("CHOSEN CONSTRAINTS:\n--------");
@@ -1464,9 +1561,8 @@ public class MainFrame extends JFrame {
 		System.out.println(constraintsMap.get(Constraint.AVAILABILITY));
 		System.out.println(constraintsMap.get(Constraint.RELIABILITY));
 	}
-	
+
 	private void setRandomConstraints() {
-		jSliderMaxPrice.setValue((int) (Math.random() * MAX_PRICE));
 		jSliderMaxCosts.setValue((int) (Math.random() * MAX_COSTS));
 		jSliderMaxResponseTime.setValue(
 				(int) (Math.random() * MAX_RESPONSE_TIME));
@@ -1475,18 +1571,92 @@ public class MainFrame extends JFrame {
 		jSliderMinReliability.setValue(
 				(int) (Math.random() * MAX_RELIABILITY));
 	}
-	
+
 	private void setDefaultConstraints() {
-		jSliderMaxPrice.setValue(MAX_PRICE / 2);
 		jSliderMaxCosts.setValue(MAX_COSTS / 2);
 		jSliderMaxResponseTime.setValue(MAX_RESPONSE_TIME / 2);
 		jSliderMinAvailability.setValue(MAX_AVAILABILITY / 2);
 		jSliderMinReliability.setValue(MAX_RELIABILITY / 2);
 	}
-	
+
 	private void resetProgram() {
 		frame.dispose();
 		frame = new MainFrame();
 		frame.setVisible(true);
+	}
+
+	private void changeWeight(JTextField textField) {
+		try {
+			Integer.parseInt(textField.getText());
+		} catch (Exception e) {
+			textField.setText("0");
+		}
+		int cumulatedPercentage = 
+			Integer.parseInt(lblWeightSum.getText().substring(2)) + 
+			Integer.parseInt(textField.getText());
+		lblWeightSum.setText("\u03A3 " + String.valueOf(cumulatedPercentage));
+		if (cumulatedPercentage != 100) {
+			lblWeightSum.setForeground(Color.RED);
+		}
+		else {
+			lblWeightSum.setForeground(Color.GREEN);
+		}
+	}
+
+	private void changeConstraintCheckboxStatus(String constraint) {
+		int lblWeights;
+		if (constraint.equals("Costs")) {
+			jSliderMaxCosts.setEnabled(jCheckBoxMaxCosts.isSelected());
+			jTextFieldMaxCosts.setEditable(jCheckBoxMaxCosts.isSelected());
+			lblWeights = 
+				Integer.parseInt(lblWeightSum.getText().substring(2));
+			lblWeights -= Integer.parseInt(txtCostsWeight.getText());
+			lblWeightSum.setText("\u03A3 " + String.valueOf(lblWeights));
+			txtCostsWeight.setText("0");
+			txtCostsWeight.setEditable(jCheckBoxMaxCosts.isSelected());
+			changeWeight(txtCostsWeight);
+		}
+		else if (constraint.equals("Response Time")) {
+			jSliderMaxResponseTime.setEnabled(
+					jCheckBoxMaxResponseTime.isSelected());
+			jTextFieldMaxResponseTime.setEditable(
+					jCheckBoxMaxResponseTime.isSelected());
+			lblWeights = 
+				Integer.parseInt(lblWeightSum.getText().substring(2));
+			lblWeights -= Integer.parseInt(txtResponseTimeWeight.getText());
+			lblWeightSum.setText("\u03A3 " + String.valueOf(lblWeights));
+			txtResponseTimeWeight.setText("0");
+			txtResponseTimeWeight.setEditable(
+					jCheckBoxMaxResponseTime.isSelected());
+			changeWeight(txtResponseTimeWeight);
+		}
+		else if (constraint.equals("Availability")) {
+			jSliderMinAvailability.setEnabled(
+					jCheckBoxMinAvailability.isSelected());
+			jTextFieldMinAvailability.setEditable(
+					jCheckBoxMinAvailability.isSelected());
+			lblWeights = 
+				Integer.parseInt(lblWeightSum.getText().substring(2));
+			lblWeights -= Integer.parseInt(txtAvailabilityWeight.getText());
+			lblWeightSum.setText("\u03A3 " + String.valueOf(lblWeights));
+			txtAvailabilityWeight.setText("0");
+			txtAvailabilityWeight.setEditable(
+					jCheckBoxMinAvailability.isSelected());
+			changeWeight(txtAvailabilityWeight);
+		}
+		else { 
+			jSliderMinReliability.setEnabled(
+					jCheckBoxMinReliability.isSelected());
+			jTextFieldMinReliability.setEditable(
+					jCheckBoxMinReliability.isSelected());
+			lblWeights = 
+				Integer.parseInt(lblWeightSum.getText().substring(2));
+			lblWeights -= Integer.parseInt(txtReliabilityWeight.getText());
+			lblWeightSum.setText("\u03A3 " + String.valueOf(lblWeights));
+			txtReliabilityWeight.setText("0");
+			txtReliabilityWeight.setEditable(
+					jCheckBoxMinReliability.isSelected());
+			changeWeight(txtReliabilityWeight);
+		}
 	}
 }
