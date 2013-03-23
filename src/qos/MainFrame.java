@@ -24,12 +24,14 @@ import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -304,9 +306,33 @@ public class MainFrame extends JFrame {
 		jMenuItemLoadRandomSet.addActionListener(
 				new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
+						JSpinner spinnerNumberOfServiceClasses = new JSpinner(
+								new SpinnerNumberModel(1, 1, 10, 1));
+						JSpinner spinnerNumberOfWebServices = new JSpinner(
+								new SpinnerNumberModel(1, 1, 10, 1));
+						JComponent[] dialogComponents = new JComponent[] {
+								new JLabel("Number of Service Classes:"),
+								spinnerNumberOfServiceClasses,
+								new JLabel("Number of Web Services " +
+										"(per Class):"),
+										spinnerNumberOfWebServices
+						};
+						JOptionPane.showConfirmDialog(null, dialogComponents, 
+								"Random Set Properties", 
+								JOptionPane.OK_CANCEL_OPTION, 
+								JOptionPane.QUESTION_MESSAGE);
+						
+						int numberOfServiceClasses = 
+							(Integer) spinnerNumberOfServiceClasses.getValue();
+						int numberOfWebServices = 
+							(Integer) spinnerNumberOfWebServices.getValue();
+						
 						// TODO: INSERT FUNCTION LOADRANDOMWEBSERVICES!
-//						RandomSetGenerator generator = new RandomSetGenerator();
-//						loadRandomWebServices(generator.generateSet(100, 100));
+						loadRandomWebServices(
+								new RandomSetGenerator().generateSet(
+										numberOfServiceClasses, 
+										numberOfWebServices),
+										numberOfWebServices);
 					}
 				});
 
@@ -848,7 +874,7 @@ public class MainFrame extends JFrame {
 
 		jTableWebServices = new JTable();
 		jTableWebServices.setEnabled(false);
-		jTableWebServices.setModel(new BasicTableModel(0, 9, true));
+		jTableWebServices.setModel(new BasicTableModel(0, 8, true));
 		jTableWebServices.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		jTableWebServices.getColumnModel().getColumn(0).setHeaderValue(
 				"Selection");
@@ -859,14 +885,12 @@ public class MainFrame extends JFrame {
 		jTableWebServices.getColumnModel().getColumn(3).setHeaderValue(
 		"Provider");
 		jTableWebServices.getColumnModel().getColumn(4).setHeaderValue(
-		"Price");
-		jTableWebServices.getColumnModel().getColumn(5).setHeaderValue(
 		"Costs");
-		jTableWebServices.getColumnModel().getColumn(6).setHeaderValue(
+		jTableWebServices.getColumnModel().getColumn(5).setHeaderValue(
 		"Response Time");
-		jTableWebServices.getColumnModel().getColumn(7).setHeaderValue(
+		jTableWebServices.getColumnModel().getColumn(6).setHeaderValue(
 		"Availability");
-		jTableWebServices.getColumnModel().getColumn(8).setHeaderValue(
+		jTableWebServices.getColumnModel().getColumn(7).setHeaderValue(
 		"Reliability");
 		jScrollPaneWebServices.setViewportView(jTableWebServices);
 	}
@@ -1838,5 +1862,93 @@ public class MainFrame extends JFrame {
 		else {
 			slider.setValue(Integer.parseInt(textField.getText()));
 		}
+	}
+	
+	private void loadRandomWebServices(List<ServiceClass> servicesList, 
+			int numberOfWebServices) {
+		serviceCandidatesList.removeAll(serviceCandidatesList);
+		serviceClassesList.removeAll(serviceClassesList);
+		
+		serviceClassesList = servicesList;
+		
+		// Write service classes headers.
+		jTableServiceClasses.setModel(new BasicTableModel(
+				serviceClassesList.size(), 3, true));
+		setColumnWidthRelative(jTableServiceClasses, 
+				new double[] {0.3, 0.1, 0.6});
+		TableColumnModel serviceClassesColumnModel = 
+			jTableServiceClasses.getColumnModel();
+		serviceClassesColumnModel.getColumn(0).setHeaderValue("Selection");
+		serviceClassesColumnModel.getColumn(1).setHeaderValue("ID");
+		serviceClassesColumnModel.getColumn(2).setHeaderValue("Name");
+		setColumnTextAlignment(
+				jTableServiceClasses, 1, DefaultTableCellRenderer.CENTER);
+
+		// Write service classes data.
+		for (int k = 0 ; k < serviceClassesList.size() ; k++) {
+			ServiceClass serviceClass = serviceClassesList.get(k);
+			jTableServiceClasses.setValueAt(true, k, 0);
+			jTableServiceClasses.setValueAt(
+					serviceClass.getServiceClassId(), k, 1);
+			jTableServiceClasses.setValueAt(serviceClass.getName(), k, 2);	
+			// TODO: DYNAMIC ADJUSTMENT CONCERNING "5"...
+			for (int count = 0; count < serviceClass.getServiceCandidateList(
+					).size(); count++) {
+				ServiceCandidate serviceCandidate = new ServiceCandidate(
+						serviceClass.getServiceClassId(), 
+						serviceClass.getName(),
+						(count + 1) + (numberOfWebServices * k),
+						"WebService" + String.valueOf((count + 1) + 
+								(numberOfWebServices * k)),
+						"Provider1",
+						serviceClass.getServiceCandidateList(
+								).get(count).getQosVector());
+				serviceCandidatesList.add(serviceCandidate);
+			}
+		}
+
+		// Write service candidates headers (first line of input file!). 
+		// Columns "serviceClassId" and "serviceClassName" will not be
+		// shown here.
+		jTableWebServices.setModel(new BasicTableModel(
+				serviceCandidatesList.size(), 8, true));
+		TableColumnModel webServicesColumnModel = 
+			jTableWebServices.getColumnModel();
+		webServicesColumnModel.getColumn(0).setHeaderValue("Selection");
+		String[] headerArray = new String[] {
+			"Selection", "ServiceClassId", "ServiceClassName", "Id", 
+			"Name", "Provider", "Costs", "ResponseTime", 
+			"Availability", "Reliability"
+		};
+		for (int k = 1 ; k < 8 ; k++) {
+			webServicesColumnModel.getColumn(k).setHeaderValue(
+					headerArray[k+1]);
+		}
+		setColumnTextAlignment(
+				jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
+		for (int count = 4; count < 7; count++) {
+			setColumnTextAlignment(jTableWebServices, count, 
+					DefaultTableCellRenderer.RIGHT);
+		}
+		// Write service candidates data.
+		for (int k = 0 ; k < serviceCandidatesList.size() ; k++) {
+			ServiceCandidate serviceCandidate = 
+				serviceCandidatesList.get(k);
+			QosVector qosVector = serviceCandidate.getQosVector();
+			jTableWebServices.setValueAt(true, k, 0);
+			jTableWebServices.setValueAt(
+					serviceCandidate.getServiceCandidateId(), k, 1);
+			jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
+			jTableWebServices.setValueAt(
+					serviceCandidate.getProvider(), k, 3);
+			jTableWebServices.setValueAt(qosVector.getCosts(), k, 4);
+			jTableWebServices.setValueAt(
+					qosVector.getResponseTime(), k, 5);
+			jTableWebServices.setValueAt
+			(qosVector.getAvailability(), k, 6);
+			jTableWebServices.setValueAt(qosVector.getReliability(), k, 7);
+		}
+		webServicesLoaded = true;
+		checkEnableStartButton();
 	}
 }
