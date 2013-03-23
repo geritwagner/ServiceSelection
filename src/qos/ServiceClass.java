@@ -25,58 +25,6 @@ public class ServiceClass {
 		this.serviceCandidateList = serviceCandidateList;
 	}
 	
-	// TODO: CAN BE DELETED BECAUSE WE DO NOT THE EXTREME VALUES FOR EACH
-	//		 SERVICE CLASS. ON THE CONTRARY, OUR UTITLITY FUNCTION IS BASED 
-	//		 ON  THE EXTREME VALUES OF THE COMPLETE COMPOSITIONS.
-//	private void determineQosVectorMin() {
-//		double costsMin = 0;
-//		double responseTimeMin = 0;
-//		double availabilityMin = 0;
-//		double reliabilityMin = 0;
-//		for (ServiceCandidate serviceCandidate : serviceCandidateList) {
-//			if (serviceCandidate.getQosVector().getCosts() < costsMin) {
-//				costsMin = serviceCandidate.getQosVector().getCosts();
-//			}
-//			if (serviceCandidate.getQosVector().getResponseTime() < responseTimeMin) {
-//				responseTimeMin = serviceCandidate.getQosVector().getResponseTime();
-//			}
-//			if (serviceCandidate.getQosVector().getAvailability() < availabilityMin) {
-//				availabilityMin = serviceCandidate.getQosVector().getAvailability();
-//			}
-//			if (serviceCandidate.getQosVector().getReliability() < reliabilityMin) {
-//				reliabilityMin = serviceCandidate.getQosVector().getReliability();
-//			}
-//		}
-//		qosVectorMin = new QosVector(costsMin, responseTimeMin, 
-//				availabilityMin, reliabilityMin);
-//	}
-	
-	// TODO: CAN BE DELETED BECAUSE WE DO NOT THE EXTREME VALUES FOR EACH
-	//		 SERVICE CLASS. ON THE CONTRARY, OUR UTITLITY FUNCTION IS BASED 
-	//		 ON  THE EXTREME VALUES OF THE COMPLETE COMPOSITIONS.
-//	private void determineQosVectorMax() {
-//		double costsMax = 0;
-//		double responseTimeMax = 0;
-//		double availabilityMax = 0;
-//		double reliabilityMax = 0;
-//		for (ServiceCandidate serviceCandidate : serviceCandidateList) {
-//			if (serviceCandidate.getQosVector().getCosts() > costsMax) {
-//				costsMax = serviceCandidate.getQosVector().getCosts();
-//			}
-//			if (serviceCandidate.getQosVector().getResponseTime() > responseTimeMax) {
-//				responseTimeMax = serviceCandidate.getQosVector().getResponseTime();
-//			}
-//			if (serviceCandidate.getQosVector().getAvailability() > availabilityMax) {
-//				availabilityMax = serviceCandidate.getQosVector().getAvailability();
-//			}
-//			if (serviceCandidate.getQosVector().getReliability() > reliabilityMax) {
-//				reliabilityMax = serviceCandidate.getQosVector().getReliability();
-//			}
-//		}
-//		qosVectorMax = new QosVector(costsMax, responseTimeMax, 
-//				availabilityMax, reliabilityMax);
-//	}
-	
 	
 	// GETTERS AND SETTERS
 	public int getServiceClassId() {
@@ -113,4 +61,27 @@ public class ServiceClass {
 		return serviceCandidateList.size();
 	}
 
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + serviceClassId;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ServiceClass other = (ServiceClass) obj;
+		if (serviceClassId != other.serviceClassId)
+			return false;
+		return true;
+	}
+	
 }

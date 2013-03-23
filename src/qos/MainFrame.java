@@ -1276,8 +1276,8 @@ public class MainFrame extends JFrame {
 				for (ServiceClass serviceClass : serviceClassesList) {
 					if (serviceClass.getServiceClassId() == serviceClassId) {
 						serviceClassAlreadyCreated = true;
-						serviceClass.getServiceCandidateList(
-								).add(serviceCandidate);
+						serviceClass.getServiceCandidateList().add(
+								serviceCandidate);
 						break;
 					}
 				}
