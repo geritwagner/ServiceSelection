@@ -5,11 +5,10 @@ import java.util.List;
 
 public class Composition {
 	
-	private int id;
-	private String name;
-	private QosVector qosVectorAggregated;
 	private List<ServiceCandidate> serviceCandidatesList = 
 			new LinkedList<ServiceCandidate>();
+	private QosVector qosVectorAggregated;
+	private double utility;
 	
 	
 	// CONSTRUCTORS
@@ -17,12 +16,10 @@ public class Composition {
 		
 	}
 
-	public Composition(int id, String name,
-			List<ServiceCandidate> serviceCandidatesList) {
-		this.id = id;
-		this.name = name;
+	public Composition(List<ServiceCandidate> serviceCandidatesList, QosVector qosVectorAggregated, double utility) {
 		this.serviceCandidatesList = serviceCandidatesList;
-		qosVectorAggregated = new QosVector();
+		this.qosVectorAggregated = qosVectorAggregated;
+		this.utility = utility;
 	}
 	
 	
@@ -38,20 +35,24 @@ public class Composition {
 		qosVectorAggregated.subtract(
 				serviceCandidateRemoved.getQosVector());
 	}
+	
+	
+	public String getServiceCandidatesAsString() {
+		String serviceCandidates = "";
+		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+			serviceCandidates = serviceCandidates + " " + 
+					serviceCandidate.getServiceCandidateId();
+		}
+		return serviceCandidates;
+	}
 
 	
 	// GETTERS AND SETTERS
-	public int getId() {
-		return id;
+	public List<ServiceCandidate> getServiceCandidatesList() {
+		return serviceCandidatesList;
 	}
-	public void setId(int id) {
-		this.id = id;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
+	public void setServiceCandidateList(List<ServiceCandidate> serviceCandidatesList) {
+		this.serviceCandidatesList = serviceCandidatesList;
 	}
 	public QosVector getQosVectorAggregated() {
 		return qosVectorAggregated;
@@ -59,11 +60,11 @@ public class Composition {
 	public void setQosVectorAggregated(QosVector qosVectorAggregated) {
 		this.qosVectorAggregated = qosVectorAggregated;
 	}
-	public List<ServiceCandidate> getServiceCandidatesList() {
-		return serviceCandidatesList;
+	public double getUtility() {
+		return utility;
 	}
-	public void setServiceCandidateList(List<ServiceCandidate> serviceCandidatesList) {
-		this.serviceCandidatesList = serviceCandidatesList;
+	public void setUtility(double utility) {
+		this.utility = utility;
 	}
 	
 }

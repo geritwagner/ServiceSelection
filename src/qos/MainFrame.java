@@ -802,7 +802,7 @@ public class MainFrame extends JFrame {
 				jScrollPaneWebServices, gbcJScrollPaneWebServices);
 
 		jTableWebServices = new JTable();
-		jTableWebServices.setModel(new BasicTableModel(0, 10, true));
+		jTableWebServices.setModel(new BasicTableModel(0, 9, true));
 		jTableWebServices.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		jTableWebServices.getColumnModel().getColumn(0).setHeaderValue(
 				"Selection");
@@ -822,8 +822,6 @@ public class MainFrame extends JFrame {
 		"Availability");
 		jTableWebServices.getColumnModel().getColumn(8).setHeaderValue(
 		"Reliability");
-		jTableWebServices.getColumnModel().getColumn(9).setHeaderValue(
-		"Utility");
 		jScrollPaneWebServices.setViewportView(jTableWebServices);
 	}
 
@@ -1318,18 +1316,20 @@ public class MainFrame extends JFrame {
 			// Write service candidates headers (first line of input file!). 
 			// Columns "serviceClassId" and "serviceClassName" will not be
 			// shown here.
+			// TODO: EITHER SHOW THE TWO COLUMS MENTIONED ABOVE OR SHOW ONLY
+			//		 THE WEB SERVICES FOR THE SELECTED SERVICE CLASS.
 			jTableWebServices.setModel(new BasicTableModel(
-					serviceCandidatesList.size(), 9, true));
+					serviceCandidatesList.size(), 8, true));
 			TableColumnModel webServicesColumnModel = 
 				jTableWebServices.getColumnModel();
 			webServicesColumnModel.getColumn(0).setHeaderValue("Selection");
-			for (int k = 1 ; k < 9 ; k++) {
+			for (int k = 1 ; k < 8 ; k++) {
 				webServicesColumnModel.getColumn(k).setHeaderValue(
 						headerArray[k+1]);
 			}
 			setColumnTextAlignment(
 					jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
-			for (int count = 4; count < 9; count++) {
+			for (int count = 4; count < 8; count++) {
 				setColumnTextAlignment(jTableWebServices, count, 
 						DefaultTableCellRenderer.RIGHT);
 			}
@@ -1350,7 +1350,6 @@ public class MainFrame extends JFrame {
 				jTableWebServices.setValueAt
 				(qosVector.getAvailability(), k, 6);
 				jTableWebServices.setValueAt(qosVector.getReliability(), k, 7);
-				jTableWebServices.setValueAt("Utility", k, 8);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

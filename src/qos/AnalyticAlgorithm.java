@@ -12,8 +12,8 @@ public class AnalyticAlgorithm {
 	private List<ServiceCandidate> serviceCandidatesList;
 	private Map<String, Constraint> constraintsMap;
 	
-	// TODO: REMOVE FLAGS IF NOT NEEDED.
-//	private List<String> triedCompositions = new LinkedList<String>();
+	private List<Composition> compositionsList = new LinkedList<Composition>();
+
 	
 	// CONSTRUCTORS
 	public AnalyticAlgorithm() {
@@ -30,50 +30,61 @@ public class AnalyticAlgorithm {
 	
 	
 	public void start(JProgressBar progressBar) {
-		// PRINT SERVICE CLASSES AND THEIR SERVICE CANDIDATES. 
-		for (ServiceClass serviceClass : serviceClassesList) {
-			System.out.println("\n" + serviceClass.getName());
-			for (ServiceCandidate serviceCandidate : serviceClass.getServiceCandidateList()) {
-				System.out.println(serviceCandidate.getName());
-			}
-		}
-		System.out.println("\n\n");
+//		printInputData();
 		
 		// DO COMPLETE ENUMERATION.
-		for (int i = 0; i < serviceClassesList.get(0).getServiceCandidateList().size(); i++) {
-			solve(new Composition(0, "Test", new LinkedList<ServiceCandidate>()), 0, i);
-//			System.out.println(Math.round((
-//			(double) (i + 1) / ((double) serviceClassesList.get(
-//					0).getServiceCandidateList().size())) * 100));
+		for (int i = 0; i < serviceClassesList.get(0).
+				getServiceCandidateList().size(); i++) {
+			doCompleteEnumeration(new Composition(
+					new LinkedList<ServiceCandidate>(), new QosVector(), 0.0), 
+					0, i);
 			progressBar.setValue((int) Math.round((
 					(double) (i + 1) / ((double) serviceClassesList.get(
 							0).getServiceCandidateList().size())) * 100));
 		}
-		
-		// TODO: REMOVE DEBUG OUTPUT.
-//		System.out.println(triedCompositions.size());
+		computeUtilityValues();
+		printValidCompositions();
+		// TODO: [MAYBE] BETTER OUTPUT FOR OPTIMAL COMPOSITION.
+		System.out.println(
+				findOptimalComposition().getServiceCandidatesAsString());
 	}
 	
 	// COMPLETE ENUMERATION.
-	// TODO: - SEARCH FOR THE OPTIMAL COMPOSITION. [UTILITY FUNCTION NEEDED!]
-	// 		 - [ONLY PRINT OUT THE OPTIMAL COMPOSITION.]
-	//		 - SHOW COMPOSITIONS IN RESULT TABLE.
-	//		 - STORE ALL COMPOSITIONS IN A LIST.
-	//		 - DO NOT CONSIDER PATHS THAT VIOLATE ANY CONSTRAINTS ANYMORE.
-	private void solve(Composition composition, int serviceClassNumber, int serviceCandidateNumber) {
-		composition = forward(composition, serviceClassNumber, serviceCandidateNumber);
+	// TODO: - SHOW COMPOSITIONS IN RESULT TABLE.
+	//		 - [MAYBE] DO NOT CONSIDER PATHS THAT VIOLATE ANY CONSTRAINTS
+	//		   ANYMORE. (OPTIMIZATION THAT COULD RESULT IN SOME WORK!)
+	private void doCompleteEnumeration(Composition composition, 
+			int serviceClassNumber, int serviceCandidateNumber) {
+		composition = forward(composition, serviceClassNumber, 
+				serviceCandidateNumber);
 		if (composition != null) {
 			if (isComplete(composition)) {
+				// TODO: ADD COMPLETE COMPOSITIONS TO LIST.
+				//		 THE FOLLOWING OPERATIONS ARE NECESSARY IN ORDER TO 
+				//		 CREATE NEW OBJECTS (I.E. SERVICECANDIDATELISTS AND 
+				//		 QOSVECTORS). MIGHT BE NOT SO ELEGANT, THOUGH.
+				List<ServiceCandidate> serviceCandidatesListNew = 
+						new LinkedList<ServiceCandidate>();
+				serviceCandidatesListNew.addAll(
+						composition.getServiceCandidatesList());
+				QosVector qos = composition.getQosVectorAggregated();
+				QosVector qosVectorNew = new QosVector(qos.getCosts(), 
+						qos.getResponseTime(), qos.getAvailability(), 
+						qos.getReliability());
+				compositionsList.add(new Composition(serviceCandidatesListNew, 
+						qosVectorNew, 0.0));
 				
-				// ONLY PRINT OUT VALID COMPOSITIONS.
-				if (isWithinConstraints(composition)) {
-					System.out.println(composition.getQosVectorAggregated());
-				}
+				// TODO: THE FOLLOWING LINES ARE ONLY NEEDED IN ORDER TO 
+				//		 CHECK THE WORKAROUND INTRODUCED ABOVE.
+//				if (isWithinConstraints(composition)) {
+//					System.out.println(composition.getQosVectorAggregated());
+//				}
 			}
 			else {
 				serviceClassNumber++;
-				for (int i = 0; i < serviceClassesList.get(serviceClassNumber).getServiceCandidateList().size(); i++) {
-					solve(composition, serviceClassNumber, i);
+				for (int i = 0; i < serviceClassesList.get(serviceClassNumber).
+						getServiceCandidateList().size(); i++) {
+					doCompleteEnumeration(composition, serviceClassNumber, i);
 				}
 			}
 			composition = backward(composition);
@@ -82,8 +93,120 @@ public class AnalyticAlgorithm {
 		return;
 	}
 	
+	private Composition forward(Composition composition, 
+			int serviceClassNumber, int serviceCandidateNumber) {
+		ServiceClass serviceClass = serviceClassesList.get(serviceClassNumber);
+		ServiceCandidate serviceCandidate = 
+				serviceClass.getServiceCandidateList().get(
+						serviceCandidateNumber);
+		composition.addServiceCandidate(serviceCandidate);
+		return composition;
+	}
+	
+	private Composition backward(Composition composition) {
+		composition.removeServiceCandidate();
+		return composition;
+	}
+	
+	// CHECK IS DONE BY COMPARING THE SIZE OF THE COMPOSITION WITH THE NUMBER 
+	// OF AVAILABLE SERVICE CLASSES.
+	private boolean isComplete(Composition composition) {
+		if (composition.getServiceCandidatesList().size() == 
+				serviceClassesList.size()) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	private void computeUtilityValues() {
+		QosVector max = determineQosVectorMax();
+		QosVector min = determineQosVectorMin();
+		
+		for (Composition composition : compositionsList) {
+			// (Q_Max - Q_i) / (Q_max - Q_min) * W		negative criteria
+			// (Q_i - Q_min) / (Q_max - Q_min) * W		positive criteria
+			QosVector qos = composition.getQosVectorAggregated();
+			// TODO: USE WEIGHTS FROM USER INPUT.
+			double weight = (1.0 / 3.0);
+			double utility = ((max.getCosts() - qos.getCosts()) / 
+					(max.getCosts() - min.getCosts()) * weight) + 
+					((max.getResponseTime() - qos.getResponseTime()) / 
+					(max.getResponseTime() - min.getResponseTime()) * weight) + 
+					((qos.getAvailability() - min.getAvailability()) / 
+					(max.getAvailability() - min.getAvailability()) * weight);
+			composition.setUtility(utility);
+		}
+		
+	}
+	
+	private QosVector determineQosVectorMax() {
+		// TODO: DELETE "RELIABILITY".
+		QosVector max = new QosVector(0.0, 0.0, 0.0, 0.0);
+		for (Composition composition : compositionsList) {
+			QosVector qos = composition.getQosVectorAggregated();
+			if (qos.getCosts() > max.getCosts()) {
+				max.setCosts(qos.getCosts());
+			}
+			if (qos.getResponseTime() > max.getResponseTime()) {
+				max.setResponseTime(qos.getResponseTime());
+			}
+			if (qos.getAvailability() > max.getAvailability()) {
+				max.setAvailability(qos.getAvailability());
+			}
+//			if (qos.getReliability() > qosVectorMax.getReliability()) {
+//				qosVectorMax.setReliability(qos.getReliability());
+//			}
+		}
+		return max;
+	}
+	
+	private QosVector determineQosVectorMin() {
+		// TODO: DELETE "RELIABILITY".
+		QosVector min = new QosVector(100000.0, 100000.0, 1.0, 1.0);
+		for (Composition composition : compositionsList) {
+			QosVector qos = composition.getQosVectorAggregated();
+			if (qos.getCosts() < min.getCosts()) {
+				min.setCosts(qos.getCosts());
+			}
+			if (qos.getResponseTime() < min.getResponseTime()) {
+				min.setResponseTime(qos.getResponseTime());
+			}
+			if (qos.getAvailability() < min.getAvailability()) {
+				min.setAvailability(qos.getAvailability());
+			}
+//			if (qos.getReliability() < qosVectorMin.getReliability()) {
+//				qosVectorMin.setReliability(qos.getReliability());
+//			}
+		}
+		return min;
+	}
+	
+	// PRINT SERVICE CLASSES AND THEIR SERVICE CANDIDATES.
+	private void printInputData() {
+		for (ServiceClass serviceClass : serviceClassesList) {
+			System.out.println("\n" + serviceClass.getName());
+			for (ServiceCandidate serviceCandidate : 
+				serviceClass.getServiceCandidateList()) {
+				System.out.println(serviceCandidate.getName());
+			}
+		}
+		System.out.println("\n\n");
+	}
+	
+	private void printValidCompositions() {
+		for (Composition composition : compositionsList) {
+			if (isWithinConstraints(composition)) {
+				System.out.println(composition.getServiceCandidatesAsString()
+						+ "\t" + composition.getUtility() + "\t" + 
+						composition.getQosVectorAggregated());
+			}
+		}
+	}
+	
 	private boolean isWithinConstraints(Composition composition) {
-		// TODO: HANDLE THE DIFFERENT CONSTRAINT VIOLATIONS IN A 
+		// TODO: MAYBE HANDLE THE DIFFERENT CONSTRAINT VIOLATIONS IN A 
 		//		 REASONABLE WAY.
 		
 		boolean isWithinConstraints = true;
@@ -110,69 +233,19 @@ public class AnalyticAlgorithm {
 		return isWithinConstraints;
 	}
 	
-	private Composition forward(Composition composition, int serviceClassNumber, int serviceCandidateNumber) {
-		ServiceClass serviceClass = serviceClassesList.get(serviceClassNumber);
-		ServiceCandidate serviceCandidate = serviceClass.getServiceCandidateList().get(serviceCandidateNumber);
-		composition.addServiceCandidate(serviceCandidate);
-		
-		// TODO: REMOVE FLAGS IF NOT NEEDED.
-//		String flag = createFlag(composition);
-//		if (! isNewComposition(flag)) {
-//			return null;
-//		}
-//		triedCompositions.add(flag);
-		
-		return composition;
-	}
-	
-	private Composition backward(Composition composition) {
-		composition.removeServiceCandidate();
-		return composition;
-	}
-	
-	// CHECK IS DONE BY COMPARING THE SIZE OF THE COMPOSITION WITH THE NUMBER 
-	// OF AVAILABLE SERVICE CLASSES.
-	private boolean isComplete(Composition composition) {
-		if (composition.getServiceCandidatesList().size() == serviceClassesList.size()) {
-			return true;
+	private Composition findOptimalComposition() {
+		double utilityMax = 0.0;
+		Composition optimalComposition = new Composition();
+		for (Composition composition : compositionsList) {
+			if (isWithinConstraints(composition) && 
+					composition.getUtility() > utilityMax) {
+				utilityMax = composition.getUtility();
+				optimalComposition = composition;
+			}
 		}
-		else {
-			return false;
-		}
+		return optimalComposition;
 	}
 	
-	
-	// FLAGS ARE CREATED BY CONCATENATING THE ID'S OF THE USED SERVICE
-	// CANDIDATES. MIGHT BE NOT SO GOOD, BUT WORKS.
-//	private String createFlag(Composition composition) {
-//		String flag = "";
-//		for (ServiceCandidate serviceCandidate : composition.getServiceCandidatesList()) {
-//			flag = flag + "-" + serviceCandidate.getServiceCandidateId();
-//		}
-//		return flag;
-//	}
-	
-//	private boolean isNewComposition(String flag) {
-//		for (String triedComposition : triedCompositions) {
-//			if (flag.equals(triedComposition)) {
-//				return false;
-//			}
-//		}
-//		return true;
-//	}
-	
-	
-	// SIMPLE METHOD FOR CALCULATING THE NUMBER OF POSSIBLE PERMUTATIONS. 
-	// MIGHT BE USEFUL.
-//	private int getNumberOfPermutations() {
-//		int permutations = 1;
-//		for (ServiceClass serviceClass : serviceClassesList) {
-//			permutations *= serviceClass.getSize();
-//		}
-//		System.out.println(permutations);
-//		return permutations;
-//	}
-
 
 	// GETTERS AND SETTERS
 	public List<ServiceClass> getServiceClassesList() {
@@ -193,6 +266,12 @@ public class AnalyticAlgorithm {
 	}
 	public void setConstraintList(Map<String, Constraint> constraintsMap) {
 		this.constraintsMap = constraintsMap;
+	}
+	public List<Composition> getCompositionsList() {
+		return compositionsList;
+	}
+	public void setCompositionsList(List<Composition> compositionsList) {
+		this.compositionsList = compositionsList;
 	}
 	
 }
