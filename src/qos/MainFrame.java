@@ -1389,6 +1389,8 @@ public class MainFrame extends JFrame {
 			// Write service candidates headers (first line of input file!). 
 			// Columns "serviceClassId" and "serviceClassName" will not be
 			// shown here.
+			// TODO: EITHER SHOW THE TWO COLUMS MENTIONED ABOVE OR SHOW ONLY
+			//		 THE WEB SERVICES FOR THE SELECTED SERVICE CLASS.
 			jTableWebServices.setModel(new BasicTableModel(
 					serviceCandidatesList.size(), 8, true));
 			TableColumnModel webServicesColumnModel = 
@@ -1421,7 +1423,6 @@ public class MainFrame extends JFrame {
 				jTableWebServices.setValueAt
 				(qosVector.getAvailability(), k, 6);
 				jTableWebServices.setValueAt(qosVector.getReliability(), k, 7);
-				jTableWebServices.setValueAt("Utility", k, 8);
 			}
 			webServicesLoaded = true;
 			checkEnableStartButton();
