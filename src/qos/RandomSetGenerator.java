@@ -18,7 +18,7 @@ public class RandomSetGenerator {
 				double time = myRandom(0,100);
 				double availability = myRandom(0.85,0.99);
 				
-				QosVector qosVector = new QosVector(0, cost, time, availability, 0);				
+				QosVector qosVector = new QosVector(cost, time, availability, 0);				
 				serviceCandidateList.add(new ServiceCandidate(i+1, "ServiceClass"+(i+1), 
 						serviceID, "WebService"+serviceID, "", qosVector));
 			}

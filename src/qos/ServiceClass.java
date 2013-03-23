@@ -28,15 +28,11 @@ public class ServiceClass {
 	
 	
 	private void determineQosVectorMin() {
-		double priceMin = 0;
 		double costsMin = 0;
 		double responseTimeMin = 0;
 		double availabilityMin = 0;
 		double reliabilityMin = 0;
 		for (ServiceCandidate serviceCandidate : serviceCandidateList) {
-			if (serviceCandidate.getQosVector().getPrice() < priceMin) {
-				priceMin = serviceCandidate.getQosVector().getPrice();
-			}
 			if (serviceCandidate.getQosVector().getCosts() < costsMin) {
 				costsMin = serviceCandidate.getQosVector().getCosts();
 			}
@@ -50,20 +46,16 @@ public class ServiceClass {
 				reliabilityMin = serviceCandidate.getQosVector().getReliability();
 			}
 		}
-		qosVectorMin = new QosVector(priceMin, costsMin, responseTimeMin, 
+		qosVectorMin = new QosVector(costsMin, responseTimeMin, 
 				availabilityMin, reliabilityMin);
 	}
 	
 	private void determineQosVectorMax() {
-		double priceMax = 0;
 		double costsMax = 0;
 		double responseTimeMax = 0;
 		double availabilityMax = 0;
 		double reliabilityMax = 0;
 		for (ServiceCandidate serviceCandidate : serviceCandidateList) {
-			if (serviceCandidate.getQosVector().getPrice() > priceMax) {
-				priceMax = serviceCandidate.getQosVector().getPrice();
-			}
 			if (serviceCandidate.getQosVector().getCosts() > costsMax) {
 				costsMax = serviceCandidate.getQosVector().getCosts();
 			}
@@ -77,7 +69,7 @@ public class ServiceClass {
 				reliabilityMax = serviceCandidate.getQosVector().getReliability();
 			}
 		}
-		qosVectorMax = new QosVector(priceMax, costsMax, responseTimeMax, 
+		qosVectorMax = new QosVector(costsMax, responseTimeMax, 
 				availabilityMax, reliabilityMax);
 	}
 	

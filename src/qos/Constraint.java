@@ -6,7 +6,6 @@ public class Constraint {
 	private double constraintValue;
 	private double constraintWeight;
 	
-	public static final String PRICE = "Max. Price";
 	public static final String COSTS = "Max. Costs";
 	public static final String RESPONSE_TIME = "Max. Response Time";
 	public static final String AVAILABILITY = "Min. Availability";

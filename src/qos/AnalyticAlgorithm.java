@@ -88,24 +88,23 @@ public class AnalyticAlgorithm {
 		
 		boolean isWithinConstraints = true;
 		QosVector qosVector = composition.getQosVectorAggregated();
-		if (qosVector.getPrice() 
-				> constraintsMap.get(Constraint.PRICE).getValue()) {
+		Constraint costs = constraintsMap.get(Constraint.COSTS);
+		Constraint responseTime = constraintsMap.get(Constraint.RESPONSE_TIME);
+		Constraint availability = constraintsMap.get(Constraint.AVAILABILITY);
+		Constraint reliability = constraintsMap.get(Constraint.RELIABILITY);
+		if (costs != null && qosVector.getCosts() > costs.getValue()) {
 			isWithinConstraints = false;
 		}
-		if (qosVector.getCosts() 
-				> constraintsMap.get(Constraint.COSTS).getValue()) {
+		if (responseTime != null && 
+				qosVector.getResponseTime() > responseTime.getValue()) {
 			isWithinConstraints = false;
 		}
-		if (qosVector.getResponseTime() 
-				> constraintsMap.get(Constraint.RESPONSE_TIME).getValue()) {
+		if (availability != null && 
+				qosVector.getAvailability() < availability.getValue()) {
 			isWithinConstraints = false;
 		}
-		if (qosVector.getAvailability() 
-				< constraintsMap.get(Constraint.AVAILABILITY).getValue()) {
-			isWithinConstraints = false;
-		}
-		if (qosVector.getReliability() 
-				< constraintsMap.get(Constraint.RELIABILITY).getValue()) {
+		if (reliability != null && 
+				qosVector.getReliability() < reliability.getValue()) {
 			isWithinConstraints = false;
 		}
 		return isWithinConstraints;

@@ -1256,18 +1256,17 @@ public class MainFrame extends JFrame {
 						serviceCandidateArray[2]);
 				String name = serviceCandidateArray[3];
 				String provider = serviceCandidateArray[4];
-				double price = Double.parseDouble(serviceCandidateArray[5]);
-				double costs = Double.parseDouble(serviceCandidateArray[6]);
+				double costs = Double.parseDouble(serviceCandidateArray[5]);
 				double responseTime = Double.parseDouble(
-						serviceCandidateArray[7]);
+						serviceCandidateArray[6]);
 				double availability = Double.parseDouble(
-						serviceCandidateArray[8]);
+						serviceCandidateArray[7]);
 				double reliability = Double.parseDouble(
-						serviceCandidateArray[9]);
+						serviceCandidateArray[8]);
 
 				// Create and save service candidates.
-				QosVector qosVector = new QosVector(price, costs, 
-						responseTime, availability, reliability);
+				QosVector qosVector = new QosVector(costs, responseTime, 
+						availability, reliability);
 				ServiceCandidate serviceCandidate = new ServiceCandidate(
 						serviceClassId, serviceClassName, serviceCandidateId, 
 						name, provider, qosVector);
@@ -1320,17 +1319,17 @@ public class MainFrame extends JFrame {
 			// Columns "serviceClassId" and "serviceClassName" will not be
 			// shown here.
 			jTableWebServices.setModel(new BasicTableModel(
-					serviceCandidatesList.size(), 10, true));
+					serviceCandidatesList.size(), 9, true));
 			TableColumnModel webServicesColumnModel = 
 				jTableWebServices.getColumnModel();
 			webServicesColumnModel.getColumn(0).setHeaderValue("Selection");
-			for (int k = 1 ; k < 10 ; k++) {
+			for (int k = 1 ; k < 9 ; k++) {
 				webServicesColumnModel.getColumn(k).setHeaderValue(
 						headerArray[k+1]);
 			}
 			setColumnTextAlignment(
 					jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
-			for (int count = 4; count < 10; count++) {
+			for (int count = 4; count < 9; count++) {
 				setColumnTextAlignment(jTableWebServices, count, 
 						DefaultTableCellRenderer.RIGHT);
 			}
@@ -1345,14 +1344,13 @@ public class MainFrame extends JFrame {
 				jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
 				jTableWebServices.setValueAt(
 						serviceCandidate.getProvider(), k, 3);
-				jTableWebServices.setValueAt(qosVector.getPrice(), k, 4);
-				jTableWebServices.setValueAt(qosVector.getCosts(), k, 5);
+				jTableWebServices.setValueAt(qosVector.getCosts(), k, 4);
 				jTableWebServices.setValueAt(
-						qosVector.getResponseTime(), k, 6);
+						qosVector.getResponseTime(), k, 5);
 				jTableWebServices.setValueAt
-				(qosVector.getAvailability(), k, 7);
-				jTableWebServices.setValueAt(qosVector.getReliability(), k, 8);
-				jTableWebServices.setValueAt("Utility", k, 9);
+				(qosVector.getAvailability(), k, 6);
+				jTableWebServices.setValueAt(qosVector.getReliability(), k, 7);
+				jTableWebServices.setValueAt("Utility", k, 8);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1532,13 +1530,11 @@ public class MainFrame extends JFrame {
 	private Map<String, Constraint> getChosenConstraints() {
 		Map<String, Constraint> constraintsMap = 
 			new HashMap<String, Constraint>();
-		int numberOfChosenConstraints = 0;
 		if (jCheckBoxMaxCosts.isSelected()) {
 			Constraint constraintCosts = new Constraint(Constraint.COSTS, 
 					Double.valueOf(jTextFieldMaxCosts.getText()), 
 					Double.parseDouble(txtCostsWeight.getText()));
 			constraintsMap.put(constraintCosts.getTitle(), constraintCosts);
-			numberOfChosenConstraints++;
 		}
 		if (jCheckBoxMaxResponseTime.isSelected()) {
 			Constraint constraintResponseTime = new Constraint(
@@ -1548,7 +1544,6 @@ public class MainFrame extends JFrame {
 									txtResponseTimeWeight.getText()));
 			constraintsMap.put(constraintResponseTime.getTitle(), 
 					constraintResponseTime);
-			numberOfChosenConstraints++;
 		}
 		if (jCheckBoxMinAvailability.isSelected()) {
 			Constraint constraintAvailability = new Constraint(
@@ -1558,7 +1553,6 @@ public class MainFrame extends JFrame {
 									txtAvailabilityWeight.getText()));
 			constraintsMap.put(constraintAvailability.getTitle(), 
 					constraintAvailability);
-			numberOfChosenConstraints++;
 		}
 		if (jCheckBoxMinReliability.isSelected()) {
 			Constraint constraintReliability = new Constraint(
@@ -1568,7 +1562,6 @@ public class MainFrame extends JFrame {
 									txtReliabilityWeight.getText()));
 			constraintsMap.put(constraintReliability.getTitle(), 
 					constraintReliability);
-			numberOfChosenConstraints++;
 		}
 		Constraint constraintPenaltyFactor = new Constraint(
 				Constraint.PENALTY_FACTOR, 0, Double.parseDouble(
@@ -1580,12 +1573,19 @@ public class MainFrame extends JFrame {
 
 	private void printChosenConstraintsToConsole(
 			Map<String, Constraint> constraintsMap) {
-		System.out.println("CHOSEN CONSTRAINTS:\n--------");
-		System.out.println(constraintsMap.get(Constraint.PRICE));
-		System.out.println(constraintsMap.get(Constraint.COSTS));
-		System.out.println(constraintsMap.get(Constraint.RESPONSE_TIME));
-		System.out.println(constraintsMap.get(Constraint.AVAILABILITY));
-		System.out.println(constraintsMap.get(Constraint.RELIABILITY));
+		System.out.println("CHOSEN CONSTRAINTS:\n--------------");
+		if (constraintsMap.get(Constraint.COSTS) != null) {
+			System.out.println(constraintsMap.get(Constraint.COSTS));
+		}
+		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null) {
+			System.out.println(constraintsMap.get(Constraint.RESPONSE_TIME));
+		}
+		if (constraintsMap.get(Constraint.AVAILABILITY) != null) {
+			System.out.println(constraintsMap.get(Constraint.AVAILABILITY));
+		}
+		if (constraintsMap.get(Constraint.RELIABILITY) != null) {
+			System.out.println(constraintsMap.get(Constraint.RELIABILITY));
+		}
 	}
 
 	private void setRandomConstraints() {
