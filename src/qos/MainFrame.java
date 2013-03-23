@@ -15,6 +15,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +38,7 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
@@ -79,8 +82,6 @@ public class MainFrame extends JFrame {
 	private JCheckBox jCheckboxGeneticAlgorithm;
 	private JCheckBox jCheckBoxAntColonyOptimization;
 	private JCheckBox jCheckBoxAnalyticAlgorithm;
-
-	private JTable jTableAntAlgorithm;
 	private JTable jTableAnalyticAlgorithm;
 
 	private JProgressBar jProgressBarGeneticAlgorithm;
@@ -97,16 +98,27 @@ public class MainFrame extends JFrame {
 
 	private JLabel lblWeightSum;
 	private JSeparator jSeparatorFormula;
+	
+	private JTextArea textAreaLog;
+	
+	private boolean webServicesLoaded = false;
+	private boolean correctWeights = false;
+	private boolean correctPenalty = true;
 
 	private static MainFrame frame;
 
 
-	public static final int MAX_PRICE = 10000;
 	public static final int MAX_COSTS = 10000;
 	public static final int MAX_RESPONSE_TIME = 10000;
 	public static final int MAX_AVAILABILITY = 100;
 	public static final int MAX_RELIABILITY = 100;
 	public static final int MAX_PENALTY_FACTOR = 100;
+	
+	public static final int MIN_COSTS = 0;
+	public static final int MIN_RESPONSE_TIME = 0;
+	public static final int MIN_AVAILABILITY = 0;
+	public static final int MIN_RELIABILITY = 0;
+	public static final int MIN_PENALTY_FACTOR = 0;
 
 
 	private List<ServiceClass> serviceClassesList = 
@@ -139,7 +151,7 @@ public class MainFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public MainFrame() {
-
+		
 		// FRAME SETTINGS
 		setTitle("test_gui");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -152,7 +164,7 @@ public class MainFrame extends JFrame {
 		GridBagLayout gblContentPane = new GridBagLayout();
 		gblContentPane.columnWeights = new double[]{0.4, 0.4, 0.2};
 		gblContentPane.rowWeights = new double[]{
-				0.025, 0.225, 0.05, 0.25, 0.01, 0.025, 0.415};
+				0.025, 0.225, 0.05, 0.2, 0.01, 0.025, 0.415, 0.05};
 		contentPane.setLayout(gblContentPane);
 		Font generalFont = new Font(
 				"generalSettingsFont", Font.BOLD, 16);
@@ -202,6 +214,7 @@ public class MainFrame extends JFrame {
 		initializeAnalyticAlgorithmPanel(contentPane);
 		initializeTabbedResultsPanel(contentPane);
 		initializeGeneralResultsPanel(contentPane);
+		initializeLogPanel(contentPane);
 	}
 
 	private void initializeMenuBar() {
@@ -247,7 +260,6 @@ public class MainFrame extends JFrame {
 					return;
 				}
 				loadWebServices(file);
-				jButtonStart.setEnabled(true);
 			}
 		});
 
@@ -286,6 +298,17 @@ public class MainFrame extends JFrame {
 		jMenuEdit.add(jMenuItemLoadConstraints);
 		JMenuItem jMenuItemSaveConstraints = new JMenuItem("Save Constraints");
 		jMenuEdit.add(jMenuItemSaveConstraints);
+		
+		JMenuItem jMenuItemLoadRandomSet = new JMenuItem("Load Random Set");
+		jMenuEdit.add(jMenuItemLoadRandomSet);
+		jMenuItemLoadRandomSet.addActionListener(
+				new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						// TODO: INSERT FUNCTION LOADRANDOMWEBSERVICES!
+//						RandomSetGenerator generator = new RandomSetGenerator();
+//						loadRandomWebServices(generator.generateSet(100, 100));
+					}
+				});
 
 		JMenu jMenuOther = new JMenu("?");
 		jMenuBar.add(jMenuOther);
@@ -351,10 +374,6 @@ public class MainFrame extends JFrame {
 
 		jSpinnerNumberResultTiers = 
 			new JSpinner(new SpinnerNumberModel(1, 1, 3, 1));
-		jSpinnerNumberResultTiers.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-			}
-		});
 		jSpinnerNumberResultTiers.setPreferredSize(new Dimension(35, 25));
 		GridBagConstraints gbcJSpinnerNumberResultTiers = 
 			new GridBagConstraints();
@@ -374,8 +393,6 @@ public class MainFrame extends JFrame {
 		jCheckBoxMaxCosts = new JCheckBox("Max. Costs");
 		jCheckBoxMaxCosts.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: REMOVE THE ALGORITHMWEIGHTSTABLE
-				// (ALSO IN OTHER CHECKBOXACTIONLISTENERS)
 				buildGeneticAlgorithmFitnessFunction();
 				changeConstraintCheckboxStatus("Costs");
 			}
@@ -406,6 +423,12 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMaxCosts = 
 			new JTextField(String.valueOf(jSliderMaxCosts.getValue()));
+		jTextFieldMaxCosts.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setConstraintValueManually(jSliderMaxCosts, 
+						jTextFieldMaxCosts, MIN_COSTS, MAX_COSTS);
+			}
+		});
 		jTextFieldMaxCosts.setHorizontalAlignment(JTextField.RIGHT);
 		GridBagConstraints gbcJTextFieldMaxCosts = new GridBagConstraints();
 		gbcJTextFieldMaxCosts.insets = new Insets(0, 0, 5, 5);
@@ -485,6 +508,13 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMaxResponseTime = new JTextField(
 				String.valueOf(jSliderMaxResponseTime.getValue()));
+		jTextFieldMaxResponseTime.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setConstraintValueManually(jSliderMaxResponseTime, 
+						jTextFieldMaxResponseTime, 
+						MIN_RESPONSE_TIME, MAX_RESPONSE_TIME);
+			}
+		});
 		jTextFieldMaxResponseTime.setHorizontalAlignment(JTextField.RIGHT);
 		GridBagConstraints gbcJTextFieldMaxResponseTime = 
 			new GridBagConstraints();
@@ -568,6 +598,13 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMinAvailability = new JTextField(
 				String.valueOf(jSliderMinAvailability.getValue()));
+		jTextFieldMinAvailability.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setConstraintValueManually(jSliderMinAvailability, 
+						jTextFieldMinAvailability, 
+						MIN_AVAILABILITY, MAX_AVAILABILITY);
+			}
+		});
 		jTextFieldMinAvailability.setHorizontalAlignment(JTextField.RIGHT);
 		GridBagConstraints gbcJTextFieldMinAvailability = 
 			new GridBagConstraints();
@@ -651,6 +688,13 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMinReliability = new JTextField(
 				String.valueOf(jSliderMinReliability.getValue()));
+		jTextFieldMinReliability.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setConstraintValueManually(jSliderMinReliability, 
+						jTextFieldMinReliability, 
+						MIN_RELIABILITY, MAX_RELIABILITY);
+			}
+		});
 		jTextFieldMinReliability.setEditable(false);
 		jTextFieldMinReliability.setHorizontalAlignment(JTextField.RIGHT);
 		GridBagConstraints gbcJTextFieldMinReliability = 
@@ -758,6 +802,7 @@ public class MainFrame extends JFrame {
 				jScrollPaneServiceClasses, gbcJScrollPaneServiceClasses);
 
 		jTableServiceClasses = new JTable();
+		jTableServiceClasses.setEnabled(false);
 		jTableServiceClasses.setModel(new BasicTableModel(0, 3, true));
 		jTableServiceClasses.getColumnModel().getColumn(0).setHeaderValue(
 				"Selection");
@@ -802,6 +847,7 @@ public class MainFrame extends JFrame {
 				jScrollPaneWebServices, gbcJScrollPaneWebServices);
 
 		jTableWebServices = new JTable();
+		jTableWebServices.setEnabled(false);
 		jTableWebServices.setModel(new BasicTableModel(0, 9, true));
 		jTableWebServices.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		jTableWebServices.getColumnModel().getColumn(0).setHeaderValue(
@@ -904,16 +950,19 @@ public class MainFrame extends JFrame {
 		jPanelGeneticAlgorithm.add(
 				jCheckboxGeneticAlgorithm, gbcJCheckboxGeneticAlgorithm);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-		gbc_scrollPane.insets = new Insets(0, 0, 5, 0);
-		gbc_scrollPane.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane.gridx = 0;
-		gbc_scrollPane.gridy = 1;
-		jPanelGeneticAlgorithm.add(scrollPane, gbc_scrollPane);
+		JScrollPane jScrollPaneGeneticAlgorithm = new JScrollPane();
+		GridBagConstraints gbc_jScrollPaneGeneticAlgorithm = 
+			new GridBagConstraints();
+		gbc_jScrollPaneGeneticAlgorithm.insets = new Insets(0, 0, 5, 0);
+		gbc_jScrollPaneGeneticAlgorithm.fill = GridBagConstraints.BOTH;
+		gbc_jScrollPaneGeneticAlgorithm.gridx = 0;
+		gbc_jScrollPaneGeneticAlgorithm.gridy = 1;
+		jPanelGeneticAlgorithm.add(
+				jScrollPaneGeneticAlgorithm, gbc_jScrollPaneGeneticAlgorithm);
 		
 		JPanel panelGeneticAlgorithmSettings = new JPanel();
-		scrollPane.setViewportView(panelGeneticAlgorithmSettings);
+		jScrollPaneGeneticAlgorithm.setViewportView(
+				panelGeneticAlgorithmSettings);
 		GridBagLayout gbl_panelGeneticAlgorithmSettings = new GridBagLayout();
 		gbl_panelGeneticAlgorithmSettings.columnWeights = 
 			new double[]{0.3, 0.1, 0.3, 0.3};
@@ -970,7 +1019,6 @@ public class MainFrame extends JFrame {
 			new GridBagConstraints();
 		gbc_jLabelWeightedPenalty.insets = new Insets(0, 0, 5, 0);
 		gbc_jLabelWeightedPenalty.gridheight = 3;
-		gbc_jLabelWeightedPenalty.gridx = 3;
 		gbc_jLabelWeightedPenalty.gridy = 0;
 		panelGeneticAlgorithmSettings.add(
 				jLabelWeightedPenalty, gbc_jLabelWeightedPenalty);
@@ -979,7 +1027,7 @@ public class MainFrame extends JFrame {
 		JLabel lblPenaltyFactor = new JLabel("Penalty Factor:");
 		GridBagConstraints gbc_lblPenaltyFactor = new GridBagConstraints();
 		gbc_lblPenaltyFactor.anchor = GridBagConstraints.WEST;
-		gbc_lblPenaltyFactor.insets = new Insets(0, 5, 0, 5);
+		gbc_lblPenaltyFactor.insets = new Insets(5, 5, 0, 5);
 		gbc_lblPenaltyFactor.gridx = 0;
 		gbc_lblPenaltyFactor.gridy = 3;
 		panelGeneticAlgorithmSettings.add(
@@ -994,7 +1042,7 @@ public class MainFrame extends JFrame {
 		});
 		GridBagConstraints gbc_jTextFieldPenaltyFactor = 
 			new GridBagConstraints();
-		gbc_jTextFieldPenaltyFactor.insets = new Insets(0, 20, 0, 5);
+		gbc_jTextFieldPenaltyFactor.insets = new Insets(5, 20, 0, 5);
 		gbc_jTextFieldPenaltyFactor.fill = GridBagConstraints.HORIZONTAL;
 		gbc_jTextFieldPenaltyFactor.anchor = GridBagConstraints.EAST;
 		gbc_jTextFieldPenaltyFactor.gridx = 1;
@@ -1004,6 +1052,7 @@ public class MainFrame extends JFrame {
 
 		JLabel lblPercentagepenalty = new JLabel("%");
 		GridBagConstraints gbc_lblPercentagePenalty = new GridBagConstraints();
+		gbc_lblPercentagePenalty.insets = new Insets(5, 0, 0, 0);
 		gbc_lblPercentagePenalty.anchor = GridBagConstraints.WEST;
 		gbc_lblPercentagePenalty.gridx = 2;
 		gbc_lblPercentagePenalty.gridy = 3;
@@ -1034,7 +1083,7 @@ public class MainFrame extends JFrame {
 		contentPane.add(jPanelAntAlgorithm, gbcPanelAntAlgorithm);
 		GridBagLayout gblJPanelAntAlgorithm = new GridBagLayout();
 		gblJPanelAntAlgorithm.columnWeights = new double[]{1.0};
-		gblJPanelAntAlgorithm.rowWeights = new double[]{0.0, 1.0, 0.0};
+		gblJPanelAntAlgorithm.rowWeights = new double[]{0.1, 0.8, 0.1};
 		jPanelAntAlgorithm.setLayout(gblJPanelAntAlgorithm);
 
 		jCheckBoxAntColonyOptimization = 
@@ -1065,9 +1114,15 @@ public class MainFrame extends JFrame {
 		gbcJScrollPaneAntAlgorithm.gridy = 1;
 		jPanelAntAlgorithm.add(
 				jScrollPaneAntAlgorithm, gbcJScrollPaneAntAlgorithm);
-
-		jTableAntAlgorithm = new JTable();
-		jScrollPaneAntAlgorithm.setViewportView(jTableAntAlgorithm);
+			
+		JPanel panelAntAlgorithmSettings = new JPanel();
+		jScrollPaneAntAlgorithm.setViewportView(panelAntAlgorithmSettings);
+		GridBagLayout gbl_panelAntAlgorithmSettings = new GridBagLayout();
+		gbl_panelAntAlgorithmSettings.columnWeights = 
+			new double[]{};
+		gbl_panelAntAlgorithmSettings.rowWeights = 
+			new double[]{};
+		panelAntAlgorithmSettings.setLayout(gbl_panelAntAlgorithmSettings);
 
 		jProgressBarAntAlgorithm = new JProgressBar();
 		jProgressBarAntAlgorithm.setStringPainted(true);
@@ -1095,7 +1150,7 @@ public class MainFrame extends JFrame {
 		contentPane.add(jPanelAnalyticAlgorithm, gbcJPanelAnalyticAlgorithm);
 		GridBagLayout gblJPanelAnalyticAlgorithm = new GridBagLayout();
 		gblJPanelAnalyticAlgorithm.columnWeights = new double[]{1.0};
-		gblJPanelAnalyticAlgorithm.rowWeights = new double[]{0.0, 1.0, 0.0};
+		gblJPanelAnalyticAlgorithm.rowWeights = new double[]{0.1, 0.8, 0.1};
 		jPanelAnalyticAlgorithm.setLayout(gblJPanelAnalyticAlgorithm);
 
 		jCheckBoxAnalyticAlgorithm = 
@@ -1230,6 +1285,24 @@ public class MainFrame extends JFrame {
 		jScrollPaneResults.setViewportView(jTableGeneralResults);
 	}
 
+	private void initializeLogPanel(JPanel contentPane) {
+		JScrollPane jScrollPaneLog = new JScrollPane();
+		jScrollPaneLog.setVerticalScrollBarPolicy(
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		GridBagConstraints gbcJScrollPaneResults = new GridBagConstraints();
+		gbcJScrollPaneResults.insets = new Insets(0, 5, 0, 5);
+		gbcJScrollPaneResults.fill = GridBagConstraints.BOTH;
+		gbcJScrollPaneResults.gridwidth = 3;
+		gbcJScrollPaneResults.gridx = 0;
+		gbcJScrollPaneResults.gridy = 7;
+		contentPane.add(jScrollPaneLog, gbcJScrollPaneResults);
+		textAreaLog = new JTextArea();
+		textAreaLog.setEditable(false);
+		textAreaLog.setForeground(Color.RED);
+		jScrollPaneLog.setViewportView(textAreaLog);
+	}
+	
+	
 
 	private void loadWebServices(File file) {
 		// Delete previously loaded web services.
@@ -1316,8 +1389,6 @@ public class MainFrame extends JFrame {
 			// Write service candidates headers (first line of input file!). 
 			// Columns "serviceClassId" and "serviceClassName" will not be
 			// shown here.
-			// TODO: EITHER SHOW THE TWO COLUMS MENTIONED ABOVE OR SHOW ONLY
-			//		 THE WEB SERVICES FOR THE SELECTED SERVICE CLASS.
 			jTableWebServices.setModel(new BasicTableModel(
 					serviceCandidatesList.size(), 8, true));
 			TableColumnModel webServicesColumnModel = 
@@ -1350,7 +1421,10 @@ public class MainFrame extends JFrame {
 				jTableWebServices.setValueAt
 				(qosVector.getAvailability(), k, 6);
 				jTableWebServices.setValueAt(qosVector.getReliability(), k, 7);
+				jTableWebServices.setValueAt("Utility", k, 8);
 			}
+			webServicesLoaded = true;
+			checkEnableStartButton();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -1409,7 +1483,6 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	// TODO: EXPAND LATER...
 	private void pressStartButton() {
 		buildResultTable();
 		Map<String, Constraint> constraintsMap = getChosenConstraints();
@@ -1616,16 +1689,34 @@ public class MainFrame extends JFrame {
 		} catch (Exception e) {
 			textField.setText("0");
 		}
-		int cumulatedPercentage = 
-			Integer.parseInt(lblWeightSum.getText().substring(2)) + 
-			Integer.parseInt(textField.getText());
+		int cumulatedPercentage = 0;
+		if (jCheckBoxMaxCosts.isSelected()) {
+			cumulatedPercentage += Integer.parseInt(txtCostsWeight.getText());
+		}
+		if (jCheckBoxMaxResponseTime.isSelected()) {
+			cumulatedPercentage += Integer.parseInt(
+					txtResponseTimeWeight.getText());
+		}
+		if (jCheckBoxMinAvailability.isSelected()) {
+			cumulatedPercentage += Integer.parseInt(
+					txtAvailabilityWeight.getText());
+		}
+		if (jCheckBoxMinReliability.isSelected()) {
+			cumulatedPercentage += Integer.parseInt(
+					txtReliabilityWeight.getText());
+		}
 		lblWeightSum.setText("\u03A3 " + String.valueOf(cumulatedPercentage));
 		if (cumulatedPercentage != 100) {
 			lblWeightSum.setForeground(Color.RED);
+			correctWeights = false;
+			writeErrorLogEntry(
+					"Sum of active constraint weights has to be 100%");
 		}
 		else {
 			lblWeightSum.setForeground(Color.GREEN);
+			correctWeights = true;
 		}
+		checkEnableStartButton();
 	}
 
 	private void changeConstraintCheckboxStatus(String constraint) {
@@ -1691,9 +1782,60 @@ public class MainFrame extends JFrame {
 		} catch (Exception e1) {
 			jTextFieldPenaltyFactor.setText("0");
 		}
-		if (Integer.parseInt(jTextFieldPenaltyFactor.getText()) < 0 || 
+		if (Integer.parseInt(jTextFieldPenaltyFactor.getText()) <= 0 || 
 				Integer.parseInt(jTextFieldPenaltyFactor.getText()) >= 100) {
 			jTextFieldPenaltyFactor.setText("0");
+			writeErrorLogEntry("Penalty Factor has to be between 0 and 100%");
+			correctPenalty = false;
+		}
+		else {
+			correctPenalty = true;
+		}
+		checkEnableStartButton();
+	}
+	
+	private void writeErrorLogEntry(String entry) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("H:m:s: ");
+		textAreaLog.append("\n" + dateFormat.format(new Date()) + entry);
+	}
+	
+	private void checkEnableStartButton() {
+		if (webServicesLoaded && correctWeights) {
+			if (jCheckboxGeneticAlgorithm.isSelected()) {
+				if (correctPenalty) {
+					jButtonStart.setEnabled(true);
+				}
+				else {
+					jButtonStart.setEnabled(false);
+				}
+			}
+			else {
+				jButtonStart.setEnabled(true);
+			}
+		}
+		else {
+			jButtonStart.setEnabled(false);
+		}
+	}
+	
+	private void setConstraintValueManually(
+			JSlider slider, JTextField textField, int minValue, int maxValue) {
+		int average = (minValue + maxValue) / 2;
+		try {
+			Integer.parseInt(textField.getText());
+		} catch (Exception e) {
+			textField.setText(String.valueOf(average));
+			slider.setValue(average);
+		}
+		if (Integer.parseInt(textField.getText()) < minValue || 
+				Integer.parseInt(textField.getText()) > maxValue) {
+			textField.setText(String.valueOf(average));
+			slider.setValue(average);
+			writeErrorLogEntry("Value has to be between " + 
+					minValue + " and " + maxValue);
+		}
+		else {
+			slider.setValue(Integer.parseInt(textField.getText()));
 		}
 	}
 }
