@@ -328,11 +328,9 @@ public class MainFrame extends JFrame {
 							(Integer) spinnerNumberOfWebServices.getValue();
 						
 						// TODO: INSERT FUNCTION LOADRANDOMWEBSERVICES!
-						loadRandomWebServices(
-								new RandomSetGenerator().generateSet(
-										numberOfServiceClasses, 
-										numberOfWebServices),
-										numberOfWebServices);
+						loadRandomWebServices(RandomSetGenerator.generateSet(
+								numberOfServiceClasses, numberOfWebServices), 
+								numberOfWebServices);
 					}
 				});
 
@@ -1400,10 +1398,9 @@ public class MainFrame extends JFrame {
 			// Write service classes data.
 			for (int k = 0 ; k < serviceClassesList.size() ; k++) {
 				ServiceClass serviceClass = serviceClassesList.get(k);
-				jTableServiceClasses.setValueAt(true, k, 0);
 				jTableServiceClasses.setValueAt(
-						serviceClass.getServiceClassId(), k, 1);
-				jTableServiceClasses.setValueAt(serviceClass.getName(), k, 2);
+						serviceClass.getServiceClassId(), k, 0);
+				jTableServiceClasses.setValueAt(serviceClass.getName(), k, 1);
 			}
 
 			jTableWebServices.setModel(new BasicTableModel(
@@ -1883,9 +1880,6 @@ public class MainFrame extends JFrame {
 			}
 		}
 
-		// Write service candidates headers (first line of input file!). 
-		// Columns "serviceClassId" and "serviceClassName" will not be
-		// shown here.
 		jTableWebServices.setModel(new BasicTableModel(
 				serviceCandidatesList.size(), 6, false));
 		TableColumnModel webServicesColumnModel = 

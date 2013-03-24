@@ -16,7 +16,8 @@ public class Composition {
 		
 	}
 
-	public Composition(List<ServiceCandidate> serviceCandidatesList, QosVector qosVectorAggregated, double utility) {
+	public Composition(List<ServiceCandidate> serviceCandidatesList, 
+			QosVector qosVectorAggregated, double utility) {
 		this.serviceCandidatesList = serviceCandidatesList;
 		this.qosVectorAggregated = qosVectorAggregated;
 		this.utility = utility;
@@ -51,7 +52,8 @@ public class Composition {
 	public List<ServiceCandidate> getServiceCandidatesList() {
 		return serviceCandidatesList;
 	}
-	public void setServiceCandidateList(List<ServiceCandidate> serviceCandidatesList) {
+	public void setServiceCandidateList(
+			List<ServiceCandidate> serviceCandidatesList) {
 		this.serviceCandidatesList = serviceCandidatesList;
 	}
 	public QosVector getQosVectorAggregated() {

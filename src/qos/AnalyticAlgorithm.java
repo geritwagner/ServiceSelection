@@ -45,7 +45,7 @@ public class AnalyticAlgorithm {
 		computeUtilityValues();
 		printValidCompositions();
 		// TODO: [MAYBE] BETTER OUTPUT FOR OPTIMAL COMPOSITION.
-		System.out.println(
+		System.out.println("Optimal composition: " + 
 				findOptimalComposition().getServiceCandidatesAsString());
 	}
 	
@@ -197,9 +197,6 @@ public class AnalyticAlgorithm {
 	}
 	
 	private boolean isWithinConstraints(Composition composition) {
-		// TODO: MAYBE HANDLE THE DIFFERENT CONSTRAINT VIOLATIONS IN A 
-		//		 REASONABLE WAY.
-		
 		boolean isWithinConstraints = true;
 		QosVector qosVector = composition.getQosVectorAggregated();
 		Constraint costs = constraintsMap.get(Constraint.COSTS);
