@@ -5,7 +5,6 @@ public class QosVector {
 	private double costs = 0.0;
 	private double responseTime = 0.0;
 	private double availability = 1.0;
-	private double reliability = 1.0;
 	
 	
 	// CONSTRUCTORS
@@ -13,12 +12,10 @@ public class QosVector {
 		
 	}
 	
-	public QosVector(double costs, double responseTime, double availability, 
-			double reliability) {
+	public QosVector(double costs, double responseTime, double availability) {
 		this.costs = costs;
 		this.responseTime = responseTime;
 		this.availability = availability;
-		this.reliability = reliability;
 	}
 	
 	
@@ -26,14 +23,12 @@ public class QosVector {
 		addCosts(qosVectorToAdd.getCosts());
 		addResponseTime(qosVectorToAdd.getResponseTime());
 		addAvailability(qosVectorToAdd.getAvailability());
-		addReliability(qosVectorToAdd.getReliability());
 	}
 	
 	public void subtract(QosVector qosVectorToSubtract) {
 		subtractCosts(qosVectorToSubtract.getCosts());
 		subtractResponseTime(qosVectorToSubtract.getResponseTime());
 		subtractAvailability(qosVectorToSubtract.getAvailability());
-		subtractReliability(qosVectorToSubtract.getReliability());
 	}
 	
 	public void addCosts(double costs) {
@@ -45,9 +40,6 @@ public class QosVector {
 	public void addAvailability(double availability) {
 		this.availability *= availability;
 	}
-	public void addReliability(double reliability) {
-		this.reliability *= reliability;
-	}
 	
 	public void subtractCosts(double costs) {
 		this.costs -= costs;
@@ -57,9 +49,6 @@ public class QosVector {
 	}
 	public void subtractAvailability(double availability) {
 		this.availability /= availability;
-	}
-	public void subtractReliability(double reliability) {
-		this.reliability /= reliability;
 	}
 	
 	
@@ -82,16 +71,9 @@ public class QosVector {
 	public void setAvailability(double availability) {
 		this.availability = availability;
 	}
-	public double getReliability() {
-		return reliability;
-	}
-	public void setReliability(double reliability) {
-		this.reliability = reliability;
-	}
 	
 	public String toString() {
-		return "(" + costs + ", " + responseTime + ", " + availability + 
-				", " + reliability + ")";
+		return "(" + costs + ", " + responseTime + ", " + availability + ")";
 	}
 
 }

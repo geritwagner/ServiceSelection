@@ -69,8 +69,7 @@ public class AnalyticAlgorithm {
 						composition.getServiceCandidatesList());
 				QosVector qos = composition.getQosVectorAggregated();
 				QosVector qosVectorNew = new QosVector(qos.getCosts(), 
-						qos.getResponseTime(), qos.getAvailability(), 
-						qos.getReliability());
+						qos.getResponseTime(), qos.getAvailability());
 				compositionsList.add(new Composition(serviceCandidatesListNew, 
 						qosVectorNew, 0.0));
 				
@@ -142,8 +141,7 @@ public class AnalyticAlgorithm {
 	}
 	
 	private QosVector determineQosVectorMax() {
-		// TODO: DELETE "RELIABILITY".
-		QosVector max = new QosVector(0.0, 0.0, 0.0, 0.0);
+		QosVector max = new QosVector(0.0, 0.0, 0.0);
 		for (Composition composition : compositionsList) {
 			QosVector qos = composition.getQosVectorAggregated();
 			if (qos.getCosts() > max.getCosts()) {
@@ -155,16 +153,12 @@ public class AnalyticAlgorithm {
 			if (qos.getAvailability() > max.getAvailability()) {
 				max.setAvailability(qos.getAvailability());
 			}
-//			if (qos.getReliability() > qosVectorMax.getReliability()) {
-//				qosVectorMax.setReliability(qos.getReliability());
-//			}
 		}
 		return max;
 	}
 	
 	private QosVector determineQosVectorMin() {
-		// TODO: DELETE "RELIABILITY".
-		QosVector min = new QosVector(100000.0, 100000.0, 1.0, 1.0);
+		QosVector min = new QosVector(100000.0, 100000.0, 1.0);
 		for (Composition composition : compositionsList) {
 			QosVector qos = composition.getQosVectorAggregated();
 			if (qos.getCosts() < min.getCosts()) {
@@ -176,9 +170,6 @@ public class AnalyticAlgorithm {
 			if (qos.getAvailability() < min.getAvailability()) {
 				min.setAvailability(qos.getAvailability());
 			}
-//			if (qos.getReliability() < qosVectorMin.getReliability()) {
-//				qosVectorMin.setReliability(qos.getReliability());
-//			}
 		}
 		return min;
 	}
@@ -214,7 +205,6 @@ public class AnalyticAlgorithm {
 		Constraint costs = constraintsMap.get(Constraint.COSTS);
 		Constraint responseTime = constraintsMap.get(Constraint.RESPONSE_TIME);
 		Constraint availability = constraintsMap.get(Constraint.AVAILABILITY);
-		Constraint reliability = constraintsMap.get(Constraint.RELIABILITY);
 		if (costs != null && qosVector.getCosts() > costs.getValue()) {
 			isWithinConstraints = false;
 		}
@@ -224,10 +214,6 @@ public class AnalyticAlgorithm {
 		}
 		if (availability != null && 
 				qosVector.getAvailability() < availability.getValue()) {
-			isWithinConstraints = false;
-		}
-		if (reliability != null && 
-				qosVector.getReliability() < reliability.getValue()) {
 			isWithinConstraints = false;
 		}
 		return isWithinConstraints;

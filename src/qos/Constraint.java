@@ -9,7 +9,6 @@ public class Constraint {
 	public static final String COSTS = "Max. Costs";
 	public static final String RESPONSE_TIME = "Max. Response Time";
 	public static final String AVAILABILITY = "Min. Availability";
-	public static final String RELIABILITY = "Min. Reliability";
 	public static final String PENALTY_FACTOR = "Penalty Factor";
 	
 	

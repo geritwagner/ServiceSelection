@@ -6,7 +6,6 @@ public class ServiceCandidate {
 	private String serviceClassName;
 	private int serviceCandidateId;
 	private String name;
-	private String provider;
 	private QosVector qosVector = new QosVector();
 	
 	
@@ -16,13 +15,11 @@ public class ServiceCandidate {
 	}
 	
 	public ServiceCandidate(int serviceClassId, String serviceClassName, 
-			int serviceCandidateId, String name, String provider, 
-			QosVector qosVector) {
+			int serviceCandidateId, String name, QosVector qosVector) {
 		this.serviceCandidateId = serviceCandidateId;
 		this.serviceClassName = serviceClassName;
 		this.serviceClassId = serviceClassId;
 		this.name = name;
-		this.provider = provider;
 		this.qosVector = qosVector;
 	}
 
@@ -51,12 +48,6 @@ public class ServiceCandidate {
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public String getProvider() {
-		return provider;
-	}
-	public void setProvider(String provider) {
-		this.provider = provider;
 	}
 	public QosVector getQosVector() {
 		return qosVector;

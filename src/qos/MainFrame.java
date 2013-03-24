@@ -829,7 +829,7 @@ public class MainFrame extends JFrame {
 
 		jTableServiceClasses = new JTable();
 		jTableServiceClasses.setEnabled(false);
-		jTableServiceClasses.setModel(new BasicTableModel(0, 3, true));
+		jTableServiceClasses.setModel(new BasicTableModel(0, 3, false));
 		jTableServiceClasses.getColumnModel().getColumn(0).setHeaderValue(
 				"Selection");
 		jTableServiceClasses.getColumnModel().getColumn(1).setHeaderValue(
@@ -874,7 +874,7 @@ public class MainFrame extends JFrame {
 
 		jTableWebServices = new JTable();
 		jTableWebServices.setEnabled(false);
-		jTableWebServices.setModel(new BasicTableModel(0, 8, true));
+		jTableWebServices.setModel(new BasicTableModel(0, 8, false));
 		jTableWebServices.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		jTableWebServices.getColumnModel().getColumn(0).setHeaderValue(
 				"Selection");
@@ -1350,21 +1350,18 @@ public class MainFrame extends JFrame {
 				int serviceCandidateId = Integer.parseInt(
 						serviceCandidateArray[2]);
 				String name = serviceCandidateArray[3];
-				String provider = serviceCandidateArray[4];
-				double costs = Double.parseDouble(serviceCandidateArray[5]);
+				double costs = Double.parseDouble(serviceCandidateArray[4]);
 				double responseTime = Double.parseDouble(
-						serviceCandidateArray[6]);
+						serviceCandidateArray[5]);
 				double availability = Double.parseDouble(
-						serviceCandidateArray[7]);
-				double reliability = Double.parseDouble(
-						serviceCandidateArray[8]);
+						serviceCandidateArray[6]);
 
 				// Create and save service candidates.
 				QosVector qosVector = new QosVector(costs, responseTime, 
-						availability, reliability);
+						availability);
 				ServiceCandidate serviceCandidate = new ServiceCandidate(
 						serviceClassId, serviceClassName, serviceCandidateId, 
-						name, provider, qosVector);
+						name, qosVector);
 				serviceCandidatesList.add(serviceCandidate);
 
 				// Create and save service classes. Assign service candidates 
@@ -1390,14 +1387,13 @@ public class MainFrame extends JFrame {
 
 			// Write service classes headers.
 			jTableServiceClasses.setModel(new BasicTableModel(
-					serviceClassesList.size(), 3, true));
+					serviceClassesList.size(), 2, false));
 			setColumnWidthRelative(jTableServiceClasses, 
-					new double[] {0.3, 0.1, 0.6});
+					new double[] {0.3, 0.7});
 			TableColumnModel serviceClassesColumnModel = 
 				jTableServiceClasses.getColumnModel();
-			serviceClassesColumnModel.getColumn(0).setHeaderValue("Selection");
-			serviceClassesColumnModel.getColumn(1).setHeaderValue("ID");
-			serviceClassesColumnModel.getColumn(2).setHeaderValue("Name");
+			serviceClassesColumnModel.getColumn(0).setHeaderValue("ID");
+			serviceClassesColumnModel.getColumn(1).setHeaderValue("Name");
 			setColumnTextAlignment(
 					jTableServiceClasses, 1, DefaultTableCellRenderer.CENTER);
 
@@ -1410,23 +1406,19 @@ public class MainFrame extends JFrame {
 				jTableServiceClasses.setValueAt(serviceClass.getName(), k, 2);
 			}
 
-			// Write service candidates headers (first line of input file!). 
-			// Columns "serviceClassId" and "serviceClassName" will not be
-			// shown here.
-			// TODO: EITHER SHOW THE TWO COLUMS MENTIONED ABOVE OR SHOW ONLY
-			//		 THE WEB SERVICES FOR THE SELECTED SERVICE CLASS.
 			jTableWebServices.setModel(new BasicTableModel(
-					serviceCandidatesList.size(), 8, true));
+					serviceCandidatesList.size(), 6, false));
 			TableColumnModel webServicesColumnModel = 
 				jTableWebServices.getColumnModel();
-			webServicesColumnModel.getColumn(0).setHeaderValue("Selection");
-			for (int k = 1 ; k < 8 ; k++) {
+			for (int k = 0 ; k < 6 ; k++) {
 				webServicesColumnModel.getColumn(k).setHeaderValue(
-						headerArray[k+1]);
+						headerArray[k]);
 			}
+			// TODO: FOLGENDES BITTE PRÜFEN
 			setColumnTextAlignment(
 					jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
-			for (int count = 4; count < 8; count++) {
+			// TODO: FOLGENDES BITTE PRÜFEN
+			for (int count = 4; count < 6; count++) {
 				setColumnTextAlignment(jTableWebServices, count, 
 						DefaultTableCellRenderer.RIGHT);
 			}
@@ -1435,18 +1427,16 @@ public class MainFrame extends JFrame {
 				ServiceCandidate serviceCandidate = 
 					serviceCandidatesList.get(k);
 				QosVector qosVector = serviceCandidate.getQosVector();
-				jTableWebServices.setValueAt(true, k, 0);
+				jTableWebServices.setValueAt(
+						serviceCandidate.getServiceClassId(), k, 0);
 				jTableWebServices.setValueAt(
 						serviceCandidate.getServiceCandidateId(), k, 1);
 				jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
+				jTableWebServices.setValueAt(qosVector.getCosts(), k, 3);
 				jTableWebServices.setValueAt(
-						serviceCandidate.getProvider(), k, 3);
-				jTableWebServices.setValueAt(qosVector.getCosts(), k, 4);
-				jTableWebServices.setValueAt(
-						qosVector.getResponseTime(), k, 5);
+						qosVector.getResponseTime(), k, 4);
 				jTableWebServices.setValueAt
-				(qosVector.getAvailability(), k, 6);
-				jTableWebServices.setValueAt(qosVector.getReliability(), k, 7);
+				(qosVector.getAvailability(), k, 5);
 			}
 			webServicesLoaded = true;
 			checkEnableStartButton();
@@ -1651,15 +1641,6 @@ public class MainFrame extends JFrame {
 			constraintsMap.put(constraintAvailability.getTitle(), 
 					constraintAvailability);
 		}
-		if (jCheckBoxMinReliability.isSelected()) {
-			Constraint constraintReliability = new Constraint(
-					Constraint.RELIABILITY, (Double.valueOf(
-							jTextFieldMinReliability.getText())) / 100.0, 
-							Double.parseDouble(
-									txtReliabilityWeight.getText()));
-			constraintsMap.put(constraintReliability.getTitle(), 
-					constraintReliability);
-		}
 		Constraint constraintPenaltyFactor = new Constraint(
 				Constraint.PENALTY_FACTOR, 0, Double.parseDouble(
 						(String) jTextFieldPenaltyFactor.getText()));
@@ -1679,9 +1660,6 @@ public class MainFrame extends JFrame {
 		}
 		if (constraintsMap.get(Constraint.AVAILABILITY) != null) {
 			System.out.println(constraintsMap.get(Constraint.AVAILABILITY));
-		}
-		if (constraintsMap.get(Constraint.RELIABILITY) != null) {
-			System.out.println(constraintsMap.get(Constraint.RELIABILITY));
 		}
 	}
 
@@ -1873,25 +1851,24 @@ public class MainFrame extends JFrame {
 		
 		// Write service classes headers.
 		jTableServiceClasses.setModel(new BasicTableModel(
-				serviceClassesList.size(), 3, true));
+				serviceClassesList.size(), 2, false));
 		setColumnWidthRelative(jTableServiceClasses, 
-				new double[] {0.3, 0.1, 0.6});
+				new double[] {0.3, 0.7});
 		TableColumnModel serviceClassesColumnModel = 
 			jTableServiceClasses.getColumnModel();
-		serviceClassesColumnModel.getColumn(0).setHeaderValue("Selection");
-		serviceClassesColumnModel.getColumn(1).setHeaderValue("ID");
-		serviceClassesColumnModel.getColumn(2).setHeaderValue("Name");
+		serviceClassesColumnModel.getColumn(0).setHeaderValue("ID");
+		serviceClassesColumnModel.getColumn(1).setHeaderValue("Name");
 		setColumnTextAlignment(
 				jTableServiceClasses, 1, DefaultTableCellRenderer.CENTER);
 
 		// Write service classes data.
 		for (int k = 0 ; k < serviceClassesList.size() ; k++) {
 			ServiceClass serviceClass = serviceClassesList.get(k);
-			jTableServiceClasses.setValueAt(true, k, 0);
 			jTableServiceClasses.setValueAt(
-					serviceClass.getServiceClassId(), k, 1);
-			jTableServiceClasses.setValueAt(serviceClass.getName(), k, 2);	
+					serviceClass.getServiceClassId(), k, 0);
+			jTableServiceClasses.setValueAt(serviceClass.getName(), k, 1);	
 			// TODO: DYNAMIC ADJUSTMENT CONCERNING "5"...
+			// TODO: ID'S IM RANDOMGENERATOR ANPASSEN! HIER RICHTIG!
 			for (int count = 0; count < serviceClass.getServiceCandidateList(
 					).size(); count++) {
 				ServiceCandidate serviceCandidate = new ServiceCandidate(
@@ -1900,7 +1877,6 @@ public class MainFrame extends JFrame {
 						(count + 1) + (numberOfWebServices * k),
 						"WebService" + String.valueOf((count + 1) + 
 								(numberOfWebServices * k)),
-						"Provider1",
 						serviceClass.getServiceCandidateList(
 								).get(count).getQosVector());
 				serviceCandidatesList.add(serviceCandidate);
@@ -1911,22 +1887,20 @@ public class MainFrame extends JFrame {
 		// Columns "serviceClassId" and "serviceClassName" will not be
 		// shown here.
 		jTableWebServices.setModel(new BasicTableModel(
-				serviceCandidatesList.size(), 8, true));
+				serviceCandidatesList.size(), 6, false));
 		TableColumnModel webServicesColumnModel = 
 			jTableWebServices.getColumnModel();
-		webServicesColumnModel.getColumn(0).setHeaderValue("Selection");
-		String[] headerArray = new String[] {
-			"Selection", "ServiceClassId", "ServiceClassName", "Id", 
-			"Name", "Provider", "Costs", "ResponseTime", 
-			"Availability", "Reliability"
-		};
-		for (int k = 1 ; k < 8 ; k++) {
+		String[] headerArray = new String[] {"Service Class ", "ID", 
+			"Name", "Costs", "ResponseTime", "Availability"};
+		for (int k = 0 ; k < 6 ; k++) {
 			webServicesColumnModel.getColumn(k).setHeaderValue(
-					headerArray[k+1]);
+					headerArray[k]);
 		}
+		// TODO: FOLGENDES BITTE PRÜFEN
 		setColumnTextAlignment(
 				jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
-		for (int count = 4; count < 7; count++) {
+		// TODO: FOLGENDES BITTE PRÜFEN
+		for (int count = 4; count < 6; count++) {
 			setColumnTextAlignment(jTableWebServices, count, 
 					DefaultTableCellRenderer.RIGHT);
 		}
@@ -1935,18 +1909,15 @@ public class MainFrame extends JFrame {
 			ServiceCandidate serviceCandidate = 
 				serviceCandidatesList.get(k);
 			QosVector qosVector = serviceCandidate.getQosVector();
-			jTableWebServices.setValueAt(true, k, 0);
+			jTableWebServices.setValueAt(
+					serviceCandidate.getServiceClassId(), k, 0);
 			jTableWebServices.setValueAt(
 					serviceCandidate.getServiceCandidateId(), k, 1);
 			jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
+			jTableWebServices.setValueAt(qosVector.getCosts(), k, 3);
 			jTableWebServices.setValueAt(
-					serviceCandidate.getProvider(), k, 3);
-			jTableWebServices.setValueAt(qosVector.getCosts(), k, 4);
-			jTableWebServices.setValueAt(
-					qosVector.getResponseTime(), k, 5);
-			jTableWebServices.setValueAt
-			(qosVector.getAvailability(), k, 6);
-			jTableWebServices.setValueAt(qosVector.getReliability(), k, 7);
+					qosVector.getResponseTime(), k, 4);
+			jTableWebServices.setValueAt(qosVector.getAvailability(), k, 5);
 		}
 		webServicesLoaded = true;
 		checkEnableStartButton();
