@@ -52,7 +52,7 @@ public class AnalyticAlgorithm {
 	// COMPLETE ENUMERATION.
 	// TODO: - SHOW COMPOSITIONS IN RESULT TABLE.
 	//		 - [MAYBE] DO NOT CONSIDER PATHS THAT VIOLATE ANY CONSTRAINTS
-	//		   ANYMORE. (OPTIMIZATION THAT COULD RESULT IN SOME WORK!)
+	//		   ANYMORE. (OPTIMIZATION THAT COULD RESULT IN SOME WORK!) -> WOULDN'T BE A COMPLETE ENUMERATION ANYMORE
 	private void doCompleteEnumeration(Composition composition, 
 			int serviceClassNumber, int serviceCandidateNumber) {
 		composition = forward(composition, serviceClassNumber, 

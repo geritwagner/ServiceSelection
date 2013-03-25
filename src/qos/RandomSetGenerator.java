@@ -13,10 +13,8 @@ public class RandomSetGenerator {
 			List<ServiceCandidate> serviceCandidateList = 
 					new LinkedList<ServiceCandidate>();
 			// GENERATE SERVICE CANDIDATES
-			for (int j = 0; j < numCandidates; j++) {
-				// TODO: ID'S WERDEN FALSCH GENERIERT! IM MAINFRAME RICHTIG! 
-				//		 (ZEILE 1871)
-				int serviceID = (i + 1) * (j + 1);
+			for (int j = 0; j < numCandidates; j++) {				
+				int serviceID = (j + 1) + (numCandidates * i);
 				
 				double cost = myRandom(0, 100);
 				double time = myRandom(0, 100);
