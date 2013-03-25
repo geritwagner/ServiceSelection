@@ -217,6 +217,9 @@ public class MainFrame extends JFrame {
 		initializeTabbedResultsPanel(contentPane);
 		initializeGeneralResultsPanel(contentPane);
 		initializeLogPanel(contentPane);
+		
+		// INITIAL VERIFICATION OF CORRECT WEIGHT SUM
+		changeWeight(txtCostsWeight);
 	}
 
 	private void initializeMenuBar() {
@@ -469,7 +472,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelMaxCosts.gridy = 2;
 		jPanelQosConstraints.add(jLabelMaxCosts, gbcJLabelMaxCosts);
 
-		txtCostsWeight = new JTextField("0");
+		txtCostsWeight = new JTextField("34");
 		txtCostsWeight.setHorizontalAlignment(JTextField.RIGHT);
 		txtCostsWeight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -559,7 +562,7 @@ public class MainFrame extends JFrame {
 		jPanelQosConstraints.add(
 				jLabelMaxResponseTime, gbcJLabelMaxResponseTime);
 
-		txtResponseTimeWeight = new JTextField("0");
+		txtResponseTimeWeight = new JTextField("33");
 		txtResponseTimeWeight.setHorizontalAlignment(JTextField.RIGHT);
 		txtResponseTimeWeight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -648,7 +651,7 @@ public class MainFrame extends JFrame {
 		jPanelQosConstraints.add(
 				jLabelMinAvailability, gbcJLabelMinAvailability);
 
-		txtAvailabilityWeight = new JTextField("0");
+		txtAvailabilityWeight = new JTextField("33");
 		txtAvailabilityWeight.setHorizontalAlignment(JTextField.RIGHT);
 		txtAvailabilityWeight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -789,7 +792,8 @@ public class MainFrame extends JFrame {
 		gbc_lblPercentageWeightSum.gridx = 5;
 		gbc_lblPercentageWeightSum.gridy = 7;
 		jPanelQosConstraints.add(
-				lblPercentageWeightSum, gbc_lblPercentageWeightSum);
+				lblPercentageWeightSum, gbc_lblPercentageWeightSum);		
+		
 	}
 
 	private void initializeServiceClassesPanel(JPanel contentPane) {
@@ -1406,11 +1410,13 @@ public class MainFrame extends JFrame {
 			jTableWebServices.setModel(new BasicTableModel(
 					serviceCandidatesList.size(), 6, false));
 			TableColumnModel webServicesColumnModel = 
-				jTableWebServices.getColumnModel();
-			for (int k = 0 ; k < 6 ; k++) {
-				webServicesColumnModel.getColumn(k).setHeaderValue(
-						headerArray[k]);
-			}
+				jTableWebServices.getColumnModel();			
+			webServicesColumnModel.getColumn(0).setHeaderValue("ServiceClass");
+			webServicesColumnModel.getColumn(1).setHeaderValue("ID");
+			webServicesColumnModel.getColumn(2).setHeaderValue("Name");
+			webServicesColumnModel.getColumn(3).setHeaderValue("Costs");
+			webServicesColumnModel.getColumn(4).setHeaderValue("ResponseTime");
+			webServicesColumnModel.getColumn(5).setHeaderValue("Availability");
 			// TODO: FOLGENDES BITTE PRÜFEN
 			setColumnTextAlignment(
 					jTableWebServices, 1, DefaultTableCellRenderer.CENTER);

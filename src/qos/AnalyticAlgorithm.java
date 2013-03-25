@@ -38,6 +38,7 @@ public class AnalyticAlgorithm {
 			doCompleteEnumeration(new Composition(
 					new LinkedList<ServiceCandidate>(), new QosVector(), 0.0), 
 					0, i);
+			//TODO: PROGRESSBAR DOESN'T WORK CORRECTLY
 			progressBar.setValue((int) Math.round((
 					(double) (i + 1) / ((double) serviceClassesList.get(
 							0).getServiceCandidateList().size())) * 100));
@@ -126,15 +127,16 @@ public class AnalyticAlgorithm {
 		for (Composition composition : compositionsList) {
 			// (Q_Max - Q_i) / (Q_max - Q_min) * W		negative criteria
 			// (Q_i - Q_min) / (Q_max - Q_min) * W		positive criteria
-			QosVector qos = composition.getQosVectorAggregated();
-			// TODO: USE WEIGHTS FROM USER INPUT.
-			double weight = (1.0 / 3.0);
-			double utility = ((max.getCosts() - qos.getCosts()) / 
-					(max.getCosts() - min.getCosts()) * weight) + 
-					((max.getResponseTime() - qos.getResponseTime()) / 
-					(max.getResponseTime() - min.getResponseTime()) * weight) + 
-					((qos.getAvailability() - min.getAvailability()) / 
-					(max.getAvailability() - min.getAvailability()) * weight);
+			QosVector qos = composition.getQosVectorAggregated();			
+			Constraint costs = constraintsMap.get(Constraint.COSTS);
+			Constraint responseTime = constraintsMap.get(Constraint.RESPONSE_TIME);
+			Constraint availability = constraintsMap.get(Constraint.AVAILABILITY);
+			double utility = (((max.getCosts() - qos.getCosts()) / 
+					(max.getCosts() - min.getCosts())) * costs.getWeight()/100) + 
+					(((max.getResponseTime() - qos.getResponseTime()) / 
+					(max.getResponseTime() - min.getResponseTime())) * responseTime.getWeight()/100) + 
+					(((qos.getAvailability() - min.getAvailability()) / 
+					(max.getAvailability() - min.getAvailability())) * availability.getWeight()/100);
 			composition.setUtility(utility);
 		}
 		
