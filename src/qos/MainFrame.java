@@ -831,12 +831,10 @@ public class MainFrame extends JFrame {
 
 		jTableServiceClasses = new JTable();
 		jTableServiceClasses.setEnabled(false);
-		jTableServiceClasses.setModel(new BasicTableModel(0, 3, false));
+		jTableServiceClasses.setModel(new BasicTableModel(0, 2, false));		
 		jTableServiceClasses.getColumnModel().getColumn(0).setHeaderValue(
-				"Selection");
-		jTableServiceClasses.getColumnModel().getColumn(1).setHeaderValue(
 		"ID");
-		jTableServiceClasses.getColumnModel().getColumn(2).setHeaderValue(
+		jTableServiceClasses.getColumnModel().getColumn(1).setHeaderValue(
 		"Name");
 
 		jScrollPaneServiceClasses.setViewportView(jTableServiceClasses);
@@ -876,24 +874,20 @@ public class MainFrame extends JFrame {
 
 		jTableWebServices = new JTable();
 		jTableWebServices.setEnabled(false);
-		jTableWebServices.setModel(new BasicTableModel(0, 8, false));
+		jTableWebServices.setModel(new BasicTableModel(0, 6, false));
 		jTableWebServices.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		jTableWebServices.getColumnModel().getColumn(0).setHeaderValue(
-				"Selection");
+				"ServiceClass");
 		jTableWebServices.getColumnModel().getColumn(1).setHeaderValue(
 		"ID");
 		jTableWebServices.getColumnModel().getColumn(2).setHeaderValue(
-		"Name");
+		"Name");		
 		jTableWebServices.getColumnModel().getColumn(3).setHeaderValue(
-		"Provider");
-		jTableWebServices.getColumnModel().getColumn(4).setHeaderValue(
 		"Costs");
+		jTableWebServices.getColumnModel().getColumn(4).setHeaderValue(
+		"ResponseTime");
 		jTableWebServices.getColumnModel().getColumn(5).setHeaderValue(
-		"Response Time");
-		jTableWebServices.getColumnModel().getColumn(6).setHeaderValue(
-		"Availability");
-		jTableWebServices.getColumnModel().getColumn(7).setHeaderValue(
-		"Reliability");
+		"Availability");		
 		jScrollPaneWebServices.setViewportView(jTableWebServices);
 	}
 

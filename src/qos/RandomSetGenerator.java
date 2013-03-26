@@ -15,7 +15,7 @@ public class RandomSetGenerator {
 			// GENERATE SERVICE CANDIDATES
 			for (int j = 0; j < numCandidates; j++) {				
 				int serviceID = (j + 1) + (numCandidates * i);
-				
+				// TODO: CONSIDER CORRELATIONS AND REALISTIC VALUES
 				double cost = myRandom(0, 100);
 				double time = myRandom(0, 100);
 				double availability = myRandom(0.85, 0.99);
