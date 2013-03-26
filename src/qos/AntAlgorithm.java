@@ -233,39 +233,104 @@ public class AntAlgorithm extends Algorithm {
 		return isWithinConstraints;
 	}
 
-	/*
-	private QosVector determineQosVectorMax() {
-		QosVector max = new QosVector(0.0, 0.0, 0.0);
-		for (Composition composition : compositionsList) {
-			QosVector qos = composition.getQosVectorAggregated();
-			if (qos.getCosts() > max.getCosts()) {
-				max.setCosts(qos.getCosts());
-			}
-			if (qos.getResponseTime() > max.getResponseTime()) {
-				max.setResponseTime(qos.getResponseTime());
-			}
-			if (qos.getAvailability() > max.getAvailability()) {
-				max.setAvailability(qos.getAvailability());
-			}
-		}
-		return max;
+	// GETTER AND SETTER
+	public List<ServiceClass> getServiceClassesList() {
+		return serviceClassesList;
 	}
+
+	public void setServiceClassesList(List<ServiceClass> serviceClassesList) {
+		this.serviceClassesList = serviceClassesList;
+	}
+
+	public List<ServiceCandidate> getServiceCandidatesList() {
+		return serviceCandidatesList;
+	}
+
+	public void setServiceCandidatesList(
+			List<ServiceCandidate> serviceCandidatesList) {
+		this.serviceCandidatesList = serviceCandidatesList;
+	}
+
+	public Map<String, Constraint> getConstraintsMap() {
+		return constraintsMap;
+	}
+
+	public void setConstraintsMap(Map<String, Constraint> constraintsMap) {
+		this.constraintsMap = constraintsMap;
+	}
+
+	public double getPiInit() {
+		return piInit;
+	}
+
+	public void setPiInit(double piInit) {
+		this.piInit = piInit;
+	}
+
+	public int getAnts() {
+		return ants;
+	}
+
+	public void setAnts(int ants) {
+		this.ants = ants;
+	}
+
+	public int getIterations() {
+		return iterations;
+	}
+
+	public void setIterations(int iterations) {
+		this.iterations = iterations;
+	}
+
+	public double getAlpha() {
+		return alpha;
+	}
+
+	public void setAlpha(double alpha) {
+		this.alpha = alpha;
+	}
+
+	public double getBeta() {
+		return beta;
+	}
+
+	public void setBeta(double beta) {
+		this.beta = beta;
+	}
+
+	public double getDilution() {
+		return dilution;
+	}
+
+	public void setDilution(double dilution) {
+		this.dilution = dilution;
+	}
+
+	public QosVector getOptimalQos() {
+		return optimalQos;
+	}
+
+	public void setOptimalQos(QosVector optimalQos) {
+		this.optimalQos = optimalQos;
+	}
+
+	public Composition getOptimalComposition() {
+		return optimalComposition;
+	}
+
+	public void setOptimalComposition(Composition optimalComposition) {
+		this.optimalComposition = optimalComposition;
+	}
+
+	public double[] getNj() {
+		return nj;
+	}
+
+	public void setNj(double[] nj) {
+		this.nj = nj;
+	}
+
 	
-	private QosVector determineQosVectorMin() {
-		QosVector min = new QosVector(100000.0, 100000.0, 1.0);
-		for (Composition composition : compositionsList) {
-			QosVector qos = composition.getQosVectorAggregated();
-			if (qos.getCosts() < min.getCosts()) {
-				min.setCosts(qos.getCosts());
-			}
-			if (qos.getResponseTime() < min.getResponseTime()) {
-				min.setResponseTime(qos.getResponseTime());
-			}
-			if (qos.getAvailability() < min.getAvailability()) {
-				min.setAvailability(qos.getAvailability());
-			}
-		}
-		return min;
-	}
-	*/
+	
 }
