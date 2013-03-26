@@ -39,9 +39,9 @@ public class AnalyticAlgorithm {
 					new LinkedList<ServiceCandidate>(), new QosVector(), 0.0), 
 					0, i);
 			//TODO: PROGRESSBAR DOESN'T WORK CORRECTLY
-			progressBar.setValue((int) Math.round((
-					(double) (i + 1) / ((double) serviceClassesList.get(
-							0).getServiceCandidateList().size())) * 100));
+			//progressBar.setValue((int) Math.round((
+			//		(double) (i + 1) / ((double) serviceClassesList.get(
+			//				0).getServiceCandidateList().size())) * 100));
 		}
 		computeUtilityValues();
 		//printValidCompositions();

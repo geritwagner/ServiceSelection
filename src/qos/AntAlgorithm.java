@@ -33,12 +33,12 @@ public class AntAlgorithm extends Algorithm {
 		this.constraintsMap = constraintsMap;
 				
 		optimalComposition = null;
-		piInit = 0.3;
-		ants = 5;
+		piInit = 1;
+		ants = 10;
 		iterations = 100;
-		alpha = 1;
+		alpha = 0;
 		beta = 1;
-		dilution = 0.2;
+		dilution = 0.1;
 	}
 		
 	public void start(JProgressBar progressBar) {
@@ -77,7 +77,7 @@ public class AntAlgorithm extends Algorithm {
 		int counter = 0;
 		
 		// RUN ITERATIONS
-		for (int i=1; i<=iterations; i++) {
+		for (int i=1; i<=iterations; i++) {			
 			List<Composition> antCompositions = new LinkedList<Composition>();
 			for (int k=0; k<ants; k++) {
 				int currentClass = 0;
@@ -114,9 +114,7 @@ public class AntAlgorithm extends Algorithm {
 					currentClass++;
 				}
 			}
-			for (Composition composition : antCompositions) {
-				//System.out.println(composition.getServiceCandidatesAsString());
-			}
+			
 			// LOOK FOR BEST COMPOSITION
 			for (int k=0; k<ants; k++) {
 				Composition composition = antCompositions.get(k);
@@ -162,6 +160,8 @@ public class AntAlgorithm extends Algorithm {
 					pi[a][b] = (1-dilution)*pi[a][b] + deltaPi[a][b];
 				}
 			}
+			// PROGRESSBAR
+			//progressBar.setValue((int) Math.round((double) (i + 1) / iterations));
 		}
 		
 		System.out.println(counter);
