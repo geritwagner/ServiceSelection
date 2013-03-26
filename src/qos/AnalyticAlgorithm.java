@@ -44,7 +44,7 @@ public class AnalyticAlgorithm {
 							0).getServiceCandidateList().size())) * 100));
 		}
 		computeUtilityValues();
-		printValidCompositions();
+		//printValidCompositions();
 		// TODO: [MAYBE] BETTER OUTPUT FOR OPTIMAL COMPOSITION.
 		System.out.println("Optimal composition: " + 
 				findOptimalComposition().getServiceCandidatesAsString());

@@ -310,9 +310,9 @@ public class MainFrame extends JFrame {
 				new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						JSpinner spinnerNumberOfServiceClasses = new JSpinner(
-								new SpinnerNumberModel(1, 1, 10, 1));
+								new SpinnerNumberModel(1, 1, 100, 1));
 						JSpinner spinnerNumberOfWebServices = new JSpinner(
-								new SpinnerNumberModel(1, 1, 10, 1));
+								new SpinnerNumberModel(1, 1, 100, 1));
 						JComponent[] dialogComponents = new JComponent[] {
 								new JLabel("Number of Service Classes:"),
 								spinnerNumberOfServiceClasses,
@@ -1499,10 +1499,16 @@ public class MainFrame extends JFrame {
 		buildResultTable();
 		Map<String, Constraint> constraintsMap = getChosenConstraints();
 		printChosenConstraintsToConsole(constraintsMap);
-		doEnumeration(constraintsMap);
+		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+			doEnumeration(constraintsMap);
+		}
+		if (jCheckBoxAntColonyOptimization.isSelected()) {
+			doAntAlgorithm(constraintsMap);
+		}		
 		jButtonVisualize.setEnabled(true);
 	}
 
+	
 	private void chooseAlgorithm(String algorithm) {
 		if (algorithm.equals("genAlg")) {
 			if (!jCheckboxGeneticAlgorithm.isSelected()) {
@@ -1589,6 +1595,15 @@ public class MainFrame extends JFrame {
 		}
 		runtime = System.currentTimeMillis() - runtime;
 		jTableGeneralResults.setValueAt(runtime + " ms", 3, 1);
+	}
+	
+	private void doAntAlgorithm(Map<String, Constraint> constraintsMap) {
+		long runtime = System.currentTimeMillis();
+		AntAlgorithm antAlgorithm = new AntAlgorithm(
+				serviceClassesList, serviceCandidatesList, constraintsMap);
+		antAlgorithm.start(jProgressBarAntAlgorithm);				
+		runtime = System.currentTimeMillis() - runtime;
+		jTableGeneralResults.setValueAt(runtime + " ms", 2, 1);		
 	}
 
 	// ELEMENTS OF DOUBLE[] COLUMNWIDTHPERCENTAGES 
