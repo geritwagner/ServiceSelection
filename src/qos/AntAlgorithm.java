@@ -70,9 +70,9 @@ public class AntAlgorithm extends Algorithm {
 		
 		optimalQos = null;
 		normalizeQos();
-		for (double n : nj) {
-			//System.out.println(n);
-		}
+//		for (double n : nj) {
+//			System.out.println(n);
+//		}
 		
 		int counter = 0;
 		

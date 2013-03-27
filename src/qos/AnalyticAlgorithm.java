@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javax.swing.JProgressBar;
 
-public class AnalyticAlgorithm {
+public class AnalyticAlgorithm extends Algorithm {
 	
 	private List<ServiceClass> serviceClassesList;
 	private List<ServiceCandidate> serviceCandidatesList;
@@ -36,7 +36,7 @@ public class AnalyticAlgorithm {
 		this.numberOfRequestedResultTiers = numberOfRequestedResultTiers;
 	}
 	
-	
+	@Override
 	public void start(JProgressBar progressBar) {
 //		printInputData();
 		runtime = System.currentTimeMillis();
@@ -273,18 +273,18 @@ public class AnalyticAlgorithm {
 		return isWithinConstraints;
 	}
 	
-	private Composition findOptimalComposition() {
-		double utilityMax = 0.0;
-		Composition optimalComposition = new Composition();
-		for (Composition composition : compositionsList) {
-			if (isWithinConstraints(composition) && 
-					composition.getUtility() > utilityMax) {
-				utilityMax = composition.getUtility();
-				optimalComposition = composition;
-			}
-		}
-		return optimalComposition;
-	}
+//	private Composition findOptimalComposition() {
+//		double utilityMax = 0.0;
+//		Composition optimalComposition = new Composition();
+//		for (Composition composition : compositionsList) {
+//			if (isWithinConstraints(composition) && 
+//					composition.getUtility() > utilityMax) {
+//				utilityMax = composition.getUtility();
+//				optimalComposition = composition;
+//			}
+//		}
+//		return optimalComposition;
+//	}
 	
 
 	// GETTERS AND SETTERS

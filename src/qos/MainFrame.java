@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -46,7 +45,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -102,10 +100,13 @@ public class MainFrame extends JFrame {
 	private JSeparator jSeparatorFormula;
 	
 	private JTextArea textAreaLog;
+	
+	private GeneticAlgorithm geneticAlgorithm;
+	private AntAlgorithm antAlgorithm;
 	private AnalyticAlgorithm analyticAlgorithm;
 	
 	private boolean webServicesLoaded = false;
-	private boolean correctWeights = false;
+	private boolean correctWeights = true;
 	private boolean correctPenalty = true;
 
 	private static MainFrame frame;
@@ -160,7 +161,6 @@ public class MainFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public MainFrame() {
-		
 		// FRAME SETTINGS
 		setTitle("test_gui");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -224,9 +224,6 @@ public class MainFrame extends JFrame {
 		initializeTabbedResultsPanel(contentPane);
 		initializeGeneralResultsPanel(contentPane);
 		initializeLogPanel(contentPane);
-		
-		// INITIAL VERIFICATION OF CORRECT WEIGHT SUM
-		changeWeight(txtCostsWeight);
 	}
 
 	private void initializeMenuBar() {
@@ -245,6 +242,11 @@ public class MainFrame extends JFrame {
 		JMenuItem jMenuItemLoad = new JMenuItem("Load");
 
 		final JFileChooser fileChooser = new JFileChooser() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			{
 				setFileFilter(new FileFilter() {
 					@Override
@@ -671,7 +673,8 @@ public class MainFrame extends JFrame {
 		gbc_separatorWeights.gridy = 5;
 		jPanelQosConstraints.add(separatorWeights, gbc_separatorWeights);
 
-		lblWeightSum = new JLabel("\u03A3 0");
+		lblWeightSum = new JLabel("\u03A3 100");
+		lblWeightSum.setForeground(Color.GREEN);
 		GridBagConstraints gbc_lblWeightSum = new GridBagConstraints();
 		gbc_lblWeightSum.insets = new Insets(0, 0, 0, 5);
 		gbc_lblWeightSum.gridx = 4;
@@ -863,7 +866,10 @@ public class MainFrame extends JFrame {
 		jPanelGeneticAlgorithm.add(
 				jCheckboxGeneticAlgorithm, gbcJCheckboxGeneticAlgorithm);
 
+		// TODO: BETTER SOLUTION FOR PRESENTATION OF CONTENT
+		//       (AVOID SHIFTS...)
 		JScrollPane jScrollPaneGeneticAlgorithm = new JScrollPane();
+		jScrollPaneGeneticAlgorithm.setBorder(new LineBorder(Color.BLACK));
 		GridBagConstraints gbc_jScrollPaneGeneticAlgorithm = 
 			new GridBagConstraints();
 		gbc_jScrollPaneGeneticAlgorithm.insets = new Insets(0, 0, 5, 0);
@@ -947,6 +953,7 @@ public class MainFrame extends JFrame {
 				lblPenaltyFactor, gbc_lblPenaltyFactor);
 
 		jTextFieldPenaltyFactor = new JTextField("0");
+		jTextFieldPenaltyFactor.setColumns(3);
 		jTextFieldPenaltyFactor.setHorizontalAlignment(JTextField.RIGHT);
 		jTextFieldPenaltyFactor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -956,7 +963,6 @@ public class MainFrame extends JFrame {
 		GridBagConstraints gbc_jTextFieldPenaltyFactor = 
 			new GridBagConstraints();
 		gbc_jTextFieldPenaltyFactor.insets = new Insets(5, 20, 0, 5);
-		gbc_jTextFieldPenaltyFactor.fill = GridBagConstraints.HORIZONTAL;
 		gbc_jTextFieldPenaltyFactor.anchor = GridBagConstraints.EAST;
 		gbc_jTextFieldPenaltyFactor.gridx = 1;
 		gbc_jTextFieldPenaltyFactor.gridy = 3;
@@ -978,6 +984,7 @@ public class MainFrame extends JFrame {
 		GridBagConstraints gbcJProgressBarGeneticAlgorithm = 
 			new GridBagConstraints();
 		gbcJProgressBarGeneticAlgorithm.fill = GridBagConstraints.HORIZONTAL;
+		gbcJProgressBarGeneticAlgorithm.anchor = GridBagConstraints.SOUTH;
 		gbcJProgressBarGeneticAlgorithm.gridx = 0;
 		gbcJProgressBarGeneticAlgorithm.gridy = 3;
 		jPanelGeneticAlgorithm.add(
@@ -986,12 +993,10 @@ public class MainFrame extends JFrame {
 
 	private void initializeAntAlgorithmPanel(JPanel contentPane) {
 		JPanel jPanelAntAlgorithm = new JPanel();
-		//	jPanelAntAlgorithm.setBorder(new LineBorder(new Color(0, 0, 0)));
 		GridBagConstraints gbcPanelAntAlgorithm = new GridBagConstraints();
 		gbcPanelAntAlgorithm.gridheight = 1;
 		gbcPanelAntAlgorithm.insets = new Insets(0, 5, 5, 5);
 		gbcPanelAntAlgorithm.fill = GridBagConstraints.BOTH;
-		gbcPanelAntAlgorithm.anchor = GridBagConstraints.NORTH;
 		gbcPanelAntAlgorithm.gridx = 1;
 		gbcPanelAntAlgorithm.gridy = 3;
 		contentPane.add(jPanelAntAlgorithm, gbcPanelAntAlgorithm);
@@ -1018,11 +1023,11 @@ public class MainFrame extends JFrame {
 				gbcJCheckBoxAntAlgorithm);
 
 		JScrollPane jScrollPaneAntAlgorithm = new JScrollPane();
-		jScrollPaneAntAlgorithm.setVerticalScrollBarPolicy(
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		jScrollPaneAntAlgorithm.setBorder(new LineBorder(Color.BLACK));
 		GridBagConstraints gbcJScrollPaneAntAlgorithm = 
 			new GridBagConstraints();
-		gbcJScrollPaneAntAlgorithm.insets = new Insets(0, 0, 5, 0);
+		// TODO: FIND OUT WHY THESE INSETS ARE NECCESSARY
+		gbcJScrollPaneAntAlgorithm.insets = new Insets(-2, 0, 2, 0);
 		gbcJScrollPaneAntAlgorithm.fill = GridBagConstraints.BOTH;
 		gbcJScrollPaneAntAlgorithm.gridx = 0;
 		gbcJScrollPaneAntAlgorithm.gridy = 1;
@@ -1032,10 +1037,10 @@ public class MainFrame extends JFrame {
 		JPanel panelAntAlgorithmSettings = new JPanel();
 		jScrollPaneAntAlgorithm.setViewportView(panelAntAlgorithmSettings);
 		GridBagLayout gbl_panelAntAlgorithmSettings = new GridBagLayout();
-		gbl_panelAntAlgorithmSettings.columnWeights = 
-			new double[]{};
-		gbl_panelAntAlgorithmSettings.rowWeights = 
-			new double[]{};
+//		gbl_panelAntAlgorithmSettings.columnWeights = 
+//			new double[]{};
+//		gbl_panelAntAlgorithmSettings.rowWeights = 
+//			new double[]{};
 		panelAntAlgorithmSettings.setLayout(gbl_panelAntAlgorithmSettings);
 
 		jProgressBarAntAlgorithm = new JProgressBar();
@@ -1043,7 +1048,7 @@ public class MainFrame extends JFrame {
 		GridBagConstraints gbcJProgressBarAntAlgorithm = 
 			new GridBagConstraints();
 		gbcJProgressBarAntAlgorithm.fill = GridBagConstraints.HORIZONTAL;
-		gbcJProgressBarAntAlgorithm.insets = new Insets(0, 0, 5, 0);
+		gbcJProgressBarAntAlgorithm.anchor = GridBagConstraints.SOUTH;
 		gbcJProgressBarAntAlgorithm.gridx = 0;
 		gbcJProgressBarAntAlgorithm.gridy = 2;
 		jPanelAntAlgorithm.add(
@@ -1052,12 +1057,10 @@ public class MainFrame extends JFrame {
 
 	private void initializeAnalyticAlgorithmPanel(JPanel contentPane) {
 		JPanel jPanelAnalyticAlgorithm = new JPanel();
-		//		jPanelAnalyticAlgorithm.setBorder(
-		//				new LineBorder(new Color(0, 0, 0)));
 		GridBagConstraints gbcJPanelAnalyticAlgorithm =
 			new GridBagConstraints();
 		gbcJPanelAnalyticAlgorithm.gridheight = 1;
-		gbcJPanelAnalyticAlgorithm.insets = new Insets(0, 0, 5, 5);
+		gbcJPanelAnalyticAlgorithm.insets = new Insets(0, 5, 5, 5);
 		gbcJPanelAnalyticAlgorithm.fill = GridBagConstraints.BOTH;
 		gbcJPanelAnalyticAlgorithm.gridx = 2;
 		gbcJPanelAnalyticAlgorithm.gridy = 3;
@@ -1095,7 +1098,9 @@ public class MainFrame extends JFrame {
 				jScrollPaneAnalyticAlgorithm, gbcJScrollPaneAnalyticAlgorithm);
 
 		jTableAnalyticAlgorithm = new JTable();
-		// TODO: BETTER SOLUTION FOR THIS LISTENER...
+		jTableAnalyticAlgorithm.setEnabled(false);
+		// TODO: BETTER SOLUTION FOR THIS LISTENER (IF ANOTHER 
+		//		 ANALYTIC ALGORITHM GETS IMPLEMENTED)
 		jTableAnalyticAlgorithm.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (jTableAnalyticAlgorithm.getSelectedRow() == 0 && 
@@ -1136,7 +1141,7 @@ public class MainFrame extends JFrame {
 		GridBagConstraints gbcJProgressBarAnalyticAlgorithm = 
 			new GridBagConstraints();
 		gbcJProgressBarAnalyticAlgorithm.fill = GridBagConstraints.HORIZONTAL;
-		gbcJProgressBarAnalyticAlgorithm.insets = new Insets(0, 0, 5, 0);
+		gbcJProgressBarAnalyticAlgorithm.anchor = GridBagConstraints.SOUTH;
 		gbcJProgressBarAnalyticAlgorithm.gridx = 0;
 		gbcJProgressBarAnalyticAlgorithm.gridy = 2;
 		jPanelAnalyticAlgorithm.add(
@@ -1365,15 +1370,15 @@ public class MainFrame extends JFrame {
 		if (jTabbedPane.getTabCount() > 0) {
 			jTabbedPane.removeAll();
 		}
-		String[] chosenAlgorithms = getChosenAlgorithms();
-		if (chosenAlgorithms == null) {
+		Map<String, Algorithm> algorithmsMap = getChosenAlgorithms();
+		if (algorithmsMap == null) {
 			return;
 		}
 		// COUNTER FOR EVERY CHOSEN ALGORITHM
-		for (int count = 0; count < chosenAlgorithms.length; count++) {
-			showAlgorithmResults(chosenAlgorithms[count], 
-					tierTablesColumnNames);
-		}			
+		for (Map.Entry<String, Algorithm> entry : algorithmsMap.entrySet()) {
+			showAlgorithmResults(
+					entry.getValue(), entry.getKey(), tierTablesColumnNames);
+		}		
 	}
 
 	private void pressStartButton() {
@@ -1823,33 +1828,33 @@ public class MainFrame extends JFrame {
 		checkEnableStartButton();
 	}
 	
-	private String[] getChosenAlgorithms() {
-		String algorithmsString = "";
+	private Map<String, Algorithm> getChosenAlgorithms() {
+		Map<String, Algorithm> algorithmMap = new HashMap<String, Algorithm>();
 		if (jCheckboxGeneticAlgorithm.isSelected()) {
-			algorithmsString += "Genetic;";
+			// TODO: INSERT GENETIC ALGORITHM
+			algorithmMap.put("Genetic Algorithm", analyticAlgorithm);
 		}
 		if (jCheckBoxAntColonyOptimization.isSelected()) {
-			algorithmsString += "Ant Colony Optimization;";
+			algorithmMap.put("Ant Colony Algorithm", antAlgorithm);
 		}
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-			algorithmsString += "Analytic;";
+			algorithmMap.put("Analytic Algorithm", analyticAlgorithm);
 		}
-		if (algorithmsString.equals("")) {
+		if (algorithmMap.size() == 0) {
 			return null;
 		}
 		else {
-			algorithmsString = algorithmsString.substring(
-					0, algorithmsString.length() - 1);
-			return algorithmsString.split(";");
+			return algorithmMap;
 		}
 	}
 	
-	private void showAlgorithmResults(String algorithm, 
-			String[] tierTablesColumnNames) {
+	// TODO: INSERT "algorithm" INSTEAD OF "analyticAlgorithm"
+	private void showAlgorithmResults(Algorithm algorithm, 
+			String algorithmTitle, String[] tierTablesColumnNames) {
 		int compositionNumber = 1;
 		
 		JScrollPane jScrollPane = new JScrollPane();
-		this.jTabbedPane.addTab(algorithm + 
+		this.jTabbedPane.addTab(algorithmTitle + 
 				" Algorithm", jScrollPane);
 
 		JPanel jPanelAlgorithmResult = new JPanel();
@@ -2005,7 +2010,7 @@ public class MainFrame extends JFrame {
 	
 	private void doAntAlgorithm(Map<String, Constraint> constraintsMap) {
 		long runtime = System.currentTimeMillis();
-		AntAlgorithm antAlgorithm = new AntAlgorithm(
+		antAlgorithm = new AntAlgorithm(
 				serviceClassesList, serviceCandidatesList, constraintsMap);
 		antAlgorithm.start(jProgressBarAntAlgorithm);        
 		runtime = System.currentTimeMillis() - runtime;

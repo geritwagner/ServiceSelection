@@ -54,7 +54,8 @@ public class ServiceClass {
 	public List<ServiceCandidate> getServiceCandidateList() {
 		return serviceCandidateList;
 	}
-	public void setServiceCandidateList(List<ServiceCandidate> serviceCandidateList) {
+	public void setServiceCandidateList(
+			List<ServiceCandidate> serviceCandidateList) {
 		this.serviceCandidateList = serviceCandidateList;
 	}
 	public int getSize() {
