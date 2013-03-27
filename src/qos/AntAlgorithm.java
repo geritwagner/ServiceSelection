@@ -45,7 +45,7 @@ public class AntAlgorithm extends Algorithm {
 		// ADD PSEUDO NODES AT THE BEGINNING AND AT THE END
 		List<ServiceCandidate> tempServiceCandidateList = 
 				new LinkedList<ServiceCandidate>();
-		ServiceCandidate tempServiceCandidate = new ServiceCandidate(0, "StartServiceClass", 0, "S", new QosVector());
+		ServiceCandidate tempServiceCandidate = new ServiceCandidate(0, 0, "S", new QosVector());
 		tempServiceCandidateList.add(tempServiceCandidate);
 		ServiceClass tempServiceClass = new ServiceClass(0, "StartServiceClass", tempServiceCandidateList);
 		serviceCandidatesList.add(0, tempServiceCandidate);
@@ -53,7 +53,7 @@ public class AntAlgorithm extends Algorithm {
 		
 		tempServiceCandidateList = new LinkedList<ServiceCandidate>();
 		tempServiceCandidate = new ServiceCandidate(serviceClassesList.size(), 
-				"EndServiceClass", serviceCandidatesList.size(), "T", new QosVector());
+				serviceCandidatesList.size(), "T", new QosVector());
 		tempServiceCandidateList.add(tempServiceCandidate);
 		tempServiceClass = new ServiceClass(serviceClassesList.size(), 
 				"EndServiceClass", tempServiceCandidateList);

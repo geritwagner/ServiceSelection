@@ -22,7 +22,7 @@ public class RandomSetGenerator {
 				
 				QosVector qosVector = new QosVector(cost, time, availability);				
 				serviceCandidateList.add(new ServiceCandidate(
-						i+1, "ServiceClass"+(i+1), serviceID, 
+						i+1, serviceID, 
 						"WebService"+serviceID, qosVector));
 			}
 			

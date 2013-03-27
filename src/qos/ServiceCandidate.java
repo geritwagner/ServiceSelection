@@ -3,7 +3,7 @@ package qos;
 public class ServiceCandidate {
 	
 	private int serviceClassId;
-	private String serviceClassName;
+//	private String serviceClassName;
 	private int serviceCandidateId;
 	private String name;
 	private QosVector qosVector = new QosVector();
@@ -14,10 +14,10 @@ public class ServiceCandidate {
 		
 	}
 	
-	public ServiceCandidate(int serviceClassId, String serviceClassName, 
+	public ServiceCandidate(int serviceClassId, 
 			int serviceCandidateId, String name, QosVector qosVector) {
 		this.serviceCandidateId = serviceCandidateId;
-		this.serviceClassName = serviceClassName;
+//		this.serviceClassName = serviceClassName;
 		this.serviceClassId = serviceClassId;
 		this.name = name;
 		this.qosVector = qosVector;
@@ -31,12 +31,12 @@ public class ServiceCandidate {
 	public void setServiceClassId(int serviceClassId) {
 		this.serviceClassId = serviceClassId;
 	}
-	public String getServiceClassName() {
-		return serviceClassName;
-	}
-	public void setServiceClassName(String serviceClassName) {
-		this.serviceClassName = serviceClassName;
-	}
+//	public String getServiceClassName() {
+//		return serviceClassName;
+//	}
+//	public void setServiceClassName(String serviceClassName) {
+//		this.serviceClassName = serviceClassName;
+//	}
 	public int getServiceCandidateId() {
 		return serviceCandidateId;
 	}

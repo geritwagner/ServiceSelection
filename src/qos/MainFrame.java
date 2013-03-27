@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -44,6 +46,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -62,18 +65,16 @@ public class MainFrame extends JFrame {
 	private JCheckBox jCheckBoxMaxCosts;
 	private JCheckBox jCheckBoxMaxResponseTime;
 	private JCheckBox jCheckBoxMinAvailability;
-	private JCheckBox jCheckBoxMinReliability;
+	
 	private JTextField jTextFieldMaxCosts;
 	private JTextField jTextFieldMaxResponseTime;
 	private JTextField jTextFieldMinAvailability;
-	private JTextField jTextFieldMinReliability;
 
 	private JSpinner jSpinnerNumberResultTiers;
 	private JSlider jSliderMaxCosts;
 	private JSlider jSliderMaxResponseTime;
 	private JSlider jSliderMinAvailability;
-	private JSlider jSliderMinReliability;
-
+	
 	private JTable jTableServiceClasses;
 	private JTable jTableWebServices;
 
@@ -91,7 +92,6 @@ public class MainFrame extends JFrame {
 	private JProgressBar jProgressBarAnalyticAlgorithm;
 
 	private JTable jTableGeneralResults;
-	private JTable jTableTier;
 
 	private JTabbedPane jTabbedPane;
 
@@ -102,6 +102,7 @@ public class MainFrame extends JFrame {
 	private JSeparator jSeparatorFormula;
 	
 	private JTextArea textAreaLog;
+	private AnalyticAlgorithm analyticAlgorithm;
 	
 	private boolean webServicesLoaded = false;
 	private boolean correctWeights = false;
@@ -121,6 +122,13 @@ public class MainFrame extends JFrame {
 	public static final int MIN_AVAILABILITY = 0;
 	public static final int MIN_RELIABILITY = 0;
 	public static final int MIN_PENALTY_FACTOR = 0;
+	
+	
+	// TODO: CORRECT VALUES (ROUNDING) ?
+	public static final DecimalFormat DECIMAL_FORMAT_TWO = 
+		new DecimalFormat("###.##");
+	public static final DecimalFormat DECIMAL_FORMAT_FOUR = 
+		new DecimalFormat("###.####");
 
 
 	private List<ServiceClass> serviceClassesList = 
@@ -130,7 +138,6 @@ public class MainFrame extends JFrame {
 	private JTextField txtCostsWeight;
 	private JTextField txtResponseTimeWeight;
 	private JTextField txtAvailabilityWeight;
-	private JTextField txtReliabilityWeight;
 	private JTextField jTextFieldPenaltyFactor;
 
 	/**
@@ -309,31 +316,7 @@ public class MainFrame extends JFrame {
 		jMenuItemLoadRandomSet.addActionListener(
 				new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						JSpinner spinnerNumberOfServiceClasses = new JSpinner(
-								new SpinnerNumberModel(1, 1, 100, 1));
-						JSpinner spinnerNumberOfWebServices = new JSpinner(
-								new SpinnerNumberModel(1, 1, 100, 1));
-						JComponent[] dialogComponents = new JComponent[] {
-								new JLabel("Number of Service Classes:"),
-								spinnerNumberOfServiceClasses,
-								new JLabel("Number of Web Services " +
-										"(per Class):"),
-										spinnerNumberOfWebServices
-						};
-						JOptionPane.showConfirmDialog(null, dialogComponents, 
-								"Random Set Properties", 
-								JOptionPane.OK_CANCEL_OPTION, 
-								JOptionPane.QUESTION_MESSAGE);
-						
-						int numberOfServiceClasses = 
-							(Integer) spinnerNumberOfServiceClasses.getValue();
-						int numberOfWebServices = 
-							(Integer) spinnerNumberOfWebServices.getValue();
-						
-						// TODO: INSERT FUNCTION LOADRANDOMWEBSERVICES!
-						loadRandomWebServices(RandomSetGenerator.generateSet(
-								numberOfServiceClasses, numberOfWebServices), 
-								numberOfWebServices);
+						loadRandomWebServices();
 					}
 				});
 
@@ -379,7 +362,7 @@ public class MainFrame extends JFrame {
 		gblJPanelQosConstraints.columnWeights = new double[]{
 				0.15, 0.3, 0.4, 0.05, 0.05, 0.05};
 		gblJPanelQosConstraints.rowWeights = new double[]{
-				0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125};
+				0.15, 0.15, 0.15, 0.15, 0.15, 0.1, 0.15};
 		jPanelQosConstraints.setLayout(gblJPanelQosConstraints);
 
 		JLabel jLabelQosConstraints = new JLabel("QoS Constraints:");
@@ -401,6 +384,8 @@ public class MainFrame extends JFrame {
 
 		jSpinnerNumberResultTiers = 
 			new JSpinner(new SpinnerNumberModel(1, 1, 3, 1));
+		((JSpinner.DefaultEditor) jSpinnerNumberResultTiers.getEditor()).
+		getTextField().setEditable(false);
 		jSpinnerNumberResultTiers.setPreferredSize(new Dimension(35, 25));
 		GridBagConstraints gbcJSpinnerNumberResultTiers = 
 			new GridBagConstraints();
@@ -677,111 +662,20 @@ public class MainFrame extends JFrame {
 				lblPercentageAvailabilityWeight, 
 				gbc_lblPercentageAvailabilityWeight);
 
-
-
-
-		jCheckBoxMinReliability = new JCheckBox("Min. Reliability");
-		jCheckBoxMinReliability.setSelected(false);
-		jCheckBoxMinReliability.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				buildGeneticAlgorithmFitnessFunction();
-				changeConstraintCheckboxStatus("Reliability");
-			}
-		});
-		GridBagConstraints gbcJCheckBoxMinReliability = 
-			new GridBagConstraints();
-		gbcJCheckBoxMinReliability.insets = new Insets(0, 0, 5, 5);
-		gbcJCheckBoxMinReliability.gridx = 0;
-		gbcJCheckBoxMinReliability.gridy = 5;
-		gbcJCheckBoxMinReliability.anchor = GridBagConstraints.WEST;
-		jPanelQosConstraints.add(
-				jCheckBoxMinReliability, gbcJCheckBoxMinReliability);
-
-		jSliderMinReliability = new JSlider();
-		jSliderMinReliability.setEnabled(false);
-		jSliderMinReliability.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				useConstraintSlider(
-						jTextFieldMinReliability, jSliderMinReliability);
-			}
-		});
-		GridBagConstraints gbcJSliderMinReliability = new GridBagConstraints();
-		gbcJSliderMinReliability.insets = new Insets(0, 0, 5, 5);
-		gbcJSliderMinReliability.gridx = 1;
-		gbcJSliderMinReliability.gridy = 5;
-		gbcJSliderMinReliability.fill = GridBagConstraints.BOTH;
-		jPanelQosConstraints.add(
-				jSliderMinReliability, gbcJSliderMinReliability);
-
-		jTextFieldMinReliability = new JTextField(
-				String.valueOf(jSliderMinReliability.getValue()));
-		jTextFieldMinReliability.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				setConstraintValueManually(jSliderMinReliability, 
-						jTextFieldMinReliability, 
-						MIN_RELIABILITY, MAX_RELIABILITY);
-			}
-		});
-		jTextFieldMinReliability.setEditable(false);
-		jTextFieldMinReliability.setHorizontalAlignment(JTextField.RIGHT);
-		GridBagConstraints gbcJTextFieldMinReliability = 
-			new GridBagConstraints();
-		gbcJTextFieldMinReliability.insets = new Insets(0, 0, 5, 5);
-		gbcJTextFieldMinReliability.fill = GridBagConstraints.HORIZONTAL;
-		gbcJTextFieldMinReliability.gridx = 2;
-		gbcJTextFieldMinReliability.gridy = 5;
-		jPanelQosConstraints.add(
-				jTextFieldMinReliability, gbcJTextFieldMinReliability);
-
-		JLabel jLabelMinReliability = new JLabel("%");
-		GridBagConstraints gbcJLabelMinReliability = new GridBagConstraints();
-		gbcJLabelMinReliability.anchor = GridBagConstraints.WEST;
-		gbcJLabelMinReliability.insets = new Insets(0, 0, 5, 5);
-		gbcJLabelMinReliability.gridx = 3;
-		gbcJLabelMinReliability.gridy = 5;
-		jPanelQosConstraints.add(
-				jLabelMinReliability, gbcJLabelMinReliability);
-
-		txtReliabilityWeight = new JTextField("0");
-		txtReliabilityWeight.setEditable(false);
-		txtReliabilityWeight.setHorizontalAlignment(JTextField.RIGHT);
-		txtReliabilityWeight.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				changeWeight(txtAvailabilityWeight);
-			}
-		});
-		GridBagConstraints gbc_txtReliabilityWeight = new GridBagConstraints();
-		gbc_txtReliabilityWeight.insets = new Insets(0, 0, 5, 5);
-		gbc_txtReliabilityWeight.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtReliabilityWeight.gridx = 4;
-		gbc_txtReliabilityWeight.gridy = 5;
-		jPanelQosConstraints.add(
-				txtReliabilityWeight, gbc_txtReliabilityWeight);
-
-		JLabel lblPercentageReliabilityWeight = new JLabel("%");
-		GridBagConstraints gbc_lblPercentageReliabilityWeight = 
-			new GridBagConstraints();
-		gbc_lblPercentageReliabilityWeight.insets = new Insets(0, 0, 5, 0);
-		gbc_lblPercentageReliabilityWeight.gridx = 5;
-		gbc_lblPercentageReliabilityWeight.gridy = 5;
-		jPanelQosConstraints.add(
-				lblPercentageReliabilityWeight, 
-				gbc_lblPercentageReliabilityWeight);
-
 		JSeparator separatorWeights = new JSeparator();
 		GridBagConstraints gbc_separatorWeights = new GridBagConstraints();
 		gbc_separatorWeights.insets = new Insets(0, 0, 5, 5);
 		gbc_separatorWeights.fill = GridBagConstraints.HORIZONTAL;
 		gbc_separatorWeights.gridwidth = 2;
 		gbc_separatorWeights.gridx = 4;
-		gbc_separatorWeights.gridy = 6;
+		gbc_separatorWeights.gridy = 5;
 		jPanelQosConstraints.add(separatorWeights, gbc_separatorWeights);
 
 		lblWeightSum = new JLabel("\u03A3 0");
 		GridBagConstraints gbc_lblWeightSum = new GridBagConstraints();
 		gbc_lblWeightSum.insets = new Insets(0, 0, 0, 5);
 		gbc_lblWeightSum.gridx = 4;
-		gbc_lblWeightSum.gridy = 7;
+		gbc_lblWeightSum.gridy = 6;
 		gbc_lblWeightSum.anchor = GridBagConstraints.WEST;
 		jPanelQosConstraints.add(lblWeightSum, gbc_lblWeightSum);
 
@@ -790,10 +684,9 @@ public class MainFrame extends JFrame {
 			new GridBagConstraints();
 		gbc_lblPercentageWeightSum.insets = new Insets(0, 0, 0, 0);
 		gbc_lblPercentageWeightSum.gridx = 5;
-		gbc_lblPercentageWeightSum.gridy = 7;
+		gbc_lblPercentageWeightSum.gridy = 6;
 		jPanelQosConstraints.add(
-				lblPercentageWeightSum, gbc_lblPercentageWeightSum);		
-		
+				lblPercentageWeightSum, gbc_lblPercentageWeightSum);
 	}
 
 	private void initializeServiceClassesPanel(JPanel contentPane) {
@@ -969,7 +862,7 @@ public class MainFrame extends JFrame {
 		gbcJCheckboxGeneticAlgorithm.gridy = 0;
 		jPanelGeneticAlgorithm.add(
 				jCheckboxGeneticAlgorithm, gbcJCheckboxGeneticAlgorithm);
-		
+
 		JScrollPane jScrollPaneGeneticAlgorithm = new JScrollPane();
 		GridBagConstraints gbc_jScrollPaneGeneticAlgorithm = 
 			new GridBagConstraints();
@@ -979,7 +872,7 @@ public class MainFrame extends JFrame {
 		gbc_jScrollPaneGeneticAlgorithm.gridy = 1;
 		jPanelGeneticAlgorithm.add(
 				jScrollPaneGeneticAlgorithm, gbc_jScrollPaneGeneticAlgorithm);
-		
+
 		JPanel panelGeneticAlgorithmSettings = new JPanel();
 		jScrollPaneGeneticAlgorithm.setViewportView(
 				panelGeneticAlgorithmSettings);
@@ -990,7 +883,7 @@ public class MainFrame extends JFrame {
 			new double[]{0.2, 0.1, 0.2, 0.5};
 		panelGeneticAlgorithmSettings.setLayout(
 				gbl_panelGeneticAlgorithmSettings);
-		
+
 		JLabel lblFitnessFunction = new JLabel("Fitness:");
 		GridBagConstraints gbc_lblFitnessFunction = new GridBagConstraints();
 		gbc_lblFitnessFunction.insets = new Insets(0, 5, 5, 5);
@@ -1000,7 +893,7 @@ public class MainFrame extends JFrame {
 		gbc_lblFitnessFunction.gridy = 0;
 		panelGeneticAlgorithmSettings.add(
 				lblFitnessFunction, gbc_lblFitnessFunction);
-		
+
 		Font fontFormula = new Font("formula", Font.ITALIC, 10);
 		jLabelGeneticAlgorithmNumerator = new JLabel();
 		GridBagConstraints gbc_jLabelNumerator = new GridBagConstraints();
@@ -1043,7 +936,7 @@ public class MainFrame extends JFrame {
 		panelGeneticAlgorithmSettings.add(
 				jLabelWeightedPenalty, gbc_jLabelWeightedPenalty);
 		jLabelWeightedPenalty.setFont(fontFormula);
-		
+
 		JLabel lblPenaltyFactor = new JLabel("Penalty Factor:");
 		GridBagConstraints gbc_lblPenaltyFactor = new GridBagConstraints();
 		gbc_lblPenaltyFactor.anchor = GridBagConstraints.WEST;
@@ -1052,7 +945,7 @@ public class MainFrame extends JFrame {
 		gbc_lblPenaltyFactor.gridy = 3;
 		panelGeneticAlgorithmSettings.add(
 				lblPenaltyFactor, gbc_lblPenaltyFactor);
-		
+
 		jTextFieldPenaltyFactor = new JTextField("0");
 		jTextFieldPenaltyFactor.setHorizontalAlignment(JTextField.RIGHT);
 		jTextFieldPenaltyFactor.addActionListener(new ActionListener() {
@@ -1096,8 +989,9 @@ public class MainFrame extends JFrame {
 		//	jPanelAntAlgorithm.setBorder(new LineBorder(new Color(0, 0, 0)));
 		GridBagConstraints gbcPanelAntAlgorithm = new GridBagConstraints();
 		gbcPanelAntAlgorithm.gridheight = 1;
-		gbcPanelAntAlgorithm.insets = new Insets(0, 0, 5, 5);
+		gbcPanelAntAlgorithm.insets = new Insets(0, 5, 5, 5);
 		gbcPanelAntAlgorithm.fill = GridBagConstraints.BOTH;
+		gbcPanelAntAlgorithm.anchor = GridBagConstraints.NORTH;
 		gbcPanelAntAlgorithm.gridx = 1;
 		gbcPanelAntAlgorithm.gridy = 3;
 		contentPane.add(jPanelAntAlgorithm, gbcPanelAntAlgorithm);
@@ -1356,7 +1250,7 @@ public class MainFrame extends JFrame {
 				QosVector qosVector = new QosVector(costs, responseTime, 
 						availability);
 				ServiceCandidate serviceCandidate = new ServiceCandidate(
-						serviceClassId, serviceClassName, serviceCandidateId, 
+						serviceClassId, serviceCandidateId, 
 						name, qosVector);
 				serviceCandidatesList.add(serviceCandidate);
 
@@ -1391,7 +1285,7 @@ public class MainFrame extends JFrame {
 			serviceClassesColumnModel.getColumn(0).setHeaderValue("ID");
 			serviceClassesColumnModel.getColumn(1).setHeaderValue("Name");
 			setColumnTextAlignment(
-					jTableServiceClasses, 1, DefaultTableCellRenderer.CENTER);
+					jTableServiceClasses, 0, DefaultTableCellRenderer.CENTER);
 
 			// Write service classes data.
 			for (int k = 0 ; k < serviceClassesList.size() ; k++) {
@@ -1404,18 +1298,21 @@ public class MainFrame extends JFrame {
 			jTableWebServices.setModel(new BasicTableModel(
 					serviceCandidatesList.size(), 6, false));
 			TableColumnModel webServicesColumnModel = 
-				jTableWebServices.getColumnModel();			
-			webServicesColumnModel.getColumn(0).setHeaderValue("ServiceClass");
-			webServicesColumnModel.getColumn(1).setHeaderValue("ID");
-			webServicesColumnModel.getColumn(2).setHeaderValue("Name");
-			webServicesColumnModel.getColumn(3).setHeaderValue("Costs");
-			webServicesColumnModel.getColumn(4).setHeaderValue("ResponseTime");
-			webServicesColumnModel.getColumn(5).setHeaderValue("Availability");
-			// TODO: FOLGENDES BITTE PRÜFEN
+				jTableWebServices.getColumnModel();
+			int innerCount = 0;
+			for (int k = 0 ; k < 6 ; k++) {
+				if (k == 1) { 
+					innerCount++;
+				}
+				webServicesColumnModel.getColumn(k).setHeaderValue(
+						headerArray[innerCount]);
+				innerCount++;
+			}
+			setColumnTextAlignment(
+					jTableWebServices, 0, DefaultTableCellRenderer.CENTER);
 			setColumnTextAlignment(
 					jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
-			// TODO: FOLGENDES BITTE PRÜFEN
-			for (int count = 4; count < 6; count++) {
+			for (int count = 3; count < 6; count++) {
 				setColumnTextAlignment(jTableWebServices, count, 
 						DefaultTableCellRenderer.RIGHT);
 			}
@@ -1453,50 +1350,33 @@ public class MainFrame extends JFrame {
 	}
 
 	private void buildResultTable() {
-		if (jSpinnerNumberResultTiers.getValue() instanceof Integer) {
-
-			String chosenConstraintsCs = "Algorithm;# Composition;" +
-			"# Service;Service Title;Service Class; Utility Value;";
-			if (jCheckBoxMaxCosts.isSelected()) {
-				chosenConstraintsCs += "Costs;";
-			}
-			if (jCheckBoxMaxResponseTime.isSelected()) {
-				chosenConstraintsCs += "Response Time;";
-			}
-			if (jCheckBoxMinAvailability.isSelected()) {
-				chosenConstraintsCs += "Availability;";
-			}
-			if (jCheckBoxMinReliability.isSelected()) {
-				chosenConstraintsCs += "Reliability";
-			}
-			String[] tierTablesColumnNames = chosenConstraintsCs.split(";");
-
-			if (this.jTabbedPane.getTabCount() > 0) {
-				jTabbedPane.removeAll();
-			}
-			for (int count = 0; count < (Integer) jSpinnerNumberResultTiers.
-			getValue(); count++) {
-				JScrollPane jScrollPane = new JScrollPane();
-				this.jTabbedPane.addTab("Tier " + String.valueOf(count + 1), 
-						jScrollPane);
-				jTableTier = new JTable(new BasicTableModel(
-						20, tierTablesColumnNames.length, false));
-				jTableTier.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-				for (int innerCount = 0; innerCount < 
-				tierTablesColumnNames.length; innerCount++) {
-					jTableTier.getColumnModel().getColumn(
-							innerCount).setHeaderValue(
-									tierTablesColumnNames[innerCount]);
-				}
-				jTableTier.setEnabled(false);
-				jScrollPane.setViewportView(jTableTier);
-			}			
-
+		String chosenConstraintsCs = "# Composition;" +
+		"# Service;Service Title;Service Class;Utility Value;";
+		if (jCheckBoxMaxCosts.isSelected()) {
+			chosenConstraintsCs += "Costs;";
 		}
+		if (jCheckBoxMaxResponseTime.isSelected()) {
+			chosenConstraintsCs += "Response Time;";
+		}
+		if (jCheckBoxMinAvailability.isSelected()) {
+			chosenConstraintsCs += "Availability;";
+		}
+		String[] tierTablesColumnNames = chosenConstraintsCs.split(";");
+		if (jTabbedPane.getTabCount() > 0) {
+			jTabbedPane.removeAll();
+		}
+		String[] chosenAlgorithms = getChosenAlgorithms();
+		if (chosenAlgorithms == null) {
+			return;
+		}
+		// COUNTER FOR EVERY CHOSEN ALGORITHM
+		for (int count = 0; count < chosenAlgorithms.length; count++) {
+			showAlgorithmResults(chosenAlgorithms[count], 
+					tierTablesColumnNames);
+		}			
 	}
 
 	private void pressStartButton() {
-		buildResultTable();
 		Map<String, Constraint> constraintsMap = getChosenConstraints();
 		printChosenConstraintsToConsole(constraintsMap);
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
@@ -1504,11 +1384,11 @@ public class MainFrame extends JFrame {
 		}
 		if (jCheckBoxAntColonyOptimization.isSelected()) {
 			doAntAlgorithm(constraintsMap);
-		}		
+		}  
+		buildResultTable();
 		jButtonVisualize.setEnabled(true);
 	}
 
-	
 	private void chooseAlgorithm(String algorithm) {
 		if (algorithm.equals("genAlg")) {
 			if (!jCheckboxGeneticAlgorithm.isSelected()) {
@@ -1552,15 +1432,6 @@ public class MainFrame extends JFrame {
 			denominator = "w" + weightCount + " * MinAvailability ";
 			weightCount++;
 		}
-		if (jCheckBoxMinReliability.isSelected()) {
-			if (denominator.equals("")) {
-				denominator = "w" + weightCount + " * MinReliability";
-			}
-			else {
-				denominator += " + w" + weightCount + " * MinReliability";
-			}
-			weightCount++;
-		}
 		if (numerator.equals("")) {
 			numerator = "1";
 		}
@@ -1586,24 +1457,38 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	// TODO: BETTER SOLUTION FOR WEIGHTS ?
 	private void doEnumeration(Map<String, Constraint> constraintsMap) {
-		long runtime = System.currentTimeMillis();
-		AnalyticAlgorithm analyticAlgorithm = new AnalyticAlgorithm(
-				serviceClassesList, serviceCandidatesList, constraintsMap);
+		double[] constraintWeights = new double[3];
+		if (jCheckBoxMaxCosts.isSelected()) {
+			constraintWeights[0] = 
+				Double.parseDouble(txtCostsWeight.getText());
+		}
+		else {
+			constraintWeights[0] = 0.0;
+		}
+		if (jCheckBoxMaxResponseTime.isSelected()) {
+			constraintWeights[1] = 
+				Double.parseDouble(txtResponseTimeWeight.getText());
+		}
+		else {
+			constraintWeights[1] = 0.0;
+		}
+		if (jCheckBoxMinAvailability.isSelected()) {
+			constraintWeights[2] = 
+				Double.parseDouble(txtAvailabilityWeight.getText());
+		}
+		else {
+			constraintWeights[2] = 0.0;
+		}
+		analyticAlgorithm = new AnalyticAlgorithm(
+				serviceClassesList, serviceCandidatesList, constraintsMap, 
+				(Integer) jSpinnerNumberResultTiers.getValue());
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 			analyticAlgorithm.start(jProgressBarAnalyticAlgorithm);
 		}
-		runtime = System.currentTimeMillis() - runtime;
-		jTableGeneralResults.setValueAt(runtime + " ms", 3, 1);
-	}
-	
-	private void doAntAlgorithm(Map<String, Constraint> constraintsMap) {
-		long runtime = System.currentTimeMillis();
-		AntAlgorithm antAlgorithm = new AntAlgorithm(
-				serviceClassesList, serviceCandidatesList, constraintsMap);
-		antAlgorithm.start(jProgressBarAntAlgorithm);				
-		runtime = System.currentTimeMillis() - runtime;
-		jTableGeneralResults.setValueAt(runtime + " ms", 2, 1);		
+		jTableGeneralResults.setValueAt(analyticAlgorithm.getRuntime()
+				+ " ms", 3, 1);
 	}
 
 	// ELEMENTS OF DOUBLE[] COLUMNWIDTHPERCENTAGES 
@@ -1681,15 +1566,12 @@ public class MainFrame extends JFrame {
 				(int) (Math.random() * MAX_RESPONSE_TIME));
 		jSliderMinAvailability.setValue(
 				(int) (Math.random() * MAX_AVAILABILITY));
-		jSliderMinReliability.setValue(
-				(int) (Math.random() * MAX_RELIABILITY));
 	}
 
 	private void setDefaultConstraints() {
 		jSliderMaxCosts.setValue(MAX_COSTS / 2);
 		jSliderMaxResponseTime.setValue(MAX_RESPONSE_TIME / 2);
 		jSliderMinAvailability.setValue(MAX_AVAILABILITY / 2);
-		jSliderMinReliability.setValue(MAX_RELIABILITY / 2);
 	}
 
 	private void resetProgram() {
@@ -1715,10 +1597,6 @@ public class MainFrame extends JFrame {
 		if (jCheckBoxMinAvailability.isSelected()) {
 			cumulatedPercentage += Integer.parseInt(
 					txtAvailabilityWeight.getText());
-		}
-		if (jCheckBoxMinReliability.isSelected()) {
-			cumulatedPercentage += Integer.parseInt(
-					txtReliabilityWeight.getText());
 		}
 		lblWeightSum.setText("\u03A3 " + String.valueOf(cumulatedPercentage));
 		if (cumulatedPercentage != 100) {
@@ -1774,20 +1652,6 @@ public class MainFrame extends JFrame {
 			txtAvailabilityWeight.setEditable(
 					jCheckBoxMinAvailability.isSelected());
 			changeWeight(txtAvailabilityWeight);
-		}
-		else { 
-			jSliderMinReliability.setEnabled(
-					jCheckBoxMinReliability.isSelected());
-			jTextFieldMinReliability.setEditable(
-					jCheckBoxMinReliability.isSelected());
-			lblWeights = 
-				Integer.parseInt(lblWeightSum.getText().substring(2));
-			lblWeights -= Integer.parseInt(txtReliabilityWeight.getText());
-			lblWeightSum.setText("\u03A3 " + String.valueOf(lblWeights));
-			txtReliabilityWeight.setText("0");
-			txtReliabilityWeight.setEditable(
-					jCheckBoxMinReliability.isSelected());
-			changeWeight(txtReliabilityWeight);
 		}
 	}
 	
@@ -1854,8 +1718,38 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	private void loadRandomWebServices(List<ServiceClass> servicesList, 
-			int numberOfWebServices) {
+	private void loadRandomWebServices() {
+		JSpinner spinnerNumberOfServiceClasses = new JSpinner(
+				new SpinnerNumberModel(1, 1, 10, 1));
+		((JSpinner.DefaultEditor) spinnerNumberOfServiceClasses.getEditor()).
+		getTextField().setEditable(false);
+		((JSpinner.DefaultEditor) spinnerNumberOfServiceClasses.getEditor()).
+		getTextField().setHorizontalAlignment(JTextField.CENTER);
+		JSpinner spinnerNumberOfWebServices = new JSpinner(
+				new SpinnerNumberModel(1, 1, 10, 1));
+		((JSpinner.DefaultEditor) spinnerNumberOfWebServices.getEditor()).
+		getTextField().setEditable(false);
+		((JSpinner.DefaultEditor) spinnerNumberOfWebServices.getEditor()).
+		getTextField().setHorizontalAlignment(JTextField.CENTER);
+		JComponent[] dialogComponents = new JComponent[] {
+				new JLabel("Number of Service Classes:"),
+				spinnerNumberOfServiceClasses,
+				new JLabel("Number of Web Services " +
+						"(per Class):"),
+						spinnerNumberOfWebServices
+		};
+		JOptionPane.showConfirmDialog(null, dialogComponents, 
+				"Random Set Properties", 
+				JOptionPane.OK_CANCEL_OPTION, 
+				JOptionPane.QUESTION_MESSAGE);
+		int numberOfServiceClasses = 
+			(Integer) spinnerNumberOfServiceClasses.getValue();
+		int numberOfWebServices = 
+			(Integer) spinnerNumberOfWebServices.getValue();
+		
+		List<ServiceClass> servicesList = RandomSetGenerator.generateSet(
+				numberOfServiceClasses, numberOfWebServices);
+		
 		serviceCandidatesList.removeAll(serviceCandidatesList);
 		serviceClassesList.removeAll(serviceClassesList);
 		
@@ -1871,7 +1765,7 @@ public class MainFrame extends JFrame {
 		serviceClassesColumnModel.getColumn(0).setHeaderValue("ID");
 		serviceClassesColumnModel.getColumn(1).setHeaderValue("Name");
 		setColumnTextAlignment(
-				jTableServiceClasses, 1, DefaultTableCellRenderer.CENTER);
+				jTableServiceClasses, 0, DefaultTableCellRenderer.CENTER);
 
 		// Write service classes data.
 		for (int k = 0 ; k < serviceClassesList.size() ; k++) {
@@ -1879,13 +1773,10 @@ public class MainFrame extends JFrame {
 			jTableServiceClasses.setValueAt(
 					serviceClass.getServiceClassId(), k, 0);
 			jTableServiceClasses.setValueAt(serviceClass.getName(), k, 1);	
-			// TODO: DYNAMIC ADJUSTMENT CONCERNING "5"...
-			// TODO: ID'S IM RANDOMGENERATOR ANPASSEN! HIER RICHTIG!
 			for (int count = 0; count < serviceClass.getServiceCandidateList(
 					).size(); count++) {
 				ServiceCandidate serviceCandidate = new ServiceCandidate(
-						serviceClass.getServiceClassId(), 
-						serviceClass.getName(),
+						serviceClass.getServiceClassId(),
 						(count + 1) + (numberOfWebServices * k),
 						"WebService" + String.valueOf((count + 1) + 
 								(numberOfWebServices * k)),
@@ -1905,10 +1796,10 @@ public class MainFrame extends JFrame {
 			webServicesColumnModel.getColumn(k).setHeaderValue(
 					headerArray[k]);
 		}
-		// TODO: FOLGENDES BITTE PRÜFEN
+		setColumnTextAlignment(
+				jTableWebServices, 0, DefaultTableCellRenderer.CENTER);
 		setColumnTextAlignment(
 				jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
-		// TODO: FOLGENDES BITTE PRÜFEN
 		for (int count = 4; count < 6; count++) {
 			setColumnTextAlignment(jTableWebServices, count, 
 					DefaultTableCellRenderer.RIGHT);
@@ -1931,4 +1822,193 @@ public class MainFrame extends JFrame {
 		webServicesLoaded = true;
 		checkEnableStartButton();
 	}
+	
+	private String[] getChosenAlgorithms() {
+		String algorithmsString = "";
+		if (jCheckboxGeneticAlgorithm.isSelected()) {
+			algorithmsString += "Genetic;";
+		}
+		if (jCheckBoxAntColonyOptimization.isSelected()) {
+			algorithmsString += "Ant Colony Optimization;";
+		}
+		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+			algorithmsString += "Analytic;";
+		}
+		if (algorithmsString.equals("")) {
+			return null;
+		}
+		else {
+			algorithmsString = algorithmsString.substring(
+					0, algorithmsString.length() - 1);
+			return algorithmsString.split(";");
+		}
+	}
+	
+	private void showAlgorithmResults(String algorithm, 
+			String[] tierTablesColumnNames) {
+		int compositionNumber = 1;
+		
+		JScrollPane jScrollPane = new JScrollPane();
+		this.jTabbedPane.addTab(algorithm + 
+				" Algorithm", jScrollPane);
+
+		JPanel jPanelAlgorithmResult = new JPanel();
+		GridBagLayout gblJPanelAlgorithmResult = new GridBagLayout();
+		gblJPanelAlgorithmResult.columnWeights = new double[]{1.0};
+		double[] rows = 
+			new double[analyticAlgorithm.getAlgorithmSolutionTiers(
+					).size() * 2];
+		if (rows.length == 2) {
+			rows[0] = 0.1;
+			rows[1] = 0.9;
+		}
+		else {
+			for (int rowCount = 0; rowCount < rows.length; rowCount++) {
+				if (rowCount % 2 == 0) {
+					rows[rowCount] = 90.0 / (rows.length / 2 + 1);
+				}
+				else {
+					rows[rowCount] = 10.0 / (rows.length / 2 + 1);
+				}
+			}
+		}
+		
+		gblJPanelAlgorithmResult.rowWeights = rows;
+		jPanelAlgorithmResult.setLayout(gblJPanelAlgorithmResult);
+		jScrollPane.setViewportView(jPanelAlgorithmResult);
+
+
+		// COUNTER FOR ALL TIER TABLES
+		for (int innerCount = 1; 
+		innerCount < rows.length; innerCount = innerCount + 2) {
+			List<Composition> tierServiceCompositionList = 
+				analyticAlgorithm.getAlgorithmSolutionTiers().get(
+						innerCount / 2).getServiceCompositionList();
+			int numberOfRows = 0;
+			// COUNTER FOR COMPUTING THE NUMBER OF COMPOSITIONS
+			// PER TIER
+			for (int rowCount = 0; rowCount < 
+			tierServiceCompositionList.size(); rowCount++) {
+				numberOfRows += tierServiceCompositionList.get(
+						rowCount).getServiceCandidatesList().size();
+			}
+			
+			// TABLE CONSTRUCTION
+			JTable jTableTier = new JTable(new BasicTableModel(
+					numberOfRows, 
+					tierTablesColumnNames.length, false));
+			GridBagConstraints gbc_jTableTier = 
+				new GridBagConstraints();
+			gbc_jTableTier.gridx = 0;
+			gbc_jTableTier.gridy = innerCount;
+			gbc_jTableTier.fill = GridBagConstraints.HORIZONTAL;
+			gbc_jTableTier.anchor = GridBagConstraints.NORTH;
+			jPanelAlgorithmResult.add(
+					jTableTier, gbc_jTableTier);
+			
+			setColumnTextAlignment(
+					jTableTier, 1, DefaultTableCellRenderer.CENTER);
+			setColumnTextAlignment(
+					jTableTier, 3, DefaultTableCellRenderer.CENTER);
+			
+			// COUNTER FOR CONSTRUCTION OF TABLE HEADERS
+			for (int columnCount = 0; columnCount < 
+			tierTablesColumnNames.length; columnCount++) {
+				jTableTier.getColumnModel().getColumn(
+						columnCount).setHeaderValue(
+								tierTablesColumnNames[columnCount]);
+			}
+			if (innerCount == 1) {
+				GridBagConstraints gbc_tableHeader = new GridBagConstraints();
+				gbc_tableHeader.gridx = 0;
+				gbc_tableHeader.gridy = 0;
+				gbc_tableHeader.fill = GridBagConstraints.HORIZONTAL;
+				gbc_tableHeader.anchor = GridBagConstraints.SOUTH;
+				jTableTier.getTableHeader().setVisible(true);
+				jPanelAlgorithmResult.add(
+						jTableTier.getTableHeader(), gbc_tableHeader);
+			}
+			// COUNTER FOR ALL ROWS OF A TIER
+			for (int rowCount = 0; rowCount < numberOfRows; rowCount++) {
+				jTableTier.setValueAt("Composition " + 
+						compositionNumber++, rowCount, 0);
+				jTableTier.setValueAt(
+						DECIMAL_FORMAT_FOUR.format(
+								tierServiceCompositionList.get(
+										rowCount).getUtility()), rowCount, 4);
+				int candidateCount = 0;
+				// COUNTER FOR ALL SERVICE CANDIDATES 
+				// PER COMPOSITION
+				for (candidateCount = 0; candidateCount < 
+				tierServiceCompositionList.get(rowCount).
+				getServiceCandidatesList().size(); candidateCount++) {
+					// SERVICE CANDIDATE ID
+					jTableTier.setValueAt(
+							tierServiceCompositionList.get(rowCount).
+							getServiceCandidatesList().
+							get(candidateCount).getServiceCandidateId(), 
+							rowCount + candidateCount, 1);
+					// SERVICE CANDIDATE TITLE
+					jTableTier.setValueAt(
+							tierServiceCompositionList.get(rowCount).
+							getServiceCandidatesList().
+							get(candidateCount).getName(), 
+							rowCount + candidateCount, 2);
+					// SERVICE CLASS ID
+					jTableTier.setValueAt(
+							tierServiceCompositionList.get(rowCount).
+							getServiceCandidatesList().
+							get(candidateCount).getServiceClassId(), 
+							rowCount + candidateCount, 3);
+					// COSTS
+					jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
+							tierServiceCompositionList.get(rowCount).
+							getServiceCandidatesList().get(
+									candidateCount).getQosVector().
+									getCosts()), 
+									rowCount + candidateCount, 5);
+					// RESPONSE TIME
+					jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
+							tierServiceCompositionList.get(rowCount).
+							getServiceCandidatesList().get(
+									candidateCount).getQosVector().
+									getResponseTime()), 
+									rowCount + candidateCount, 6);
+					// AVAILABILITY
+					jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
+							tierServiceCompositionList.get(rowCount).
+							getServiceCandidatesList().get(
+									candidateCount).getQosVector().
+									getAvailability()), 
+									rowCount + candidateCount, 7);
+				}
+				rowCount = rowCount + candidateCount - 1;
+			}
+			jTableTier.setEnabled(false);
+			
+			if (innerCount + 1 < rows.length) {
+				JSeparator tierTablesSeparator = new JSeparator();
+				GridBagConstraints gbc_tierTablesSeparator = 
+					new GridBagConstraints();
+				gbc_tierTablesSeparator.gridx = 0;
+				gbc_tierTablesSeparator.gridy = innerCount + 1;
+				gbc_tierTablesSeparator.fill = 
+					GridBagConstraints.HORIZONTAL;
+				gbc_tierTablesSeparator.anchor = GridBagConstraints.NORTH;
+				gbc_tierTablesSeparator.insets = new Insets(10, 5, 10, 5);
+				jPanelAlgorithmResult.add(
+						tierTablesSeparator, gbc_tierTablesSeparator);
+			}
+		}
+		// TODO: DIFFERENT DESIGN FOR DIFFERENT ALGORITHMS
+	}
+	
+	private void doAntAlgorithm(Map<String, Constraint> constraintsMap) {
+		long runtime = System.currentTimeMillis();
+		AntAlgorithm antAlgorithm = new AntAlgorithm(
+				serviceClassesList, serviceCandidatesList, constraintsMap);
+		antAlgorithm.start(jProgressBarAntAlgorithm);        
+		runtime = System.currentTimeMillis() - runtime;
+		jTableGeneralResults.setValueAt(runtime + " ms", 2, 1);    
+	} 
 }
