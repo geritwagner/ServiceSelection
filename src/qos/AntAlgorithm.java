@@ -12,6 +12,8 @@ public class AntAlgorithm extends Algorithm {
 	private List<ServiceClass> serviceClassesList;
 	private List<ServiceCandidate> serviceCandidatesList;
 	private Map<String, Constraint> constraintsMap;
+	private QosVector qosMax;
+	private QosVector qosMin;
 		
 	private double piInit;
 	private int ants;
@@ -25,12 +27,14 @@ public class AntAlgorithm extends Algorithm {
 			
 	public AntAlgorithm(List<ServiceClass> serviceClassesList,
 			List<ServiceCandidate> serviceCandidatesList,
-			Map<String, Constraint> constraintsMap) {
+			Map<String, Constraint> constraintsMap, QosVector max, QosVector min) {
 		this.serviceClassesList = new LinkedList<ServiceClass>(serviceClassesList);
 		this.serviceCandidatesList = new LinkedList<ServiceCandidate>(serviceCandidatesList);
 		Collections.copy(this.serviceClassesList, serviceClassesList);
 		Collections.copy(this.serviceCandidatesList, serviceCandidatesList);		
 		this.constraintsMap = constraintsMap;
+		this.qosMax = max;
+		this.qosMin = min;
 				
 		optimalComposition = null;
 		piInit = 1;
@@ -42,6 +46,9 @@ public class AntAlgorithm extends Algorithm {
 	}
 		
 	public void start(JProgressBar progressBar) {
+		
+		normalizeQos();
+		
 		// ADD PSEUDO NODES AT THE BEGINNING AND AT THE END
 		List<ServiceCandidate> tempServiceCandidateList = 
 				new LinkedList<ServiceCandidate>();
@@ -67,12 +74,6 @@ public class AntAlgorithm extends Algorithm {
 				pi[i][j] = piInit;
 			}
 		}
-		
-		optimalQos = null;
-		normalizeQos();
-//		for (double n : nj) {
-//			System.out.println(n);
-//		}
 		
 		int counter = 0;
 		
@@ -122,8 +123,8 @@ public class AntAlgorithm extends Algorithm {
 					counter++;
 					
 					double utility = 0;
-					for (ServiceCandidate sc : composition.getServiceCandidatesList()) {
-						int id = sc.getServiceCandidateId();
+					for (int a=1; a < composition.getServiceCandidatesList().size()-1; a++) {
+						int id = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
 						utility += nj[id];
 					}
 					composition.setUtility(utility);
@@ -167,49 +168,27 @@ public class AntAlgorithm extends Algorithm {
 		System.out.println(counter);
 	}
 	
+	
 	public void normalizeQos() {
-		QosVector max = new QosVector(0.0, 0.0, 0.0);
-		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
-			QosVector qos = serviceCandidate.getQosVector();
-			if (qos.getCosts() > max.getCosts()) {
-				max.setCosts(qos.getCosts());
-			}
-			if (qos.getResponseTime() > max.getResponseTime()) {
-				max.setResponseTime(qos.getResponseTime());
-			}
-			if (qos.getAvailability() > max.getAvailability()) {
-				max.setAvailability(qos.getAvailability());
-			}
-		}
-		QosVector min = new QosVector(100000.0, 100000.0, 1.0);
-		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
-			QosVector qos = serviceCandidate.getQosVector();
-			if (qos.getCosts() < min.getCosts()) {
-				min.setCosts(qos.getCosts());
-			}
-			if (qos.getResponseTime() < min.getResponseTime()) {
-				min.setResponseTime(qos.getResponseTime());
-			}
-			if (qos.getAvailability() < min.getAvailability()) {
-				min.setAvailability(qos.getAvailability());
-			}
-		}
+		// CONSIDER START AND END NODE
+		nj = new double[serviceCandidatesList.size()+2];
+		// SET UTILITY OF START AND END NODE TO NULL
+		nj[0] = 0;
+		nj[serviceCandidatesList.size()] = 0;
 		
-		nj = new double[serviceCandidatesList.size()];
-		
-		for (int i=0; i<serviceCandidatesList.size(); i++) {
+		for (int i=0; i<serviceCandidatesList.size()-1; i++) {
 			// (Q_Max - Q_i) / (Q_max - Q_min) * W		negative criteria
 			// (Q_i - Q_min) / (Q_max - Q_min) * W		positive criteria
 			QosVector qos = serviceCandidatesList.get(i).getQosVector();
 			Constraint costs = constraintsMap.get(Constraint.COSTS);
 			Constraint responseTime = constraintsMap.get(Constraint.RESPONSE_TIME);
 			Constraint availability = constraintsMap.get(Constraint.AVAILABILITY);
-			nj[i] = (((max.getCosts() - qos.getCosts()) / 
-					(max.getCosts() - min.getCosts())) * costs.getWeight()/100) + 
-					(((max.getResponseTime() - qos.getResponseTime()) / 
-					(max.getResponseTime() - min.getResponseTime())) * responseTime.getWeight()/100) + 
-					(((qos.getAvailability() - min.getAvailability()) / 
-					(max.getAvailability() - min.getAvailability())) * availability.getWeight()/100);			
+			nj[i+1] = (((qosMax.getCosts() - qos.getCosts()) / 
+					(qosMax.getCosts() - qosMin.getCosts())) * costs.getWeight()/100) + 
+					(((qosMax.getResponseTime() - qos.getResponseTime()) / 
+					(qosMax.getResponseTime() - qosMin.getResponseTime())) * responseTime.getWeight()/100) + 
+					(((qos.getAvailability() - qosMin.getAvailability()) / 
+					(qosMax.getAvailability() - qosMin.getAvailability())) * availability.getWeight()/100);			
 		}
 	}
 	

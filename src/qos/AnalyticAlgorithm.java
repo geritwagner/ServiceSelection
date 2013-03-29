@@ -1,5 +1,6 @@
 package qos;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,9 @@ public class AnalyticAlgorithm extends Algorithm {
 	private List<Composition> compositionsList = new LinkedList<Composition>();
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
+	private Composition optimalComposition = null;
+	private QosVector qosMax;
+	private QosVector qosMin;
 	
 	private int numberOfRequestedResultTiers;
 	
@@ -29,13 +33,134 @@ public class AnalyticAlgorithm extends Algorithm {
 	public AnalyticAlgorithm(List<ServiceClass> serviceClassesList, 
 			List<ServiceCandidate> serviceCandidatesList, 
 			Map<String, Constraint> constraintsMap, 
-			int numberOfRequestedResultTiers) {
+			int numberOfRequestedResultTiers, QosVector max, QosVector min) {
 		this.serviceClassesList = serviceClassesList;
 		this.serviceCandidatesList = serviceCandidatesList;
 		this.constraintsMap = constraintsMap;
 		this.numberOfRequestedResultTiers = numberOfRequestedResultTiers;
+		this.qosMax = max;
+		this.qosMin = min;
+		this.optimalComposition = new Composition(new LinkedList<ServiceCandidate>(), new QosVector(), 0.0);
 	}
 	
+	
+	@Override
+	public void start(JProgressBar progressBar) {
+		runtime = System.currentTimeMillis();
+		for (int i=0; i < serviceClassesList.get(0).
+				getServiceCandidateList().size(); i++) {
+			doCompleteEnumeration(new Composition(
+					new LinkedList<ServiceCandidate>(), new QosVector(), 0.0), 
+					0, i);
+		}		
+		runtime = System.currentTimeMillis() - runtime;
+		System.out.println("Optimal composition: " + 
+				optimalComposition.getServiceCandidatesAsString()+" - "+optimalComposition.getUtility());
+	}
+	
+	private void doCompleteEnumeration(Composition composition, 
+			int serviceClassNumber, int serviceCandidateNumber) {
+		composition = forward(composition, serviceClassNumber, 
+				serviceCandidateNumber);
+		if (composition != null) {
+			if (isComplete(composition)) {
+				if (isWithinConstraints(composition)) {
+					if (isNewOptimalComposition(composition)) {
+						List<ServiceCandidate> tempServiceCandidatesList = 
+								new LinkedList<ServiceCandidate>(composition.getServiceCandidatesList());						
+						Collections.copy(tempServiceCandidatesList, composition.getServiceCandidatesList());
+						QosVector qos = new QosVector(composition.getQosVectorAggregated().getCosts(),
+								composition.getQosVectorAggregated().getResponseTime(),
+								composition.getQosVectorAggregated().getAvailability());
+						optimalComposition = new Composition(tempServiceCandidatesList,
+								qos, composition.getUtility());
+					}
+				}						
+			}
+			else {
+				serviceClassNumber++;
+				for (int i = 0; i < serviceClassesList.get(serviceClassNumber).
+						getServiceCandidateList().size(); i++) {
+					doCompleteEnumeration(composition, serviceClassNumber, i);
+				}
+			}
+			composition = backward(composition);
+			serviceClassNumber--;
+		}
+		return;
+	}
+	
+	private Composition forward(Composition composition, 
+			int serviceClassNumber, int serviceCandidateNumber) {
+		ServiceClass serviceClass = serviceClassesList.get(serviceClassNumber);
+		ServiceCandidate serviceCandidate = 
+				serviceClass.getServiceCandidateList().get(
+						serviceCandidateNumber);
+		composition.addServiceCandidate(serviceCandidate);
+		return composition;
+	}
+	
+	private Composition backward(Composition composition) {
+		composition.removeServiceCandidate();
+		return composition;
+	}
+	
+	// CHECK IS DONE BY COMPARING THE SIZE OF THE COMPOSITION WITH THE NUMBER 
+	// OF AVAILABLE SERVICE CLASSES.
+	private boolean isComplete(Composition composition) {
+		if (composition.getServiceCandidatesList().size() == 
+				serviceClassesList.size()) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	private boolean isWithinConstraints(Composition composition) {
+		boolean isWithinConstraints = true;
+		QosVector qosVector = composition.getQosVectorAggregated();
+		Constraint costs = constraintsMap.get(Constraint.COSTS);
+		Constraint responseTime = constraintsMap.get(Constraint.RESPONSE_TIME);
+		Constraint availability = constraintsMap.get(Constraint.AVAILABILITY);
+		if (costs != null && qosVector.getCosts() > costs.getValue()) {
+			isWithinConstraints = false;
+		}
+		if (responseTime != null && 
+				qosVector.getResponseTime() > responseTime.getValue()) {
+			isWithinConstraints = false;
+		}
+		if (availability != null && 
+				qosVector.getAvailability() < availability.getValue()) {
+			isWithinConstraints = false;
+		}
+		return isWithinConstraints;
+	}
+	
+	private boolean isNewOptimalComposition(Composition composition) {		
+		double utility = 0;
+		for (ServiceCandidate sc : composition.getServiceCandidatesList()) {
+			QosVector qos = sc.getQosVector();
+			utility += ((qosMax.getCosts() - qos.getCosts()) / 
+					(qosMax.getCosts() - qosMin.getCosts())) * constraintsMap.get(
+							Constraint.COSTS).getWeight() / 100;
+			utility += ((qosMax.getResponseTime() - qos.getResponseTime()) / 
+					(qosMax.getResponseTime() - qosMin.getResponseTime())) * 
+					constraintsMap.get(
+							Constraint.RESPONSE_TIME).getWeight() / 100;
+			utility += ((qos.getAvailability() - qosMin.getAvailability(
+					)) / (qosMax.getAvailability() - qosMin.getAvailability(
+							))) * constraintsMap.get(
+									Constraint.AVAILABILITY).getWeight() / 100;
+		}
+		composition.setUtility(utility);
+		if (composition.getUtility() > optimalComposition.getUtility()) {
+			return true;
+		}
+		return false;
+	}
+	
+	/*
 	@Override
 	public void start(JProgressBar progressBar) {
 //		printInputData();
@@ -106,34 +231,10 @@ public class AnalyticAlgorithm extends Algorithm {
 		}
 		return;
 	}
+	*/
 	
-	private Composition forward(Composition composition, 
-			int serviceClassNumber, int serviceCandidateNumber) {
-		ServiceClass serviceClass = serviceClassesList.get(serviceClassNumber);
-		ServiceCandidate serviceCandidate = 
-				serviceClass.getServiceCandidateList().get(
-						serviceCandidateNumber);
-		composition.addServiceCandidate(serviceCandidate);
-		return composition;
-	}
 	
-	private Composition backward(Composition composition) {
-		composition.removeServiceCandidate();
-		return composition;
-	}
-	
-	// CHECK IS DONE BY COMPARING THE SIZE OF THE COMPOSITION WITH THE NUMBER 
-	// OF AVAILABLE SERVICE CLASSES.
-	private boolean isComplete(Composition composition) {
-		if (composition.getServiceCandidatesList().size() == 
-				serviceClassesList.size()) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	
+	/*
 	private void computeUtilityValues() {
 		QosVector max = determineQosVectorMax();
 		QosVector min = determineQosVectorMin();
@@ -285,7 +386,7 @@ public class AnalyticAlgorithm extends Algorithm {
 //		}
 //		return optimalComposition;
 //	}
-	
+	*/
 
 	// GETTERS AND SETTERS
 	public List<ServiceClass> getServiceClassesList() {

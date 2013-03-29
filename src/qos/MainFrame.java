@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -136,6 +137,8 @@ public class MainFrame extends JFrame {
 		new LinkedList<ServiceClass>();
 	private List<ServiceCandidate> serviceCandidatesList = 
 		new LinkedList<ServiceCandidate>();
+	private QosVector qosMax;
+	private QosVector qosMin;
 	private JTextField txtCostsWeight;
 	private JTextField txtResponseTimeWeight;
 	private JTextField txtAvailabilityWeight;
@@ -1384,13 +1387,15 @@ public class MainFrame extends JFrame {
 	private void pressStartButton() {
 		Map<String, Constraint> constraintsMap = getChosenConstraints();
 		printChosenConstraintsToConsole(constraintsMap);
+		qosMax = determineQosMax();
+		qosMin = determineQosMin();
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 			doEnumeration(constraintsMap);
 		}
 		if (jCheckBoxAntColonyOptimization.isSelected()) {
 			doAntAlgorithm(constraintsMap);
 		}  
-		buildResultTable();
+		//buildResultTable();
 		jButtonVisualize.setEnabled(true);
 	}
 
@@ -1488,7 +1493,7 @@ public class MainFrame extends JFrame {
 		}
 		analyticAlgorithm = new AnalyticAlgorithm(
 				serviceClassesList, serviceCandidatesList, constraintsMap, 
-				(Integer) jSpinnerNumberResultTiers.getValue());
+				(Integer) jSpinnerNumberResultTiers.getValue(), qosMax, qosMin);
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 			analyticAlgorithm.start(jProgressBarAnalyticAlgorithm);
 		}
@@ -2011,9 +2016,103 @@ public class MainFrame extends JFrame {
 	private void doAntAlgorithm(Map<String, Constraint> constraintsMap) {
 		long runtime = System.currentTimeMillis();
 		antAlgorithm = new AntAlgorithm(
-				serviceClassesList, serviceCandidatesList, constraintsMap);
+				serviceClassesList, serviceCandidatesList, constraintsMap,
+				qosMax, qosMin);
 		antAlgorithm.start(jProgressBarAntAlgorithm);        
 		runtime = System.currentTimeMillis() - runtime;
 		jTableGeneralResults.setValueAt(runtime + " ms", 2, 1);    
 	} 
+	
+	public QosVector determineQosMax() {
+		QosVector max = new QosVector(0.0, 0.0, 0.0);
+		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+			QosVector qos = serviceCandidate.getQosVector();
+			if (qos.getCosts() > max.getCosts()) {
+				max.setCosts(qos.getCosts());
+			}
+			if (qos.getResponseTime() > max.getResponseTime()) {
+				max.setResponseTime(qos.getResponseTime());
+			}
+			if (qos.getAvailability() > max.getAvailability()) {
+				max.setAvailability(qos.getAvailability());
+			}
+		}
+		return max;
+	}
+	
+	public QosVector determineQosMin() {
+		QosVector min = new QosVector(100000.0, 100000.0, 1.0);
+		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+			QosVector qos = serviceCandidate.getQosVector();
+			if (qos.getCosts() < min.getCosts()) {
+				min.setCosts(qos.getCosts());
+			}
+			if (qos.getResponseTime() < min.getResponseTime()) {
+				min.setResponseTime(qos.getResponseTime());
+			}
+			if (qos.getAvailability() < min.getAvailability()) {
+				min.setAvailability(qos.getAvailability());
+			}
+		}
+		return min;
+	}
+	
+	/*
+	public void doNormalization() {
+		QosVector max = new QosVector(0.0, 0.0, 0.0);
+		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+			QosVector qos = serviceCandidate.getQosVector();
+			if (qos.getCosts() > max.getCosts()) {
+				max.setCosts(qos.getCosts());
+			}
+			if (qos.getResponseTime() > max.getResponseTime()) {
+				max.setResponseTime(qos.getResponseTime());
+			}
+			if (qos.getAvailability() > max.getAvailability()) {
+				max.setAvailability(qos.getAvailability());
+			}
+		}
+		QosVector min = new QosVector(100000.0, 100000.0, 1.0);
+		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+			QosVector qos = serviceCandidate.getQosVector();
+			if (qos.getCosts() < min.getCosts()) {
+				min.setCosts(qos.getCosts());
+			}
+			if (qos.getResponseTime() < min.getResponseTime()) {
+				min.setResponseTime(qos.getResponseTime());
+			}
+			if (qos.getAvailability() < min.getAvailability()) {
+				min.setAvailability(qos.getAvailability());
+			}
+		}
+		
+		normServiceClassesList = new LinkedList<ServiceClass>(serviceClassesList);
+		normServiceCandidatesList = new LinkedList<ServiceCandidate>(serviceCandidatesList);
+		Collections.copy(normServiceClassesList, serviceClassesList);
+		Collections.copy(normServiceCandidatesList, serviceCandidatesList);
+		
+		for (int i=0; i<normServiceCandidatesList.size(); i++) {
+			// (Q_Max - Q_i) / (Q_max - Q_min) * W		negative criteria
+			// (Q_i - Q_min) / (Q_max - Q_min) * W		positive criteria
+			QosVector qos = normServiceCandidatesList.get(i).getQosVector();
+			qos.setCosts((max.getCosts() - qos.getCosts()) / (max.getCosts() - min.getCosts()));
+			qos.setResponseTime((max.getResponseTime() - qos.getResponseTime()) / 
+					(max.getResponseTime() - min.getResponseTime()));
+			qos.setAvailability((qos.getAvailability() - min.getAvailability()) / 
+					(max.getAvailability() - min.getAvailability()));
+			normServiceCandidatesList.get(i).setQosVector(qos);			
+		}
+		for (int i=0; i<normServiceClassesList.size(); i++) {
+			for (int j=0; j<normServiceClassesList.get(i).getServiceCandidateList().size(); j++) {				
+				QosVector qos = normServiceClassesList.get(i).getServiceCandidateList().get(j).getQosVector();
+				qos.setCosts((max.getCosts() - qos.getCosts()) / (max.getCosts() - min.getCosts()));
+				qos.setResponseTime((max.getResponseTime() - qos.getResponseTime()) / 
+						(max.getResponseTime() - min.getResponseTime()));
+				qos.setAvailability((qos.getAvailability() - min.getAvailability()) / 
+						(max.getAvailability() - min.getAvailability()));
+				normServiceClassesList.get(i).getServiceCandidateList().get(j).setQosVector(qos);		
+			}				
+		}
+	}
+	*/
 }
