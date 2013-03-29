@@ -80,6 +80,7 @@ public class MainFrame extends JFrame {
 	private JLabel jLabelGeneticAlgorithmNumerator;
 	private JLabel jLabelGeneticAlgorithmDenominator;
 	private JLabel jLabelWeightedPenalty;
+	private JLabel jLabelUtilityText;
 
 	private JCheckBox jCheckboxGeneticAlgorithm;
 	private JCheckBox jCheckBoxAntColonyOptimization;
@@ -820,7 +821,24 @@ public class MainFrame extends JFrame {
 		gbc_lblUtilityFunction.gridy = 0;
 		jPanelUtilityFunction.add(
 				jLabelUtilityFunction, gbc_lblUtilityFunction);
-
+		
+		
+		Font fontUtilityText = 
+				new Font("utilityText", Font.BOLD, 12);
+		String utilityText = getUtilityFunction();		
+		jLabelUtilityText = new JLabel(utilityText);
+		jLabelUtilityText.setFont(fontUtilityText);
+		GridBagConstraints gbc_lblUtilityText = new GridBagConstraints();
+		gbc_lblUtilityText.gridheight = 1;
+		gbc_lblUtilityText.gridwidth = 2;
+		gbc_lblUtilityText.fill = GridBagConstraints.BOTH;
+		gbc_lblUtilityText.anchor = GridBagConstraints.CENTER;
+		gbc_lblUtilityText.insets = new Insets(0, 25, 0, 5);
+		gbc_lblUtilityText.gridx = 1;
+		gbc_lblUtilityText.gridy = 1;
+		jPanelUtilityFunction.add(
+				jLabelUtilityText, gbc_lblUtilityText);
+		 
 		jButtonStart = new JButton("Start");
 		jButtonStart.setEnabled(false);
 		jButtonStart.addActionListener(new ActionListener() {
@@ -1618,7 +1636,8 @@ public class MainFrame extends JFrame {
 		else {
 			lblWeightSum.setForeground(Color.GREEN);
 			correctWeights = true;
-		}
+			jLabelUtilityText.setText(getUtilityFunction());
+		}		
 		checkEnableStartButton();
 	}
 
@@ -2055,6 +2074,13 @@ public class MainFrame extends JFrame {
 			}
 		}
 		return min;
-	}	
+	}
+	
+	private String getUtilityFunction() {
+		String utilityText = "(Costs * "+txtCostsWeight.getText()+"/100) + " +
+				"(Response Time * "+txtResponseTimeWeight.getText()+"/100) + " +
+						"(Availability * "+txtAvailabilityWeight.getText()+"/100)";
+		return utilityText;
+	}
 	
 }
