@@ -14,6 +14,8 @@ public class AntAlgorithm extends Algorithm {
 	private Map<String, Constraint> constraintsMap;
 	private QosVector qosMax;
 	private QosVector qosMin;
+	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
+			new LinkedList<AlgorithmSolutionTier>();
 		
 	private double piInit;
 	private int ants;
@@ -24,6 +26,10 @@ public class AntAlgorithm extends Algorithm {
 	private QosVector optimalQos;
 	private Composition optimalComposition;
 	private double[] nj;
+	private double[][] pi;
+	int counter = 0;
+	
+	private long runtime = 0;
 			
 	public AntAlgorithm(List<ServiceClass> serviceClassesList,
 			List<ServiceCandidate> serviceCandidatesList,
@@ -34,21 +40,39 @@ public class AntAlgorithm extends Algorithm {
 		Collections.copy(this.serviceCandidatesList, serviceCandidatesList);		
 		this.constraintsMap = constraintsMap;
 		this.qosMax = max;
-		this.qosMin = min;
+		this.qosMin = min;		
 				
 		optimalComposition = null;
 		piInit = 1;
 		ants = 10;
 		iterations = 100;
-		alpha = 0;
+		alpha = 1;
 		beta = 1;
 		dilution = 0.1;
 	}
 		
-	public void start(JProgressBar progressBar) {
-		
-		normalizeQos();
-		
+	public void start(JProgressBar progressBar) {			
+		runtime = System.currentTimeMillis();
+		initAlgo();
+				
+		// RUN ITERATIONS
+		for (int i=1; i<=iterations; i++) {	
+			doIteration();
+			
+			// PROGRESSBAR
+			//progressBar.setValue((int) Math.round((double) (i + 1) / iterations));
+		}	
+		runtime = System.currentTimeMillis() - runtime;
+		List<ServiceCandidate> sCList = new LinkedList<ServiceCandidate>();
+		for (int i=1; i<optimalComposition.getServiceCandidatesList().size()-1; i++) {
+			sCList.add(optimalComposition.getServiceCandidatesList().get(i));
+		}		
+		optimalComposition.setServiceCandidateList(sCList);
+		buildSolutionTiers();
+		System.out.println(counter);
+	}
+	
+	private void initAlgo() {		
 		// ADD PSEUDO NODES AT THE BEGINNING AND AT THE END
 		List<ServiceCandidate> tempServiceCandidateList = 
 				new LinkedList<ServiceCandidate>();
@@ -68,122 +92,118 @@ public class AntAlgorithm extends Algorithm {
 		serviceClassesList.add(tempServiceClass);		
 		
 		// INITIALIZE PHEROMONE-MATRIX
-		double[][] pi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
+		pi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
 		for (int i=0; i<pi.length; i++) {
 			for (int j=0; j<pi[i].length; j++) {
 				pi[i][j] = piInit;
 			}
 		}
 		
-		int counter = 0;
-		
-		// RUN ITERATIONS
-		for (int i=1; i<=iterations; i++) {			
-			List<Composition> antCompositions = new LinkedList<Composition>();
-			for (int k=0; k<ants; k++) {
-				int currentClass = 0;
-				int currentService = 0;				
-				antCompositions.add(new Composition(
-						new LinkedList<ServiceCandidate>(), new QosVector(), 0.0));
-				antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
-				while (currentClass != (serviceClassesList.size()-1)) {
-					// CALCULATE PROBABILITY FOR ALL POSSIBLE SERVICES
-					List<ServiceCandidate> nextServiceCandidatesList = 
-							serviceClassesList.get(currentClass+1).getServiceCandidateList();
-					double[] p = new double[nextServiceCandidatesList.size()];
-					double nenner = 0;
-					for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-						int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId(); 
-						nenner += Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta);
-					}
-					for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-						int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId(); 
-						p[x] = (Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta))
-								/ nenner;
-						//System.out.println("Iteration:"+i+",ant:"+k+",p["+currentService+"]["+nextID+"]:"+p[x]);
-					}
-					double randomNumber = Math.random();
-					double temp = 0;
-					for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-						temp += p[x];
-						if (randomNumber <= temp) {
-							currentService = nextServiceCandidatesList.get(x).getServiceCandidateId();
-							break;
-						}
-					}
-					antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
-					currentClass++;
-				}
-			}
-			
-			// LOOK FOR BEST COMPOSITION
-			for (int k=0; k<ants; k++) {
-				Composition composition = antCompositions.get(k);
-				if (isWithinConstraints(composition)) {
-					counter++;
-					
-					double utility = 0;
-					for (int a=1; a < composition.getServiceCandidatesList().size()-1; a++) {
-						int id = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
-						utility += nj[id];
-					}
-					composition.setUtility(utility);
-					
-					if ((optimalComposition == null)||
-							(composition.getUtility() > optimalComposition.getUtility())) {
-						optimalComposition = composition;
-						System.out.println(optimalComposition.getServiceCandidatesAsString() +
-								": "+optimalComposition.getUtility());
-					}
-				}
-			}
-			// PHEROMONE UPDATE FUNCTION
-			double[][] deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
-			for (int a=0; a<deltaPi.length; a++) {
-				for (int b=0; b<deltaPi[a].length; b++) {
-					deltaPi[a][b] = 0;
-				}
-			}
-			for (int k=0; k<ants; k++) {
-				Composition composition = antCompositions.get(k);
-				if (isWithinConstraints(composition)) {
-					double ratio = composition.getUtility() / optimalComposition.getUtility();
-					for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
-						int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
-						int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
-						deltaPi[currentID][nextID] += ratio;
-					}
-					
-				}
-			}
-			for (int a=0; a<pi.length; a++) {
-				for (int b=0; b<pi[a].length; b++) {
-					pi[a][b] = (1-dilution)*pi[a][b] + deltaPi[a][b];
-				}
-			}
-			// PROGRESSBAR
-			//progressBar.setValue((int) Math.round((double) (i + 1) / iterations));
-		}
-		
-		System.out.println(counter);
+		normalizeQos();
 	}
 	
-	
-	public void normalizeQos() {
-		// CONSIDER START AND END NODE
-		nj = new double[serviceCandidatesList.size()+2];
-		// SET UTILITY OF START AND END NODE TO NULL
-		nj[0] = 0;
-		nj[serviceCandidatesList.size()] = 0;
+	private void doIteration() {
+		List<Composition> antCompositions = new LinkedList<Composition>();
+		for (int k=0; k<ants; k++) {
+			int currentClass = 0;
+			int currentService = 0;				
+			antCompositions.add(new Composition(
+					new LinkedList<ServiceCandidate>(), new QosVector(), 0.0));
+			antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
+			while (currentClass != (serviceClassesList.size()-1)) {
+				// CALCULATE PROBABILITY FOR ALL POSSIBLE SERVICES
+				List<ServiceCandidate> nextServiceCandidatesList = 
+						serviceClassesList.get(currentClass+1).getServiceCandidateList();
+				double[] p = new double[nextServiceCandidatesList.size()];
+				double nenner = 0;
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId(); 
+					nenner += Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta);
+				}
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId(); 
+					p[x] = (Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta))
+							/ nenner;
+					//System.out.println("Iteration:"+i+",ant:"+k+",p["+currentService+"]["+nextID+"]:"+p[x]);
+				}
+				double randomNumber = Math.random();
+				double temp = 0;
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					temp += p[x];
+					if (randomNumber <= temp) {
+						currentService = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						break;
+					}
+				}
+				antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
+				currentClass++;
+			}
+		}
 		
-		for (int i=0; i<serviceCandidatesList.size()-1; i++) {
+		// LOOK FOR BEST COMPOSITION
+		for (int k=0; k<ants; k++) {
+			Composition composition = antCompositions.get(k);
+			if (isWithinConstraints(composition)) {
+				counter++;
+				
+				double utility = 0;
+				for (int a=1; a < composition.getServiceCandidatesList().size()-1; a++) {
+					int id = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
+					utility += nj[id];
+				}
+				composition.setUtility(utility);
+				
+				if ((optimalComposition == null)||
+						(composition.getUtility() > optimalComposition.getUtility())) {
+					optimalComposition = composition;
+					System.out.println(optimalComposition.getServiceCandidatesAsString() +
+							": "+optimalComposition.getUtility());
+				}
+			}
+		}
+		// PHEROMONE UPDATE FUNCTION
+		double[][] deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
+		for (int a=0; a<deltaPi.length; a++) {
+			for (int b=0; b<deltaPi[a].length; b++) {
+				deltaPi[a][b] = 0;
+			}
+		}
+		for (int k=0; k<ants; k++) {
+			Composition composition = antCompositions.get(k);
+			if (isWithinConstraints(composition)) {
+				double ratio = composition.getUtility() / optimalComposition.getUtility();
+				for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
+					int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
+					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
+					deltaPi[currentID][nextID] += ratio;
+				}
+				
+			}
+		}
+		for (int a=0; a<pi.length; a++) {
+			for (int b=0; b<pi[a].length; b++) {
+				pi[a][b] = (1-dilution)*pi[a][b] + deltaPi[a][b];
+			}
+		}
+		
+	
+	}
+	
+	private void normalizeQos() {
+		// CONSIDER START AND END NODE
+		nj = new double[serviceCandidatesList.size()];
+		// SET UTILITY OF START AND END NODE TO NULL
+		nj[0] = 1;
+		nj[serviceCandidatesList.size()-1] = 1;
+		
+		for (int i=1; i<serviceCandidatesList.size()-1; i++) {
 			// (Q_Max - Q_i) / (Q_max - Q_min) * W		negative criteria
 			// (Q_i - Q_min) / (Q_max - Q_min) * W		positive criteria
 			QosVector qos = serviceCandidatesList.get(i).getQosVector();
 			Constraint costs = constraintsMap.get(Constraint.COSTS);
 			Constraint responseTime = constraintsMap.get(Constraint.RESPONSE_TIME);
 			Constraint availability = constraintsMap.get(Constraint.AVAILABILITY);
-			nj[i+1] = (((qosMax.getCosts() - qos.getCosts()) / 
+			nj[i] = (((qosMax.getCosts() - qos.getCosts()) / 
 					(qosMax.getCosts() - qosMin.getCosts())) * costs.getWeight()/100) + 
 					(((qosMax.getResponseTime() - qos.getResponseTime()) / 
 					(qosMax.getResponseTime() - qosMin.getResponseTime())) * responseTime.getWeight()/100) + 
@@ -210,6 +230,15 @@ public class AntAlgorithm extends Algorithm {
 			isWithinConstraints = false;
 		}
 		return isWithinConstraints;
+	}
+	
+	private void buildSolutionTiers() {
+		List<Composition> requestedCompositions = 
+				new LinkedList<Composition>();
+		requestedCompositions.add(optimalComposition);
+		algorithmSolutionTiers.add(new AlgorithmSolutionTier(
+				(LinkedList<Composition>) 
+				requestedCompositions, 1));
 	}
 
 	// GETTER AND SETTER
@@ -308,8 +337,27 @@ public class AntAlgorithm extends Algorithm {
 
 	public void setNj(double[] nj) {
 		this.nj = nj;
+	}	
+
+	public void setQosMax(QosVector qosMax) {
+		this.qosMax = qosMax;
+	}
+	
+	public void setQosMin(QosVector qosMin) {
+		this.qosMin = qosMin;
 	}
 
-	
+	public long getRuntime() {
+		return runtime;
+	}
+
+	public List<AlgorithmSolutionTier> getAlgorithmSolutionTiers() {
+		return algorithmSolutionTiers;
+	}
+
+	public void setAlgorithmSolutionTiers(
+			List<AlgorithmSolutionTier> algorithmSolutionTiers) {
+		this.algorithmSolutionTiers = algorithmSolutionTiers;
+	}	
 	
 }
