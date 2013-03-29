@@ -1395,7 +1395,7 @@ public class MainFrame extends JFrame {
 		if (jCheckBoxAntColonyOptimization.isSelected()) {
 			doAntAlgorithm(constraintsMap);
 		}  
-		//buildResultTable();
+		buildResultTable();
 		jButtonVisualize.setEnabled(true);
 	}
 
@@ -1866,7 +1866,7 @@ public class MainFrame extends JFrame {
 		GridBagLayout gblJPanelAlgorithmResult = new GridBagLayout();
 		gblJPanelAlgorithmResult.columnWeights = new double[]{1.0};
 		double[] rows = 
-			new double[analyticAlgorithm.getAlgorithmSolutionTiers(
+			new double[algorithm.getAlgorithmSolutionTiers(
 					).size() * 2];
 		if (rows.length == 2) {
 			rows[0] = 0.1;
@@ -1892,7 +1892,7 @@ public class MainFrame extends JFrame {
 		for (int innerCount = 1; 
 		innerCount < rows.length; innerCount = innerCount + 2) {
 			List<Composition> tierServiceCompositionList = 
-				analyticAlgorithm.getAlgorithmSolutionTiers().get(
+					algorithm.getAlgorithmSolutionTiers().get(
 						innerCount / 2).getServiceCompositionList();
 			int numberOfRows = 0;
 			// COUNTER FOR COMPUTING THE NUMBER OF COMPOSITIONS
@@ -2055,64 +2055,6 @@ public class MainFrame extends JFrame {
 			}
 		}
 		return min;
-	}
+	}	
 	
-	/*
-	public void doNormalization() {
-		QosVector max = new QosVector(0.0, 0.0, 0.0);
-		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
-			QosVector qos = serviceCandidate.getQosVector();
-			if (qos.getCosts() > max.getCosts()) {
-				max.setCosts(qos.getCosts());
-			}
-			if (qos.getResponseTime() > max.getResponseTime()) {
-				max.setResponseTime(qos.getResponseTime());
-			}
-			if (qos.getAvailability() > max.getAvailability()) {
-				max.setAvailability(qos.getAvailability());
-			}
-		}
-		QosVector min = new QosVector(100000.0, 100000.0, 1.0);
-		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
-			QosVector qos = serviceCandidate.getQosVector();
-			if (qos.getCosts() < min.getCosts()) {
-				min.setCosts(qos.getCosts());
-			}
-			if (qos.getResponseTime() < min.getResponseTime()) {
-				min.setResponseTime(qos.getResponseTime());
-			}
-			if (qos.getAvailability() < min.getAvailability()) {
-				min.setAvailability(qos.getAvailability());
-			}
-		}
-		
-		normServiceClassesList = new LinkedList<ServiceClass>(serviceClassesList);
-		normServiceCandidatesList = new LinkedList<ServiceCandidate>(serviceCandidatesList);
-		Collections.copy(normServiceClassesList, serviceClassesList);
-		Collections.copy(normServiceCandidatesList, serviceCandidatesList);
-		
-		for (int i=0; i<normServiceCandidatesList.size(); i++) {
-			// (Q_Max - Q_i) / (Q_max - Q_min) * W		negative criteria
-			// (Q_i - Q_min) / (Q_max - Q_min) * W		positive criteria
-			QosVector qos = normServiceCandidatesList.get(i).getQosVector();
-			qos.setCosts((max.getCosts() - qos.getCosts()) / (max.getCosts() - min.getCosts()));
-			qos.setResponseTime((max.getResponseTime() - qos.getResponseTime()) / 
-					(max.getResponseTime() - min.getResponseTime()));
-			qos.setAvailability((qos.getAvailability() - min.getAvailability()) / 
-					(max.getAvailability() - min.getAvailability()));
-			normServiceCandidatesList.get(i).setQosVector(qos);			
-		}
-		for (int i=0; i<normServiceClassesList.size(); i++) {
-			for (int j=0; j<normServiceClassesList.get(i).getServiceCandidateList().size(); j++) {				
-				QosVector qos = normServiceClassesList.get(i).getServiceCandidateList().get(j).getQosVector();
-				qos.setCosts((max.getCosts() - qos.getCosts()) / (max.getCosts() - min.getCosts()));
-				qos.setResponseTime((max.getResponseTime() - qos.getResponseTime()) / 
-						(max.getResponseTime() - min.getResponseTime()));
-				qos.setAvailability((qos.getAvailability() - min.getAvailability()) / 
-						(max.getAvailability() - min.getAvailability()));
-				normServiceClassesList.get(i).getServiceCandidateList().get(j).setQosVector(qos);		
-			}				
-		}
-	}
-	*/
 }

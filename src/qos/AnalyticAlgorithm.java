@@ -47,17 +47,26 @@ public class AnalyticAlgorithm extends Algorithm {
 	@Override
 	public void start(JProgressBar progressBar) {
 		runtime = System.currentTimeMillis();
+		// DO COMPLETE ENUMERATION
 		for (int i=0; i < serviceClassesList.get(0).
 				getServiceCandidateList().size(); i++) {
 			doCompleteEnumeration(new Composition(
 					new LinkedList<ServiceCandidate>(), new QosVector(), 0.0), 
 					0, i);
+			//TODO: PROGRESSBAR DOESN'T WORK CORRECTLY
+			//progressBar.setValue((int) Math.round((
+			//		(double) (i + 1) / ((double) serviceClassesList.get(
+			//				0).getServiceCandidateList().size())) * 100));
 		}		
 		runtime = System.currentTimeMillis() - runtime;
+		buildSolutionTiers();
 		System.out.println("Optimal composition: " + 
 				optimalComposition.getServiceCandidatesAsString()+" - "+optimalComposition.getUtility());
 	}
 	
+	// ENUMERATION
+	// TODO: [MAYBE] DO NOT CONSIDER PATHS THAT VIOLATE ANY CONSTRAINTS
+	//		 ANYMORE. (OPTIMIZATION THAT COULD RESULT IN SOME WORK!)
 	private void doCompleteEnumeration(Composition composition, 
 			int serviceClassNumber, int serviceCandidateNumber) {
 		composition = forward(composition, serviceClassNumber, 
@@ -160,139 +169,16 @@ public class AnalyticAlgorithm extends Algorithm {
 		return false;
 	}
 	
-	/*
-	@Override
-	public void start(JProgressBar progressBar) {
-//		printInputData();
-		runtime = System.currentTimeMillis();
-		// DO COMPLETE ENUMERATION.
-		for (int i = 0; i < serviceClassesList.get(0).
-				getServiceCandidateList().size(); i++) {
-			doCompleteEnumeration(new Composition(
-					new LinkedList<ServiceCandidate>(), new QosVector(), 0.0), 
-					0, i);
-			//TODO: PROGRESSBAR DOESN'T WORK CORRECTLY
-			//progressBar.setValue((int) Math.round((
-			//		(double) (i + 1) / ((double) serviceClassesList.get(
-			//				0).getServiceCandidateList().size())) * 100));
-		}
-		computeUtilityValues();
-		runtime = System.currentTimeMillis() - runtime;
-		printValidCompositions();
-
-//		System.out.println("Optimal composition: " + 
-//				findOptimalComposition().getServiceCandidatesAsString());
-//		int count = 1;
-//		for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
-//			System.out.println("Tier " + count++ + "\n");
-//			for (Composition composition : tier.getServiceCompositionList()) {
-//				System.out.println(composition.getServiceCandidatesAsString());
-//			}
-//			System.out.println("\n\n");
-//		}
+	private void buildSolutionTiers() {
+		List<Composition> requestedCompositions = 
+				new LinkedList<Composition>();
+		requestedCompositions.add(optimalComposition);
+		algorithmSolutionTiers.add(new AlgorithmSolutionTier(
+				(LinkedList<Composition>) 
+				requestedCompositions, 1));
 	}
-	
-	// COMPLETE ENUMERATION.
-	// TODO: [MAYBE] DO NOT CONSIDER PATHS THAT VIOLATE ANY CONSTRAINTS
-	//		 ANYMORE. (OPTIMIZATION THAT COULD RESULT IN SOME WORK!)
-	private void doCompleteEnumeration(Composition composition, 
-			int serviceClassNumber, int serviceCandidateNumber) {
-		composition = forward(composition, serviceClassNumber, 
-				serviceCandidateNumber);
-		if (composition != null) {
-			if (isComplete(composition)) {
-				// TODO: ADD COMPLETE COMPOSITIONS TO LIST.
-				//		 THE FOLLOWING OPERATIONS ARE NECESSARY IN ORDER TO 
-				//		 CREATE NEW OBJECTS (I.E. SERVICECANDIDATELISTS AND 
-				//		 QOSVECTORS). MIGHT BE NOT SO ELEGANT, THOUGH.
-				List<ServiceCandidate> serviceCandidatesListNew = 
-						new LinkedList<ServiceCandidate>();
-				serviceCandidatesListNew.addAll(
-						composition.getServiceCandidatesList());
-				QosVector qos = composition.getQosVectorAggregated();
-				QosVector qosVectorNew = new QosVector(qos.getCosts(), 
-						qos.getResponseTime(), qos.getAvailability());
-				compositionsList.add(new Composition(serviceCandidatesListNew, 
-						qosVectorNew, 0.0));
-				
-//				if (isWithinConstraints(composition)) {
-//					System.out.println(composition.getQosVectorAggregated());
-//				}
-			}
-			else {
-				serviceClassNumber++;
-				for (int i = 0; i < serviceClassesList.get(serviceClassNumber).
-						getServiceCandidateList().size(); i++) {
-					doCompleteEnumeration(composition, serviceClassNumber, i);
-				}
-			}
-			composition = backward(composition);
-			serviceClassNumber--;
-		}
-		return;
-	}
-	*/
-	
-	
-	/*
-	private void computeUtilityValues() {
-		QosVector max = determineQosVectorMax();
-		QosVector min = determineQosVectorMin();
+			
 		
-		for (Composition composition : compositionsList) {
-			// (Q_Max - Q_i) / (Q_max - Q_min) * W		negative criteria
-			// (Q_i - Q_min) / (Q_max - Q_min) * W		positive criteria
-			QosVector qos = composition.getQosVectorAggregated();
-			double utility = ((max.getCosts() - qos.getCosts()) / 
-					(max.getCosts() - min.getCosts())) * constraintsMap.get(
-							Constraint.COSTS).getWeight() / 100;
-			utility += ((max.getResponseTime() - qos.getResponseTime()) / 
-					(max.getResponseTime() - min.getResponseTime())) * 
-					constraintsMap.get(
-							Constraint.RESPONSE_TIME).getWeight() / 100;
-			utility += ((qos.getAvailability() - min.getAvailability(
-					)) / (max.getAvailability() - min.getAvailability(
-							))) * constraintsMap.get(
-									Constraint.AVAILABILITY).getWeight() / 100;
-			composition.setUtility(utility);
-		}
-		
-	}
-	
-	private QosVector determineQosVectorMax() {
-		QosVector max = new QosVector(0.0, 0.0, 0.0);
-		for (Composition composition : compositionsList) {
-			QosVector qos = composition.getQosVectorAggregated();
-			if (qos.getCosts() > max.getCosts()) {
-				max.setCosts(qos.getCosts());
-			}
-			if (qos.getResponseTime() > max.getResponseTime()) {
-				max.setResponseTime(qos.getResponseTime());
-			}
-			if (qos.getAvailability() > max.getAvailability()) {
-				max.setAvailability(qos.getAvailability());
-			}
-		}
-		return max;
-	}
-	
-	private QosVector determineQosVectorMin() {
-		QosVector min = new QosVector(100000.0, 100000.0, 1.0);
-		for (Composition composition : compositionsList) {
-			QosVector qos = composition.getQosVectorAggregated();
-			if (qos.getCosts() < min.getCosts()) {
-				min.setCosts(qos.getCosts());
-			}
-			if (qos.getResponseTime() < min.getResponseTime()) {
-				min.setResponseTime(qos.getResponseTime());
-			}
-			if (qos.getAvailability() < min.getAvailability()) {
-				min.setAvailability(qos.getAvailability());
-			}
-		}
-		return min;
-	}
-	
 	// PRINT SERVICE CLASSES AND THEIR SERVICE CANDIDATES.
 //	private void printInputData() {
 //		for (ServiceClass serviceClass : serviceClassesList) {
@@ -305,6 +191,7 @@ public class AnalyticAlgorithm extends Algorithm {
 //		System.out.println("\n\n");
 //	}
 	
+	/*
 	private void printValidCompositions() {
 		for (Composition composition : compositionsList) {
 			if (isWithinConstraints(composition)) {
@@ -353,40 +240,7 @@ public class AnalyticAlgorithm extends Algorithm {
 			}
 		}
 	}
-	
-	private boolean isWithinConstraints(Composition composition) {
-		boolean isWithinConstraints = true;
-		QosVector qosVector = composition.getQosVectorAggregated();
-		Constraint costs = constraintsMap.get(Constraint.COSTS);
-		Constraint responseTime = constraintsMap.get(Constraint.RESPONSE_TIME);
-		Constraint availability = constraintsMap.get(Constraint.AVAILABILITY);
-		if (costs != null && qosVector.getCosts() > costs.getValue()) {
-			isWithinConstraints = false;
-		}
-		if (responseTime != null && 
-				qosVector.getResponseTime() > responseTime.getValue()) {
-			isWithinConstraints = false;
-		}
-		if (availability != null && 
-				qosVector.getAvailability() < availability.getValue()) {
-			isWithinConstraints = false;
-		}
-		return isWithinConstraints;
-	}
-	
-//	private Composition findOptimalComposition() {
-//		double utilityMax = 0.0;
-//		Composition optimalComposition = new Composition();
-//		for (Composition composition : compositionsList) {
-//			if (isWithinConstraints(composition) && 
-//					composition.getUtility() > utilityMax) {
-//				utilityMax = composition.getUtility();
-//				optimalComposition = composition;
-//			}
-//		}
-//		return optimalComposition;
-//	}
-	*/
+	*/	
 
 	// GETTERS AND SETTERS
 	public List<ServiceClass> getServiceClassesList() {
