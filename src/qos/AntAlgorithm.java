@@ -22,8 +22,7 @@ public class AntAlgorithm extends Algorithm {
 	private int iterations;
 	private double alpha;
 	private double beta;
-	private double dilution;
-	private QosVector optimalQos;
+	private double dilution;	
 	private Composition optimalComposition;
 	private double[] nj;
 	private double[][] pi;
@@ -33,7 +32,8 @@ public class AntAlgorithm extends Algorithm {
 			
 	public AntAlgorithm(List<ServiceClass> serviceClassesList,
 			List<ServiceCandidate> serviceCandidatesList,
-			Map<String, Constraint> constraintsMap, QosVector max, QosVector min) {
+			Map<String, Constraint> constraintsMap, QosVector max, QosVector min,
+			int iterations, int ants, double alpha, double beta, double dilution, double piInit) {
 		this.serviceClassesList = new LinkedList<ServiceClass>(serviceClassesList);
 		this.serviceCandidatesList = new LinkedList<ServiceCandidate>(serviceCandidatesList);
 		Collections.copy(this.serviceClassesList, serviceClassesList);
@@ -43,12 +43,12 @@ public class AntAlgorithm extends Algorithm {
 		this.qosMin = min;		
 				
 		optimalComposition = null;
-		piInit = 1;
-		ants = 10;
-		iterations = 100;
-		alpha = 1;
-		beta = 1;
-		dilution = 0.1;
+		this.piInit = piInit;
+		this.ants = ants;
+		this.iterations = iterations;
+		this.alpha = alpha;
+		this.beta = beta;
+		this.dilution = dilution;
 	}
 		
 	public void start(JProgressBar progressBar) {			
@@ -63,11 +63,17 @@ public class AntAlgorithm extends Algorithm {
 			//progressBar.setValue((int) Math.round((double) (i + 1) / iterations));
 		}	
 		runtime = System.currentTimeMillis() - runtime;
-		List<ServiceCandidate> sCList = new LinkedList<ServiceCandidate>();
-		for (int i=1; i<optimalComposition.getServiceCandidatesList().size()-1; i++) {
-			sCList.add(optimalComposition.getServiceCandidatesList().get(i));
+		if (optimalComposition != null) {
+			List<ServiceCandidate> sCList = new LinkedList<ServiceCandidate>();
+			for (int i=1; i<optimalComposition.getServiceCandidatesList().size()-1; i++) {
+				sCList.add(optimalComposition.getServiceCandidatesList().get(i));
+			}		
+			optimalComposition.setServiceCandidateList(sCList);
+		}
+		else {
+			optimalComposition = new Composition(new LinkedList<ServiceCandidate>(), new QosVector(), 0.0);
+			optimalComposition.addServiceCandidate(new ServiceCandidate(0, 0, "keine Lösung", new QosVector()));			
 		}		
-		optimalComposition.setServiceCandidateList(sCList);
 		buildSolutionTiers();
 		System.out.println(counter);
 	}
@@ -313,15 +319,7 @@ public class AntAlgorithm extends Algorithm {
 
 	public void setDilution(double dilution) {
 		this.dilution = dilution;
-	}
-
-	public QosVector getOptimalQos() {
-		return optimalQos;
-	}
-
-	public void setOptimalQos(QosVector optimalQos) {
-		this.optimalQos = optimalQos;
-	}
+	}	
 
 	public Composition getOptimalComposition() {
 		return optimalComposition;

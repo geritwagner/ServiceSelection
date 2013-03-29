@@ -144,6 +144,12 @@ public class MainFrame extends JFrame {
 	private JTextField txtResponseTimeWeight;
 	private JTextField txtAvailabilityWeight;
 	private JTextField jTextFieldPenaltyFactor;
+	private JTextField txtAntIterations;
+	private JTextField txtAntAnts;
+	private JTextField txtAntAlpha;
+	private JTextField txtAntBeta;
+	private JTextField txtAntDilution;
+	private JTextField txtAntPi;
 
 	/**
 	 * Launch the application.
@@ -1058,11 +1064,131 @@ public class MainFrame extends JFrame {
 		JPanel panelAntAlgorithmSettings = new JPanel();
 		jScrollPaneAntAlgorithm.setViewportView(panelAntAlgorithmSettings);
 		GridBagLayout gbl_panelAntAlgorithmSettings = new GridBagLayout();
-//		gbl_panelAntAlgorithmSettings.columnWeights = 
-//			new double[]{};
-//		gbl_panelAntAlgorithmSettings.rowWeights = 
-//			new double[]{};
+		gbl_panelAntAlgorithmSettings.columnWeights = 
+			new double[]{0.5, 0.5};
+		gbl_panelAntAlgorithmSettings.rowWeights = 
+			new double[]{0.2, 0.16, 0.16, 0.16, 0.16, 0.16};
 		panelAntAlgorithmSettings.setLayout(gbl_panelAntAlgorithmSettings);
+		
+		JLabel jLabelAntIterations = new JLabel("Iterations:");		
+		GridBagConstraints gbcJLabelAntIterations = new GridBagConstraints();
+		gbcJLabelAntIterations.gridwidth = 1;
+		gbcJLabelAntIterations.insets = new Insets(5, 0, 5, 25);
+		gbcJLabelAntIterations.gridx = 0;
+		gbcJLabelAntIterations.gridy = 0;
+		gbcJLabelAntIterations.anchor = GridBagConstraints.EAST;
+		panelAntAlgorithmSettings.add(
+				jLabelAntIterations, gbcJLabelAntIterations);
+		
+		txtAntIterations = new JTextField("100");
+		txtAntIterations.setColumns(5);
+		txtAntIterations.setHorizontalAlignment(JTextField.RIGHT);		
+		GridBagConstraints gbc_AntIterations = new GridBagConstraints();
+		gbc_AntIterations.insets = new Insets(5, 0, 5, 50);
+		gbc_AntIterations.fill = GridBagConstraints.NONE;
+		gbc_AntIterations.gridx = 1;
+		gbc_AntIterations.gridy = 0;
+		panelAntAlgorithmSettings.add(txtAntIterations, gbc_AntIterations);
+		
+		JLabel jLabelAntAnts = new JLabel("Ants:");
+		GridBagConstraints gbcJLabelAntAnts = new GridBagConstraints();
+		gbcJLabelAntAnts.gridwidth = 1;
+		gbcJLabelAntAnts.insets = new Insets(0, 0, 5, 25);
+		gbcJLabelAntAnts.gridx = 0;
+		gbcJLabelAntAnts.gridy = 1;
+		gbcJLabelAntAnts.anchor = GridBagConstraints.EAST;
+		panelAntAlgorithmSettings.add(
+				jLabelAntAnts, gbcJLabelAntAnts);
+		
+		txtAntAnts = new JTextField("10");
+		txtAntAnts.setColumns(5);
+		txtAntAnts.setHorizontalAlignment(JTextField.RIGHT);		
+		GridBagConstraints gbc_AntAnts = new GridBagConstraints();
+		gbc_AntAnts.insets = new Insets(0, 0, 5, 50);
+		gbc_AntAnts.fill = GridBagConstraints.NONE;
+		gbc_AntAnts.gridx = 1;
+		gbc_AntAnts.gridy = 1;
+		panelAntAlgorithmSettings.add(txtAntAnts, gbc_AntAnts);
+		
+		JLabel jLabelAntAlpha = new JLabel("Alpha:");
+		GridBagConstraints gbcJLabelAntAlpha = new GridBagConstraints();
+		gbcJLabelAntAlpha.gridwidth = 1;
+		gbcJLabelAntAlpha.insets = new Insets(0, 0, 5, 25);
+		gbcJLabelAntAlpha.gridx = 0;
+		gbcJLabelAntAlpha.gridy = 2;
+		gbcJLabelAntAlpha.anchor = GridBagConstraints.EAST;
+		panelAntAlgorithmSettings.add(
+				jLabelAntAlpha, gbcJLabelAntAlpha);
+		
+		txtAntAlpha = new JTextField("1.0");
+		txtAntAlpha.setColumns(5);
+		txtAntAlpha.setHorizontalAlignment(JTextField.RIGHT);		
+		GridBagConstraints gbc_AntAlpha = new GridBagConstraints();
+		gbc_AntAlpha.insets = new Insets(0, 0, 5, 50);
+		gbc_AntAlpha.fill = GridBagConstraints.NONE;
+		gbc_AntAlpha.gridx = 1;
+		gbc_AntAlpha.gridy = 2;
+		panelAntAlgorithmSettings.add(txtAntAlpha, gbc_AntAlpha);
+		
+		JLabel jLabelAntBeta = new JLabel("Beta:");
+		GridBagConstraints gbcJLabelAntBeta = new GridBagConstraints();
+		gbcJLabelAntBeta.gridwidth = 1;
+		gbcJLabelAntBeta.insets = new Insets(0, 0, 5, 25);
+		gbcJLabelAntBeta.gridx = 0;
+		gbcJLabelAntBeta.gridy = 3;
+		gbcJLabelAntBeta.anchor = GridBagConstraints.EAST;
+		panelAntAlgorithmSettings.add(
+				jLabelAntBeta, gbcJLabelAntBeta);
+		
+		txtAntBeta = new JTextField("1.0");
+		txtAntBeta.setColumns(5);
+		txtAntBeta.setHorizontalAlignment(JTextField.RIGHT);		
+		GridBagConstraints gbc_AntBeta = new GridBagConstraints();
+		gbc_AntBeta.insets = new Insets(0, 0, 5, 50);
+		gbc_AntBeta.fill = GridBagConstraints.NONE;
+		gbc_AntBeta.gridx = 1;
+		gbc_AntBeta.gridy = 3;
+		panelAntAlgorithmSettings.add(txtAntBeta, gbc_AntBeta);
+		
+		JLabel jLabelAntDilution = new JLabel("Dilution:");
+		GridBagConstraints gbcJLabelAntDilution = new GridBagConstraints();
+		gbcJLabelAntDilution.gridwidth = 1;
+		gbcJLabelAntDilution.insets = new Insets(0, 0, 5, 25);
+		gbcJLabelAntDilution.gridx = 0;
+		gbcJLabelAntDilution.gridy = 4;
+		gbcJLabelAntDilution.anchor = GridBagConstraints.EAST;
+		panelAntAlgorithmSettings.add(
+				jLabelAntDilution, gbcJLabelAntDilution);
+		
+		txtAntDilution = new JTextField("0.1");
+		txtAntDilution.setColumns(5);
+		txtAntDilution.setHorizontalAlignment(JTextField.RIGHT);		
+		GridBagConstraints gbc_AntDilution = new GridBagConstraints();
+		gbc_AntDilution.insets = new Insets(0, 0, 5, 50);
+		gbc_AntDilution.fill = GridBagConstraints.NONE;
+		gbc_AntDilution.gridx = 1;
+		gbc_AntDilution.gridy = 4;
+		panelAntAlgorithmSettings.add(txtAntDilution, gbc_AntDilution);
+		
+		JLabel jLabelAntPi = new JLabel("Pi Init-Value:");
+		GridBagConstraints gbcJLabelAntPi = new GridBagConstraints();
+		gbcJLabelAntPi.gridwidth = 1;
+		gbcJLabelAntPi.insets = new Insets(0, 0, 5, 25);
+		gbcJLabelAntPi.gridx = 0;
+		gbcJLabelAntPi.gridy = 5;
+		gbcJLabelAntPi.anchor = GridBagConstraints.EAST;
+		panelAntAlgorithmSettings.add(
+				jLabelAntPi, gbcJLabelAntPi);
+		
+		txtAntPi = new JTextField("10.0");
+		txtAntPi.setColumns(5);
+		txtAntPi.setHorizontalAlignment(JTextField.RIGHT);		
+		GridBagConstraints gbc_AntPi = new GridBagConstraints();
+		gbc_AntPi.insets = new Insets(0, 0, 5, 50);
+		gbc_AntPi.fill = GridBagConstraints.NONE;
+		gbc_AntPi.gridx = 1;
+		gbc_AntPi.gridy = 5;
+		panelAntAlgorithmSettings.add(txtAntPi, gbc_AntPi);
 
 		jProgressBarAntAlgorithm = new JProgressBar();
 		jProgressBarAntAlgorithm.setStringPainted(true);
@@ -1749,15 +1875,15 @@ public class MainFrame extends JFrame {
 	
 	private void loadRandomWebServices() {
 		JSpinner spinnerNumberOfServiceClasses = new JSpinner(
-				new SpinnerNumberModel(1, 1, 10, 1));
+				new SpinnerNumberModel(1, 1, 1000, 1));
 		((JSpinner.DefaultEditor) spinnerNumberOfServiceClasses.getEditor()).
-		getTextField().setEditable(false);
+		getTextField().setEditable(true);
 		((JSpinner.DefaultEditor) spinnerNumberOfServiceClasses.getEditor()).
 		getTextField().setHorizontalAlignment(JTextField.CENTER);
 		JSpinner spinnerNumberOfWebServices = new JSpinner(
-				new SpinnerNumberModel(1, 1, 10, 1));
+				new SpinnerNumberModel(1, 1, 1000, 1));
 		((JSpinner.DefaultEditor) spinnerNumberOfWebServices.getEditor()).
-		getTextField().setEditable(false);
+		getTextField().setEditable(true);
 		((JSpinner.DefaultEditor) spinnerNumberOfWebServices.getEditor()).
 		getTextField().setHorizontalAlignment(JTextField.CENTER);
 		JComponent[] dialogComponents = new JComponent[] {
@@ -2032,13 +2158,34 @@ public class MainFrame extends JFrame {
 		// TODO: DIFFERENT DESIGN FOR DIFFERENT ALGORITHMS
 	}
 	
-	private void doAntAlgorithm(Map<String, Constraint> constraintsMap) {
-		long runtime = System.currentTimeMillis();
+	private void doAntAlgorithm(Map<String, Constraint> constraintsMap) {		
+		int iterations;
+		int ants;
+		double alpha;
+		double beta;
+		double dilution;
+		double piInit;
+		try {
+			iterations = Integer.parseInt(txtAntIterations.getText());
+			ants = Integer.parseInt(txtAntAnts.getText());
+			alpha = Double.parseDouble(txtAntAlpha.getText());
+			beta = Double.parseDouble(txtAntBeta.getText());
+			dilution = Double.parseDouble(txtAntDilution.getText());
+			piInit = Double.parseDouble(txtAntPi.getText());
+		} catch (Exception e) {
+			iterations = 100;
+			ants = 10;
+			alpha = 1;
+			beta = 1;
+			dilution = 0.1;
+			piInit = 10;
+		}
 		antAlgorithm = new AntAlgorithm(
 				serviceClassesList, serviceCandidatesList, constraintsMap,
-				qosMax, qosMin);
+				qosMax, qosMin, iterations, ants, alpha, beta,
+				dilution, piInit);
 		antAlgorithm.start(jProgressBarAntAlgorithm);        
-		runtime = System.currentTimeMillis() - runtime;
+		long runtime = antAlgorithm.getRuntime();
 		jTableGeneralResults.setValueAt(runtime + " ms", 2, 1);    
 	} 
 	
