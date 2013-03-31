@@ -1,5 +1,7 @@
 package qos;
 
+import java.util.Map;
+
 public class ServiceCandidate {
 	
 	private int serviceClassId;
@@ -21,6 +23,32 @@ public class ServiceCandidate {
 		this.serviceClassId = serviceClassId;
 		this.name = name;
 		this.qosVector = qosVector;
+	}
+	
+	public double computeUtilityValue(Map<String, Constraint> constraintsMap, 
+			QosVector max, QosVector min) {
+		// (Q_Max - Q_i) / (Q_max - Q_min) * W		negative criteria
+		// (Q_i - Q_min) / (Q_max - Q_min) * W		positive criteria
+		double utility = 0.0;
+		if (constraintsMap.get(Constraint.COSTS) != null) {
+			utility += ((max.getCosts() - qosVector.getCosts()) / 
+					(max.getCosts() - min.getCosts())) * constraintsMap.get(
+							Constraint.COSTS).getWeight() / 100;
+		}
+		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null) { 
+			utility += ((max.getResponseTime() - 
+					qosVector.getResponseTime()) / 
+					(max.getResponseTime() - min.getResponseTime())) * 
+					constraintsMap.get(
+							Constraint.RESPONSE_TIME).getWeight() / 100;
+		}
+		if (constraintsMap.get(Constraint.AVAILABILITY) != null)
+			utility += ((qosVector.getAvailability() - 
+					min.getAvailability()) / 
+					(max.getAvailability() - min.getAvailability(
+					))) * constraintsMap.get(
+							Constraint.AVAILABILITY).getWeight() / 100;
+		return utility;
 	}
 
 	

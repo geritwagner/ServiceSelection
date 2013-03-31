@@ -1,23 +1,32 @@
 package qos;
 
-import java.util.LinkedList;
+import java.util.List;
 
 public class AlgorithmSolutionTier {
 	
-	private LinkedList<Composition> serviceCompositions;
+	private List<Composition> serviceCompositions;
 	private int tierId;
 	
 	public AlgorithmSolutionTier(
-			LinkedList<Composition> serviceCompositions, int tierId) {
+			List<Composition> serviceCompositions, int tierId) {
 		this.serviceCompositions = serviceCompositions;
 		this.tierId = tierId;
 	}
 	
+	public boolean containsComposition(Composition composition) {
+		for (Composition oldComposition : serviceCompositions) {
+			if (oldComposition.equals(composition)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void setServiceCompositionList(
-			LinkedList<Composition> serviceCompositions) {
+			List<Composition> serviceCompositions) {
 		this.serviceCompositions = serviceCompositions;
 	}
-	public LinkedList<Composition> getServiceCompositionList() {
+	public List<Composition> getServiceCompositionList() {
 		return serviceCompositions;
 	}
 	public void setTierTitle(int tierId) {

@@ -52,6 +52,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.JComboBox;
 
 public class MainFrame extends JFrame {
 
@@ -82,6 +83,10 @@ public class MainFrame extends JFrame {
 	private JLabel jLabelWeightedPenalty;
 	private JLabel jLabelUtilityText;
 
+	private JLabel jLabelColon;
+	private JLabel jLabelStopCriterionPercentage;
+	private JTextField jTextFieldStopCriterion;
+	
 	private JCheckBox jCheckboxGeneticAlgorithm;
 	private JCheckBox jCheckBoxAntColonyOptimization;
 	private JCheckBox jCheckBoxAnalyticAlgorithm;
@@ -127,7 +132,6 @@ public class MainFrame extends JFrame {
 	public static final int MIN_PENALTY_FACTOR = 0;
 	
 	
-	// TODO: CORRECT VALUES (ROUNDING) ?
 	public static final DecimalFormat DECIMAL_FORMAT_TWO = 
 		new DecimalFormat("###.##");
 	public static final DecimalFormat DECIMAL_FORMAT_FOUR = 
@@ -144,12 +148,16 @@ public class MainFrame extends JFrame {
 	private JTextField txtResponseTimeWeight;
 	private JTextField txtAvailabilityWeight;
 	private JTextField jTextFieldPenaltyFactor;
+	private JTextField jTextFieldStartPopulationSize;
 	private JTextField txtAntIterations;
 	private JTextField txtAntAnts;
 	private JTextField txtAntAlpha;
 	private JTextField txtAntBeta;
 	private JTextField txtAntDilution;
 	private JTextField txtAntPi;
+	
+	private JComboBox<String> comboBoxRecombination;
+	private JComboBox<String> comboBoxStopCriterion;
 
 	/**
 	 * Launch the application.
@@ -181,9 +189,9 @@ public class MainFrame extends JFrame {
 		contentPane.setBorder(new LineBorder(new Color(0, 0, 0)));
 		setContentPane(contentPane);
 		GridBagLayout gblContentPane = new GridBagLayout();
-		gblContentPane.columnWeights = new double[]{0.4, 0.4, 0.2};
+		gblContentPane.columnWeights = new double[]{0.6, 0.2, 0.2};
 		gblContentPane.rowWeights = new double[]{
-				0.025, 0.225, 0.05, 0.2, 0.01, 0.025, 0.415, 0.05};
+				0.025, 0.15, 0.05, 0.275, 0.01, 0.025, 0.415, 0.05};
 		contentPane.setLayout(gblContentPane);
 		Font generalFont = new Font(
 				"generalSettingsFont", Font.BOLD, 16);
@@ -830,15 +838,15 @@ public class MainFrame extends JFrame {
 		
 		
 		Font fontUtilityText = 
-				new Font("utilityText", Font.BOLD, 12);
-		String utilityText = getUtilityFunction();		
-		jLabelUtilityText = new JLabel(utilityText);
+				new Font("utilityText", Font.ITALIC, 14);
+		jLabelUtilityText = new JLabel();
+		getUtilityFunction();	
 		jLabelUtilityText.setFont(fontUtilityText);
 		GridBagConstraints gbc_lblUtilityText = new GridBagConstraints();
 		gbc_lblUtilityText.gridheight = 1;
 		gbc_lblUtilityText.gridwidth = 2;
 		gbc_lblUtilityText.fill = GridBagConstraints.BOTH;
-		gbc_lblUtilityText.anchor = GridBagConstraints.CENTER;
+		gbc_lblUtilityText.anchor = GridBagConstraints.WEST;
 		gbc_lblUtilityText.insets = new Insets(0, 25, 0, 5);
 		gbc_lblUtilityText.gridx = 1;
 		gbc_lblUtilityText.gridy = 1;
@@ -864,6 +872,11 @@ public class MainFrame extends JFrame {
 
 	private void initializeGeneticAlgorithmPanel(JPanel contentPane) {
 		JPanel jPanelGeneticAlgorithm = new JPanel();
+		GridBagLayout gblJPanelGeneticAlgorithm = new GridBagLayout();
+		gblJPanelGeneticAlgorithm.columnWeights = new double[]{1.0};
+		gblJPanelGeneticAlgorithm.rowWeights = 
+			new double[]{0.1, 0.8, 0.1};
+		jPanelGeneticAlgorithm.setLayout(gblJPanelGeneticAlgorithm);
 		GridBagConstraints gbcGeneticAlgorithm = new GridBagConstraints();
 		gbcGeneticAlgorithm.gridheight = 1;
 		gbcGeneticAlgorithm.insets = new Insets(0, 5, 5, 5);
@@ -871,11 +884,6 @@ public class MainFrame extends JFrame {
 		gbcGeneticAlgorithm.gridx = 0;
 		gbcGeneticAlgorithm.gridy = 3;
 		contentPane.add(jPanelGeneticAlgorithm, gbcGeneticAlgorithm);
-		GridBagLayout gblJPanelGeneticAlgorithm = new GridBagLayout();
-		gblJPanelGeneticAlgorithm.columnWeights = new double[]{1.0};
-		gblJPanelGeneticAlgorithm.rowWeights = 
-			new double[]{0.1, 0.8, 0.1};
-		jPanelGeneticAlgorithm.setLayout(gblJPanelGeneticAlgorithm);
 
 		jCheckboxGeneticAlgorithm = new JCheckBox("Genetic Algorithm");
 		jCheckboxGeneticAlgorithm.addActionListener(new ActionListener() {
@@ -895,8 +903,8 @@ public class MainFrame extends JFrame {
 
 		// TODO: BETTER SOLUTION FOR PRESENTATION OF CONTENT
 		//       (AVOID SHIFTS...)
+		//		 -> HAS BEEN EDITED, BUT IS NOT PERFECT 
 		JScrollPane jScrollPaneGeneticAlgorithm = new JScrollPane();
-		jScrollPaneGeneticAlgorithm.setBorder(new LineBorder(Color.BLACK));
 		GridBagConstraints gbc_jScrollPaneGeneticAlgorithm = 
 			new GridBagConstraints();
 		gbc_jScrollPaneGeneticAlgorithm.insets = new Insets(0, 0, 5, 0);
@@ -911,9 +919,9 @@ public class MainFrame extends JFrame {
 				panelGeneticAlgorithmSettings);
 		GridBagLayout gbl_panelGeneticAlgorithmSettings = new GridBagLayout();
 		gbl_panelGeneticAlgorithmSettings.columnWeights = 
-			new double[]{0.3, 0.1, 0.3, 0.3};
+			new double[]{0.3, 1.0, 0.3, 0.3};
 		gbl_panelGeneticAlgorithmSettings.rowWeights = 
-			new double[]{0.2, 0.1, 0.2, 0.5};
+			new double[]{0.2, 0.1, 0.2, 0.5, 0.5, 0.0, 1.0, 0.5, 0.5};
 		panelGeneticAlgorithmSettings.setLayout(
 				gbl_panelGeneticAlgorithmSettings);
 
@@ -932,8 +940,7 @@ public class MainFrame extends JFrame {
 		GridBagConstraints gbc_jLabelNumerator = new GridBagConstraints();
 		gbc_jLabelNumerator.insets = new Insets(0, 5, 5, 5);
 		gbc_jLabelNumerator.anchor = GridBagConstraints.SOUTH;
-		gbc_jLabelNumerator.gridwidth = 2;
-		gbc_jLabelNumerator.gridx = 1;
+		gbc_jLabelNumerator.gridx = 2;
 		gbc_jLabelNumerator.gridy = 0;
 		panelGeneticAlgorithmSettings.add(
 				jLabelGeneticAlgorithmNumerator, gbc_jLabelNumerator);
@@ -943,8 +950,7 @@ public class MainFrame extends JFrame {
 		GridBagConstraints gbc_jSeparatorFormula = new GridBagConstraints();
 		gbc_jSeparatorFormula.insets = new Insets(0, 5, 5, 5);
 		gbc_jSeparatorFormula.fill = GridBagConstraints.HORIZONTAL;
-		gbc_jSeparatorFormula.gridwidth = 2;
-		gbc_jSeparatorFormula.gridx = 1;
+		gbc_jSeparatorFormula.gridx = 2;
 		gbc_jSeparatorFormula.gridy = 1;
 		panelGeneticAlgorithmSettings.add(
 				jSeparatorFormula, gbc_jSeparatorFormula);
@@ -953,8 +959,7 @@ public class MainFrame extends JFrame {
 		GridBagConstraints gbc_jLabelDenominator = new GridBagConstraints();
 		gbc_jLabelDenominator.insets = new Insets(0, 5, 5, 5);
 		gbc_jLabelDenominator.anchor = GridBagConstraints.NORTH;
-		gbc_jLabelDenominator.gridwidth = 2;
-		gbc_jLabelDenominator.gridx = 1;
+		gbc_jLabelDenominator.gridx = 2;
 		gbc_jLabelDenominator.gridy = 2;
 		panelGeneticAlgorithmSettings.add(
 				jLabelGeneticAlgorithmDenominator, gbc_jLabelDenominator);
@@ -963,9 +968,11 @@ public class MainFrame extends JFrame {
 		jLabelWeightedPenalty = new JLabel();
 		GridBagConstraints gbc_jLabelWeightedPenalty = 
 			new GridBagConstraints();
-		gbc_jLabelWeightedPenalty.insets = new Insets(0, 0, 5, 0);
-		gbc_jLabelWeightedPenalty.gridheight = 3;
+		gbc_jLabelWeightedPenalty.gridx = 1;
 		gbc_jLabelWeightedPenalty.gridy = 0;
+		gbc_jLabelWeightedPenalty.gridheight = 3;
+		gbc_jLabelWeightedPenalty.insets = new Insets(0, 20, 5, 0);
+		gbc_jLabelWeightedPenalty.anchor = GridBagConstraints.WEST;
 		panelGeneticAlgorithmSettings.add(
 				jLabelWeightedPenalty, gbc_jLabelWeightedPenalty);
 		jLabelWeightedPenalty.setFont(fontFormula);
@@ -973,11 +980,24 @@ public class MainFrame extends JFrame {
 		JLabel lblPenaltyFactor = new JLabel("Penalty Factor:");
 		GridBagConstraints gbc_lblPenaltyFactor = new GridBagConstraints();
 		gbc_lblPenaltyFactor.anchor = GridBagConstraints.WEST;
-		gbc_lblPenaltyFactor.insets = new Insets(5, 5, 0, 5);
+		gbc_lblPenaltyFactor.insets = new Insets(5, 5, 5, 5);
 		gbc_lblPenaltyFactor.gridx = 0;
 		gbc_lblPenaltyFactor.gridy = 3;
 		panelGeneticAlgorithmSettings.add(
 				lblPenaltyFactor, gbc_lblPenaltyFactor);
+		
+		JPanel panelPenaltyFactor = new JPanel();
+		GridBagLayout gbl_panelPenaltyFactor = new GridBagLayout();
+		gbl_panelPenaltyFactor.columnWeights = new double[] {1.0, 1.0};
+		gbl_panelPenaltyFactor.rowWeights = new double[] {1.0};
+		panelPenaltyFactor.setLayout(gbl_panelPenaltyFactor);
+		GridBagConstraints gbc_panelPenaltyFactor = new GridBagConstraints();
+		gbc_panelPenaltyFactor.anchor = GridBagConstraints.WEST;
+		gbc_panelPenaltyFactor.gridwidth = 2;
+		gbc_panelPenaltyFactor.gridx = 1;
+		gbc_panelPenaltyFactor.gridy = 3;
+		panelGeneticAlgorithmSettings.add(
+				panelPenaltyFactor, gbc_panelPenaltyFactor);
 
 		jTextFieldPenaltyFactor = new JTextField("0");
 		jTextFieldPenaltyFactor.setColumns(3);
@@ -989,22 +1009,190 @@ public class MainFrame extends JFrame {
 		});
 		GridBagConstraints gbc_jTextFieldPenaltyFactor = 
 			new GridBagConstraints();
-		gbc_jTextFieldPenaltyFactor.insets = new Insets(5, 20, 0, 5);
+		gbc_jTextFieldPenaltyFactor.insets = new Insets(5, 20, 5, 5);
 		gbc_jTextFieldPenaltyFactor.anchor = GridBagConstraints.EAST;
-		gbc_jTextFieldPenaltyFactor.gridx = 1;
-		gbc_jTextFieldPenaltyFactor.gridy = 3;
-		panelGeneticAlgorithmSettings.add(
+		gbc_jTextFieldPenaltyFactor.gridx = 0;
+		gbc_jTextFieldPenaltyFactor.gridy = 0;
+		panelPenaltyFactor.add(
 				jTextFieldPenaltyFactor, gbc_jTextFieldPenaltyFactor);
 
 		JLabel lblPercentagepenalty = new JLabel("%");
 		GridBagConstraints gbc_lblPercentagePenalty = new GridBagConstraints();
-		gbc_lblPercentagePenalty.insets = new Insets(5, 0, 0, 0);
+		gbc_lblPercentagePenalty.insets = new Insets(5, 0, 5, 5);
 		gbc_lblPercentagePenalty.anchor = GridBagConstraints.WEST;
-		gbc_lblPercentagePenalty.gridx = 2;
-		gbc_lblPercentagePenalty.gridy = 3;
+		gbc_lblPercentagePenalty.gridx = 1;
+		gbc_lblPercentagePenalty.gridy = 0;
+		panelPenaltyFactor.add(lblPercentagepenalty, gbc_lblPercentagePenalty);
+		
+		
+		
+		JLabel lblStartPopulationSize = new JLabel("Start Population Size:");
+		GridBagConstraints gbc_lblStartPopulationSize = 
+			new GridBagConstraints();
+		gbc_lblStartPopulationSize.anchor = GridBagConstraints.WEST;
+		gbc_lblStartPopulationSize.insets = new Insets(5, 5, 5, 5);
+		gbc_lblStartPopulationSize.gridx = 0;
+		gbc_lblStartPopulationSize.gridy = 4;
 		panelGeneticAlgorithmSettings.add(
-				lblPercentagepenalty, gbc_lblPercentagePenalty);
-
+				lblStartPopulationSize, gbc_lblStartPopulationSize);
+		
+		JPanel panelStartPopulationSize = new JPanel();
+		GridBagLayout gbl_panelStartPopulationSize = new GridBagLayout();
+		gbl_panelStartPopulationSize.columnWeights = new double[] {1.0, 1.0};
+		gbl_panelStartPopulationSize.rowWeights = new double[] {1.0};
+		panelStartPopulationSize.setLayout(gbl_panelStartPopulationSize);
+		GridBagConstraints gbc_panelStartPopulationSize = 
+			new GridBagConstraints();
+		gbc_panelStartPopulationSize.anchor = GridBagConstraints.WEST;
+		gbc_panelStartPopulationSize.gridwidth = 2;
+		gbc_panelStartPopulationSize.gridx = 1;
+		gbc_panelStartPopulationSize.gridy = 4;
+		panelGeneticAlgorithmSettings.add(
+				panelStartPopulationSize, gbc_panelStartPopulationSize);
+		
+		jTextFieldStartPopulationSize = new JTextField("50");
+		jTextFieldStartPopulationSize.setColumns(3);
+		jTextFieldStartPopulationSize.setHorizontalAlignment(JTextField.RIGHT);
+		jTextFieldStartPopulationSize.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				checkInputValue(jTextFieldStartPopulationSize);
+			}
+		});
+		GridBagConstraints gbc_StartPopulationSize = new GridBagConstraints();
+		gbc_StartPopulationSize.insets = new Insets(5, 20, 5, 5);
+		gbc_StartPopulationSize.anchor = GridBagConstraints.EAST;
+		gbc_StartPopulationSize.gridx = 0;
+		gbc_StartPopulationSize.gridy = 0;
+		panelStartPopulationSize.add(jTextFieldStartPopulationSize, 
+				gbc_StartPopulationSize);
+		
+		JLabel jLabelStartPopulationPercentage = new JLabel("%");
+		GridBagConstraints gbc_jLabelStartPopulationPercentage = 
+			new GridBagConstraints();
+		gbc_jLabelStartPopulationPercentage.insets = new Insets(5, 0, 5, 5);
+		gbc_jLabelStartPopulationPercentage.anchor = GridBagConstraints.WEST;
+		gbc_jLabelStartPopulationPercentage.gridx = 1;
+		gbc_jLabelStartPopulationPercentage.gridy = 0;
+		panelStartPopulationSize.add(jLabelStartPopulationPercentage, 
+				gbc_jLabelStartPopulationPercentage);
+		
+		
+		
+		JLabel lblRecombination = new JLabel("Recombination Method:");
+		GridBagConstraints gbc_lblRecombination = new GridBagConstraints();
+		gbc_lblRecombination.anchor = GridBagConstraints.WEST;
+		gbc_lblRecombination.insets = new Insets(5, 5, 5, 5);
+		gbc_lblRecombination.gridx = 0;
+		gbc_lblRecombination.gridy = 5;
+		panelGeneticAlgorithmSettings.add(
+				lblRecombination, gbc_lblRecombination);
+		
+		JPanel panelRecombination = new JPanel();
+		GridBagLayout gbl_panelRecombination = new GridBagLayout();
+		gbl_panelRecombination.columnWeights = new double[] {1.0};
+		gbl_panelRecombination.rowWeights = new double[] {1.0};
+		panelRecombination.setLayout(gbl_panelRecombination);
+		GridBagConstraints gbc_panelRecombination = 
+			new GridBagConstraints();
+		gbc_panelRecombination.anchor = GridBagConstraints.WEST;
+		gbc_panelRecombination.gridwidth = 2;
+		gbc_panelRecombination.gridx = 1;
+		gbc_panelRecombination.gridy = 5;
+		panelGeneticAlgorithmSettings.add(
+				panelRecombination, gbc_panelRecombination);
+		
+		comboBoxRecombination = new JComboBox<String>();
+		comboBoxRecombination.addItem("One-Point Crossover");
+		comboBoxRecombination.addItem("Two-Point Crossover");
+		comboBoxRecombination.addItem("Uniform Crossover");
+		comboBoxRecombination.addItem("Half-Uniform Crossover");
+		GridBagConstraints gbc_comboBoxRecombination = 
+			new GridBagConstraints();
+		gbc_comboBoxRecombination.insets = new Insets(5, 20, 5, 5);
+		gbc_comboBoxRecombination.anchor = GridBagConstraints.EAST;
+		gbc_comboBoxRecombination.gridx = 0;
+		gbc_comboBoxRecombination.gridy = 0;
+		panelRecombination.add(comboBoxRecombination, 
+				gbc_comboBoxRecombination);
+		
+		
+		
+		JLabel lblStopCriterion = new JLabel("Stop Criterion:");
+		GridBagConstraints gbc_lblStopCriterion = new GridBagConstraints();
+		gbc_lblStopCriterion.anchor = GridBagConstraints.WEST;
+		gbc_lblStopCriterion.insets = new Insets(5, 5, 0, 5);
+		gbc_lblStopCriterion.gridx = 0;
+		gbc_lblStopCriterion.gridy = 6;
+		panelGeneticAlgorithmSettings.add(
+				lblStopCriterion, gbc_lblStopCriterion);
+		
+		JPanel panelStopCriterion = new JPanel();
+		GridBagLayout gbl_panelStopCriterion = new GridBagLayout();
+		gbl_panelStopCriterion.columnWeights = new double[] {1.0, 0.1, 1.0};
+		gbl_panelStopCriterion.rowWeights = new double[] {1.0};
+		panelStopCriterion.setLayout(gbl_panelStopCriterion);
+		GridBagConstraints gbc_panelStopCriterion = new GridBagConstraints();
+		gbc_panelStopCriterion.gridwidth = 2;
+		gbc_panelStopCriterion.anchor = GridBagConstraints.WEST;
+		gbc_panelStopCriterion.gridx = 1;
+		gbc_panelStopCriterion.gridy = 6;
+		panelGeneticAlgorithmSettings.add(
+				panelStopCriterion, gbc_panelStopCriterion);
+		
+		comboBoxStopCriterion = new JComboBox<String>();
+		comboBoxStopCriterion.addItem("Max. Number of Iterations");
+		comboBoxStopCriterion.addItem(
+				"Max. Number of consecutive equal generations");
+		comboBoxStopCriterion.addItem("Min. Improvement per generation");
+		comboBoxStopCriterion.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				isJLabelStopCriterionPercentageVisible();
+			}
+		});
+		GridBagConstraints gbc_comboBoxStopCriterion = 
+			new GridBagConstraints();
+		gbc_comboBoxStopCriterion.insets = new Insets(5, 20, 5, 5);
+		gbc_comboBoxStopCriterion.anchor = GridBagConstraints.EAST;
+		gbc_comboBoxStopCriterion.gridx = 0;
+		gbc_comboBoxStopCriterion.gridy = 0;
+		panelStopCriterion.add(comboBoxStopCriterion, 
+				gbc_comboBoxStopCriterion);
+		
+		jLabelColon = new JLabel(":");
+		GridBagConstraints gbc_jLabelColon = 
+			new GridBagConstraints();
+		gbc_jLabelColon.insets = new Insets(5, 5, 5, 5);
+		gbc_jLabelColon.anchor = GridBagConstraints.WEST;
+		gbc_jLabelColon.gridx = 1;
+		gbc_jLabelColon.gridy = 0;
+		panelStopCriterion.add(jLabelColon, 
+				gbc_jLabelColon);
+		
+		jTextFieldStopCriterion = new JTextField("0");
+		jTextFieldStopCriterion.setColumns(2);
+		jTextFieldStopCriterion.setHorizontalAlignment(JTextField.RIGHT);
+		GridBagConstraints gbc_jTextFieldStopCriterion = 
+			new GridBagConstraints();
+		gbc_jTextFieldStopCriterion.insets = new Insets(5, 5, 5, 5);
+		gbc_jTextFieldStopCriterion.anchor = GridBagConstraints.WEST;
+		gbc_jTextFieldStopCriterion.gridx = 2;
+		gbc_jTextFieldStopCriterion.gridy = 0;
+		panelStopCriterion.add(jTextFieldStopCriterion, 
+				gbc_jTextFieldStopCriterion);
+		
+		jLabelStopCriterionPercentage = new JLabel("%");
+		jLabelStopCriterionPercentage.setVisible(false);
+		GridBagConstraints gbc_jLabelStopCriterionPercentage = 
+			new GridBagConstraints();
+		gbc_jLabelStopCriterionPercentage.insets = new Insets(5, 5, 5, 5);
+		gbc_jLabelStopCriterionPercentage.anchor = GridBagConstraints.WEST;
+		gbc_jLabelStopCriterionPercentage.gridx = 3;
+		gbc_jLabelStopCriterionPercentage.gridy = 0;
+		panelStopCriterion.add(jLabelStopCriterionPercentage, 
+				gbc_jLabelStopCriterionPercentage);
+		
 		buildGeneticAlgorithmFitnessFunction();
 		jProgressBarGeneticAlgorithm = new JProgressBar();
 		jProgressBarGeneticAlgorithm.setStringPainted(true);
@@ -1246,8 +1434,9 @@ public class MainFrame extends JFrame {
 
 		jTableAnalyticAlgorithm = new JTable();
 		jTableAnalyticAlgorithm.setEnabled(false);
-		// TODO: BETTER SOLUTION FOR THIS LISTENER (IF ANOTHER 
-		//		 ANALYTIC ALGORITHM GETS IMPLEMENTED)
+		// TODO: BETTER SOLUTION FOR THIS LISTENER
+		//		 -> NOT IMPORTANT AS LONG AS ONLY ONE ANALTIC
+		//			ALGORITHM CAN BE SELECTED
 		jTableAnalyticAlgorithm.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (jTableAnalyticAlgorithm.getSelectedRow() == 0 && 
@@ -1533,11 +1722,18 @@ public class MainFrame extends JFrame {
 		printChosenConstraintsToConsole(constraintsMap);
 		qosMax = determineQosMax();
 		qosMin = determineQosMin();
+		long cumulatedRuntime = 0;
+		if (jCheckboxGeneticAlgorithm.isSelected()) {
+			doGeneticAlgorithm(constraintsMap);
+			cumulatedRuntime += geneticAlgorithm.getRuntime();
+		}
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 			doEnumeration(constraintsMap);
+			cumulatedRuntime += analyticAlgorithm.getRuntime();
 		}
 		if (jCheckBoxAntColonyOptimization.isSelected()) {
 			doAntAlgorithm(constraintsMap);
+			cumulatedRuntime += antAlgorithm.getRuntime();
 		}  
 		buildResultTable();
 		jButtonVisualize.setEnabled(true);
@@ -1547,9 +1743,17 @@ public class MainFrame extends JFrame {
 		if (algorithm.equals("genAlg")) {
 			if (!jCheckboxGeneticAlgorithm.isSelected()) {
 				jTextFieldPenaltyFactor.setEditable(false);
+				jTextFieldStartPopulationSize.setEditable(false);
+				jTextFieldStopCriterion.setEditable(false);
+				comboBoxRecombination.setEnabled(false);
+				comboBoxStopCriterion.setEnabled(false);
 			}
 			else {
 				jTextFieldPenaltyFactor.setEditable(true);
+				jTextFieldStartPopulationSize.setEditable(true);
+				jTextFieldStopCriterion.setEditable(true);
+				comboBoxRecombination.setEnabled(true);
+				comboBoxStopCriterion.setEnabled(true);
 			}
 		}
 		else if (algorithm.equals("antAlg")) {
@@ -1566,7 +1770,7 @@ public class MainFrame extends JFrame {
 	}
 
 	private void buildGeneticAlgorithmFitnessFunction() {
-		int weightCount = 1;
+		int weightCount = 2;
 		String numerator = "";
 		String denominator = "";
 		if (jCheckBoxMaxCosts.isSelected()) {
@@ -1599,45 +1803,21 @@ public class MainFrame extends JFrame {
 			jLabelGeneticAlgorithmNumerator.setVisible(false);
 			jSeparatorFormula.setVisible(false);
 			jLabelGeneticAlgorithmDenominator.setVisible(false);
-			jLabelWeightedPenalty.setText(
-					"w" + weightCount + " * PenaltyFactor");
+			jLabelWeightedPenalty.setText("w1 * PenaltyFactor");
 		}
 		else {
 			jLabelGeneticAlgorithmNumerator.setVisible(true);
 			jSeparatorFormula.setVisible(true);
 			jLabelGeneticAlgorithmDenominator.setVisible(true);
-			jLabelWeightedPenalty.setText(
-					"+ w" + weightCount + " * PenaltyFactor");
+			jLabelWeightedPenalty.setText("w1 * PenaltyFactor        +");
 		}
 	}
 
-	// TODO: BETTER SOLUTION FOR WEIGHTS ?
 	private void doEnumeration(Map<String, Constraint> constraintsMap) {
-		double[] constraintWeights = new double[3];
-		if (jCheckBoxMaxCosts.isSelected()) {
-			constraintWeights[0] = 
-				Double.parseDouble(txtCostsWeight.getText());
-		}
-		else {
-			constraintWeights[0] = 0.0;
-		}
-		if (jCheckBoxMaxResponseTime.isSelected()) {
-			constraintWeights[1] = 
-				Double.parseDouble(txtResponseTimeWeight.getText());
-		}
-		else {
-			constraintWeights[1] = 0.0;
-		}
-		if (jCheckBoxMinAvailability.isSelected()) {
-			constraintWeights[2] = 
-				Double.parseDouble(txtAvailabilityWeight.getText());
-		}
-		else {
-			constraintWeights[2] = 0.0;
-		}
 		analyticAlgorithm = new AnalyticAlgorithm(
 				serviceClassesList, serviceCandidatesList, constraintsMap, 
-				(Integer) jSpinnerNumberResultTiers.getValue(), qosMax, qosMin);
+				(Integer) jSpinnerNumberResultTiers.getValue(), 
+				qosMax, qosMin);
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 			analyticAlgorithm.start(jProgressBarAnalyticAlgorithm);
 		}
@@ -1762,7 +1942,7 @@ public class MainFrame extends JFrame {
 		else {
 			lblWeightSum.setForeground(Color.GREEN);
 			correctWeights = true;
-			jLabelUtilityText.setText(getUtilityFunction());
+			getUtilityFunction();
 		}		
 		checkEnableStartButton();
 	}
@@ -1815,9 +1995,10 @@ public class MainFrame extends JFrame {
 			Integer.parseInt(jTextFieldPenaltyFactor.getText());
 		} catch (Exception e1) {
 			jTextFieldPenaltyFactor.setText("0");
+			writeErrorLogEntry("Input has to be from the type Integer");
 		}
-		if (Integer.parseInt(jTextFieldPenaltyFactor.getText()) <= 0 || 
-				Integer.parseInt(jTextFieldPenaltyFactor.getText()) >= 100) {
+		if (Integer.parseInt(jTextFieldPenaltyFactor.getText()) < 0 || 
+				Integer.parseInt(jTextFieldPenaltyFactor.getText()) > 100) {
 			jTextFieldPenaltyFactor.setText("0");
 			writeErrorLogEntry("Penalty Factor has to be between 0 and 100%");
 			correctPenalty = false;
@@ -1829,7 +2010,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void writeErrorLogEntry(String entry) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("H:m:s: ");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss: ");
 		textAreaLog.append("\n" + dateFormat.format(new Date()) + entry);
 	}
 	
@@ -1860,6 +2041,7 @@ public class MainFrame extends JFrame {
 		} catch (Exception e) {
 			textField.setText(String.valueOf(average));
 			slider.setValue(average);
+			writeErrorLogEntry("Value has to be from the type Integer!");
 		}
 		if (Integer.parseInt(textField.getText()) < minValue || 
 				Integer.parseInt(textField.getText()) > maxValue) {
@@ -1873,11 +2055,10 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
+	// TODO: CHECK SPINNER INPUTS
 	private void loadRandomWebServices() {
-		JSpinner spinnerNumberOfServiceClasses = new JSpinner(
-				new SpinnerNumberModel(1, 1, 1000, 1));
-		((JSpinner.DefaultEditor) spinnerNumberOfServiceClasses.getEditor()).
-		getTextField().setEditable(true);
+		final JSpinner spinnerNumberOfServiceClasses = new JSpinner(
+				new SpinnerNumberModel(1, 1, 1000, 1));		
 		((JSpinner.DefaultEditor) spinnerNumberOfServiceClasses.getEditor()).
 		getTextField().setHorizontalAlignment(JTextField.CENTER);
 		JSpinner spinnerNumberOfWebServices = new JSpinner(
@@ -1893,10 +2074,12 @@ public class MainFrame extends JFrame {
 						"(per Class):"),
 						spinnerNumberOfWebServices
 		};
-		JOptionPane.showConfirmDialog(null, dialogComponents, 
+		if (JOptionPane.showConfirmDialog(null, dialogComponents, 
 				"Random Set Properties", 
 				JOptionPane.OK_CANCEL_OPTION, 
-				JOptionPane.QUESTION_MESSAGE);
+				JOptionPane.QUESTION_MESSAGE) != JOptionPane.YES_OPTION) {
+			return;
+		}
 		int numberOfServiceClasses = 
 			(Integer) spinnerNumberOfServiceClasses.getValue();
 		int numberOfWebServices = 
@@ -1981,8 +2164,7 @@ public class MainFrame extends JFrame {
 	private Map<String, Algorithm> getChosenAlgorithms() {
 		Map<String, Algorithm> algorithmMap = new HashMap<String, Algorithm>();
 		if (jCheckboxGeneticAlgorithm.isSelected()) {
-			// TODO: INSERT GENETIC ALGORITHM
-			algorithmMap.put("Genetic Algorithm", analyticAlgorithm);
+			algorithmMap.put("Genetic Algorithm", geneticAlgorithm);
 		}
 		if (jCheckBoxAntColonyOptimization.isSelected()) {
 			algorithmMap.put("Ant Colony Algorithm", antAlgorithm);
@@ -1998,21 +2180,19 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	// TODO: INSERT "algorithm" INSTEAD OF "analyticAlgorithm"
 	private void showAlgorithmResults(Algorithm algorithm, 
 			String algorithmTitle, String[] tierTablesColumnNames) {
+		
 		int compositionNumber = 1;
 		
 		JScrollPane jScrollPane = new JScrollPane();
-		this.jTabbedPane.addTab(algorithmTitle + 
-				" Algorithm", jScrollPane);
+		this.jTabbedPane.addTab(algorithmTitle, jScrollPane);
 
 		JPanel jPanelAlgorithmResult = new JPanel();
 		GridBagLayout gblJPanelAlgorithmResult = new GridBagLayout();
 		gblJPanelAlgorithmResult.columnWeights = new double[]{1.0};
 		double[] rows = 
-			new double[algorithm.getAlgorithmSolutionTiers(
-					).size() * 2];
+			new double[algorithm.getAlgorithmSolutionTiers().size() * 2];
 		if (rows.length == 2) {
 			rows[0] = 0.1;
 			rows[1] = 0.9;
@@ -2037,8 +2217,9 @@ public class MainFrame extends JFrame {
 		for (int innerCount = 1; 
 		innerCount < rows.length; innerCount = innerCount + 2) {
 			List<Composition> tierServiceCompositionList = 
-					algorithm.getAlgorithmSolutionTiers().get(
-						innerCount / 2).getServiceCompositionList();
+				new LinkedList<Composition>(
+						algorithm.getAlgorithmSolutionTiers().get(
+								innerCount / 2).getServiceCompositionList());
 			int numberOfRows = 0;
 			// COUNTER FOR COMPUTING THE NUMBER OF COMPOSITIONS
 			// PER TIER
@@ -2155,7 +2336,6 @@ public class MainFrame extends JFrame {
 						tierTablesSeparator, gbc_tierTablesSeparator);
 			}
 		}
-		// TODO: DIFFERENT DESIGN FOR DIFFERENT ALGORITHMS
 	}
 	
 	private void doAntAlgorithm(Map<String, Constraint> constraintsMap) {		
@@ -2189,7 +2369,7 @@ public class MainFrame extends JFrame {
 		jTableGeneralResults.setValueAt(runtime + " ms", 2, 1);    
 	} 
 	
-	public QosVector determineQosMax() {
+	private QosVector determineQosMax() {
 		QosVector max = new QosVector(0.0, 0.0, 0.0);
 		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
 			QosVector qos = serviceCandidate.getQosVector();
@@ -2206,7 +2386,7 @@ public class MainFrame extends JFrame {
 		return max;
 	}
 	
-	public QosVector determineQosMin() {
+	private QosVector determineQosMin() {
 		QosVector min = new QosVector(100000.0, 100000.0, 1.0);
 		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
 			QosVector qos = serviceCandidate.getQosVector();
@@ -2223,11 +2403,69 @@ public class MainFrame extends JFrame {
 		return min;
 	}
 	
-	private String getUtilityFunction() {
-		String utilityText = "(Costs * "+txtCostsWeight.getText()+"/100) + " +
-				"(Response Time * "+txtResponseTimeWeight.getText()+"/100) + " +
-						"(Availability * "+txtAvailabilityWeight.getText()+"/100)";
-		return utilityText;
+	private void getUtilityFunction() {
+		String utilityText = "Utility Value(Composition)  =  ";
+		boolean noConstraintsChosen = true;
+		if (jCheckBoxMaxCosts.isSelected()) {
+			utilityText += "(Costs * " + 
+			(Double.parseDouble(txtCostsWeight.getText()) / 100.0) + ") + ";
+			noConstraintsChosen = false;
+		}
+		if (jCheckBoxMaxResponseTime.isSelected()) {
+			utilityText += "(Response Time * " + 
+			(Double.parseDouble(
+					txtResponseTimeWeight.getText()) / 100.0) + ") + ";
+			noConstraintsChosen = false;
+		}
+		if (jCheckBoxMinAvailability.isSelected()) {
+			utilityText += "(Availability * " + 
+			(Double.parseDouble(
+					txtAvailabilityWeight.getText()) / 100.0) + ")";
+			noConstraintsChosen = false;
+		}
+		if (noConstraintsChosen) {
+			utilityText = "";
+		}
+		if (utilityText.endsWith("+ ")) {
+			utilityText = utilityText.substring(0, utilityText.length() - 3);
+		}
+		jLabelUtilityText.setText(utilityText);
 	}
 	
+	private void doGeneticAlgorithm(Map<String, Constraint> constraintsMap) {
+		geneticAlgorithm = new GeneticAlgorithm(
+				serviceClassesList, serviceCandidatesList, constraintsMap, 
+				(Integer) jSpinnerNumberResultTiers.getValue(), 
+				Integer.parseInt(jTextFieldStartPopulationSize.getText()), 
+				Integer.parseInt(jTextFieldStopCriterion.getText()),
+				((String) comboBoxRecombination.getSelectedItem()),
+				((String) comboBoxStopCriterion.getSelectedItem()), 
+				qosMax, qosMin);
+		geneticAlgorithm.start(jProgressBarGeneticAlgorithm);
+		jTableGeneralResults.setValueAt(
+				geneticAlgorithm.getRuntime() + " ms", 1, 1);
+	}
+	
+	private void checkInputValue(JTextField textField) {
+		try {
+			Integer.parseInt(textField.getText());
+		} catch (Exception e1) {
+			textField.setText("50");
+			writeErrorLogEntry("Input has to be from the type Integer");
+		}
+		if (Integer.parseInt(textField.getText()) > 100 || 
+				Integer.parseInt(textField.getText()) < 1) {
+			textField.setText("1");
+			writeErrorLogEntry("Input has to be between 1 and 100");
+		}
+	}
+	
+	private void isJLabelStopCriterionPercentageVisible() {
+		if (comboBoxStopCriterion.getSelectedIndex() != 2) {
+			jLabelStopCriterionPercentage.setVisible(false);
+		}
+		else {
+			jLabelStopCriterionPercentage.setVisible(true);
+		}
+	}
 }
