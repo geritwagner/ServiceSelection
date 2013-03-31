@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -1718,7 +1719,7 @@ public class MainFrame extends JFrame {
 	}
 
 	private void pressStartButton() {
-		Map<String, Constraint> constraintsMap = getChosenConstraints();
+		final Map<String, Constraint> constraintsMap = getChosenConstraints();
 		printChosenConstraintsToConsole(constraintsMap);
 		qosMax = determineQosMax();
 		qosMin = determineQosMin();
@@ -1732,8 +1733,11 @@ public class MainFrame extends JFrame {
 			cumulatedRuntime += analyticAlgorithm.getRuntime();
 		}
 		if (jCheckBoxAntColonyOptimization.isSelected()) {
-			doAntAlgorithm(constraintsMap);
-			cumulatedRuntime += antAlgorithm.getRuntime();
+			//Test: alternative benchmarking
+			Callable<String> task =
+					new Callable<String>() { public String call() { return doAntAlgorithm(constraintsMap); } };
+					System.out.println("benchmarked performance antAgo: " + new bb.util.Benchmark(task));
+			
 		}  
 		buildResultTable();
 		jButtonVisualize.setEnabled(true);
@@ -2338,7 +2342,7 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	private void doAntAlgorithm(Map<String, Constraint> constraintsMap) {		
+	private String doAntAlgorithm(Map<String, Constraint> constraintsMap) {		
 		int iterations;
 		int ants;
 		double alpha;
@@ -2366,7 +2370,9 @@ public class MainFrame extends JFrame {
 				dilution, piInit);
 		antAlgorithm.start(jProgressBarAntAlgorithm);        
 		long runtime = antAlgorithm.getRuntime();
-		jTableGeneralResults.setValueAt(runtime + " ms", 2, 1);    
+		jTableGeneralResults.setValueAt(runtime + " ms", 2, 1); 
+		
+		return "ant algo finished";
 	} 
 	
 	private QosVector determineQosMax() {
