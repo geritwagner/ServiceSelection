@@ -16,7 +16,7 @@ public class AnalyticAlgorithm extends Algorithm {
 	private List<Composition> compositionsList = new LinkedList<Composition>();
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
-	private Composition optimalComposition = null;
+//	private Composition optimalComposition = null;
 	private QosVector qosMax;
 	private QosVector qosMin;
 	
@@ -40,15 +40,16 @@ public class AnalyticAlgorithm extends Algorithm {
 		this.numberOfRequestedResultTiers = numberOfRequestedResultTiers;
 		this.qosMax = max;
 		this.qosMin = min;
-		this.optimalComposition = new Composition(new LinkedList<ServiceCandidate>(), new QosVector(), 0.0);
+//		this.optimalComposition = new Composition(
+//				new LinkedList<ServiceCandidate>(), new QosVector(), 0.0);
 	}
-	
 	
 	@Override
 	public void start(JProgressBar progressBar) {
+//		printInputData();
 		runtime = System.currentTimeMillis();
-		// DO COMPLETE ENUMERATION
-		for (int i=0; i < serviceClassesList.get(0).
+		// DO COMPLETE ENUMERATION.
+		for (int i = 0; i < serviceClassesList.get(0).
 				getServiceCandidateList().size(); i++) {
 			doCompleteEnumeration(new Composition(
 					new LinkedList<ServiceCandidate>(), new QosVector(), 0.0), 
@@ -59,14 +60,17 @@ public class AnalyticAlgorithm extends Algorithm {
 			//				0).getServiceCandidateList().size())) * 100));
 		}		
 		runtime = System.currentTimeMillis() - runtime;
-		buildSolutionTiers();
-		System.out.println("Optimal composition: " + 
-				optimalComposition.getServiceCandidatesAsString()+" - "+optimalComposition.getUtility());
+//		buildSolutionTiers();
+//		System.out.println("Optimal composition: " + 
+//				optimalComposition.getServiceCandidatesAsString() + 
+//				" - " + optimalComposition.getUtility());
 	}
 	
 	// ENUMERATION
 	// TODO: [MAYBE] DO NOT CONSIDER PATHS THAT VIOLATE ANY CONSTRAINTS
 	//		 ANYMORE. (OPTIMIZATION THAT COULD RESULT IN SOME WORK!)
+	// TODO: INSERT ALGORITHMSOLUTIONTIERS 
+	//       (-> PRINTVALIDCOMPOSITIONS)
 	private void doCompleteEnumeration(Composition composition, 
 			int serviceClassNumber, int serviceCandidateNumber) {
 		composition = forward(composition, serviceClassNumber, 
@@ -74,17 +78,26 @@ public class AnalyticAlgorithm extends Algorithm {
 		if (composition != null) {
 			if (isComplete(composition)) {
 				if (isWithinConstraints(composition)) {
-					if (isNewOptimalComposition(composition)) {
-						List<ServiceCandidate> tempServiceCandidatesList = 
-								new LinkedList<ServiceCandidate>(composition.getServiceCandidatesList());						
-						Collections.copy(tempServiceCandidatesList, composition.getServiceCandidatesList());
-						QosVector qos = new QosVector(composition.getQosVectorAggregated().getCosts(),
-								composition.getQosVectorAggregated().getResponseTime(),
-								composition.getQosVectorAggregated().getAvailability());
-						optimalComposition = new Composition(tempServiceCandidatesList,
-								qos, composition.getUtility());
-					}
-				}						
+					changeAlgorithmSolutionTiers(composition);
+//					if (isNewOptimalComposition(composition)) {
+//						List<ServiceCandidate> tempServiceCandidatesList = 
+//								new LinkedList<ServiceCandidate>(
+//										composition.
+//										getServiceCandidatesList());						
+//						Collections.copy(tempServiceCandidatesList, 
+//								composition.getServiceCandidatesList());
+//						QosVector qos = new QosVector(
+//								composition.getQosVectorAggregated().
+//								getCosts(),
+//								composition.getQosVectorAggregated().
+//								getResponseTime(),
+//								composition.getQosVectorAggregated().
+//								getAvailability());
+//						optimalComposition = new Composition(
+//								tempServiceCandidatesList,
+//								qos, composition.getUtility());
+//					}
+				}
 			}
 			else {
 				serviceClassNumber++;
@@ -146,37 +159,82 @@ public class AnalyticAlgorithm extends Algorithm {
 		return isWithinConstraints;
 	}
 	
-	private boolean isNewOptimalComposition(Composition composition) {		
-		double utility = 0;
-		for (ServiceCandidate sc : composition.getServiceCandidatesList()) {
-			QosVector qos = sc.getQosVector();
-			utility += ((qosMax.getCosts() - qos.getCosts()) / 
-					(qosMax.getCosts() - qosMin.getCosts())) * constraintsMap.get(
-							Constraint.COSTS).getWeight() / 100;
-			utility += ((qosMax.getResponseTime() - qos.getResponseTime()) / 
-					(qosMax.getResponseTime() - qosMin.getResponseTime())) * 
-					constraintsMap.get(
-							Constraint.RESPONSE_TIME).getWeight() / 100;
-			utility += ((qos.getAvailability() - qosMin.getAvailability(
-					)) / (qosMax.getAvailability() - qosMin.getAvailability(
-							))) * constraintsMap.get(
-									Constraint.AVAILABILITY).getWeight() / 100;
+//	private boolean isNewOptimalComposition(Composition composition) {		
+//		double utility = 0;
+//		for (ServiceCandidate sc : composition.getServiceCandidatesList()) {
+//			QosVector qos = sc.getQosVector();
+//			utility += ((qosMax.getCosts() - qos.getCosts()) / 
+//					(qosMax.getCosts() - qosMin.getCosts())) * 
+//					constraintsMap.get(Constraint.COSTS).getWeight() / 100;
+//			utility += ((qosMax.getResponseTime() - qos.getResponseTime()) / 
+//					(qosMax.getResponseTime() - qosMin.getResponseTime())) * 
+//					constraintsMap.get(
+//							Constraint.RESPONSE_TIME).getWeight() / 100;
+//			utility += ((qos.getAvailability() - qosMin.getAvailability(
+//					)) / (qosMax.getAvailability() - qosMin.getAvailability(
+//							))) * constraintsMap.get(
+//									Constraint.AVAILABILITY).getWeight() / 100;
+//		}
+//		composition.setUtility(utility);
+//		if (composition.getUtility() > optimalComposition.getUtility()) {
+//			return true;
+//		}
+//		return false;
+//	}
+	
+	private void changeAlgorithmSolutionTiers(Composition composition) {
+		List<ServiceCandidate> serviceCandidates = 
+			new LinkedList<ServiceCandidate>(
+					composition.getServiceCandidatesList());						
+		Collections.copy(serviceCandidates, 
+				composition.getServiceCandidatesList());
+		Composition newComposition = new Composition();
+		newComposition.setServiceCandidateList(serviceCandidates);
+		newComposition.setQosVectorAggregated(new QosVector(
+				composition.getQosVectorAggregated().getCosts(),
+				composition.getQosVectorAggregated().getResponseTime(),
+				composition.getQosVectorAggregated().getAvailability()));
+		newComposition.computeUtilityValue(constraintsMap, qosMax, qosMin);
+		for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
+			if (tier.getServiceCompositionList().get(0).getUtility() == 
+				newComposition.getUtility()) {
+				tier.getServiceCompositionList().add(newComposition);
+				return;
+			}
 		}
-		composition.setUtility(utility);
-		if (composition.getUtility() > optimalComposition.getUtility()) {
-			return true;
+		if (numberOfRequestedResultTiers <= 
+			algorithmSolutionTiers.size()) {
+			for (int count = 0; 
+			count < algorithmSolutionTiers.size(); count++) {
+				if (newComposition.getUtility() > algorithmSolutionTiers.
+						get(count).getServiceCompositionList().get(0).
+						getUtility()) {
+					List<Composition> newTier = new LinkedList<Composition>();
+					newTier.add(newComposition);
+					algorithmSolutionTiers.add(count, 
+							new AlgorithmSolutionTier(newTier, count + 1));
+					algorithmSolutionTiers.remove(
+							algorithmSolutionTiers.size() - 1);
+					break;
+				}
+			}
 		}
-		return false;
+		else {
+			List<Composition> newTier = new LinkedList<Composition>();
+			newTier.add(newComposition);
+			algorithmSolutionTiers.add(new AlgorithmSolutionTier(newTier, 
+					algorithmSolutionTiers.size() + 1));
+		}
 	}
 	
-	private void buildSolutionTiers() {
-		List<Composition> requestedCompositions = 
-				new LinkedList<Composition>();
-		requestedCompositions.add(optimalComposition);
-		algorithmSolutionTiers.add(new AlgorithmSolutionTier(
-				(LinkedList<Composition>) 
-				requestedCompositions, 1));
-	}
+//	private void buildSolutionTiers() {
+//		List<Composition> requestedCompositions = 
+//				new LinkedList<Composition>();
+//		requestedCompositions.add(optimalComposition);
+//		algorithmSolutionTiers.add(new AlgorithmSolutionTier(
+//				(LinkedList<Composition>) 
+//				requestedCompositions, 1));
+//	}
 			
 		
 	// PRINT SERVICE CLASSES AND THEIR SERVICE CANDIDATES.
