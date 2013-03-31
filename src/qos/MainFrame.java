@@ -1736,7 +1736,19 @@ public class MainFrame extends JFrame {
 			//Test: alternative benchmarking
 			Callable<String> task =
 					new Callable<String>() { public String call() { return doAntAlgorithm(constraintsMap); } };
-					System.out.println("benchmarked performance antAgo: " + new bb.util.Benchmark(task));
+					// try-catch eingefügt - notwendig?? 
+					try {
+						System.out.println("benchmarked performance antAgo: " + new bb.util.Benchmark(task));
+					} catch (IllegalArgumentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IllegalStateException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 			
 		}  
 		buildResultTable();
