@@ -11,9 +11,13 @@ public class AntAlgorithm extends Algorithm {
 	
 	private List<ServiceClass> serviceClassesList;
 	private List<ServiceCandidate> serviceCandidatesList;
+	
+	// TODO: Diese 3 Variablen sollten nach Erledigung der zwei unten 
+	//		 eingefügten TODOs nicht mehr benötigt werden.
 	private Map<String, Constraint> constraintsMap;
 	private QosVector qosMax;
 	private QosVector qosMin;
+	
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 			new LinkedList<AlgorithmSolutionTier>();
 		
@@ -203,18 +207,26 @@ public class AntAlgorithm extends Algorithm {
 		nj[serviceCandidatesList.size()-1] = 1;
 		
 		for (int i=1; i<serviceCandidatesList.size()-1; i++) {
+			// TODO: Vorschlag, wie ihr die Utility-Werte nutzen könnt. Müsste 
+			//		 so funktionieren. Evtl. könnt ihr euch ja sogar das 
+			//		 Kopieren ins Array sparen. Das könntet ihr euch noch 
+			//		 anschauen.
+			nj[i] = serviceCandidatesList.get(i).getUtility();
+			
+			
+			
 			// (Q_Max - Q_i) / (Q_max - Q_min) * W		negative criteria
 			// (Q_i - Q_min) / (Q_max - Q_min) * W		positive criteria
-			QosVector qos = serviceCandidatesList.get(i).getQosVector();
-			Constraint costs = constraintsMap.get(Constraint.COSTS);
-			Constraint responseTime = constraintsMap.get(Constraint.RESPONSE_TIME);
-			Constraint availability = constraintsMap.get(Constraint.AVAILABILITY);
-			nj[i] = (((qosMax.getCosts() - qos.getCosts()) / 
-					(qosMax.getCosts() - qosMin.getCosts())) * costs.getWeight()/100) + 
-					(((qosMax.getResponseTime() - qos.getResponseTime()) / 
-					(qosMax.getResponseTime() - qosMin.getResponseTime())) * responseTime.getWeight()/100) + 
-					(((qos.getAvailability() - qosMin.getAvailability()) / 
-					(qosMax.getAvailability() - qosMin.getAvailability())) * availability.getWeight()/100);			
+//			QosVector qos = serviceCandidatesList.get(i).getQosVector();
+//			Constraint costs = constraintsMap.get(Constraint.COSTS);
+//			Constraint responseTime = constraintsMap.get(Constraint.RESPONSE_TIME);
+//			Constraint availability = constraintsMap.get(Constraint.AVAILABILITY);
+//			nj[i] = (((qosMax.getCosts() - qos.getCosts()) / 
+//					(qosMax.getCosts() - qosMin.getCosts())) * costs.getWeight()/100) + 
+//					(((qosMax.getResponseTime() - qos.getResponseTime()) / 
+//					(qosMax.getResponseTime() - qosMin.getResponseTime())) * responseTime.getWeight()/100) + 
+//					(((qos.getAvailability() - qosMin.getAvailability()) / 
+//					(qosMax.getAvailability() - qosMin.getAvailability())) * availability.getWeight()/100);			
 		}
 	}
 	
