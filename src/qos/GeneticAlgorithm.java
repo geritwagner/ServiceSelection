@@ -110,8 +110,7 @@ public class GeneticAlgorithm extends Algorithm {
 		runtime = System.currentTimeMillis() - runtime;
 		for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
 			for (Composition composition : tier.getServiceCompositionList()) {
-				composition.computeUtilityValue(
-						constraintsMap, qosMax, qosMin);
+				composition.computeUtilityValue();
 			}
 		}
 		
@@ -416,7 +415,7 @@ public class GeneticAlgorithm extends Algorithm {
 			if (!composition.isWithinConstraints(constraintsMap)) {
 				return;
 			}
-			composition.computeUtilityValue(constraintsMap, qosMax, qosMin);
+			composition.computeUtilityValue();
 			boolean equalValues = false;
 			int compositionRank = 0;
 			if (algorithmSolutionTiers.size() == 0) {

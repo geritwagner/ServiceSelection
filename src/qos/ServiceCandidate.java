@@ -5,10 +5,10 @@ import java.util.Map;
 public class ServiceCandidate {
 	
 	private int serviceClassId;
-//	private String serviceClassName;
 	private int serviceCandidateId;
 	private String name;
 	private QosVector qosVector = new QosVector();
+	private double utility;
 	
 	
 	// CONSTRUCTORS
@@ -19,13 +19,12 @@ public class ServiceCandidate {
 	public ServiceCandidate(int serviceClassId, 
 			int serviceCandidateId, String name, QosVector qosVector) {
 		this.serviceCandidateId = serviceCandidateId;
-//		this.serviceClassName = serviceClassName;
 		this.serviceClassId = serviceClassId;
 		this.name = name;
 		this.qosVector = qosVector;
 	}
 	
-	public double computeUtilityValue(Map<String, Constraint> constraintsMap, 
+	public void determineUtilityValue(Map<String, Constraint> constraintsMap, 
 			QosVector max, QosVector min) {
 		// (Q_Max - Q_i) / (Q_max - Q_min) * W		negative criteria
 		// (Q_i - Q_min) / (Q_max - Q_min) * W		positive criteria
@@ -48,7 +47,7 @@ public class ServiceCandidate {
 					(max.getAvailability() - min.getAvailability(
 					))) * constraintsMap.get(
 							Constraint.AVAILABILITY).getWeight() / 100;
-		return utility;
+		setUtility(utility);
 	}
 
 	
@@ -59,12 +58,6 @@ public class ServiceCandidate {
 	public void setServiceClassId(int serviceClassId) {
 		this.serviceClassId = serviceClassId;
 	}
-//	public String getServiceClassName() {
-//		return serviceClassName;
-//	}
-//	public void setServiceClassName(String serviceClassName) {
-//		this.serviceClassName = serviceClassName;
-//	}
 	public int getServiceCandidateId() {
 		return serviceCandidateId;
 	}
@@ -83,8 +76,14 @@ public class ServiceCandidate {
 	public void setQosVector(QosVector qosVector) {
 		this.qosVector = qosVector;
 	}
-
+	public double getUtility() {
+		return utility;
+	}
+	public void setUtility(double utility) {
+		this.utility = utility;
+	}
 	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

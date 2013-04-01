@@ -17,7 +17,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,6 +25,7 @@ import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -47,12 +47,11 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.JComboBox;
 
 public class MainFrame extends JFrame {
 
@@ -1722,6 +1721,17 @@ public class MainFrame extends JFrame {
 		printChosenConstraintsToConsole(constraintsMap);
 		qosMax = determineQosMax();
 		qosMin = determineQosMin();
+		
+		// TODO: Utility-Werte sollten am besten hier berechnet werden oder? 
+		//		 Anschließend stehen sie dann allen Algorithmen zur Verfügung. 
+		//		 Dadurch muss man sie nur ein einziges Mal berechnen, und 
+		//		 außerdem muss man nicht mehr ständig constraintsMap, 
+		//		 qosMax und qosMin mit übergeben.
+		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+			serviceCandidate.determineUtilityValue(
+					constraintsMap, qosMax, qosMin);
+		}
+		
 		long cumulatedRuntime = 0;
 		if (jCheckboxGeneticAlgorithm.isSelected()) {
 			doGeneticAlgorithm(constraintsMap);
@@ -1816,8 +1826,7 @@ public class MainFrame extends JFrame {
 	private void doEnumeration(Map<String, Constraint> constraintsMap) {
 		analyticAlgorithm = new AnalyticAlgorithm(
 				serviceClassesList, serviceCandidatesList, constraintsMap, 
-				(Integer) jSpinnerNumberResultTiers.getValue(), 
-				qosMax, qosMin);
+				(Integer) jSpinnerNumberResultTiers.getValue());
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 			analyticAlgorithm.start(jProgressBarAnalyticAlgorithm);
 		}
@@ -2085,12 +2094,13 @@ public class MainFrame extends JFrame {
 		int numberOfWebServices = 
 			(Integer) spinnerNumberOfWebServices.getValue();
 		
-		List<ServiceClass> servicesList = RandomSetGenerator.generateSet(
-				numberOfServiceClasses, numberOfWebServices);
-		
+		// Delete previously loaded web services.
 		serviceCandidatesList.removeAll(serviceCandidatesList);
 		serviceClassesList.removeAll(serviceClassesList);
 		
+		// Use RandomSetGenerator to create web services data.
+		List<ServiceClass> servicesList = RandomSetGenerator.generateSet(
+				numberOfServiceClasses, numberOfWebServices);
 		serviceClassesList = servicesList;
 		
 		// Write service classes headers.
@@ -2105,25 +2115,20 @@ public class MainFrame extends JFrame {
 		setColumnTextAlignment(
 				jTableServiceClasses, 0, DefaultTableCellRenderer.CENTER);
 
-		// Write service classes data.
+		// Write service classes data. Load service candidates into list.
 		for (int k = 0 ; k < serviceClassesList.size() ; k++) {
 			ServiceClass serviceClass = serviceClassesList.get(k);
 			jTableServiceClasses.setValueAt(
 					serviceClass.getServiceClassId(), k, 0);
-			jTableServiceClasses.setValueAt(serviceClass.getName(), k, 1);	
-			for (int count = 0; count < serviceClass.getServiceCandidateList(
-					).size(); count++) {
-				ServiceCandidate serviceCandidate = new ServiceCandidate(
-						serviceClass.getServiceClassId(),
-						(count + 1) + (numberOfWebServices * k),
-						"WebService" + String.valueOf((count + 1) + 
-								(numberOfWebServices * k)),
-						serviceClass.getServiceCandidateList(
-								).get(count).getQosVector());
+			jTableServiceClasses.setValueAt(serviceClass.getName(), k, 1);
+			
+			for (ServiceCandidate serviceCandidate : 
+				serviceClass.getServiceCandidateList()) {
 				serviceCandidatesList.add(serviceCandidate);
 			}
 		}
 
+		// Write service candidates headers.
 		jTableWebServices.setModel(new BasicTableModel(
 				serviceCandidatesList.size(), 6, false));
 		TableColumnModel webServicesColumnModel = 
