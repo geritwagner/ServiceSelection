@@ -24,6 +24,10 @@ public class Composition {
 		this.utility = utility;
 	}
 	
+	// TODO: Funktion ist analog schon in der Klasse QosVector vorhanden. 
+	//		 Fraglich, was besser ist. Hier wird der Vektor immer wieder neu 
+	//		 berechnet, was eigtl nicht schlecht ist. In der anderen Variante 
+	//		 wird immer nur hinzugefügt bzw. weggenommen.
 	public void buildAggregatedQosVector() {
 		double costs = 0.0;
 		double responseTime = 0.0;
@@ -36,33 +40,11 @@ public class Composition {
 		qosVectorAggregated = new QosVector(costs, responseTime, availability);
 	}
 	
-	public void computeUtilityValue(Map<String, Constraint> constraintsMap, 
-			QosVector max, QosVector min) {
+	public void computeUtilityValue() {
 		double utility = 0.0;
-		for (ServiceCandidate candidate : serviceCandidatesList) {
-			utility += candidate.computeUtilityValue(constraintsMap, max, min);
+		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+			utility += serviceCandidate.getUtility();
 		}
-		// (Q_Max - Q_i) / (Q_max - Q_min) * W		negative criteria
-		// (Q_i - Q_min) / (Q_max - Q_min) * W		positive criteria
-//		double utility = 0.0;
-//		if (constraintsMap.get(Constraint.COSTS) != null) {
-//			utility += ((max.getCosts() - qosVectorAggregated.getCosts()) / 
-//					(max.getCosts() - min.getCosts())) * constraintsMap.get(
-//							Constraint.COSTS).getWeight() / 100;
-//		}
-//		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null) { 
-//			utility += ((max.getResponseTime() - 
-//					qosVectorAggregated.getResponseTime()) / 
-//					(max.getResponseTime() - min.getResponseTime())) * 
-//					constraintsMap.get(
-//							Constraint.RESPONSE_TIME).getWeight() / 100;
-//		}
-//		if (constraintsMap.get(Constraint.AVAILABILITY) != null)
-//			utility += ((qosVectorAggregated.getAvailability() - 
-//					min.getAvailability()) / 
-//					(max.getAvailability() - min.getAvailability(
-//					))) * constraintsMap.get(
-//							Constraint.AVAILABILITY).getWeight() / 100;
 		this.utility = utility / serviceCandidatesList.size();
 	}
 
@@ -108,6 +90,8 @@ public class Composition {
 		return serviceCandidatesList.hashCode();
 	}
 	
+	// TODO: Funktion ist analog schon in der Klasse AnalyticAlgorithm und 
+	//		 AntAlgorithm vorhanden. Hier aber wohl besser aufgehoben.
 	public boolean isWithinConstraints(
 			Map<String, Constraint> constraintsMap) {
 		boolean isWithinConstraints = true;

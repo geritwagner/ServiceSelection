@@ -218,6 +218,7 @@ public class AntAlgorithm extends Algorithm {
 		}
 	}
 	
+	// TODO: Funktion aus Klasse Composition verwenden!
 	private boolean isWithinConstraints(Composition composition) {
 		boolean isWithinConstraints = true;
 		QosVector qosVector = composition.getQosVectorAggregated();

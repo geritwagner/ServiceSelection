@@ -17,8 +17,6 @@ public class AnalyticAlgorithm extends Algorithm {
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
 //	private Composition optimalComposition = null;
-	private QosVector qosMax;
-	private QosVector qosMin;
 	
 	private int numberOfRequestedResultTiers;
 	
@@ -33,13 +31,11 @@ public class AnalyticAlgorithm extends Algorithm {
 	public AnalyticAlgorithm(List<ServiceClass> serviceClassesList, 
 			List<ServiceCandidate> serviceCandidatesList, 
 			Map<String, Constraint> constraintsMap, 
-			int numberOfRequestedResultTiers, QosVector max, QosVector min) {
+			int numberOfRequestedResultTiers) {
 		this.serviceClassesList = serviceClassesList;
 		this.serviceCandidatesList = serviceCandidatesList;
 		this.constraintsMap = constraintsMap;
 		this.numberOfRequestedResultTiers = numberOfRequestedResultTiers;
-		this.qosMax = max;
-		this.qosMin = min;
 //		this.optimalComposition = new Composition(
 //				new LinkedList<ServiceCandidate>(), new QosVector(), 0.0);
 	}
@@ -61,14 +57,12 @@ public class AnalyticAlgorithm extends Algorithm {
 		}		
 		runtime = System.currentTimeMillis() - runtime;
 //		buildSolutionTiers();
-//		System.out.println("Optimal composition: " + 
-//				optimalComposition.getServiceCandidatesAsString() + 
-//				" - " + optimalComposition.getUtility());
 	}
 	
 	// ENUMERATION
 	// TODO: [MAYBE] DO NOT CONSIDER PATHS THAT VIOLATE ANY CONSTRAINTS
-	//		 ANYMORE. (OPTIMIZATION THAT COULD RESULT IN SOME WORK!)
+	//		 ANYMORE. (OPTIMIZATION THAT COULD RESULT IN SOME WORK! AND 
+	//		 ACTUALLY, IT WOULDN'T BE A COMPLETE ENUMERATION ANYMORE!)
 	// TODO: INSERT ALGORITHMSOLUTIONTIERS 
 	//       (-> PRINTVALIDCOMPOSITIONS)
 	private void doCompleteEnumeration(Composition composition, 
@@ -79,6 +73,8 @@ public class AnalyticAlgorithm extends Algorithm {
 			if (isComplete(composition)) {
 				if (isWithinConstraints(composition)) {
 					changeAlgorithmSolutionTiers(composition);
+					
+					// TODO: Braucht man das noch?
 //					if (isNewOptimalComposition(composition)) {
 //						List<ServiceCandidate> tempServiceCandidatesList = 
 //								new LinkedList<ServiceCandidate>(
@@ -139,6 +135,7 @@ public class AnalyticAlgorithm extends Algorithm {
 		}
 	}
 	
+	// TODO: Funktion aus Klasse Composition verwenden!
 	private boolean isWithinConstraints(Composition composition) {
 		boolean isWithinConstraints = true;
 		QosVector qosVector = composition.getQosVectorAggregated();
@@ -159,6 +156,7 @@ public class AnalyticAlgorithm extends Algorithm {
 		return isWithinConstraints;
 	}
 	
+	// TODO: Braucht man das noch?
 //	private boolean isNewOptimalComposition(Composition composition) {		
 //		double utility = 0;
 //		for (ServiceCandidate sc : composition.getServiceCandidatesList()) {
@@ -194,7 +192,10 @@ public class AnalyticAlgorithm extends Algorithm {
 				composition.getQosVectorAggregated().getCosts(),
 				composition.getQosVectorAggregated().getResponseTime(),
 				composition.getQosVectorAggregated().getAvailability()));
-		newComposition.computeUtilityValue(constraintsMap, qosMax, qosMin);
+		newComposition.computeUtilityValue();
+		
+		// TODO: Was macht diese for-Schleife? Die if-Abfrage lieferte in 
+		//		 keinem meiner Tests ein "true".
 		for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
 			if (tier.getServiceCompositionList().get(0).getUtility() == 
 				newComposition.getUtility()) {
@@ -227,6 +228,7 @@ public class AnalyticAlgorithm extends Algorithm {
 		}
 	}
 	
+	// TODO: Braucht man das noch?
 //	private void buildSolutionTiers() {
 //		List<Composition> requestedCompositions = 
 //				new LinkedList<Composition>();
@@ -236,7 +238,8 @@ public class AnalyticAlgorithm extends Algorithm {
 //				requestedCompositions, 1));
 //	}
 			
-		
+	
+	// TODO: Braucht man das noch?
 	// PRINT SERVICE CLASSES AND THEIR SERVICE CANDIDATES.
 //	private void printInputData() {
 //		for (ServiceClass serviceClass : serviceClassesList) {
@@ -249,6 +252,8 @@ public class AnalyticAlgorithm extends Algorithm {
 //		System.out.println("\n\n");
 //	}
 	
+	
+	// TODO: Braucht man das noch?
 	/*
 	private void printValidCompositions() {
 		for (Composition composition : compositionsList) {
