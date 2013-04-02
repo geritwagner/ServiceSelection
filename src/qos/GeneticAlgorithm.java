@@ -109,7 +109,6 @@ public class GeneticAlgorithm extends Algorithm {
 		
 	// TODO: IF INITIALPOPULATIONSIZE > 50% 
 	//        -> DO ENUMERATION AND SELECT RANDOMLY
-	//        -> FIRST PART HAS TO BE OPTIMIZED
 	private List<Composition> generateInitialPopulation() {
 		
 		// GET THE NUMBER OF ALL POSSIBLE COMPOSITIONS 
