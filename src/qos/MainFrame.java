@@ -1719,11 +1719,7 @@ public class MainFrame extends JFrame {
 		qosMax = determineQosMax();
 		qosMin = determineQosMin();
 		
-		// TODO: Utility-Werte sollten am besten hier berechnet werden oder? 
-		//		 Anschließend stehen sie dann allen Algorithmen zur Verfügung. 
-		//		 Dadurch muss man sie nur ein einziges Mal berechnen, und 
-		//		 außerdem muss man nicht mehr ständig constraintsMap, 
-		//		 qosMax und qosMin mit übergeben.
+		// Calculate the utility value for all service candidates.
 		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
 			serviceCandidate.determineUtilityValue(
 					constraintsMap, qosMax, qosMin);

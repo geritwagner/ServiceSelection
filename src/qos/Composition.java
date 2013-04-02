@@ -90,8 +90,6 @@ public class Composition {
 		return serviceCandidatesList.hashCode();
 	}
 	
-	// TODO: Funktion ist analog schon in der Klasse AnalyticAlgorithm und 
-	//		 AntAlgorithm vorhanden. Hier aber wohl besser aufgehoben.
 	public boolean isWithinConstraints(
 			Map<String, Constraint> constraintsMap) {
 		boolean isWithinConstraints = true;

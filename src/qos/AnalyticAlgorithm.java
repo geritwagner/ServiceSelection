@@ -129,11 +129,7 @@ public class AnalyticAlgorithm extends Algorithm {
 				composition.getQosVectorAggregated().getAvailability()));
 		newComposition.computeUtilityValue();
 		
-		// TODO: Was macht diese for-Schleife? Die if-Abfrage lieferte in 
-		//		 keinem meiner Tests ein "true".
-		//	-> wird benötigt, damit im sehr unwahrscheinlichen Fall, 
-		//	   dass 2 Utility-Werte gleich sind, die zugehörigen 
-		//     Kompositionen in den gleichen Tier eingeordnet werden
+		// Loop is needed when two compositions have the same utility value.
 		for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
 			if (tier.getServiceCompositionList().get(0).getUtility() == 
 				newComposition.getUtility()) {
@@ -141,6 +137,7 @@ public class AnalyticAlgorithm extends Algorithm {
 				return;
 			}
 		}
+		
 		if (numberOfRequestedResultTiers <= 
 			algorithmSolutionTiers.size()) {
 			for (int count = 0; 
@@ -174,9 +171,8 @@ public class AnalyticAlgorithm extends Algorithm {
 	}
 			
 	
-	// TODO: Braucht man das noch?
-	// -> zu Testzwecken noch nicht entfernen!
 	// PRINT SERVICE CLASSES AND THEIR SERVICE CANDIDATES.
+	// DO NOT REMOVE. MIGHT BE USEFUL FOR TESTS.
 //	private void printInputData() {
 //		for (ServiceClass serviceClass : serviceClassesList) {
 //			System.out.println("\n" + serviceClass.getName());
