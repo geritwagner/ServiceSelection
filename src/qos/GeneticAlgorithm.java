@@ -130,16 +130,18 @@ public class GeneticAlgorithm extends Algorithm {
 			for (int innerCount = 0; 
 					innerCount < serviceClassesList.size(); innerCount++) {
 				double random = Math.random();
+				int numberOfServiceCandidates = 
+						serviceClassesList.get(
+								innerCount).getServiceCandidateList().size();
 				// AVOID GETTING MAX_SIZE (OUT OF BOUNDS)
-				if (random * serviceCandidatesList.size() == 
-						serviceCandidatesList.size()) {
+				if (random * numberOfServiceCandidates == 
+						numberOfServiceCandidates) {
 					random -= 0.01;
 				}
+				
 				chosenServiceCandidatesList.add(serviceClassesList.get(
 						innerCount).getServiceCandidateList().get(
-								(int) (random * 
-										serviceCandidatesList.size() / 
-										serviceClassesList.size())));
+								(int) (random * numberOfServiceCandidates)));
 				qosVector.addCosts(
 						chosenServiceCandidatesList.get(
 								innerCount).getQosVector().getCosts());

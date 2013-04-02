@@ -28,25 +28,49 @@ public class ServiceCandidate {
 			QosVector max, QosVector min) {
 		// (Q_Max - Q_i) / (Q_max - Q_min) * W		negative criteria
 		// (Q_i - Q_min) / (Q_max - Q_min) * W		positive criteria
+		if (max == min) {
+			
+		}
 		double utility = 0.0;
 		if (constraintsMap.get(Constraint.COSTS) != null) {
-			utility += ((max.getCosts() - qosVector.getCosts()) / 
-					(max.getCosts() - min.getCosts())) * constraintsMap.get(
-							Constraint.COSTS).getWeight() / 100;
+			if (max.getCosts() - min.getCosts() == 0.0) {
+				utility += (constraintsMap.get(
+						Constraint.COSTS).getWeight() / 100);
+			}
+			else {
+				utility += ((max.getCosts() - qosVector.getCosts()) / 
+						(max.getCosts() - min.getCosts())) * 
+						constraintsMap.get(Constraint.COSTS).getWeight() / 100;
+			}
+			
 		}
 		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null) { 
-			utility += ((max.getResponseTime() - 
-					qosVector.getResponseTime()) / 
-					(max.getResponseTime() - min.getResponseTime())) * 
-					constraintsMap.get(
-							Constraint.RESPONSE_TIME).getWeight() / 100;
+			if (max.getResponseTime() - min.getResponseTime() == 0.0) {
+				utility += (constraintsMap.get(
+								Constraint.RESPONSE_TIME).getWeight() / 100);
+			}
+			else {
+				utility += ((max.getResponseTime() - 
+						qosVector.getResponseTime()) / 
+						(max.getResponseTime() - min.getResponseTime())) * 
+						constraintsMap.get(
+								Constraint.RESPONSE_TIME).getWeight() / 100;
+			}
+			
 		}
-		if (constraintsMap.get(Constraint.AVAILABILITY) != null)
-			utility += ((qosVector.getAvailability() - 
-					min.getAvailability()) / 
-					(max.getAvailability() - min.getAvailability(
-					))) * constraintsMap.get(
-							Constraint.AVAILABILITY).getWeight() / 100;
+		if (constraintsMap.get(Constraint.AVAILABILITY) != null) {
+			if (max.getAvailability() - min.getAvailability() == 0.0) {
+				utility += (constraintsMap.get(
+						Constraint.AVAILABILITY).getWeight() / 100);
+			}
+			else {
+				utility += ((qosVector.getAvailability() - 
+						min.getAvailability()) / 
+						(max.getAvailability() - min.getAvailability())) * 
+						constraintsMap.get(
+								Constraint.AVAILABILITY).getWeight() / 100;
+			}
+		}	
 		setUtility(utility);
 	}
 
