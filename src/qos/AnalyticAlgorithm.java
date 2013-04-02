@@ -42,7 +42,6 @@ public class AnalyticAlgorithm extends Algorithm {
 	
 	@Override
 	public void start(JProgressBar progressBar) {
-//		printInputData();
 		runtime = System.currentTimeMillis();
 		// DO COMPLETE ENUMERATION.
 		for (int i = 0; i < serviceClassesList.get(0).
@@ -54,9 +53,12 @@ public class AnalyticAlgorithm extends Algorithm {
 			//progressBar.setValue((int) Math.round((
 			//		(double) (i + 1) / ((double) serviceClassesList.get(
 			//				0).getServiceCandidateList().size())) * 100));
-		}		
+		}	
+		for (int count = 0; 
+				count < algorithmSolutionTiers.size(); count++) {
+			algorithmSolutionTiers.get(count).setTierTitle(count + 1);
+		} 
 		runtime = System.currentTimeMillis() - runtime;
-//		buildSolutionTiers();
 	}
 	
 	// ENUMERATION
@@ -159,8 +161,15 @@ public class AnalyticAlgorithm extends Algorithm {
 		else {
 			List<Composition> newTier = new LinkedList<Composition>();
 			newTier.add(newComposition);
-			algorithmSolutionTiers.add(new AlgorithmSolutionTier(newTier, 
-					algorithmSolutionTiers.size() + 1));
+			int tierRank = 0;
+			for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
+				if (newComposition.getUtility() < 
+						tier.getServiceCompositionList().get(0).getUtility()) {
+					tierRank++;
+				}
+			}
+			algorithmSolutionTiers.add(tierRank, new AlgorithmSolutionTier(
+					newTier, tierRank + 1));
 		}
 	}
 			

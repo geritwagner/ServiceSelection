@@ -53,8 +53,9 @@ public class GeneticAlgorithm extends Algorithm {
 
 	@Override
 	public void start(JProgressBar progressBar) {
-		List<Composition> population = generateInitialPopulation();
 		runtime = System.currentTimeMillis();
+		List<Composition> population = generateInitialPopulation();
+		System.out.println(population.size());
 		terminationCounter = terminationCriteria;
 		updateAlgorithmSolutionTiers(population);
 		
@@ -109,6 +110,9 @@ public class GeneticAlgorithm extends Algorithm {
 			else {
 
 			}
+		}
+		for (int count = 0; count < algorithmSolutionTiers.size(); count++) {
+			algorithmSolutionTiers.get(count).setTierTitle(count + 1);
 		}
 		runtime = System.currentTimeMillis() - runtime;
 
@@ -236,17 +240,10 @@ public class GeneticAlgorithm extends Algorithm {
 			serviceClassesList.size(); innerCount++) {
 				// PROBABILITY = (1 / NUMBER OF ALL SERVICE CLASSES)
 				if (Math.random() < (1.0 / serviceClassesList.size())) {
-					double random = Math.random();
-					// AVOID GETTING MAX_SIZE (OUT OF BOUNDS)
-					if (random * initialPopulation.size() == 
-						initialPopulation.size()) {
-						random -= 0.01;
-					}
 					// INSERT NEW RANDOMLY SELECTED SERVICE CANDIDATE
 					// AND REMOVE OLD SERVICE CANDIDATE
 					initialPopulation.get(count).getServiceCandidatesList().
-					set(innerCount, initialPopulation.get((int)(random * 
-							initialPopulation.size())).
+					set(innerCount,getRandomComposition(initialPopulation).
 							getServiceCandidatesList().get(innerCount));
 				}
 			}
@@ -256,8 +253,7 @@ public class GeneticAlgorithm extends Algorithm {
 	
 	private List<Composition> doOnePointCrossover(
 			List<Composition> population) {
-		List<Composition> newPopulation = 
-			new LinkedList<Composition>();
+		List<Composition> newPopulation = new LinkedList<Composition>();
 		while (population.size() > 0) {
 			if (population.size() == 1) {
 				newPopulation.add(population.get(0));
@@ -290,10 +286,8 @@ public class GeneticAlgorithm extends Algorithm {
 				newServiceCandidateList_2.add(composition_1.
 						getServiceCandidatesList().get(count));
 			}
-			composition_1.setServiceCandidateList(
-					newServiceCandidateList_1);
-			composition_2.setServiceCandidateList(
-					newServiceCandidateList_2);
+			composition_1.setServiceCandidateList(newServiceCandidateList_1);
+			composition_2.setServiceCandidateList(newServiceCandidateList_2);
 			newPopulation.add(composition_1);
 			newPopulation.add(composition_2);
 		}
@@ -351,10 +345,8 @@ public class GeneticAlgorithm extends Algorithm {
 				newServiceCandidateList_2.add(composition_2.
 						getServiceCandidatesList().get(count));
 			}
-			composition_1.setServiceCandidateList(
-					newServiceCandidateList_1);
-			composition_2.setServiceCandidateList(
-					newServiceCandidateList_2);
+			composition_1.setServiceCandidateList(newServiceCandidateList_1);
+			composition_2.setServiceCandidateList(newServiceCandidateList_2);
 			newPopulation.add(composition_1);
 			newPopulation.add(composition_2);
 		}
@@ -398,10 +390,8 @@ public class GeneticAlgorithm extends Algorithm {
 							get(count));
 				}
 			}
-			composition_1.setServiceCandidateList(
-					newServiceCandidateList_1);
-			composition_2.setServiceCandidateList(
-					newServiceCandidateList_2);
+			composition_1.setServiceCandidateList(newServiceCandidateList_1);
+			composition_2.setServiceCandidateList(newServiceCandidateList_2);
 			newPopulation.add(composition_1);
 			newPopulation.add(composition_2);
 		}
@@ -484,10 +474,8 @@ public class GeneticAlgorithm extends Algorithm {
 					numberOfNonMatchingCandidates--;
 				}
 			}
-			composition_1.setServiceCandidateList(
-					newServiceCandidateList_1);
-			composition_2.setServiceCandidateList(
-					newServiceCandidateList_2);
+			composition_1.setServiceCandidateList(newServiceCandidateList_1);
+			composition_2.setServiceCandidateList(newServiceCandidateList_2);
 			newPopulation.add(composition_1);
 			newPopulation.add(composition_2);
 		}
@@ -562,6 +550,9 @@ public class GeneticAlgorithm extends Algorithm {
 					if (tier.getServiceCompositionList().get(0).getUtility() > 
 					newComposition.getUtility()) {
 						tierRank++;
+						if (tierRank >= numberOfRequestedResultTiers) {
+							break;
+						}
 					}
 					else if (tier.getServiceCompositionList().get(0).
 							getUtility() == newComposition.getUtility()) {
@@ -573,9 +564,6 @@ public class GeneticAlgorithm extends Algorithm {
 					algorithmSolutionTiers.get(tierRank).
 					getServiceCompositionList().add(newComposition);
 				}
-				else if (tierRank > 2) {
-					break;
-				}
 				else {
 					List<Composition> newEntry = new LinkedList<Composition>();
 					newEntry.add(newComposition);
@@ -585,11 +573,6 @@ public class GeneticAlgorithm extends Algorithm {
 					numberOfRequestedResultTiers) {
 						algorithmSolutionTiers.remove(
 								algorithmSolutionTiers.size() - 1);
-					}
-					for (int count = tierRank; 
-					count < algorithmSolutionTiers.size(); count++) {
-						algorithmSolutionTiers.get(count).setTierTitle(
-								tierRank + 1);
 					}
 				}	
 			}	
