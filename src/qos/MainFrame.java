@@ -2365,7 +2365,7 @@ public class MainFrame extends JFrame {
 		}
 		antAlgorithm = new AntAlgorithm(
 				serviceClassesList, serviceCandidatesList, constraintsMap,
-				qosMax, qosMin, iterations, ants, alpha, beta,
+				iterations, ants, alpha, beta,
 				dilution, piInit);
 		antAlgorithm.start(jProgressBarAntAlgorithm);        
 		long runtime = antAlgorithm.getRuntime();

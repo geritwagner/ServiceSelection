@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.swing.JProgressBar;
 
+// TODO: TEST RECOMBINATION METHODS!
+
 public class GeneticAlgorithm extends Algorithm {
 	
 	private List<ServiceClass> serviceClassesList;
@@ -21,9 +23,8 @@ public class GeneticAlgorithm extends Algorithm {
 	private String geneticOperators;
 	private String chosenTerminationMethod;
 	
+	private int maxInitialPopulationSize = 1;
 	
-	
-	private List<Composition> compositionsList = new LinkedList<Composition>();
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
 	
@@ -43,6 +44,11 @@ public class GeneticAlgorithm extends Algorithm {
 		this.terminationCriteria = terminationCriteria;
 		this.geneticOperators = geneticOperators;
 		this.chosenTerminationMethod = chosenTerminationCriteria;
+		for (ServiceClass serviceClass : serviceClassesList) {
+			maxInitialPopulationSize *= 
+					serviceClass.getServiceCandidateList().size();
+		}
+		
 	}
 
 	@Override
@@ -67,10 +73,10 @@ public class GeneticAlgorithm extends Algorithm {
 				population = doTwoPointCrossover(population);
 			}
 			else if (geneticOperators.contains("Half-Uniform")) {
-				// INSERT FUNCTION
+				population = doHalfUniformCrossover(population);
 			}
 			else {
-				// INSERT FUNCTION
+				population = doUniformCrossover(population);
 			}
 			
 			// SELECTION
@@ -99,18 +105,30 @@ public class GeneticAlgorithm extends Algorithm {
 				}
 			}
 			// TODO: IMPLEMENT MIN IMPROVEMENT METHOD
+			// -> COULD NEED MUCH WORK...
 			else {
-				
+
 			}
 		}
 		runtime = System.currentTimeMillis() - runtime;
-		
+
 	}
-		
-	// TODO: IF INITIALPOPULATIONSIZE > 50% 
-	//        -> DO ENUMERATION AND SELECT RANDOMLY
+
+	// TODO: WHICH METHOD FOR GENERATING THE INITIAL POPULATION
+	//       IS BETTER?
 	private List<Composition> generateInitialPopulation() {
-		
+		if (initialPopulationSize > 50) {
+			List<Composition> initialPopulation = 
+					new LinkedList<Composition>();
+			for (int i = 0; i < serviceClassesList.get(0).
+					getServiceCandidateList().size(); i++) {
+				doCompleteEnumeration(new Composition(
+						new LinkedList<ServiceCandidate>(), 
+						new QosVector(), 0.0), 
+						0, i, initialPopulation);
+			}
+			return initialPopulation;
+		}
 		// GET THE NUMBER OF ALL POSSIBLE COMPOSITIONS 
 		// WITH RESPECT TO THE GIVEN CONSTRAINTS (NOT DONE)
 		int maxSize = 1;
@@ -125,7 +143,7 @@ public class GeneticAlgorithm extends Algorithm {
 		List<Composition> initialPopulation = new LinkedList<Composition>();
 		for (int count = 0; count < sizeOfInitialPopulation; count++) {
 			List<ServiceCandidate> chosenServiceCandidatesList = 
-				new LinkedList<ServiceCandidate>();
+					new LinkedList<ServiceCandidate>();
 			QosVector qosVector = new QosVector();
 			for (int innerCount = 0; 
 					innerCount < serviceClassesList.size(); innerCount++) {
@@ -138,7 +156,7 @@ public class GeneticAlgorithm extends Algorithm {
 						numberOfServiceCandidates) {
 					random -= 0.01;
 				}
-				
+
 				chosenServiceCandidatesList.add(serviceClassesList.get(
 						innerCount).getServiceCandidateList().get(
 								(int) (random * numberOfServiceCandidates)));
@@ -247,16 +265,8 @@ public class GeneticAlgorithm extends Algorithm {
 			}	
 			Composition composition_1 = population.get(0);
 			population.remove(composition_1);
-			double random = Math.random();
-			// AVOID GETTING MAX_SIZE (OUT OF BOUNDS)
-			if (random * serviceClassesList.size() == 
-					serviceClassesList.size()) {
-				random -= 0.01;
-			}
-			
 			// SELECT 2ND COMPOSITION RANDOMLY
-			Composition composition_2 = population.get(
-					(int)(random * population.size()));
+			Composition composition_2 = getRandomComposition(population);
 			population.remove(composition_2);
 			List<ServiceCandidate> newServiceCandidateList_1 = 
 				new LinkedList<ServiceCandidate>();
@@ -291,8 +301,7 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	private List<Composition> doTwoPointCrossover(
 			List<Composition> population) {
-		List<Composition> newPopulation = 
-			new LinkedList<Composition>();
+		List<Composition> newPopulation = new LinkedList<Composition>();
 		while (population.size() > 0) {
 			if (population.size() == 1) {
 				newPopulation.add(population.get(0));
@@ -300,23 +309,15 @@ public class GeneticAlgorithm extends Algorithm {
 			}	
 			Composition composition_1 = population.get(0);
 			population.remove(composition_1);
-			double random = Math.random();
-			// AVOID GETTING MAX_SIZE (OUT OF BOUNDS)
-			if (random * serviceClassesList.size() == 
-				serviceClassesList.size()) {
-				random -= 0.01;
-			}
-			
 			// SELECT 2ND COMPOSITION RANDOMLY
-			Composition composition_2 = population.get(
-					(int)(random * population.size()));
+			Composition composition_2 = getRandomComposition(population);
 			population.remove(composition_2);
 			List<ServiceCandidate> newServiceCandidateList_1 = 
 				new LinkedList<ServiceCandidate>();
 			List<ServiceCandidate> newServiceCandidateList_2 = 
 				new LinkedList<ServiceCandidate>();
 
-			// SELECT CROSSOVER POINT RANDOMLY
+			// SELECT CROSSOVER POINTS RANDOMLY
 			int crossoverPoint = 
 				(int) (Math.random() * serviceClassesList.size());
 			int crossoverPoint_2 = 
@@ -359,16 +360,139 @@ public class GeneticAlgorithm extends Algorithm {
 		}
 		return newPopulation;
 	}
+
+	private List<Composition> doUniformCrossover(
+			List<Composition> population) {
+		List<Composition> newPopulation = new LinkedList<Composition>();
+		while (population.size() > 0) {
+			if (population.size() == 1) {
+				newPopulation.add(population.get(0));
+				break;
+			}	
+			Composition composition_1 = population.get(0);
+			population.remove(composition_1);
+			// SELECT 2ND COMPOSITION RANDOMLY
+			Composition composition_2 = getRandomComposition(population);
+			population.remove(composition_2);
+			List<ServiceCandidate> newServiceCandidateList_1 = 
+					new LinkedList<ServiceCandidate>();
+			List<ServiceCandidate> newServiceCandidateList_2 = 
+					new LinkedList<ServiceCandidate>();
+			for (int count = 0; 
+					count < composition_1.getServiceCandidatesList().size(); 
+					count++) {
+				if (Math.random() > 0.5) {
+					newServiceCandidateList_1.add(
+							composition_1.getServiceCandidatesList().
+							get(count));
+					newServiceCandidateList_2.add(
+							composition_2.getServiceCandidatesList().
+							get(count));
+				}
+				else {
+					newServiceCandidateList_1.add(
+							composition_2.getServiceCandidatesList().
+							get(count));
+					newServiceCandidateList_2.add(
+							composition_1.getServiceCandidatesList().
+							get(count));
+				}
+			}
+			composition_1.setServiceCandidateList(
+					newServiceCandidateList_1);
+			composition_2.setServiceCandidateList(
+					newServiceCandidateList_2);
+			newPopulation.add(composition_1);
+			newPopulation.add(composition_2);
+		}
+		return newPopulation;
+	}
 	
-	// TODO: IMPLEMENT RECOMBINATION METHODS
-//	private List<Composition> doUniformCrossover(
-//			List<Composition> population) {
-//		return null;
-//	}
-//	private List<Composition> doHalfUniformCrossover(
-//			List<Composition> population) {
-//		return null;
-//	}
+	private List<Composition> doHalfUniformCrossover(
+			List<Composition> population) {
+		List<Composition> newPopulation = new LinkedList<Composition>();
+		while (population.size() > 0) {
+			if (population.size() == 1) {
+				newPopulation.add(population.get(0));
+				break;
+			}
+			Composition composition_1 = population.get(0);
+			population.remove(composition_1);
+			// SELECT 2ND COMPOSITION RANDOMLY
+			Composition composition_2 = getRandomComposition(population);
+			population.remove(composition_2);
+			int numberOfNonMatchingCandidates = 0;
+			for (int count = 0; 
+					count < composition_1.getServiceCandidatesList().size(); 
+					count++) {
+				if (!composition_1.getServiceCandidatesList().get(count).
+						equals(composition_2.getServiceCandidatesList().
+								get(count))) {
+					numberOfNonMatchingCandidates++;
+				}
+			}
+			int numberOfChangedCandidates = 0;
+			int numberOfCandidatesWhichHaveToBeChanged = 
+					(int) Math.round(numberOfNonMatchingCandidates / 2.0);
+			List<ServiceCandidate> newServiceCandidateList_1 = 
+					new LinkedList<ServiceCandidate>();
+			List<ServiceCandidate> newServiceCandidateList_2 = 
+					new LinkedList<ServiceCandidate>();
+			for (int count = 0; 
+					count < composition_1.getServiceCandidatesList().size(); 
+					count++) {
+				if (composition_1.getServiceCandidatesList().get(count).
+						equals(composition_2.getServiceCandidatesList().
+								get(count))) {
+					newServiceCandidateList_1.add(
+							composition_1.getServiceCandidatesList().
+							get(count));
+					newServiceCandidateList_2.add(
+							composition_2.getServiceCandidatesList().
+							get(count));
+				}
+				else {
+					if (numberOfNonMatchingCandidates - 
+							numberOfChangedCandidates <= 
+							numberOfCandidatesWhichHaveToBeChanged) {
+						newServiceCandidateList_1.add(
+								composition_2.getServiceCandidatesList().
+								get(count));
+						newServiceCandidateList_2.add(
+								composition_1.getServiceCandidatesList().
+								get(count));
+					}
+					else {
+						if (Math.random() > 0.5) {
+							newServiceCandidateList_1.add(
+									composition_2.getServiceCandidatesList().
+									get(count));
+							newServiceCandidateList_2.add(
+									composition_1.getServiceCandidatesList().
+									get(count));
+							numberOfChangedCandidates++;
+						}
+						else {
+							newServiceCandidateList_1.add(
+									composition_1.getServiceCandidatesList().
+									get(count));
+							newServiceCandidateList_2.add(
+									composition_2.getServiceCandidatesList().
+									get(count));
+						}
+					}
+					numberOfNonMatchingCandidates--;
+				}
+			}
+			composition_1.setServiceCandidateList(
+					newServiceCandidateList_1);
+			composition_2.setServiceCandidateList(
+					newServiceCandidateList_2);
+			newPopulation.add(composition_1);
+			newPopulation.add(composition_2);
+		}
+		return newPopulation;
+	}
 	
 	private double computeFitness(ServiceCandidate candidate) {
 		double fitness = 0.0;
@@ -532,6 +656,83 @@ public class GeneticAlgorithm extends Algorithm {
 		
 		return aggregatedFitness /= numberOfServiceCandidates;
 	}
+	
+	private Composition getRandomComposition(List<Composition> population) {
+		double random = Math.random();
+		// AVOID GETTING MAX_SIZE (OUT OF BOUNDS)
+		if (random * serviceClassesList.size() == 
+				serviceClassesList.size()) {
+			random -= 0.01;
+		}
+		// SELECT 2ND COMPOSITION RANDOMLY
+		return population.get((int)(random * population.size()));
+	}
+	
+	// COPY/PASTE FROM OLD ANALYTIC ALGORITHM
+	// COMPLETE ENUMERATION.
+	private void doCompleteEnumeration(Composition composition, 
+			int serviceClassNumber, int serviceCandidateNumber, 
+			List<Composition> compositionsList) {
+		composition = forward(composition, serviceClassNumber, 
+				serviceCandidateNumber);
+		if (composition != null) {
+			if (composition.getServiceCandidatesList().size() == 
+					serviceClassesList.size()) {
+				List<ServiceCandidate> serviceCandidatesListNew = 
+						new LinkedList<ServiceCandidate>();
+				serviceCandidatesListNew.addAll(
+						composition.getServiceCandidatesList());
+				QosVector qos = composition.getQosVectorAggregated();
+				QosVector qosVectorNew = new QosVector(qos.getCosts(), 
+						qos.getResponseTime(), qos.getAvailability());
+				maxInitialPopulationSize--;
+				if (maxInitialPopulationSize - compositionsList.size() <= 
+						initialPopulationSize * maxInitialPopulationSize) {
+					compositionsList.add(new Composition(
+							serviceCandidatesListNew, 
+							qosVectorNew, 0.0));
+				}
+				else if (Math.random() > 0.5) {
+					compositionsList.add(new Composition(
+							serviceCandidatesListNew, 
+							qosVectorNew, 0.0));
+				}
+				if (compositionsList.size() == 
+						initialPopulationSize * maxInitialPopulationSize) {
+					return;
+				}
+
+			}
+			else {
+				serviceClassNumber++;
+				for (int i = 0; i < serviceClassesList.get(
+						serviceClassNumber).getServiceCandidateList().
+						size(); i++) {
+					doCompleteEnumeration(composition, 
+							serviceClassNumber, i, compositionsList);
+				}
+			}
+			composition = backward(composition);
+			serviceClassNumber--;
+		}
+		return;
+	}
+
+	private Composition forward(Composition composition, 
+			int serviceClassNumber, int serviceCandidateNumber) {
+		ServiceClass serviceClass = 
+				serviceClassesList.get(serviceClassNumber);
+		ServiceCandidate serviceCandidate = 
+				serviceClass.getServiceCandidateList().get(
+						serviceCandidateNumber);
+		composition.addServiceCandidate(serviceCandidate);
+		return composition;
+	}
+
+	private Composition backward(Composition composition) {
+		composition.removeServiceCandidate();
+		return composition;
+	}
 
 	// GETTERS AND SETTERS
 	public List<ServiceClass> getServiceClassesList() {
@@ -552,12 +753,6 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	public void setConstraintList(Map<String, Constraint> constraintsMap) {
 		this.constraintsMap = constraintsMap;
-	}
-	public List<Composition> getCompositionsList() {
-		return compositionsList;
-	}
-	public void setCompositionsList(List<Composition> compositionsList) {
-		this.compositionsList = compositionsList;
 	}
 	public List<AlgorithmSolutionTier> getAlgorithmSolutionTiers() {
 		return algorithmSolutionTiers;

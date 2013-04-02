@@ -63,8 +63,6 @@ public class AnalyticAlgorithm extends Algorithm {
 	// TODO: [MAYBE] DO NOT CONSIDER PATHS THAT VIOLATE ANY CONSTRAINTS
 	//		 ANYMORE. (OPTIMIZATION THAT COULD RESULT IN SOME WORK! AND 
 	//		 ACTUALLY, IT WOULDN'T BE A COMPLETE ENUMERATION ANYMORE!)
-	// TODO: INSERT ALGORITHMSOLUTIONTIERS 
-	//       (-> PRINTVALIDCOMPOSITIONS)
 	private void doCompleteEnumeration(Composition composition, 
 			int serviceClassNumber, int serviceCandidateNumber) {
 		composition = forward(composition, serviceClassNumber, 
@@ -131,7 +129,7 @@ public class AnalyticAlgorithm extends Algorithm {
 		
 		// TODO: Was macht diese for-Schleife? Die if-Abfrage lieferte in 
 		//		 keinem meiner Tests ein "true".
-		//	-> wird benötigt, um im sehr unwahrscheinlichen Fall, 
+		//	-> wird benötigt, damit im sehr unwahrscheinlichen Fall, 
 		//	   dass 2 Utility-Werte gleich sind, die zugehörigen 
 		//     Kompositionen in den gleichen Tier eingeordnet werden
 		for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
