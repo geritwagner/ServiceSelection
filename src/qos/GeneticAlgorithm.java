@@ -1,5 +1,6 @@
 package qos;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +21,6 @@ public class GeneticAlgorithm extends Algorithm {
 	private String geneticOperators;
 	private String chosenTerminationMethod;
 	
-	private QosVector qosMax;
-	private QosVector qosMin;
-	
 	
 	
 	private List<Composition> compositionsList = new LinkedList<Composition>();
@@ -36,8 +34,7 @@ public class GeneticAlgorithm extends Algorithm {
 			Map<String, Constraint> constraintsMap, 
 			int numberOfRequestedResultTiers, double initialPopulationSize,
 			int terminationCriteria, String geneticOperators, 
-			String chosenTerminationCriteria, QosVector qosMax,
-			QosVector qosMin) {
+			String chosenTerminationCriteria) {
 		this.serviceClassesList = serviceClassesList;
 		this.serviceCandidatesList = serviceCandidatesList;
 		this.constraintsMap = constraintsMap;
@@ -46,8 +43,6 @@ public class GeneticAlgorithm extends Algorithm {
 		this.terminationCriteria = terminationCriteria;
 		this.geneticOperators = geneticOperators;
 		this.chosenTerminationMethod = chosenTerminationCriteria;
-		this.qosMax = qosMax;
-		this.qosMin = qosMin;
 	}
 
 	@Override
@@ -55,6 +50,7 @@ public class GeneticAlgorithm extends Algorithm {
 		List<Composition> population = generateInitialPopulation();
 		runtime = System.currentTimeMillis();
 		terminationCounter = terminationCriteria;
+		updateAlgorithmSolutionTiers(population);
 		
 		while (terminationCounter > 0) {
 //			printCurrentPopulation(population);
@@ -108,11 +104,6 @@ public class GeneticAlgorithm extends Algorithm {
 			}
 		}
 		runtime = System.currentTimeMillis() - runtime;
-		for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
-			for (Composition composition : tier.getServiceCompositionList()) {
-				composition.computeUtilityValue();
-			}
-		}
 		
 	}
 		
@@ -139,9 +130,15 @@ public class GeneticAlgorithm extends Algorithm {
 			QosVector qosVector = new QosVector();
 			for (int innerCount = 0; 
 					innerCount < serviceClassesList.size(); innerCount++) {
+				double random = Math.random();
+				// AVOID GETTING MAX_SIZE (OUT OF BOUNDS)
+				if (random * serviceCandidatesList.size() == 
+						serviceCandidatesList.size()) {
+					random -= 0.01;
+				}
 				chosenServiceCandidatesList.add(serviceClassesList.get(
 						innerCount).getServiceCandidateList().get(
-								(int) (Math.random() * 
+								(int) (random * 
 										serviceCandidatesList.size() / 
 										serviceClassesList.size())));
 				qosVector.addCosts(
@@ -251,6 +248,10 @@ public class GeneticAlgorithm extends Algorithm {
 			population.remove(composition_1);
 			double random = Math.random();
 			// AVOID GETTING MAX_SIZE (OUT OF BOUNDS)
+			if (random * serviceClassesList.size() == 
+					serviceClassesList.size()) {
+				random -= 0.01;
+			}
 			
 			// SELECT 2ND COMPOSITION RANDOMLY
 			Composition composition_2 = population.get(
@@ -260,12 +261,7 @@ public class GeneticAlgorithm extends Algorithm {
 				new LinkedList<ServiceCandidate>();
 			List<ServiceCandidate> newServiceCandidateList_2 = 
 				new LinkedList<ServiceCandidate>();
-			random = Math.random();
-			// AVOID GETTING MAX_SIZE (OUT OF BOUNDS)
-			if (random * serviceClassesList.size() == 
-				serviceClassesList.size()) {
-				random -= 0.01;
-			}
+			
 			// SELECT CROSSOVER POINT RANDOMLY
 			int crossoverPoint = 
 				(int) (Math.random() * serviceClassesList.size());
@@ -411,61 +407,89 @@ public class GeneticAlgorithm extends Algorithm {
 	// TODO: TIER BUILDING DEPENDS ON UTILITY VALUE (?)
 	private void updateAlgorithmSolutionTiers(
 			List<Composition> newPopulation) {
-		for (Composition composition : newPopulation) {
-			if (!composition.isWithinConstraints(constraintsMap)) {
-				return;
+		List<Composition> differentSolutions = new LinkedList<Composition>(
+				getDifferentSolutions(newPopulation));
+		for (Composition composition : differentSolutions) {
+			boolean isNewComposition = true;
+			for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
+				if (tier.getServiceCompositionList().contains(composition)) {
+					isNewComposition = false;
+					break;
+				}
 			}
-			composition.computeUtilityValue();
-			boolean equalValues = false;
-			int compositionRank = 0;
-			if (algorithmSolutionTiers.size() == 0) {
-				List<Composition> newTier = new LinkedList<Composition>();
-				newTier.add(composition);
-				algorithmSolutionTiers.add(compositionRank, 
-						new AlgorithmSolutionTier(newTier, compositionRank));
-				continue;
-			}
-			else if (algorithmSolutionTiers.size() < 
-					numberOfRequestedResultTiers) {
+			if (isNewComposition) {
+				List<ServiceCandidate> serviceCandidates = 
+					new LinkedList<ServiceCandidate>(
+							composition.getServiceCandidatesList());						
+				Collections.copy(serviceCandidates, 
+						composition.getServiceCandidatesList());
+				Composition newComposition = new Composition();
+				newComposition.setServiceCandidateList(serviceCandidates);
+				newComposition.setQosVectorAggregated(new QosVector(
+						composition.getQosVectorAggregated().getCosts(), 
+						composition.getQosVectorAggregated().getResponseTime(), 
+						composition.getQosVectorAggregated().getAvailability())
+				);
+				newComposition.computeUtilityValue();
+				int tierRank = 0;
+				boolean equalValues = false;
 				for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
-					if (composition.getUtility() == tier.
-							getServiceCompositionList().get(0).getUtility()) {
-						tier.getServiceCompositionList().add(composition);
+					if (tier.getServiceCompositionList().get(0).getUtility() > 
+					newComposition.getUtility()) {
+						tierRank++;
+					}
+					else if (tier.getServiceCompositionList().get(0).
+							getUtility() == newComposition.getUtility()) {
 						equalValues = true;
 						break;
 					}
 				}
-				if (!equalValues) {
-					List<Composition> newTier = new LinkedList<Composition>();
-					newTier.add(composition);
-					algorithmSolutionTiers.add(compositionRank, 
-							new AlgorithmSolutionTier(
-									newTier, compositionRank));
+				if (equalValues) {
+					algorithmSolutionTiers.get(tierRank).
+					getServiceCompositionList().add(newComposition);
 				}
-				continue;
+				else if (tierRank > 2) {
+					break;
+				}
+				else {
+					List<Composition> newEntry = new LinkedList<Composition>();
+					newEntry.add(newComposition);
+					algorithmSolutionTiers.add(tierRank, 
+							new AlgorithmSolutionTier(newEntry, tierRank + 1));
+					if (algorithmSolutionTiers.size() > 
+					numberOfRequestedResultTiers) {
+						algorithmSolutionTiers.remove(
+								algorithmSolutionTiers.size() - 1);
+					}
+					for (int count = tierRank; 
+					count < algorithmSolutionTiers.size(); count++) {
+						algorithmSolutionTiers.get(count).setTierTitle(
+								tierRank + 1);
+					}
+				}	
+			}	
+		}
+	}
+	
+	private List<Composition> getDifferentSolutions(
+			List<Composition> population) {
+		List<Composition> differentSolutions = new LinkedList<Composition>();
+		for (int count = 0; count < population.size(); count++) {
+			boolean newComposition = true;
+			for (int innerCount = 0; innerCount < population.size(); 
+			innerCount++) {
+				if (innerCount != count && 
+						population.get(count).equals(
+								population.get(innerCount))) {
+					newComposition = false;
+					break;
+				}
 			}
-			for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
-				if (composition.getUtility() > 
-						tier.getServiceCompositionList().get(0).getUtility()) {
-					compositionRank++;
-				}
-				else if (composition.getUtility() > 
-				tier.getServiceCompositionList().get(0).getUtility()) {
-					tier.getServiceCompositionList().add(composition);
-					equalValues = true;
-				}
-			}
-			if (compositionRank < numberOfRequestedResultTiers && 
-					!equalValues) {
-				List<Composition> newTier = new LinkedList<Composition>();
-				newTier.add(composition);
-				algorithmSolutionTiers.add(compositionRank, 
-						new AlgorithmSolutionTier(newTier, compositionRank));
-				algorithmSolutionTiers.remove(
-						algorithmSolutionTiers.size() - 1);
-				
+			if (newComposition) {
+				differentSolutions.add(population.get(count));
 			}
 		}
+		return differentSolutions;
 	}
 	
 	private double computeDistanceToConstraints(Composition composition) {
@@ -506,33 +530,6 @@ public class GeneticAlgorithm extends Algorithm {
 		}
 		
 		return aggregatedFitness /= numberOfServiceCandidates;
-	}
-	
-	private void printCurrentPopulation(
-			List<Composition> population) {
-		for (Composition composition : population) {
-			System.out.println(composition.getServiceCandidatesAsString());
-		}
-		System.out.println("\n");
-	}
-	
-	private double computeUtilityValue(Composition composition) {
-		double utility = 0.0;
-		if (constraintsMap.get(Constraint.COSTS) != null) {
-			utility += constraintsMap.get(Constraint.COSTS).
-			getWeight() * composition.getQosVectorAggregated().getCosts();
-		}
-		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null) {
-			utility += constraintsMap.get(Constraint.RESPONSE_TIME).
-			getWeight() * composition.getQosVectorAggregated().
-			getResponseTime();
-		}
-		if (constraintsMap.get(Constraint.AVAILABILITY) != null) {
-			utility += constraintsMap.get(Constraint.AVAILABILITY).
-			getWeight() * composition.getQosVectorAggregated().
-			getAvailability();
-		}
-		return utility;
 	}
 
 	// GETTERS AND SETTERS

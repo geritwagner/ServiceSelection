@@ -71,28 +71,8 @@ public class AnalyticAlgorithm extends Algorithm {
 				serviceCandidateNumber);
 		if (composition != null) {
 			if (isComplete(composition)) {
-				if (isWithinConstraints(composition)) {
+				if (composition.isWithinConstraints(constraintsMap)) {
 					changeAlgorithmSolutionTiers(composition);
-					
-					// TODO: Braucht man das noch?
-//					if (isNewOptimalComposition(composition)) {
-//						List<ServiceCandidate> tempServiceCandidatesList = 
-//								new LinkedList<ServiceCandidate>(
-//										composition.
-//										getServiceCandidatesList());						
-//						Collections.copy(tempServiceCandidatesList, 
-//								composition.getServiceCandidatesList());
-//						QosVector qos = new QosVector(
-//								composition.getQosVectorAggregated().
-//								getCosts(),
-//								composition.getQosVectorAggregated().
-//								getResponseTime(),
-//								composition.getQosVectorAggregated().
-//								getAvailability());
-//						optimalComposition = new Composition(
-//								tempServiceCandidatesList,
-//								qos, composition.getUtility());
-//					}
 				}
 			}
 			else {
@@ -135,51 +115,6 @@ public class AnalyticAlgorithm extends Algorithm {
 		}
 	}
 	
-	// TODO: Funktion aus Klasse Composition verwenden!
-	private boolean isWithinConstraints(Composition composition) {
-		boolean isWithinConstraints = true;
-		QosVector qosVector = composition.getQosVectorAggregated();
-		Constraint costs = constraintsMap.get(Constraint.COSTS);
-		Constraint responseTime = constraintsMap.get(Constraint.RESPONSE_TIME);
-		Constraint availability = constraintsMap.get(Constraint.AVAILABILITY);
-		if (costs != null && qosVector.getCosts() > costs.getValue()) {
-			isWithinConstraints = false;
-		}
-		if (responseTime != null && 
-				qosVector.getResponseTime() > responseTime.getValue()) {
-			isWithinConstraints = false;
-		}
-		if (availability != null && 
-				qosVector.getAvailability() < availability.getValue()) {
-			isWithinConstraints = false;
-		}
-		return isWithinConstraints;
-	}
-	
-	// TODO: Braucht man das noch?
-//	private boolean isNewOptimalComposition(Composition composition) {		
-//		double utility = 0;
-//		for (ServiceCandidate sc : composition.getServiceCandidatesList()) {
-//			QosVector qos = sc.getQosVector();
-//			utility += ((qosMax.getCosts() - qos.getCosts()) / 
-//					(qosMax.getCosts() - qosMin.getCosts())) * 
-//					constraintsMap.get(Constraint.COSTS).getWeight() / 100;
-//			utility += ((qosMax.getResponseTime() - qos.getResponseTime()) / 
-//					(qosMax.getResponseTime() - qosMin.getResponseTime())) * 
-//					constraintsMap.get(
-//							Constraint.RESPONSE_TIME).getWeight() / 100;
-//			utility += ((qos.getAvailability() - qosMin.getAvailability(
-//					)) / (qosMax.getAvailability() - qosMin.getAvailability(
-//							))) * constraintsMap.get(
-//									Constraint.AVAILABILITY).getWeight() / 100;
-//		}
-//		composition.setUtility(utility);
-//		if (composition.getUtility() > optimalComposition.getUtility()) {
-//			return true;
-//		}
-//		return false;
-//	}
-	
 	private void changeAlgorithmSolutionTiers(Composition composition) {
 		List<ServiceCandidate> serviceCandidates = 
 			new LinkedList<ServiceCandidate>(
@@ -196,6 +131,9 @@ public class AnalyticAlgorithm extends Algorithm {
 		
 		// TODO: Was macht diese for-Schleife? Die if-Abfrage lieferte in 
 		//		 keinem meiner Tests ein "true".
+		//	-> wird benötigt, um im sehr unwahrscheinlichen Fall, 
+		//	   dass 2 Utility-Werte gleich sind, die zugehörigen 
+		//     Kompositionen in den gleichen Tier eingeordnet werden
 		for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
 			if (tier.getServiceCompositionList().get(0).getUtility() == 
 				newComposition.getUtility()) {
@@ -227,19 +165,10 @@ public class AnalyticAlgorithm extends Algorithm {
 					algorithmSolutionTiers.size() + 1));
 		}
 	}
-	
-	// TODO: Braucht man das noch?
-//	private void buildSolutionTiers() {
-//		List<Composition> requestedCompositions = 
-//				new LinkedList<Composition>();
-//		requestedCompositions.add(optimalComposition);
-//		algorithmSolutionTiers.add(new AlgorithmSolutionTier(
-//				(LinkedList<Composition>) 
-//				requestedCompositions, 1));
-//	}
 			
 	
 	// TODO: Braucht man das noch?
+	// -> zu Testzwecken noch nicht entfernen!
 	// PRINT SERVICE CLASSES AND THEIR SERVICE CANDIDATES.
 //	private void printInputData() {
 //		for (ServiceClass serviceClass : serviceClassesList) {
@@ -251,59 +180,6 @@ public class AnalyticAlgorithm extends Algorithm {
 //		}
 //		System.out.println("\n\n");
 //	}
-	
-	
-	// TODO: Braucht man das noch?
-	/*
-	private void printValidCompositions() {
-		for (Composition composition : compositionsList) {
-			if (isWithinConstraints(composition)) {
-				if (numberOfRequestedResultTiers <= 
-					algorithmSolutionTiers.size()) {
-					for (int count = 0; count < algorithmSolutionTiers.size(
-							); count++) {
-						if (composition.getUtility() > 
-						algorithmSolutionTiers.get(
-								count).getServiceCompositionList().get(
-										0).getUtility()) {
-							List<Composition> requestedCompositions = 
-								new LinkedList<Composition>();
-							requestedCompositions.add(composition);
-							algorithmSolutionTiers.add(count, 
-									new AlgorithmSolutionTier(
-											(LinkedList<Composition>) 
-											requestedCompositions, count));
-							algorithmSolutionTiers.remove(
-									numberOfRequestedResultTiers);
-							break;
-						}
-						else if (composition.getUtility() == 
-						algorithmSolutionTiers.get(
-								count).getServiceCompositionList().get(
-										0).getUtility()) {
-							algorithmSolutionTiers.get(
-									count).getServiceCompositionList(
-											).add(composition);
-							break;
-						}
-					}
-				}
-				else {
-					List<Composition> requestedCompositions = 
-						new LinkedList<Composition>();
-					requestedCompositions.add(composition);
-					algorithmSolutionTiers.add(new AlgorithmSolutionTier(
-							(LinkedList<Composition>) 
-							requestedCompositions, 
-							algorithmSolutionTiers.size() + 1));
-				}
-//				System.out.println(composition.getServiceCandidatesAsString()
-//						+ "\t" + composition.getUtility() + "\t" + 
-//						composition.getQosVectorAggregated());
-			}
-		}
-	}
-	*/	
 
 	// GETTERS AND SETTERS
 	public List<ServiceClass> getServiceClassesList() {

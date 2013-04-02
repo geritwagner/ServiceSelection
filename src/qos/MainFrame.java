@@ -1511,13 +1511,10 @@ public class MainFrame extends JFrame {
 		jPanelGeneralResults.setLayout(gblJPanelGeneralResults);
 
 		String[][] generalResultsData = {
-				{"Runtime:", "x ms"},
-				{"Runtime (Gen Alg):", "x1 ms"},
-				{"Runtime (Ant Alg):", "x2 ms"},
-				{"Runtime (Analyt Alg):", "x3 ms"},
-				{"#Services Tier 1:", "y1"},
-				{"#Services Tier 2:", "y2"},
-				{"#Services Tier 3:", "y3"},
+				{"Runtime:", ""},
+				{"     Genetic Algorithm:", ""},
+				{"     Ant Algorithm:", ""},
+				{"     Analytic Algorithm:", ""}
 		};
 		String[] generalResultsColumnNames = {"Variable", "Value"};
 
@@ -1744,7 +1741,8 @@ public class MainFrame extends JFrame {
 		if (jCheckBoxAntColonyOptimization.isSelected()) {
 			doAntAlgorithm(constraintsMap);
 			cumulatedRuntime += antAlgorithm.getRuntime();
-		}  
+		} 
+		jTableGeneralResults.setValueAt(cumulatedRuntime + " ms", 0, 1);
 		buildResultTable();
 		jButtonVisualize.setEnabled(true);
 	}
@@ -2444,8 +2442,7 @@ public class MainFrame extends JFrame {
 				Integer.parseInt(jTextFieldStartPopulationSize.getText()), 
 				Integer.parseInt(jTextFieldStopCriterion.getText()),
 				((String) comboBoxRecombination.getSelectedItem()),
-				((String) comboBoxStopCriterion.getSelectedItem()), 
-				qosMax, qosMin);
+				((String) comboBoxStopCriterion.getSelectedItem()));
 		geneticAlgorithm.start(jProgressBarGeneticAlgorithm);
 		jTableGeneralResults.setValueAt(
 				geneticAlgorithm.getRuntime() + " ms", 1, 1);
