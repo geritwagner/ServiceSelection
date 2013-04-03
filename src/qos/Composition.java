@@ -75,19 +75,26 @@ public class Composition {
 		return serviceCandidates;
 	}
 	
-	// Compare two compositions by comparing the IDs of each of their 
-	// service candidates.
-	public boolean equals(Composition composition) {
+	// Compare two compositions by comparing the IDs of each of their 	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Composition other = (Composition) obj;
 		for (int count = 0; 
-			count < getServiceCandidatesList().size(); count++) {
-			if (getServiceCandidatesList().get(count).
-					getServiceCandidateId() != composition.
-					getServiceCandidatesList().get(count).
-					getServiceCandidateId()) {
-				return false;
+				count < getServiceCandidatesList().size(); count++) {
+				if (getServiceCandidatesList().get(count).
+						getServiceCandidateId() != other.
+						getServiceCandidatesList().get(count).
+						getServiceCandidateId()) {
+					return false;
+				}
 			}
-		}
-		return true;
+			return true;
 	}
 	
 	@Override

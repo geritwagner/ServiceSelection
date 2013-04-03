@@ -18,7 +18,6 @@ public class GeneticAlgorithm extends Algorithm {
 	private int numberOfRequestedResultTiers;
 	private double initialPopulationSize;
 	private int terminationCriteria;
-	private int terminationCounter;
 	
 	private String geneticOperators;
 	private String chosenTerminationMethod;
@@ -57,9 +56,7 @@ public class GeneticAlgorithm extends Algorithm {
 		List<Composition> population = generateInitialPopulation();
 		System.out.println(population.size());
 		
-		// TODO: Warum wird terminationCounter nicht lokal definiert? Wird 
-		//		 schließlich nur innerhalb von start() benötigt.
-		terminationCounter = terminationCriteria;
+		int terminationCounter = terminationCriteria;
 		updateAlgorithmSolutionTiers(population);
 		
 		while (terminationCounter > 0) {
@@ -118,6 +115,10 @@ public class GeneticAlgorithm extends Algorithm {
 		
 		// TODO: Für was ist denn das setTierTitle() gut? getTierTitle() wird 
 		//		 ja nie aufgerufen.
+		// -> wird benötigt, um die TierID korrekt zu setzen;
+		//	  diese wird bei Erstellung der ResultTables benötigt.
+		//	  Es reicht aus, dies ganz am Ende zu machen.
+		//    Aber: Funktion könnte in setTierId umbenannt werden.
 		for (int count = 0; count < algorithmSolutionTiers.size(); count++) {
 			algorithmSolutionTiers.get(count).setTierTitle(count + 1);
 		}
@@ -189,6 +190,21 @@ public class GeneticAlgorithm extends Algorithm {
 			//		 Einfach weglassen kann man diese Überprüfung hier aber 
 			//		 wohl auch nicht, da man sonst eine geringere Anzahl an 
 			//		 initialen Compositions bekommt.
+			/* -> contains() funktioniert vermutlich deshalb nicht, 
+				  weil die equals-Methode in Composition nicht 
+				  überschrieben worden ist. (wurde geändert, nicht getestet!)
+				  Der erste Aufruf von updateAlgorithmSolutionTiers()
+				  muss vorgenommen werden, da nach der ersten 
+				  Iteration des Algorithmus evtl. schon Lösungen
+				  ausgesiebt werden und somit keine Beachtung finden
+				  würden; dies ist problematisch, wenn nach dem 
+				  ersten Durchlauf nur noch 2 unterschiedliche 
+				  Kompositionen übrig wären, aber die 3 besten
+				  Lösungen gefordert werden.
+				  Aber ich gebe Dir recht - das geht besser.
+				  Der wiederholte Aufruf von 
+				  updateAlgorithmSolutionTiers() ist performanz-
+				  technisch suboptimal. */
 			if (chosenServiceCandidatesList.contains(composition)) {
 				count--;
 			}
@@ -539,6 +555,7 @@ public class GeneticAlgorithm extends Algorithm {
 	// TODO: TIER BUILDING DEPENDS ON UTILITY VALUE (?)
 	//		 --> Anders gesagt hängt es von der Fitness ab. Im Endeffekt ist es 
 	//			 aber (zumindest bei hohem Penalty Factor) das Gleiche. Oder?
+	//		 --> Seh ich auch so. Bin mir aber nicht ganz sicher.
 	private void updateAlgorithmSolutionTiers(
 			List<Composition> newPopulation) {
 		List<Composition> differentSolutions = new LinkedList<Composition>(
