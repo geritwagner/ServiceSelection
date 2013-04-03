@@ -16,7 +16,6 @@ public class AnalyticAlgorithm extends Algorithm {
 	private List<Composition> compositionsList = new LinkedList<Composition>();
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
-//	private Composition optimalComposition = null;
 	
 	private int numberOfRequestedResultTiers;
 	
@@ -36,23 +35,21 @@ public class AnalyticAlgorithm extends Algorithm {
 		this.serviceCandidatesList = serviceCandidatesList;
 		this.constraintsMap = constraintsMap;
 		this.numberOfRequestedResultTiers = numberOfRequestedResultTiers;
-//		this.optimalComposition = new Composition(
-//				new LinkedList<ServiceCandidate>(), new QosVector(), 0.0);
 	}
 	
 	@Override
 	public void start(JProgressBar progressBar) {
 		runtime = System.currentTimeMillis();
-		// DO COMPLETE ENUMERATION.
+		// Do complete enumeration.
 		for (int i = 0; i < serviceClassesList.get(0).
 				getServiceCandidateList().size(); i++) {
 			doCompleteEnumeration(new Composition(
 					new LinkedList<ServiceCandidate>(), new QosVector(), 0.0), 
 					0, i);
-			//TODO: PROGRESSBAR DOESN'T WORK CORRECTLY
-			//progressBar.setValue((int) Math.round((
-			//		(double) (i + 1) / ((double) serviceClassesList.get(
-			//				0).getServiceCandidateList().size())) * 100));
+			// TODO: ProgressBar doesn's work correctly.
+//			progressBar.setValue((int) Math.round((
+//					(double) (i + 1) / ((double) serviceClassesList.get(
+//							0).getServiceCandidateList().size())) * 100));
 		}	
 		for (int count = 0; 
 				count < algorithmSolutionTiers.size(); count++) {
@@ -62,9 +59,9 @@ public class AnalyticAlgorithm extends Algorithm {
 	}
 	
 	// ENUMERATION
-	// TODO: [MAYBE] DO NOT CONSIDER PATHS THAT VIOLATE ANY CONSTRAINTS
-	//		 ANYMORE. (OPTIMIZATION THAT COULD RESULT IN SOME WORK! AND 
-	//		 ACTUALLY, IT WOULDN'T BE A COMPLETE ENUMERATION ANYMORE!)
+	// TODO: [MAYBE] Do not consider paths that violate any constraints
+	//		 anymore. (Optimization that could result in some work! And 
+	//		 actually, it wouldn't be a complete enumeration anymore!)
 	private void doCompleteEnumeration(Composition composition, 
 			int serviceClassNumber, int serviceCandidateNumber) {
 		composition = forward(composition, serviceClassNumber, 
@@ -103,16 +100,14 @@ public class AnalyticAlgorithm extends Algorithm {
 		return composition;
 	}
 	
-	// CHECK IS DONE BY COMPARING THE SIZE OF THE COMPOSITION WITH THE NUMBER 
-	// OF AVAILABLE SERVICE CLASSES.
+	// Check is done by comparing the size of the composition with the number
+	// of available service classes.
 	private boolean isComplete(Composition composition) {
 		if (composition.getServiceCandidatesList().size() == 
 				serviceClassesList.size()) {
 			return true;
 		}
-		else {
-			return false;
-		}
+		return false;
 	}
 	
 	private void changeAlgorithmSolutionTiers(Composition composition) {
@@ -171,8 +166,8 @@ public class AnalyticAlgorithm extends Algorithm {
 	}
 			
 	
-	// PRINT SERVICE CLASSES AND THEIR SERVICE CANDIDATES.
-	// DO NOT REMOVE. MIGHT BE USEFUL FOR TESTS.
+	// Print service classes and their service candidates.
+	// Do not remove! Might be useful for tests!
 //	private void printInputData() {
 //		for (ServiceClass serviceClass : serviceClassesList) {
 //			System.out.println("\n" + serviceClass.getName());

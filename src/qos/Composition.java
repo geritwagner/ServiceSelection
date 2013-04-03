@@ -40,6 +40,9 @@ public class Composition {
 		qosVectorAggregated = new QosVector(costs, responseTime, availability);
 	}
 	
+	// Compute the composition's utility value as follows:
+	// - Sum up all utility values of the composition's service candidates
+	// - Devide this sum by the number of service candidates
 	public void computeUtilityValue() {
 		double utility = 0.0;
 		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
@@ -54,7 +57,7 @@ public class Composition {
 		qosVectorAggregated.add(serviceCandidate.getQosVector());
 	}
 	
-	// REMOVES THE LAST SERVICE CANDIDATE OF THE LIST.
+	// Remove the last service candidate from the list.
 	public void removeServiceCandidate() {
 		ServiceCandidate serviceCandidateRemoved = 
 				serviceCandidatesList.remove(serviceCandidatesList.size() - 1);
@@ -72,6 +75,8 @@ public class Composition {
 		return serviceCandidates;
 	}
 	
+	// Compare two compositions by comparing the IDs of each of their 
+	// service candidates.
 	public boolean equals(Composition composition) {
 		for (int count = 0; 
 			count < getServiceCandidatesList().size(); count++) {

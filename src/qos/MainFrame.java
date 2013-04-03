@@ -900,9 +900,9 @@ public class MainFrame extends JFrame {
 		jPanelGeneticAlgorithm.add(
 				jCheckboxGeneticAlgorithm, gbcJCheckboxGeneticAlgorithm);
 
-		// TODO: BETTER SOLUTION FOR PRESENTATION OF CONTENT
-		//       (AVOID SHIFTS...)
-		//		 -> HAS BEEN EDITED, BUT IS NOT PERFECT 
+		// TODO: Look for a better solution for the presentation of the 
+		//		 content (e.g. avoid shifts).
+		//		 -> Has been edited, but is still not perfect.
 		JScrollPane jScrollPaneGeneticAlgorithm = new JScrollPane();
 		GridBagConstraints gbc_jScrollPaneGeneticAlgorithm = 
 			new GridBagConstraints();
@@ -1240,7 +1240,7 @@ public class MainFrame extends JFrame {
 		jScrollPaneAntAlgorithm.setBorder(new LineBorder(Color.BLACK));
 		GridBagConstraints gbcJScrollPaneAntAlgorithm = 
 			new GridBagConstraints();
-		// TODO: FIND OUT WHY THESE INSETS ARE NECCESSARY
+		// TODO: Find out why these insets are necessary.
 		gbcJScrollPaneAntAlgorithm.insets = new Insets(-2, 0, 2, 0);
 		gbcJScrollPaneAntAlgorithm.fill = GridBagConstraints.BOTH;
 		gbcJScrollPaneAntAlgorithm.gridx = 0;
@@ -1433,9 +1433,9 @@ public class MainFrame extends JFrame {
 
 		jTableAnalyticAlgorithm = new JTable();
 		jTableAnalyticAlgorithm.setEnabled(false);
-		// TODO: BETTER SOLUTION FOR THIS LISTENER
-		//		 -> NOT IMPORTANT AS LONG AS ONLY ONE ANALTIC
-		//			ALGORITHM CAN BE SELECTED
+		// TODO: Look for a better solution for this listener.
+		//		 But not important as long as only one analytic algorithm
+		//		 can be selected.
 		jTableAnalyticAlgorithm.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (jTableAnalyticAlgorithm.getSelectedRow() == 0 && 
@@ -1554,7 +1554,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	
-
+	// Load web services from a CSV file.
 	private void loadWebServices(File file) {
 		// Delete previously loaded web services.
 		serviceCandidatesList.removeAll(serviceCandidatesList);
@@ -1828,8 +1828,7 @@ public class MainFrame extends JFrame {
 				+ " ms", 3, 1);
 	}
 
-	// ELEMENTS OF DOUBLE[] COLUMNWIDTHPERCENTAGES 
-	// HAVE TO BE 1 IN SUM
+	// Sum of elements of double[] columnWidthPercentages has to be 1.
 	private void setColumnWidthRelative(
 			JTable table, double[] columnWidthPercentages) {
 		double tableWidth = table.getPreferredSize().getWidth();
@@ -1877,7 +1876,7 @@ public class MainFrame extends JFrame {
 		}
 		Constraint constraintPenaltyFactor = new Constraint(
 				Constraint.PENALTY_FACTOR, 0, Double.parseDouble(
-						(String) jTextFieldPenaltyFactor.getText()));
+						jTextFieldPenaltyFactor.getText()));
 		constraintsMap.put(constraintPenaltyFactor.getTitle(), 
 				constraintPenaltyFactor);
 		return constraintsMap;
@@ -2174,9 +2173,7 @@ public class MainFrame extends JFrame {
 		if (algorithmMap.size() == 0) {
 			return null;
 		}
-		else {
-			return algorithmMap;
-		}
+		return algorithmMap;
 	}
 	
 	private void showAlgorithmResults(Algorithm algorithm, 
@@ -2220,8 +2217,7 @@ public class MainFrame extends JFrame {
 						algorithm.getAlgorithmSolutionTiers().get(
 								innerCount / 2).getServiceCompositionList());
 			int numberOfRows = 0;
-			// COUNTER FOR COMPUTING THE NUMBER OF COMPOSITIONS
-			// PER TIER
+			// COUNTER FOR COMPUTING THE NUMBER OF COMPOSITIONS PER TIER
 			for (int rowCount = 0; rowCount < 
 			tierServiceCompositionList.size(); rowCount++) {
 				numberOfRows += tierServiceCompositionList.get(
@@ -2272,8 +2268,7 @@ public class MainFrame extends JFrame {
 								tierServiceCompositionList.get(
 										rowCount).getUtility()), rowCount, 4);
 				int candidateCount = 0;
-				// COUNTER FOR ALL SERVICE CANDIDATES 
-				// PER COMPOSITION
+				// COUNTER FOR ALL SERVICE CANDIDATES PER COMPOSITION
 				for (candidateCount = 0; candidateCount < 
 				tierServiceCompositionList.get(rowCount).
 				getServiceCandidatesList().size(); candidateCount++) {

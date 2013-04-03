@@ -56,6 +56,9 @@ public class GeneticAlgorithm extends Algorithm {
 		runtime = System.currentTimeMillis();
 		List<Composition> population = generateInitialPopulation();
 		System.out.println(population.size());
+		
+		// TODO: Warum wird terminationCounter nicht lokal definiert? Wird 
+		//		 schließlich nur innerhalb von start() benötigt.
 		terminationCounter = terminationCriteria;
 		updateAlgorithmSolutionTiers(population);
 		
@@ -87,6 +90,7 @@ public class GeneticAlgorithm extends Algorithm {
 //			printCurrentPopulation(population);
 //			System.out.println();
 			
+			// CHECK TERMINATION CRITERION
 			if (chosenTerminationMethod.contains("Iteration")) {
 				terminationCounter--;
 				if (terminationCounter < 1) {
@@ -111,6 +115,9 @@ public class GeneticAlgorithm extends Algorithm {
 
 			}
 		}
+		
+		// TODO: Für was ist denn das setTierTitle() gut? getTierTitle() wird 
+		//		 ja nie aufgerufen.
 		for (int count = 0; count < algorithmSolutionTiers.size(); count++) {
 			algorithmSolutionTiers.get(count).setTierTitle(count + 1);
 		}
@@ -118,8 +125,7 @@ public class GeneticAlgorithm extends Algorithm {
 
 	}
 
-	// TODO: WHICH METHOD FOR GENERATING THE INITIAL POPULATION
-	//       IS BETTER?
+	// TODO: Which method for generating the initial population is better?
 	private List<Composition> generateInitialPopulation() {
 		if (initialPopulationSize > 50) {
 			List<Composition> initialPopulation = 
@@ -133,49 +139,56 @@ public class GeneticAlgorithm extends Algorithm {
 			}
 			return initialPopulation;
 		}
-		// GET THE NUMBER OF ALL POSSIBLE COMPOSITIONS 
-		// WITH RESPECT TO THE GIVEN CONSTRAINTS (NOT DONE)
+		// Get the number of all possible compositions.
+		// ...with respect to the given constraints (NOT DONE)
 		int maxSize = 1;
 		for (int count = 0; count < serviceClassesList.size(); count++) {
 			maxSize *= serviceClassesList.get(count).getSize();
 		}
-		// COMPUTE NUMBER OF REQUESTED COMPOSITIONS
-		// INITIALPOPULATIONSIZE * RESULT FROM THAT LIST
+		// Compute the number of requested compositions.
 		int sizeOfInitialPopulation = (int) Math.round(
 				maxSize * initialPopulationSize / 100);
-		// RANDOM SELECTION OF REQUESTED NUMBER OF COMPOSITIONS
+		
+		// Randomly select the requested number of compositions.
 		List<Composition> initialPopulation = new LinkedList<Composition>();
+		// Loop to construct the requested number of compositions.
 		for (int count = 0; count < sizeOfInitialPopulation; count++) {
 			List<ServiceCandidate> chosenServiceCandidatesList = 
 					new LinkedList<ServiceCandidate>();
 			QosVector qosVector = new QosVector();
+			// Loop to randomly select a service candidate for each service 
+			// class.
 			for (int innerCount = 0; 
 					innerCount < serviceClassesList.size(); innerCount++) {
 				double random = Math.random();
-				int numberOfServiceCandidates = 
-						serviceClassesList.get(
-								innerCount).getServiceCandidateList().size();
-				// AVOID GETTING MAX_SIZE (OUT OF BOUNDS)
-				if (random * numberOfServiceCandidates == 
-						numberOfServiceCandidates) {
+				int numberOfServiceCandidates = serviceClassesList.get(
+						innerCount).getServiceCandidateList().size();
+				// Avoid getting MAX_SIZE (Out of Bounds)
+				if (random == 1) {
 					random -= 0.01;
 				}
-
 				chosenServiceCandidatesList.add(serviceClassesList.get(
 						innerCount).getServiceCandidateList().get(
 								(int) (random * numberOfServiceCandidates)));
-				qosVector.addCosts(
-						chosenServiceCandidatesList.get(
-								innerCount).getQosVector().getCosts());
-				qosVector.addResponseTime(
-						chosenServiceCandidatesList.get(
-								innerCount).getQosVector().getResponseTime());
-				qosVector.addAvailability(
-						chosenServiceCandidatesList.get(
-								innerCount).getQosVector().getAvailability());
+				qosVector.addCosts(chosenServiceCandidatesList.get(
+						innerCount).getQosVector().getCosts());
+				qosVector.addResponseTime(chosenServiceCandidatesList.get(
+						innerCount).getQosVector().getResponseTime());
+				qosVector.addAvailability(chosenServiceCandidatesList.get(
+						innerCount).getQosVector().getAvailability());
 			}
 			Composition composition = new Composition(
 					chosenServiceCandidatesList, qosVector, 0.0);
+			// Check if composition has already been created.
+			// TODO: Funktioniert so, also mit dem contains(), aber anscheinend 
+			//		 nicht. Direkt danach wird updateAlgorithmSolutionTiers() 
+			//		 aufgerufen. Darin dann als Erstes getDifferentSolutions(). 
+			//		 Und darin werden identische  Compositions gefunden. Das 
+			//		 sollte eigentlich unmöglich sein, da sie hier ja bereits 
+			//		 ignoriert werden müssten.
+			//		 Einfach weglassen kann man diese Überprüfung hier aber 
+			//		 wohl auch nicht, da man sonst eine geringere Anzahl an 
+			//		 initialen Compositions bekommt.
 			if (chosenServiceCandidatesList.contains(composition)) {
 				count--;
 			}
@@ -186,20 +199,25 @@ public class GeneticAlgorithm extends Algorithm {
 		return initialPopulation;
 	}
 	
-	// CALCULATE FITNESS VALUE OF EACH OBJECT 
-	// WITHIN START POPULATION
-	private List<Composition> doSelection(
-			List<Composition> population) {
+	// Use the selection operator. Calculating the fitness values is 
+	// contained in here.
+	private List<Composition> doSelection(List<Composition> population) {
 		List<Composition> newPopulation = new LinkedList<Composition>();
 		double[] fitnessArray = new double[population.size()];
 		double fitnessSum = 0.0;
-		// COMPUTE ALL FITNESS VALUES & THEIR SUM
+		
+		// Compute the fitness for all compositions as follows:
+		// - Sum up the fitness values of all service candidates contained
+		// - Add penalty if constraints are violated
+		// Store the fitness values of all of the population's compositions 
+		// in an array.
 		for (int count = 0; count < population.size(); count++) {	
 			fitnessArray[count] = computeAggregatedFitness(
 					population.get(count));
 			fitnessSum += fitnessArray[count];
 		}
-		// DO SELECTION (SURVIVAL OF THE FITTEST)
+		
+		// Do the actual selection (Survival of the Fittest)
 		for (int count = 0; count < population.size(); count++) {
 			double randomValue = Math.random();
 			double distance = Double.MAX_VALUE;
@@ -214,10 +232,10 @@ public class GeneticAlgorithm extends Algorithm {
 				}
 			}
 			
-			// VERSION WITH CONSTANT POPULATION SIZE
+			// Version with constant population size
 			newPopulation.add(population.get(selectionIndex));
 			
-			// ALTERNATIVELY: DECLINING POPULATION SIZE
+			// Alternatively: Declining population size
 //			boolean newComposition = true;
 //			for (Composition composition : newPopulation) {
 //				if (population.get(selectionIndex).equals(composition)) {
@@ -233,7 +251,7 @@ public class GeneticAlgorithm extends Algorithm {
 		return newPopulation;
 	}
 	
-	// MUTATION
+	// Use the mutation operator.
 	private List<Composition> mutate(List<Composition> initialPopulation) {
 		for (int count = 0; count < initialPopulation.size(); count++) {
 			for (int innerCount = 0; innerCount < 
@@ -482,6 +500,7 @@ public class GeneticAlgorithm extends Algorithm {
 		return newPopulation;
 	}
 	
+	// Computes the fitness of a single service candidate.
 	private double computeFitness(ServiceCandidate candidate) {
 		double fitness = 0.0;
 		if (constraintsMap.get(Constraint.COSTS) != null) {
@@ -518,11 +537,15 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	
 	// TODO: TIER BUILDING DEPENDS ON UTILITY VALUE (?)
+	//		 --> Anders gesagt hängt es von der Fitness ab. Im Endeffekt ist es 
+	//			 aber (zumindest bei hohem Penalty Factor) das Gleiche. Oder?
 	private void updateAlgorithmSolutionTiers(
 			List<Composition> newPopulation) {
 		List<Composition> differentSolutions = new LinkedList<Composition>(
 				getDifferentSolutions(newPopulation));
 		for (Composition composition : differentSolutions) {
+			// Check if the composition is already contained in the list of 
+			// algorithm solution tiers.
 			boolean isNewComposition = true;
 			for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
 				if (tier.getServiceCompositionList().contains(composition)) {
@@ -531,6 +554,8 @@ public class GeneticAlgorithm extends Algorithm {
 				}
 			}
 			if (isNewComposition) {
+				// Create the new composition to be added to the list of 
+				// algorithm solution tiers.
 				List<ServiceCandidate> serviceCandidates = 
 					new LinkedList<ServiceCandidate>(
 							composition.getServiceCandidatesList());						
@@ -544,6 +569,10 @@ public class GeneticAlgorithm extends Algorithm {
 						composition.getQosVectorAggregated().getAvailability())
 				);
 				newComposition.computeUtilityValue();
+				
+				// Determine the position of the new composition in the 
+				// result table. (According to its rank, which is evaluated by 
+				// comparing the utility values.)
 				int tierRank = 0;
 				boolean equalValues = false;
 				for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
@@ -565,10 +594,13 @@ public class GeneticAlgorithm extends Algorithm {
 					getServiceCompositionList().add(newComposition);
 				}
 				else {
+					// Add the new composition to the right position.
 					List<Composition> newEntry = new LinkedList<Composition>();
 					newEntry.add(newComposition);
 					algorithmSolutionTiers.add(tierRank, 
 							new AlgorithmSolutionTier(newEntry, tierRank + 1));
+					// Remove the worst composition if the number of maximum 
+					// solution tiers would be exceeded.
 					if (algorithmSolutionTiers.size() > 
 					numberOfRequestedResultTiers) {
 						algorithmSolutionTiers.remove(
@@ -586,9 +618,8 @@ public class GeneticAlgorithm extends Algorithm {
 			boolean newComposition = true;
 			for (int innerCount = 0; innerCount < population.size(); 
 			innerCount++) {
-				if (innerCount != count && 
-						population.get(count).equals(
-								population.get(innerCount))) {
+				if (innerCount != count && population.get(count).equals(
+						population.get(innerCount))) {
 					newComposition = false;
 					break;
 				}
@@ -600,20 +631,20 @@ public class GeneticAlgorithm extends Algorithm {
 		return differentSolutions;
 	}
 	
+	// Compute the distance of a composition's aggregated QoS attributes to 
+	// the given constraints.
 	private double computeDistanceToConstraints(Composition composition) {
 		double distance = 0.0;
 		if (constraintsMap.get(Constraint.COSTS) != null &&  
 				composition.getQosVectorAggregated().getCosts() > 
 				constraintsMap.get(Constraint.COSTS).getValue()) {
 			distance += 1.0;
-
 		}
 		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null &&  
 				composition.getQosVectorAggregated().getResponseTime() > 
 				constraintsMap.get(Constraint.RESPONSE_TIME).getValue()) {
 			distance += 1.0;
 		}
-
 		if (constraintsMap.get(Constraint.AVAILABILITY) != null &&  
 				composition.getQosVectorAggregated().getAvailability() > 
 				constraintsMap.get(Constraint.AVAILABILITY).getValue()) {
@@ -622,8 +653,8 @@ public class GeneticAlgorithm extends Algorithm {
 		return distance;
 	}
 	
-	private double computeAggregatedFitness(
-			Composition composition) {
+	// Compute the fitness of a composition.
+	private double computeAggregatedFitness(Composition composition) {
 		double aggregatedFitness = 0.0;
 		int numberOfServiceCandidates = 0;
 		for (ServiceCandidate candidate : 
@@ -631,24 +662,23 @@ public class GeneticAlgorithm extends Algorithm {
 			aggregatedFitness += computeFitness(candidate);
 			numberOfServiceCandidates++;
 		}
+		// Penalty factor has to be considered only if the composition 
+		// violates the constraints.
 		if (!composition.isWithinConstraints(constraintsMap)) {
 			aggregatedFitness += constraintsMap.get(
 					Constraint.PENALTY_FACTOR).getWeight() * 
 					computeDistanceToConstraints(composition);	
 		}
-		
-		return aggregatedFitness /= numberOfServiceCandidates;
+		return (aggregatedFitness / numberOfServiceCandidates);
 	}
 	
 	private Composition getRandomComposition(List<Composition> population) {
 		double random = Math.random();
-		// AVOID GETTING MAX_SIZE (OUT OF BOUNDS)
-		if (random * serviceClassesList.size() == 
-				serviceClassesList.size()) {
+		// Avoid getting MAX_SIZE (Out of Bounds)
+		if (random == 1) {
 			random -= 0.01;
 		}
-		// SELECT 2ND COMPOSITION RANDOMLY
-		return population.get((int)(random * population.size()));
+		return population.get((int) (random * population.size()));
 	}
 	
 	// COPY/PASTE FROM OLD ANALYTIC ALGORITHM
