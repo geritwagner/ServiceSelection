@@ -85,16 +85,14 @@ public class Composition {
 		if (getClass() != obj.getClass())
 			return false;
 		Composition other = (Composition) obj;
-		for (int count = 0; 
-				count < getServiceCandidatesList().size(); count++) {
-				if (getServiceCandidatesList().get(count).
-						getServiceCandidateId() != other.
-						getServiceCandidatesList().get(count).
-						getServiceCandidateId()) {
-					return false;
-				}
+		for (int i = 0; i < getServiceCandidatesList().size(); i++) {
+			if (getServiceCandidatesList().get(i).getServiceCandidateId() != 
+					other.getServiceCandidatesList().get(i).
+					getServiceCandidateId()) {
+				return false;
 			}
-			return true;
+		}
+		return true;
 	}
 	
 	@Override

@@ -16,13 +16,11 @@ public class GeneticAlgorithm extends Algorithm {
 	private Map<String, Constraint> constraintsMap;
 	
 	private int numberOfRequestedResultTiers;
-	private double initialPopulationSize;
-	private int terminationCriteria;
+	private double populationSize;
+	private int terminationCriterion;
 	
-	private String geneticOperators;
-	private String chosenTerminationMethod;
-	
-	private int maxInitialPopulationSize = 1;
+	private String crossoverMethod;
+	private String terminationMethod;
 	
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
@@ -32,22 +30,17 @@ public class GeneticAlgorithm extends Algorithm {
 	public GeneticAlgorithm(List<ServiceClass> serviceClassesList, 
 			List<ServiceCandidate> serviceCandidatesList, 
 			Map<String, Constraint> constraintsMap, 
-			int numberOfRequestedResultTiers, double initialPopulationSize,
-			int terminationCriteria, String geneticOperators, 
-			String chosenTerminationCriteria) {
+			int numberOfRequestedResultTiers, double populationSize,
+			int terminationCriterion, String crossoverMethod, 
+			String terminationMethod) {
 		this.serviceClassesList = serviceClassesList;
 		this.serviceCandidatesList = serviceCandidatesList;
 		this.constraintsMap = constraintsMap;
 		this.numberOfRequestedResultTiers = numberOfRequestedResultTiers;
-		this.initialPopulationSize = initialPopulationSize;
-		this.terminationCriteria = terminationCriteria;
-		this.geneticOperators = geneticOperators;
-		this.chosenTerminationMethod = chosenTerminationCriteria;
-		for (ServiceClass serviceClass : serviceClassesList) {
-			maxInitialPopulationSize *= 
-					serviceClass.getServiceCandidateList().size();
-		}
-		
+		this.populationSize = populationSize;
+		this.terminationCriterion = terminationCriterion;
+		this.crossoverMethod = crossoverMethod;
+		this.terminationMethod = terminationMethod;
 	}
 
 	@Override
@@ -56,7 +49,7 @@ public class GeneticAlgorithm extends Algorithm {
 		List<Composition> population = generateInitialPopulation();
 		System.out.println(population.size());
 		
-		int terminationCounter = terminationCriteria;
+		int terminationCounter = terminationCriterion;
 		updateAlgorithmSolutionTiers(population);
 		
 		while (terminationCounter > 0) {
@@ -67,13 +60,13 @@ public class GeneticAlgorithm extends Algorithm {
 			population = mutate(population);
 
 			// RECOMBINATION
-			if (geneticOperators.contains("One-Point")) {
+			if (crossoverMethod.contains("One-Point")) {
 				population = doOnePointCrossover(population);
 			}
-			else if (geneticOperators.contains("Two-Point")) {
+			else if (crossoverMethod.contains("Two-Point")) {
 				population = doTwoPointCrossover(population);
 			}
-			else if (geneticOperators.contains("Half-Uniform")) {
+			else if (crossoverMethod.contains("Half-Uniform")) {
 				population = doHalfUniformCrossover(population);
 			}
 			else {
@@ -88,16 +81,16 @@ public class GeneticAlgorithm extends Algorithm {
 //			System.out.println();
 			
 			// CHECK TERMINATION CRITERION
-			if (chosenTerminationMethod.contains("Iteration")) {
+			if (terminationMethod.contains("Iteration")) {
 				terminationCounter--;
 				if (terminationCounter < 1) {
 					break;
 				}
 			}
-			else if (chosenTerminationMethod.contains(
+			else if (terminationMethod.contains(
 					"consecutive equal generations")) {
 				if (hasPopulationChanged(oldPopulation, population)) {
-					terminationCounter = terminationCriteria;
+					terminationCounter = terminationCriterion;
 				}
 				else {
 					terminationCounter--;
@@ -126,93 +119,41 @@ public class GeneticAlgorithm extends Algorithm {
 
 	}
 
-	// TODO: Which method for generating the initial population is better?
+	
 	private List<Composition> generateInitialPopulation() {
-		if (initialPopulationSize > 50) {
-			List<Composition> initialPopulation = 
-					new LinkedList<Composition>();
-			for (int i = 0; i < serviceClassesList.get(0).
-					getServiceCandidateList().size(); i++) {
-				doCompleteEnumeration(new Composition(
-						new LinkedList<ServiceCandidate>(), 
-						new QosVector(), 0.0), 
-						0, i, initialPopulation);
-			}
-			return initialPopulation;
-		}
-		// Get the number of all possible compositions.
-		// ...with respect to the given constraints (NOT DONE)
-		int maxSize = 1;
-		for (int count = 0; count < serviceClassesList.size(); count++) {
-			maxSize *= serviceClassesList.get(count).getSize();
-		}
-		// Compute the number of requested compositions.
-		int sizeOfInitialPopulation = (int) Math.round(
-				maxSize * initialPopulationSize / 100);
-		
 		// Randomly select the requested number of compositions.
-		List<Composition> initialPopulation = new LinkedList<Composition>();
+		List<Composition> population = new LinkedList<Composition>();
 		// Loop to construct the requested number of compositions.
-		for (int count = 0; count < sizeOfInitialPopulation; count++) {
+		for (int i = 0; i < populationSize; i++) {
 			List<ServiceCandidate> chosenServiceCandidatesList = 
 					new LinkedList<ServiceCandidate>();
 			QosVector qosVector = new QosVector();
-			// Loop to randomly select a service candidate for each service 
-			// class.
-			for (int innerCount = 0; 
-					innerCount < serviceClassesList.size(); innerCount++) {
-				double random = Math.random();
-				int numberOfServiceCandidates = serviceClassesList.get(
-						innerCount).getServiceCandidateList().size();
-				// Avoid getting MAX_SIZE (Out of Bounds)
-				if (random == 1) {
-					random -= 0.01;
-				}
-				chosenServiceCandidatesList.add(serviceClassesList.get(
-						innerCount).getServiceCandidateList().get(
-								(int) (random * numberOfServiceCandidates)));
-				qosVector.addCosts(chosenServiceCandidatesList.get(
-						innerCount).getQosVector().getCosts());
-				qosVector.addResponseTime(chosenServiceCandidatesList.get(
-						innerCount).getQosVector().getResponseTime());
-				qosVector.addAvailability(chosenServiceCandidatesList.get(
-						innerCount).getQosVector().getAvailability());
-			}
 			Composition composition = new Composition(
 					chosenServiceCandidatesList, qosVector, 0.0);
+			// Loop to randomly select a service candidate for each service 
+			// class.
+			for (int j = 0; j < serviceClassesList.size(); j++) {
+				// Generate a random number between 0 and the number of 
+				// service candidates in this service class.
+				int random = (int) (Math.random() * serviceClassesList.get(
+						j).getServiceCandidateList().size());
+				// Select the corresponding service candidate and add it to the 
+				// new composition. QoS values are aggregated automatically.
+				// TODO: Test if this cleaner and faster way works. (--> Seems 
+				//		 to be okay.)
+				ServiceCandidate serviceCandidate = serviceClassesList.get(
+						j).getServiceCandidateList().get((random));
+				composition.addServiceCandidate(serviceCandidate);
+			}
 			// Check if composition has already been created.
-			// TODO: Funktioniert so, also mit dem contains(), aber anscheinend 
-			//		 nicht. Direkt danach wird updateAlgorithmSolutionTiers() 
-			//		 aufgerufen. Darin dann als Erstes getDifferentSolutions(). 
-			//		 Und darin werden identische  Compositions gefunden. Das 
-			//		 sollte eigentlich unmöglich sein, da sie hier ja bereits 
-			//		 ignoriert werden müssten.
-			//		 Einfach weglassen kann man diese Überprüfung hier aber 
-			//		 wohl auch nicht, da man sonst eine geringere Anzahl an 
-			//		 initialen Compositions bekommt.
-			/* -> contains() funktioniert vermutlich deshalb nicht, 
-				  weil die equals-Methode in Composition nicht 
-				  überschrieben worden ist. (wurde geändert, nicht getestet!)
-				  Der erste Aufruf von updateAlgorithmSolutionTiers()
-				  muss vorgenommen werden, da nach der ersten 
-				  Iteration des Algorithmus evtl. schon Lösungen
-				  ausgesiebt werden und somit keine Beachtung finden
-				  würden; dies ist problematisch, wenn nach dem 
-				  ersten Durchlauf nur noch 2 unterschiedliche 
-				  Kompositionen übrig wären, aber die 3 besten
-				  Lösungen gefordert werden.
-				  Aber ich gebe Dir recht - das geht besser.
-				  Der wiederholte Aufruf von 
-				  updateAlgorithmSolutionTiers() ist performanz-
-				  technisch suboptimal. */
-			if (chosenServiceCandidatesList.contains(composition)) {
-				count--;
+			if (population.contains(composition)) {
+				i--;
 			}
 			else {
-				initialPopulation.add(composition);
+				population.add(composition);
 			}
 		}
-		return initialPopulation;
+		return population;
 	}
 	
 	// Use the selection operator. Calculating the fitness values is 
@@ -698,71 +639,6 @@ public class GeneticAlgorithm extends Algorithm {
 		return population.get((int) (random * population.size()));
 	}
 	
-	// COPY/PASTE FROM OLD ANALYTIC ALGORITHM
-	// COMPLETE ENUMERATION.
-	private void doCompleteEnumeration(Composition composition, 
-			int serviceClassNumber, int serviceCandidateNumber, 
-			List<Composition> compositionsList) {
-		composition = forward(composition, serviceClassNumber, 
-				serviceCandidateNumber);
-		if (composition != null) {
-			if (composition.getServiceCandidatesList().size() == 
-					serviceClassesList.size()) {
-				List<ServiceCandidate> serviceCandidatesListNew = 
-						new LinkedList<ServiceCandidate>();
-				serviceCandidatesListNew.addAll(
-						composition.getServiceCandidatesList());
-				QosVector qos = composition.getQosVectorAggregated();
-				QosVector qosVectorNew = new QosVector(qos.getCosts(), 
-						qos.getResponseTime(), qos.getAvailability());
-				maxInitialPopulationSize--;
-				if (maxInitialPopulationSize - compositionsList.size() <= 
-						initialPopulationSize * maxInitialPopulationSize) {
-					compositionsList.add(new Composition(
-							serviceCandidatesListNew, 
-							qosVectorNew, 0.0));
-				}
-				else if (Math.random() > 0.5) {
-					compositionsList.add(new Composition(
-							serviceCandidatesListNew, 
-							qosVectorNew, 0.0));
-				}
-				if (compositionsList.size() == 
-						initialPopulationSize * maxInitialPopulationSize) {
-					return;
-				}
-
-			}
-			else {
-				serviceClassNumber++;
-				for (int i = 0; i < serviceClassesList.get(
-						serviceClassNumber).getServiceCandidateList().
-						size(); i++) {
-					doCompleteEnumeration(composition, 
-							serviceClassNumber, i, compositionsList);
-				}
-			}
-			composition = backward(composition);
-			serviceClassNumber--;
-		}
-		return;
-	}
-
-	private Composition forward(Composition composition, 
-			int serviceClassNumber, int serviceCandidateNumber) {
-		ServiceClass serviceClass = 
-				serviceClassesList.get(serviceClassNumber);
-		ServiceCandidate serviceCandidate = 
-				serviceClass.getServiceCandidateList().get(
-						serviceCandidateNumber);
-		composition.addServiceCandidate(serviceCandidate);
-		return composition;
-	}
-
-	private Composition backward(Composition composition) {
-		composition.removeServiceCandidate();
-		return composition;
-	}
 
 	// GETTERS AND SETTERS
 	public List<ServiceClass> getServiceClassesList() {

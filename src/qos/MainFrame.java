@@ -83,8 +83,8 @@ public class MainFrame extends JFrame {
 	private JLabel jLabelUtilityText;
 
 	private JLabel jLabelColon;
-	private JLabel jLabelStopCriterionPercentage;
-	private JTextField jTextFieldStopCriterion;
+	private JLabel jLabelTerminationCriterionPercentage;
+	private JTextField jTextFieldTerminationCriterion;
 	
 	private JCheckBox jCheckboxGeneticAlgorithm;
 	private JCheckBox jCheckBoxAntColonyOptimization;
@@ -147,7 +147,7 @@ public class MainFrame extends JFrame {
 	private JTextField txtResponseTimeWeight;
 	private JTextField txtAvailabilityWeight;
 	private JTextField jTextFieldPenaltyFactor;
-	private JTextField jTextFieldStartPopulationSize;
+	private JTextField jTextFieldPopulationSize;
 	private JTextField txtAntIterations;
 	private JTextField txtAntAnts;
 	private JTextField txtAntAlpha;
@@ -155,8 +155,8 @@ public class MainFrame extends JFrame {
 	private JTextField txtAntDilution;
 	private JTextField txtAntPi;
 	
-	private JComboBox<String> comboBoxRecombination;
-	private JComboBox<String> comboBoxStopCriterion;
+	private JComboBox<String> jComboBoxCrossover;
+	private JComboBox<String> jComboBoxTerminationCriterion;
 
 	/**
 	 * Launch the application.
@@ -1025,47 +1025,47 @@ public class MainFrame extends JFrame {
 		
 		
 		
-		JLabel lblStartPopulationSize = new JLabel("Start Population Size:");
-		GridBagConstraints gbc_lblStartPopulationSize = 
+		JLabel jLabelPopulationSize = new JLabel("Population Size:");
+		GridBagConstraints gbcJLabelPopulationSize = 
 			new GridBagConstraints();
-		gbc_lblStartPopulationSize.anchor = GridBagConstraints.WEST;
-		gbc_lblStartPopulationSize.insets = new Insets(5, 5, 5, 5);
-		gbc_lblStartPopulationSize.gridx = 0;
-		gbc_lblStartPopulationSize.gridy = 4;
-		panelGeneticAlgorithmSettings.add(
-				lblStartPopulationSize, gbc_lblStartPopulationSize);
+		gbcJLabelPopulationSize.anchor = GridBagConstraints.WEST;
+		gbcJLabelPopulationSize.insets = new Insets(5, 5, 5, 5);
+		gbcJLabelPopulationSize.gridx = 0;
+		gbcJLabelPopulationSize.gridy = 4;
+		panelGeneticAlgorithmSettings.add(jLabelPopulationSize, 
+				gbcJLabelPopulationSize);
 		
-		JPanel panelStartPopulationSize = new JPanel();
-		GridBagLayout gbl_panelStartPopulationSize = new GridBagLayout();
-		gbl_panelStartPopulationSize.columnWeights = new double[] {1.0, 1.0};
-		gbl_panelStartPopulationSize.rowWeights = new double[] {1.0};
-		panelStartPopulationSize.setLayout(gbl_panelStartPopulationSize);
-		GridBagConstraints gbc_panelStartPopulationSize = 
-			new GridBagConstraints();
-		gbc_panelStartPopulationSize.anchor = GridBagConstraints.WEST;
-		gbc_panelStartPopulationSize.gridwidth = 2;
-		gbc_panelStartPopulationSize.gridx = 1;
-		gbc_panelStartPopulationSize.gridy = 4;
-		panelGeneticAlgorithmSettings.add(
-				panelStartPopulationSize, gbc_panelStartPopulationSize);
+		JPanel jPanelPopulationSize = new JPanel();
+		GridBagLayout gblJPanelPopulationSize = new GridBagLayout();
+		gblJPanelPopulationSize.columnWeights = new double[] {1.0, 1.0};
+		gblJPanelPopulationSize.rowWeights = new double[] {1.0};
+		jPanelPopulationSize.setLayout(gblJPanelPopulationSize);
+		GridBagConstraints gbcJPanelPopulationSize = new GridBagConstraints();
+		gbcJPanelPopulationSize.anchor = GridBagConstraints.WEST;
+		gbcJPanelPopulationSize.gridwidth = 2;
+		gbcJPanelPopulationSize.gridx = 1;
+		gbcJPanelPopulationSize.gridy = 4;
+		panelGeneticAlgorithmSettings.add(jPanelPopulationSize, 
+				gbcJPanelPopulationSize);
 		
-		jTextFieldStartPopulationSize = new JTextField("50");
-		jTextFieldStartPopulationSize.setColumns(3);
-		jTextFieldStartPopulationSize.setHorizontalAlignment(JTextField.RIGHT);
-		jTextFieldStartPopulationSize.addActionListener(new ActionListener() {
+		jTextFieldPopulationSize = new JTextField("10");
+		jTextFieldPopulationSize.setColumns(3);
+		jTextFieldPopulationSize.setHorizontalAlignment(JTextField.RIGHT);
+		jTextFieldPopulationSize.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				checkInputValue(jTextFieldStartPopulationSize);
+				checkInputValue(jTextFieldPopulationSize);
 			}
 		});
-		GridBagConstraints gbc_StartPopulationSize = new GridBagConstraints();
-		gbc_StartPopulationSize.insets = new Insets(5, 20, 5, 5);
-		gbc_StartPopulationSize.anchor = GridBagConstraints.EAST;
-		gbc_StartPopulationSize.gridx = 0;
-		gbc_StartPopulationSize.gridy = 0;
-		panelStartPopulationSize.add(jTextFieldStartPopulationSize, 
-				gbc_StartPopulationSize);
+		GridBagConstraints gbcPopulationSize = new GridBagConstraints();
+		gbcPopulationSize.insets = new Insets(5, 20, 5, 5);
+		gbcPopulationSize.anchor = GridBagConstraints.EAST;
+		gbcPopulationSize.gridx = 0;
+		gbcPopulationSize.gridy = 0;
+		jPanelPopulationSize.add(jTextFieldPopulationSize, gbcPopulationSize);
 		
+		// TODO: Entfernen! Wollte es lieber dir mit dem Window Builder 
+		//		 überlassen.
 		JLabel jLabelStartPopulationPercentage = new JLabel("%");
 		GridBagConstraints gbc_jLabelStartPopulationPercentage = 
 			new GridBagConstraints();
@@ -1073,124 +1073,129 @@ public class MainFrame extends JFrame {
 		gbc_jLabelStartPopulationPercentage.anchor = GridBagConstraints.WEST;
 		gbc_jLabelStartPopulationPercentage.gridx = 1;
 		gbc_jLabelStartPopulationPercentage.gridy = 0;
-		panelStartPopulationSize.add(jLabelStartPopulationPercentage, 
+		jPanelPopulationSize.add(jLabelStartPopulationPercentage, 
 				gbc_jLabelStartPopulationPercentage);
 		
 		
+		// TODO: Selection Method hier einfügen!
+		//		 Standardauswahl soll zunächst "Elite" / "Elitism based" sein.
 		
-		JLabel lblRecombination = new JLabel("Recombination Method:");
-		GridBagConstraints gbc_lblRecombination = new GridBagConstraints();
-		gbc_lblRecombination.anchor = GridBagConstraints.WEST;
-		gbc_lblRecombination.insets = new Insets(5, 5, 5, 5);
-		gbc_lblRecombination.gridx = 0;
-		gbc_lblRecombination.gridy = 5;
+		
+		JLabel jLabelCrossover = new JLabel("Crossover Method:");
+		GridBagConstraints gbcJLabelCrossover = new GridBagConstraints();
+		gbcJLabelCrossover.anchor = GridBagConstraints.WEST;
+		gbcJLabelCrossover.insets = new Insets(5, 5, 5, 5);
+		gbcJLabelCrossover.gridx = 0;
+		gbcJLabelCrossover.gridy = 5;
 		panelGeneticAlgorithmSettings.add(
-				lblRecombination, gbc_lblRecombination);
+				jLabelCrossover, gbcJLabelCrossover);
 		
-		JPanel panelRecombination = new JPanel();
-		GridBagLayout gbl_panelRecombination = new GridBagLayout();
-		gbl_panelRecombination.columnWeights = new double[] {1.0};
-		gbl_panelRecombination.rowWeights = new double[] {1.0};
-		panelRecombination.setLayout(gbl_panelRecombination);
-		GridBagConstraints gbc_panelRecombination = 
+		JPanel jPanelCrossover = new JPanel();
+		GridBagLayout gblJPanelCrossover = new GridBagLayout();
+		gblJPanelCrossover.columnWeights = new double[] {1.0};
+		gblJPanelCrossover.rowWeights = new double[] {1.0};
+		jPanelCrossover.setLayout(gblJPanelCrossover);
+		GridBagConstraints gbcJPanelCrossover = 
 			new GridBagConstraints();
-		gbc_panelRecombination.anchor = GridBagConstraints.WEST;
-		gbc_panelRecombination.gridwidth = 2;
-		gbc_panelRecombination.gridx = 1;
-		gbc_panelRecombination.gridy = 5;
-		panelGeneticAlgorithmSettings.add(
-				panelRecombination, gbc_panelRecombination);
+		gbcJPanelCrossover.anchor = GridBagConstraints.WEST;
+		gbcJPanelCrossover.gridwidth = 2;
+		gbcJPanelCrossover.gridx = 1;
+		gbcJPanelCrossover.gridy = 5;
+		panelGeneticAlgorithmSettings.add(jPanelCrossover, gbcJPanelCrossover);
 		
-		comboBoxRecombination = new JComboBox<String>();
-		comboBoxRecombination.addItem("One-Point Crossover");
-		comboBoxRecombination.addItem("Two-Point Crossover");
-		comboBoxRecombination.addItem("Uniform Crossover");
-		comboBoxRecombination.addItem("Half-Uniform Crossover");
-		GridBagConstraints gbc_comboBoxRecombination = 
+		jComboBoxCrossover = new JComboBox<String>();
+		jComboBoxCrossover.addItem("One-Point Crossover");
+		jComboBoxCrossover.addItem("Two-Point Crossover");
+		jComboBoxCrossover.addItem("Uniform Crossover");
+		jComboBoxCrossover.addItem("Half-Uniform Crossover");
+		GridBagConstraints gbcJComboBoxCrossover = 
 			new GridBagConstraints();
-		gbc_comboBoxRecombination.insets = new Insets(5, 20, 5, 5);
-		gbc_comboBoxRecombination.anchor = GridBagConstraints.EAST;
-		gbc_comboBoxRecombination.gridx = 0;
-		gbc_comboBoxRecombination.gridy = 0;
-		panelRecombination.add(comboBoxRecombination, 
-				gbc_comboBoxRecombination);
+		gbcJComboBoxCrossover.insets = new Insets(5, 20, 5, 5);
+		gbcJComboBoxCrossover.anchor = GridBagConstraints.EAST;
+		gbcJComboBoxCrossover.gridx = 0;
+		gbcJComboBoxCrossover.gridy = 0;
+		jPanelCrossover.add(jComboBoxCrossover, 
+				gbcJComboBoxCrossover);
 		
 		
 		
-		JLabel lblStopCriterion = new JLabel("Stop Criterion:");
-		GridBagConstraints gbc_lblStopCriterion = new GridBagConstraints();
-		gbc_lblStopCriterion.anchor = GridBagConstraints.WEST;
-		gbc_lblStopCriterion.insets = new Insets(5, 5, 0, 5);
-		gbc_lblStopCriterion.gridx = 0;
-		gbc_lblStopCriterion.gridy = 6;
+		JLabel jLabelTerminationCriterion = new JLabel(
+				"Termination Criterion:");
+		GridBagConstraints gbcJLabelTerminationCriterion = 
+				new GridBagConstraints();
+		gbcJLabelTerminationCriterion.anchor = GridBagConstraints.WEST;
+		gbcJLabelTerminationCriterion.insets = new Insets(5, 5, 0, 5);
+		gbcJLabelTerminationCriterion.gridx = 0;
+		gbcJLabelTerminationCriterion.gridy = 6;
 		panelGeneticAlgorithmSettings.add(
-				lblStopCriterion, gbc_lblStopCriterion);
+				jLabelTerminationCriterion, gbcJLabelTerminationCriterion);
 		
-		JPanel panelStopCriterion = new JPanel();
-		GridBagLayout gbl_panelStopCriterion = new GridBagLayout();
-		gbl_panelStopCriterion.columnWeights = new double[] {1.0, 0.1, 1.0};
-		gbl_panelStopCriterion.rowWeights = new double[] {1.0};
-		panelStopCriterion.setLayout(gbl_panelStopCriterion);
-		GridBagConstraints gbc_panelStopCriterion = new GridBagConstraints();
-		gbc_panelStopCriterion.gridwidth = 2;
-		gbc_panelStopCriterion.anchor = GridBagConstraints.WEST;
-		gbc_panelStopCriterion.gridx = 1;
-		gbc_panelStopCriterion.gridy = 6;
+		JPanel jPanelTerminationCriterion = new JPanel();
+		GridBagLayout gblJPanelTerminationCriterion = new GridBagLayout();
+		gblJPanelTerminationCriterion.columnWeights = 
+				new double[] {1.0, 0.1, 1.0};
+		gblJPanelTerminationCriterion.rowWeights = new double[] {1.0};
+		jPanelTerminationCriterion.setLayout(gblJPanelTerminationCriterion);
+		GridBagConstraints gbcJPanelTerminationCriterion = 
+				new GridBagConstraints();
+		gbcJPanelTerminationCriterion.gridwidth = 2;
+		gbcJPanelTerminationCriterion.anchor = GridBagConstraints.WEST;
+		gbcJPanelTerminationCriterion.gridx = 1;
+		gbcJPanelTerminationCriterion.gridy = 6;
 		panelGeneticAlgorithmSettings.add(
-				panelStopCriterion, gbc_panelStopCriterion);
+				jPanelTerminationCriterion, gbcJPanelTerminationCriterion);
 		
-		comboBoxStopCriterion = new JComboBox<String>();
-		comboBoxStopCriterion.addItem("Max. Number of Iterations");
-		comboBoxStopCriterion.addItem(
-				"Max. Number of consecutive equal generations");
-		comboBoxStopCriterion.addItem("Min. Improvement per generation");
-		comboBoxStopCriterion.addActionListener(new ActionListener() {
+		jComboBoxTerminationCriterion = new JComboBox<String>();
+		jComboBoxTerminationCriterion.addItem("Max. Number of Iterations");
+		jComboBoxTerminationCriterion.addItem(
+				"Max. Number of Consecutive Equal Generations");
+		jComboBoxTerminationCriterion.addItem(
+				"Min. Improvement per Generation");
+		jComboBoxTerminationCriterion.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				isJLabelStopCriterionPercentageVisible();
+				isJLabelTerminationCriterionPercentageVisible();
 			}
 		});
-		GridBagConstraints gbc_comboBoxStopCriterion = 
+		GridBagConstraints gbcJComboBoxTerminationCriterion = 
 			new GridBagConstraints();
-		gbc_comboBoxStopCriterion.insets = new Insets(5, 20, 5, 5);
-		gbc_comboBoxStopCriterion.anchor = GridBagConstraints.EAST;
-		gbc_comboBoxStopCriterion.gridx = 0;
-		gbc_comboBoxStopCriterion.gridy = 0;
-		panelStopCriterion.add(comboBoxStopCriterion, 
-				gbc_comboBoxStopCriterion);
+		gbcJComboBoxTerminationCriterion.insets = new Insets(5, 20, 5, 5);
+		gbcJComboBoxTerminationCriterion.anchor = GridBagConstraints.EAST;
+		gbcJComboBoxTerminationCriterion.gridx = 0;
+		gbcJComboBoxTerminationCriterion.gridy = 0;
+		jPanelTerminationCriterion.add(jComboBoxTerminationCriterion, 
+				gbcJComboBoxTerminationCriterion);
 		
 		jLabelColon = new JLabel(":");
-		GridBagConstraints gbc_jLabelColon = 
-			new GridBagConstraints();
-		gbc_jLabelColon.insets = new Insets(5, 5, 5, 5);
-		gbc_jLabelColon.anchor = GridBagConstraints.WEST;
-		gbc_jLabelColon.gridx = 1;
-		gbc_jLabelColon.gridy = 0;
-		panelStopCriterion.add(jLabelColon, 
-				gbc_jLabelColon);
+		GridBagConstraints gbcJLabelColon = new GridBagConstraints();
+		gbcJLabelColon.insets = new Insets(5, 5, 5, 5);
+		gbcJLabelColon.anchor = GridBagConstraints.WEST;
+		gbcJLabelColon.gridx = 1;
+		gbcJLabelColon.gridy = 0;
+		jPanelTerminationCriterion.add(jLabelColon, gbcJLabelColon);
 		
-		jTextFieldStopCriterion = new JTextField("0");
-		jTextFieldStopCriterion.setColumns(2);
-		jTextFieldStopCriterion.setHorizontalAlignment(JTextField.RIGHT);
-		GridBagConstraints gbc_jTextFieldStopCriterion = 
+		jTextFieldTerminationCriterion = new JTextField("0");
+		jTextFieldTerminationCriterion.setColumns(2);
+		jTextFieldTerminationCriterion.setHorizontalAlignment(JTextField.RIGHT);
+		GridBagConstraints gbcJTextFieldTerminationCriterion = 
 			new GridBagConstraints();
-		gbc_jTextFieldStopCriterion.insets = new Insets(5, 5, 5, 5);
-		gbc_jTextFieldStopCriterion.anchor = GridBagConstraints.WEST;
-		gbc_jTextFieldStopCriterion.gridx = 2;
-		gbc_jTextFieldStopCriterion.gridy = 0;
-		panelStopCriterion.add(jTextFieldStopCriterion, 
-				gbc_jTextFieldStopCriterion);
+		gbcJTextFieldTerminationCriterion.insets = new Insets(5, 5, 5, 5);
+		gbcJTextFieldTerminationCriterion.anchor = GridBagConstraints.WEST;
+		gbcJTextFieldTerminationCriterion.gridx = 2;
+		gbcJTextFieldTerminationCriterion.gridy = 0;
+		jPanelTerminationCriterion.add(jTextFieldTerminationCriterion, 
+				gbcJTextFieldTerminationCriterion);
 		
-		jLabelStopCriterionPercentage = new JLabel("%");
-		jLabelStopCriterionPercentage.setVisible(false);
-		GridBagConstraints gbc_jLabelStopCriterionPercentage = 
+		jLabelTerminationCriterionPercentage = new JLabel("%");
+		jLabelTerminationCriterionPercentage.setVisible(false);
+		GridBagConstraints gbcJLabelTerminationCriterionPercentage = 
 			new GridBagConstraints();
-		gbc_jLabelStopCriterionPercentage.insets = new Insets(5, 5, 5, 5);
-		gbc_jLabelStopCriterionPercentage.anchor = GridBagConstraints.WEST;
-		gbc_jLabelStopCriterionPercentage.gridx = 3;
-		gbc_jLabelStopCriterionPercentage.gridy = 0;
-		panelStopCriterion.add(jLabelStopCriterionPercentage, 
-				gbc_jLabelStopCriterionPercentage);
+		gbcJLabelTerminationCriterionPercentage.insets = new Insets(5, 5, 5, 5);
+		gbcJLabelTerminationCriterionPercentage.anchor = GridBagConstraints.WEST;
+		gbcJLabelTerminationCriterionPercentage.gridx = 3;
+		gbcJLabelTerminationCriterionPercentage.gridy = 0;
+		jPanelTerminationCriterion.add(jLabelTerminationCriterionPercentage, 
+				gbcJLabelTerminationCriterionPercentage);
 		
 		buildGeneticAlgorithmFitnessFunction();
 		jProgressBarGeneticAlgorithm = new JProgressBar();
@@ -1747,17 +1752,17 @@ public class MainFrame extends JFrame {
 		if (algorithm.equals("genAlg")) {
 			if (!jCheckboxGeneticAlgorithm.isSelected()) {
 				jTextFieldPenaltyFactor.setEditable(false);
-				jTextFieldStartPopulationSize.setEditable(false);
-				jTextFieldStopCriterion.setEditable(false);
-				comboBoxRecombination.setEnabled(false);
-				comboBoxStopCriterion.setEnabled(false);
+				jTextFieldPopulationSize.setEditable(false);
+				jTextFieldTerminationCriterion.setEditable(false);
+				jComboBoxCrossover.setEnabled(false);
+				jComboBoxTerminationCriterion.setEnabled(false);
 			}
 			else {
 				jTextFieldPenaltyFactor.setEditable(true);
-				jTextFieldStartPopulationSize.setEditable(true);
-				jTextFieldStopCriterion.setEditable(true);
-				comboBoxRecombination.setEnabled(true);
-				comboBoxStopCriterion.setEnabled(true);
+				jTextFieldPopulationSize.setEditable(true);
+				jTextFieldTerminationCriterion.setEditable(true);
+				jComboBoxCrossover.setEnabled(true);
+				jComboBoxTerminationCriterion.setEnabled(true);
 			}
 		}
 		else if (algorithm.equals("antAlg")) {
@@ -2430,10 +2435,10 @@ public class MainFrame extends JFrame {
 		geneticAlgorithm = new GeneticAlgorithm(
 				serviceClassesList, serviceCandidatesList, constraintsMap, 
 				(Integer) jSpinnerNumberResultTiers.getValue(), 
-				Integer.parseInt(jTextFieldStartPopulationSize.getText()), 
-				Integer.parseInt(jTextFieldStopCriterion.getText()),
-				((String) comboBoxRecombination.getSelectedItem()),
-				((String) comboBoxStopCriterion.getSelectedItem()));
+				Integer.parseInt(jTextFieldPopulationSize.getText()), 
+				Integer.parseInt(jTextFieldTerminationCriterion.getText()),
+				((String) jComboBoxCrossover.getSelectedItem()),
+				((String) jComboBoxTerminationCriterion.getSelectedItem()));
 		geneticAlgorithm.start(jProgressBarGeneticAlgorithm);
 		jTableGeneralResults.setValueAt(
 				geneticAlgorithm.getRuntime() + " ms", 1, 1);
@@ -2453,12 +2458,12 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	private void isJLabelStopCriterionPercentageVisible() {
-		if (comboBoxStopCriterion.getSelectedIndex() != 2) {
-			jLabelStopCriterionPercentage.setVisible(false);
+	private void isJLabelTerminationCriterionPercentageVisible() {
+		if (jComboBoxTerminationCriterion.getSelectedIndex() != 2) {
+			jLabelTerminationCriterionPercentage.setVisible(false);
 		}
 		else {
-			jLabelStopCriterionPercentage.setVisible(true);
+			jLabelTerminationCriterionPercentage.setVisible(true);
 		}
 	}
 }
