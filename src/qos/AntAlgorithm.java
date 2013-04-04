@@ -67,6 +67,7 @@ public class AntAlgorithm extends Algorithm {
 			optimalComposition.setServiceCandidateList(sCList);
 		}
 		else {
+			// TODO: new Composition() reicht jetzt.
 			optimalComposition = new Composition(new LinkedList<ServiceCandidate>(), new QosVector(), 0.0);
 			optimalComposition.addServiceCandidate(new ServiceCandidate(0, 0, "keine Lösung", new QosVector()));	
 		}	
@@ -109,6 +110,7 @@ public class AntAlgorithm extends Algorithm {
 		for (int k=0; k<ants; k++) {
 			int currentClass = 0;
 			int currentService = 0;	
+			// TODO: new Composition() reicht jetzt.
 			antCompositions.add(new Composition(
 					new LinkedList<ServiceCandidate>(), new QosVector(), 0.0));
 			antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));

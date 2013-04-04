@@ -1,6 +1,7 @@
 package qos;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,7 @@ public class GeneticAlgorithm extends Algorithm {
 	private Map<String, Constraint> constraintsMap;
 	
 	private int numberOfRequestedResultTiers;
-	private double populationSize;
+	private int populationSize;
 	private int terminationCriterion;
 	
 	private String crossoverMethod;
@@ -30,7 +31,7 @@ public class GeneticAlgorithm extends Algorithm {
 	public GeneticAlgorithm(List<ServiceClass> serviceClassesList, 
 			List<ServiceCandidate> serviceCandidatesList, 
 			Map<String, Constraint> constraintsMap, 
-			int numberOfRequestedResultTiers, double populationSize,
+			int numberOfRequestedResultTiers, int populationSize,
 			int terminationCriterion, String crossoverMethod, 
 			String terminationMethod) {
 		this.serviceClassesList = serviceClassesList;
@@ -47,13 +48,123 @@ public class GeneticAlgorithm extends Algorithm {
 	public void start(JProgressBar progressBar) {
 		runtime = System.currentTimeMillis();
 		List<Composition> population = generateInitialPopulation();
-		System.out.println(population.size());
 		
 		int terminationCounter = terminationCriterion;
-		updateAlgorithmSolutionTiers(population);
+//		updateAlgorithmSolutionTiers(population);
 		
 		while (terminationCounter > 0) {
-//			printCurrentPopulation(population);
+			// SELECTION (Elitism Based)
+			int numberOfElites = (int) Math.round(populationSize * 0.25);
+			List<Composition> population1 = new LinkedList<Composition>();
+			// Sort the population according to the utility of the 
+			// compositions. Thus, the first elements are the elite elements.
+			Collections.sort(population, new Comparator<Composition>() {
+				public int compare(Composition o1, Composition o2) {
+					if (o1.getUtility() < o2.getUtility()) {
+						// If o1.getUtility() is less than o2.getUtility(), the 
+						// method should normally return -1. But as sort() sorts 
+						// the list in ascending order, we need to do the 
+						// opposite here.
+						return 1;
+					}
+					else if (o1.getUtility() > o2.getUtility()) {
+						return -1;
+					}
+					else {
+						return 0;
+					}
+				}
+			});
+			for (int i = 0; i < numberOfElites; i++) {
+				population1.add(population.get(i));
+			}
+			
+			// CROSSOVER (One-Point Crossover)
+			int numberOfCrossovers = (int) Math.round((
+					(populationSize - numberOfElites) / 2.0));
+			List<Composition> population2 = new LinkedList<Composition>();
+			for (int i = 0; i < numberOfCrossovers; i++) {
+				// Randomly select two compositions for crossover.
+				int a = (int) (Math.random() * populationSize);
+				int b = (int) (Math.random() * populationSize);
+				while (b == a) {
+					b = (int) (Math.random() * populationSize);
+				}
+				Composition compositionA = population.get(a);
+				Composition compositionB = population.get(b);
+				
+				// Randomly select the crossover point.
+				// TODO: Maybe ensure that 0 is not created.
+				int crossoverPoint = (int) (Math.random() * 
+						serviceClassesList.size());
+				
+				// Do the crossover.
+				List<ServiceCandidate> candidatesA1 = compositionA.
+						getServiceCandidatesList().subList(0, crossoverPoint);
+				List<ServiceCandidate> candidatesA2 = compositionA.
+						getServiceCandidatesList().subList(
+								crossoverPoint, serviceClassesList.size());
+				List<ServiceCandidate> candidatesB1 = compositionB.
+						getServiceCandidatesList().subList(0, crossoverPoint);
+				List<ServiceCandidate> candidatesB2 = compositionB.
+						getServiceCandidatesList().subList(
+								crossoverPoint, serviceClassesList.size());
+				
+				Composition compositionC = new Composition();
+				for (ServiceCandidate serviceCandidate : candidatesA1) {
+					compositionC.addServiceCandidate(serviceCandidate);
+				}
+				for (ServiceCandidate serviceCandidate : candidatesB2) {
+					compositionC.addServiceCandidate(serviceCandidate);
+				}
+				compositionC.computeUtilityValue();
+				Composition compositionD = new Composition();
+				for (ServiceCandidate serviceCandidate : candidatesB1) {
+					compositionD.addServiceCandidate(serviceCandidate);
+				}
+				for (ServiceCandidate serviceCandidate : candidatesA2) {
+					compositionD.addServiceCandidate(serviceCandidate);
+				}
+				compositionD.computeUtilityValue();
+				
+				population2.add(compositionC);
+				population2.add(compositionD);
+			}
+			
+			// MUTATION
+			
+			
+			
+			// UPDATE
+			population.removeAll(population);
+			population.addAll(population1);
+			population.addAll(population2);
+				
+			terminationCounter--;
+		}
+			
+		// (Sort the population, see above.)
+		Collections.sort(population, new Comparator<Composition>() {
+			public int compare(Composition o1, Composition o2) {
+				if (o1.getUtility() < o2.getUtility()) {
+					return 1;
+				}
+				else if (o1.getUtility() > o2.getUtility()) {
+					return -1;
+				}
+				else {
+					return 0;
+				}
+			}
+		});
+		
+		// Print the best solution.
+		System.out.println(population.get(0).getUtility());
+		runtime = System.currentTimeMillis() - runtime;
+			
+			
+			/*
+			
 			List<Composition> oldPopulation = population;
 			
 			// MUTATION
@@ -77,8 +188,6 @@ public class GeneticAlgorithm extends Algorithm {
 			population = doSelection(population);
 			
 			updateAlgorithmSolutionTiers(population);
-//			printCurrentPopulation(population);
-//			System.out.println();
 			
 			// CHECK TERMINATION CRITERION
 			if (terminationMethod.contains("Iteration")) {
@@ -104,6 +213,9 @@ public class GeneticAlgorithm extends Algorithm {
 			else {
 
 			}
+			
+			
+			
 		}
 		
 		// TODO: Für was ist denn das setTierTitle() gut? getTierTitle() wird 
@@ -117,6 +229,8 @@ public class GeneticAlgorithm extends Algorithm {
 		}
 		runtime = System.currentTimeMillis() - runtime;
 
+		*/
+		
 	}
 
 	
@@ -125,11 +239,7 @@ public class GeneticAlgorithm extends Algorithm {
 		List<Composition> population = new LinkedList<Composition>();
 		// Loop to construct the requested number of compositions.
 		for (int i = 0; i < populationSize; i++) {
-			List<ServiceCandidate> chosenServiceCandidatesList = 
-					new LinkedList<ServiceCandidate>();
-			QosVector qosVector = new QosVector();
-			Composition composition = new Composition(
-					chosenServiceCandidatesList, qosVector, 0.0);
+			Composition composition = new Composition();
 			// Loop to randomly select a service candidate for each service 
 			// class.
 			for (int j = 0; j < serviceClassesList.size(); j++) {
@@ -150,6 +260,7 @@ public class GeneticAlgorithm extends Algorithm {
 				i--;
 			}
 			else {
+				composition.computeUtilityValue();
 				population.add(composition);
 			}
 		}

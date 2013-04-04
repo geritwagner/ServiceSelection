@@ -43,9 +43,7 @@ public class AnalyticAlgorithm extends Algorithm {
 		// Do complete enumeration.
 		for (int i = 0; i < serviceClassesList.get(0).
 				getServiceCandidateList().size(); i++) {
-			doCompleteEnumeration(new Composition(
-					new LinkedList<ServiceCandidate>(), new QosVector(), 0.0), 
-					0, i);
+			doCompleteEnumeration(new Composition(), 0, i);
 			// TODO: ProgressBar doesn's work correctly.
 //			progressBar.setValue((int) Math.round((
 //					(double) (i + 1) / ((double) serviceClassesList.get(
@@ -111,6 +109,9 @@ public class AnalyticAlgorithm extends Algorithm {
 	}
 	
 	private void changeAlgorithmSolutionTiers(Composition composition) {
+		// TODO: Durch den geänderten Default-Konstruktor kann man das 
+		//		 jetzt vielleicht wieder schöner gestalten. Also ohne lauter 
+		//		 neue Objekte erzeugen zu müssen.
 		List<ServiceCandidate> serviceCandidates = 
 			new LinkedList<ServiceCandidate>(
 					composition.getServiceCandidatesList());						

@@ -6,15 +6,16 @@ import java.util.Map;
 
 public class Composition {
 	
-	private List<ServiceCandidate> serviceCandidatesList = 
-			new LinkedList<ServiceCandidate>();
+	private List<ServiceCandidate> serviceCandidatesList;
 	private QosVector qosVectorAggregated;
 	private double utility;
 	
 	
 	// CONSTRUCTORS
 	public Composition() {
-		
+		this.serviceCandidatesList = new LinkedList<ServiceCandidate>();
+		this.qosVectorAggregated = new QosVector();
+		this.utility = 0.0;
 	}
 
 	public Composition(List<ServiceCandidate> serviceCandidatesList, 
