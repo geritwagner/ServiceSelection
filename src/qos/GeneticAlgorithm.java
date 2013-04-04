@@ -54,6 +54,7 @@ public class GeneticAlgorithm extends Algorithm {
 		
 		while (terminationCounter > 0) {
 			// SELECTION (Elitism Based)
+			// TODO: Make the elitismRate variable!
 			int numberOfElites = (int) Math.round(populationSize * 0.25);
 			List<Composition> population1 = new LinkedList<Composition>();
 			// Sort the population according to the utility of the 
@@ -94,35 +95,32 @@ public class GeneticAlgorithm extends Algorithm {
 				Composition compositionB = population.get(b);
 				
 				// Randomly select the crossover point.
-				// TODO: Maybe ensure that 0 is not created.
+				// TODO: Maybe ensure that 0 is not created. (--> Solution 
+				//		 should be correct, but has not been tested yet.)
 				int crossoverPoint = (int) (Math.random() * 
-						serviceClassesList.size());
+						(serviceClassesList.size() - 1) + 1);
 				
 				// Do the crossover.
-				List<ServiceCandidate> candidatesA1 = compositionA.
-						getServiceCandidatesList().subList(0, crossoverPoint);
-				List<ServiceCandidate> candidatesA2 = compositionA.
-						getServiceCandidatesList().subList(
-								crossoverPoint, serviceClassesList.size());
-				List<ServiceCandidate> candidatesB1 = compositionB.
-						getServiceCandidatesList().subList(0, crossoverPoint);
-				List<ServiceCandidate> candidatesB2 = compositionB.
-						getServiceCandidatesList().subList(
-								crossoverPoint, serviceClassesList.size());
-				
 				Composition compositionC = new Composition();
-				for (ServiceCandidate serviceCandidate : candidatesA1) {
+				for (ServiceCandidate serviceCandidate : compositionA.
+						getServiceCandidatesList().subList(0, crossoverPoint)) {
 					compositionC.addServiceCandidate(serviceCandidate);
 				}
-				for (ServiceCandidate serviceCandidate : candidatesB2) {
+				for (ServiceCandidate serviceCandidate : compositionB.
+						getServiceCandidatesList().subList(
+								crossoverPoint, serviceClassesList.size())) {
 					compositionC.addServiceCandidate(serviceCandidate);
 				}
 				compositionC.computeUtilityValue();
+				
 				Composition compositionD = new Composition();
-				for (ServiceCandidate serviceCandidate : candidatesB1) {
+				for (ServiceCandidate serviceCandidate : compositionB.
+						getServiceCandidatesList().subList(0, crossoverPoint)) {
 					compositionD.addServiceCandidate(serviceCandidate);
 				}
-				for (ServiceCandidate serviceCandidate : candidatesA2) {
+				for (ServiceCandidate serviceCandidate : compositionA.
+						getServiceCandidatesList().subList(
+								crossoverPoint, serviceClassesList.size())) {
 					compositionD.addServiceCandidate(serviceCandidate);
 				}
 				compositionD.computeUtilityValue();
@@ -132,7 +130,33 @@ public class GeneticAlgorithm extends Algorithm {
 			}
 			
 			// MUTATION
-			
+			// TODO: By temporary defining some variables, the code is easier 
+			//		 understand, but maybe has a worse performance. What is 
+			//		 the best trade-off?
+			double mutationRate = 1.0 / serviceClassesList.size();
+			// TODO: Why does the author use numberOfCrossovers for this loop?
+			for (int i = 0; i < numberOfCrossovers; i++) {
+				Composition composition = population2.get(
+						(int) (Math.random() * population2.size()));
+				List<ServiceCandidate> serviceCandidates = 
+						composition.getServiceCandidatesList();
+				for (int j = 0; j < serviceCandidates.size(); j++) {
+					double random = Math.random();
+					if (random < mutationRate) {
+						ServiceCandidate oldServiceCandidate = 
+								serviceCandidates.get(j);
+						// Get the service candidates from the service class 
+						// that has to be mutated. "-1" is necessary because 
+						// the IDs start with 1 instead of 0!
+						List<ServiceCandidate> newServiceCandidates = 
+								serviceClassesList.get(oldServiceCandidate.
+										getServiceClassId() - 1).
+										getServiceCandidateList();
+						serviceCandidates.set(j, newServiceCandidates.get(
+								(int) random * newServiceCandidates.size()));
+					}
+				}
+			}
 			
 			
 			// UPDATE

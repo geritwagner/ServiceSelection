@@ -66,7 +66,7 @@ public class Composition {
 				serviceCandidateRemoved.getQosVector());
 	}
 	
-	
+	// Returns the IDs of the compositions's service candidates.
 	public String getServiceCandidatesAsString() {
 		String serviceCandidates = "";
 		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
@@ -76,7 +76,8 @@ public class Composition {
 		return serviceCandidates;
 	}
 	
-	// Compare two compositions by comparing the IDs of each of their 	
+	// Compare two compositions by comparing the IDs of each of their 
+	// service candidates.
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -130,6 +131,10 @@ public class Composition {
 	public void setServiceCandidateList(
 			List<ServiceCandidate> serviceCandidatesList) {
 		this.serviceCandidatesList = serviceCandidatesList;
+		// Automatically compute the new aggregated QoS vector and the new
+		// utility value.
+		buildAggregatedQosVector();
+		computeUtilityValue();
 	}
 	public QosVector getQosVectorAggregated() {
 		return qosVectorAggregated;
