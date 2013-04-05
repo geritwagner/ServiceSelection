@@ -16,7 +16,6 @@ public class GeneticAlgorithm extends Algorithm {
 	private List<ServiceCandidate> serviceCandidatesList;
 	private Map<String, Constraint> constraintsMap;
 	
-	private int numberOfRequestedResultTiers;
 	private int populationSize;
 	private int terminationCriterion;
 	
@@ -31,13 +30,11 @@ public class GeneticAlgorithm extends Algorithm {
 	public GeneticAlgorithm(List<ServiceClass> serviceClassesList, 
 			List<ServiceCandidate> serviceCandidatesList, 
 			Map<String, Constraint> constraintsMap, 
-			int numberOfRequestedResultTiers, int populationSize,
-			int terminationCriterion, String crossoverMethod, 
-			String terminationMethod) {
+			int populationSize, int terminationCriterion, 
+			String crossoverMethod, String terminationMethod) {
 		this.serviceClassesList = serviceClassesList;
 		this.serviceCandidatesList = serviceCandidatesList;
 		this.constraintsMap = constraintsMap;
-		this.numberOfRequestedResultTiers = numberOfRequestedResultTiers;
 		this.populationSize = populationSize;
 		this.terminationCriterion = terminationCriterion;
 		this.crossoverMethod = crossoverMethod;
@@ -184,6 +181,10 @@ public class GeneticAlgorithm extends Algorithm {
 		
 		// Print the best solution.
 		System.out.println(population.get(0).getUtility());
+		List<Composition> optimalComposition = new LinkedList<Composition>();
+		optimalComposition.add(population.get(0));
+		algorithmSolutionTiers.add(
+				new AlgorithmSolutionTier(optimalComposition, 1));
 		runtime = System.currentTimeMillis() - runtime;
 			
 			
@@ -632,77 +633,77 @@ public class GeneticAlgorithm extends Algorithm {
 	//		 --> Anders gesagt hängt es von der Fitness ab. Im Endeffekt ist es 
 	//			 aber (zumindest bei hohem Penalty Factor) das Gleiche. Oder?
 	//		 --> Seh ich auch so. Bin mir aber nicht ganz sicher.
-	private void updateAlgorithmSolutionTiers(
-			List<Composition> newPopulation) {
-		List<Composition> differentSolutions = new LinkedList<Composition>(
-				getDifferentSolutions(newPopulation));
-		for (Composition composition : differentSolutions) {
-			// Check if the composition is already contained in the list of 
-			// algorithm solution tiers.
-			boolean isNewComposition = true;
-			for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
-				if (tier.getServiceCompositionList().contains(composition)) {
-					isNewComposition = false;
-					break;
-				}
-			}
-			if (isNewComposition) {
-				// Create the new composition to be added to the list of 
-				// algorithm solution tiers.
-				List<ServiceCandidate> serviceCandidates = 
-					new LinkedList<ServiceCandidate>(
-							composition.getServiceCandidatesList());						
-				Collections.copy(serviceCandidates, 
-						composition.getServiceCandidatesList());
-				Composition newComposition = new Composition();
-				newComposition.setServiceCandidateList(serviceCandidates);
-				newComposition.setQosVectorAggregated(new QosVector(
-						composition.getQosVectorAggregated().getCosts(), 
-						composition.getQosVectorAggregated().getResponseTime(), 
-						composition.getQosVectorAggregated().getAvailability())
-				);
-				newComposition.computeUtilityValue();
-				
-				// Determine the position of the new composition in the 
-				// result table. (According to its rank, which is evaluated by 
-				// comparing the utility values.)
-				int tierRank = 0;
-				boolean equalValues = false;
-				for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
-					if (tier.getServiceCompositionList().get(0).getUtility() > 
-					newComposition.getUtility()) {
-						tierRank++;
-						if (tierRank >= numberOfRequestedResultTiers) {
-							break;
-						}
-					}
-					else if (tier.getServiceCompositionList().get(0).
-							getUtility() == newComposition.getUtility()) {
-						equalValues = true;
-						break;
-					}
-				}
-				if (equalValues) {
-					algorithmSolutionTiers.get(tierRank).
-					getServiceCompositionList().add(newComposition);
-				}
-				else {
-					// Add the new composition to the right position.
-					List<Composition> newEntry = new LinkedList<Composition>();
-					newEntry.add(newComposition);
-					algorithmSolutionTiers.add(tierRank, 
-							new AlgorithmSolutionTier(newEntry, tierRank + 1));
-					// Remove the worst composition if the number of maximum 
-					// solution tiers would be exceeded.
-					if (algorithmSolutionTiers.size() > 
-					numberOfRequestedResultTiers) {
-						algorithmSolutionTiers.remove(
-								algorithmSolutionTiers.size() - 1);
-					}
-				}	
-			}	
-		}
-	}
+//	private void updateAlgorithmSolutionTiers(
+//			List<Composition> newPopulation) {
+//		List<Composition> differentSolutions = new LinkedList<Composition>(
+//				getDifferentSolutions(newPopulation));
+//		for (Composition composition : differentSolutions) {
+//			// Check if the composition is already contained in the list of 
+//			// algorithm solution tiers.
+//			boolean isNewComposition = true;
+//			for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
+//				if (tier.getServiceCompositionList().contains(composition)) {
+//					isNewComposition = false;
+//					break;
+//				}
+//			}
+//			if (isNewComposition) {
+//				// Create the new composition to be added to the list of 
+//				// algorithm solution tiers.
+//				List<ServiceCandidate> serviceCandidates = 
+//					new LinkedList<ServiceCandidate>(
+//							composition.getServiceCandidatesList());						
+//				Collections.copy(serviceCandidates, 
+//						composition.getServiceCandidatesList());
+//				Composition newComposition = new Composition();
+//				newComposition.setServiceCandidateList(serviceCandidates);
+//				newComposition.setQosVectorAggregated(new QosVector(
+//						composition.getQosVectorAggregated().getCosts(), 
+//						composition.getQosVectorAggregated().getResponseTime(), 
+//						composition.getQosVectorAggregated().getAvailability())
+//				);
+//				newComposition.computeUtilityValue();
+//				
+//				// Determine the position of the new composition in the 
+//				// result table. (According to its rank, which is evaluated by 
+//				// comparing the utility values.)
+//				int tierRank = 0;
+//				boolean equalValues = false;
+//				for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {
+//					if (tier.getServiceCompositionList().get(0).getUtility() > 
+//					newComposition.getUtility()) {
+//						tierRank++;
+//						if (tierRank >= numberOfRequestedResultTiers) {
+//							break;
+//						}
+//					}
+//					else if (tier.getServiceCompositionList().get(0).
+//							getUtility() == newComposition.getUtility()) {
+//						equalValues = true;
+//						break;
+//					}
+//				}
+//				if (equalValues) {
+//					algorithmSolutionTiers.get(tierRank).
+//					getServiceCompositionList().add(newComposition);
+//				}
+//				else {
+//					// Add the new composition to the right position.
+//					List<Composition> newEntry = new LinkedList<Composition>();
+//					newEntry.add(newComposition);
+//					algorithmSolutionTiers.add(tierRank, 
+//							new AlgorithmSolutionTier(newEntry, tierRank + 1));
+//					// Remove the worst composition if the number of maximum 
+//					// solution tiers would be exceeded.
+//					if (algorithmSolutionTiers.size() > 
+//					numberOfRequestedResultTiers) {
+//						algorithmSolutionTiers.remove(
+//								algorithmSolutionTiers.size() - 1);
+//					}
+//				}	
+//			}	
+//		}
+//	}
 	
 	private List<Composition> getDifferentSolutions(
 			List<Composition> population) {

@@ -156,7 +156,9 @@ public class MainFrame extends JFrame {
 	private JTextField txtAntPi;
 	
 	private JComboBox<String> jComboBoxCrossover;
+	private JComboBox<String> jComboBoxSelection;
 	private JComboBox<String> jComboBoxTerminationCriterion;
+	private JLabel jLabelStartPopulationPercentage;
 
 	/**
 	 * Launch the application.
@@ -393,26 +395,7 @@ public class MainFrame extends JFrame {
 		jPanelQosConstraints.add(
 				jLabelQosConstraints, gbcJLabelQosConstraints);
 
-		JLabel jLabelResultTiers = new JLabel("Number of Result Tiers");
-		GridBagConstraints gbcJLabelResultTiers = new GridBagConstraints();
-		gbcJLabelResultTiers.insets = new Insets(0, 5, 5, 5);
-		gbcJLabelResultTiers.gridx = 0;
-		gbcJLabelResultTiers.gridy = 1;
-		gbcJLabelResultTiers.anchor = GridBagConstraints.WEST;
-		jPanelQosConstraints.add(jLabelResultTiers, gbcJLabelResultTiers);
-
-		jSpinnerNumberResultTiers = 
-			new JSpinner(new SpinnerNumberModel(1, 1, 3, 1));
-		((JSpinner.DefaultEditor) jSpinnerNumberResultTiers.getEditor()).
-		getTextField().setEditable(false);
-		jSpinnerNumberResultTiers.setPreferredSize(new Dimension(35, 25));
-		GridBagConstraints gbcJSpinnerNumberResultTiers = 
-			new GridBagConstraints();
-		gbcJSpinnerNumberResultTiers.insets = new Insets(0, 0, 5, 5);
-		gbcJSpinnerNumberResultTiers.gridx = 1;
-		gbcJSpinnerNumberResultTiers.gridy = 1;
-		jPanelQosConstraints.add(
-				jSpinnerNumberResultTiers, gbcJSpinnerNumberResultTiers);
+		
 
 		JLabel lblWeight = new JLabel("Weight");
 		GridBagConstraints gbc_lblWeight = new GridBagConstraints();
@@ -457,7 +440,8 @@ public class MainFrame extends JFrame {
 		jTextFieldMaxCosts.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setConstraintValueManually(jSliderMaxCosts, 
-						jTextFieldMaxCosts, MIN_COSTS, MAX_COSTS);
+						jTextFieldMaxCosts, jSliderMaxCosts.getMinimum(),
+						jSliderMaxCosts.getMaximum());
 			}
 		});
 		jTextFieldMaxCosts.setHorizontalAlignment(JTextField.RIGHT);
@@ -543,7 +527,8 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				setConstraintValueManually(jSliderMaxResponseTime, 
 						jTextFieldMaxResponseTime, 
-						MIN_RESPONSE_TIME, MAX_RESPONSE_TIME);
+						jSliderMaxResponseTime.getMinimum(), 
+						jSliderMaxResponseTime.getMaximum());
 			}
 		});
 		jTextFieldMaxResponseTime.setHorizontalAlignment(JTextField.RIGHT);
@@ -633,7 +618,8 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				setConstraintValueManually(jSliderMinAvailability, 
 						jTextFieldMinAvailability, 
-						MIN_AVAILABILITY, MAX_AVAILABILITY);
+						jSliderMinAvailability.getMinimum(), 
+						jSliderMinAvailability.getMaximum());
 			}
 		});
 		jTextFieldMinAvailability.setHorizontalAlignment(JTextField.RIGHT);
@@ -920,7 +906,7 @@ public class MainFrame extends JFrame {
 		gbl_panelGeneticAlgorithmSettings.columnWeights = 
 			new double[]{0.3, 1.0, 0.3, 0.3};
 		gbl_panelGeneticAlgorithmSettings.rowWeights = 
-			new double[]{0.2, 0.1, 0.2, 0.5, 0.5, 0.0, 1.0, 0.5, 0.5};
+			new double[]{0.2, 0.1, 0.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 		panelGeneticAlgorithmSettings.setLayout(
 				gbl_panelGeneticAlgorithmSettings);
 
@@ -1063,10 +1049,8 @@ public class MainFrame extends JFrame {
 		gbcPopulationSize.gridx = 0;
 		gbcPopulationSize.gridy = 0;
 		jPanelPopulationSize.add(jTextFieldPopulationSize, gbcPopulationSize);
-		
-		// TODO: Entfernen! Wollte es lieber dir mit dem Window Builder 
-		//		 überlassen.
-		JLabel jLabelStartPopulationPercentage = new JLabel("%");
+
+		jLabelStartPopulationPercentage = new JLabel();
 		GridBagConstraints gbc_jLabelStartPopulationPercentage = 
 			new GridBagConstraints();
 		gbc_jLabelStartPopulationPercentage.insets = new Insets(5, 0, 5, 5);
@@ -1076,17 +1060,49 @@ public class MainFrame extends JFrame {
 		jPanelPopulationSize.add(jLabelStartPopulationPercentage, 
 				gbc_jLabelStartPopulationPercentage);
 		
+		JLabel jLabelSelection = new JLabel("Selection Method:");
+		GridBagConstraints gbcJLabelSelection = new GridBagConstraints();
+		gbcJLabelSelection.anchor = GridBagConstraints.WEST;
+		gbcJLabelSelection.insets = new Insets(5, 5, 5, 5);
+		gbcJLabelSelection.gridx = 0;
+		gbcJLabelSelection.gridy = 5;
+		panelGeneticAlgorithmSettings.add(
+				jLabelSelection, gbcJLabelSelection);
 		
-		// TODO: Selection Method hier einfügen!
-		//		 Standardauswahl soll zunächst "Elite" / "Elitism based" sein.
+		JPanel jPanelSelection = new JPanel();
+		GridBagLayout gblJPanelSelection = new GridBagLayout();
+		gblJPanelSelection.columnWeights = new double[] {1.0};
+		gblJPanelSelection.rowWeights = new double[] {1.0};
+		jPanelSelection.setLayout(gblJPanelSelection);
+		GridBagConstraints gbcJPanelSelection = 
+			new GridBagConstraints();
+		gbcJPanelSelection.anchor = GridBagConstraints.WEST;
+		gbcJPanelSelection.gridwidth = 2;
+		gbcJPanelSelection.gridx = 1;
+		gbcJPanelSelection.gridy = 5;
+		panelGeneticAlgorithmSettings.add(jPanelSelection, gbcJPanelSelection);
 		
+		jComboBoxSelection = new JComboBox<String>();
+		jComboBoxSelection.addItem("Elitism Based");
+		jComboBoxSelection.addItem("Roulette Wheel Selection");
+		jComboBoxSelection.addItem("Tournament Selection");
+		GridBagConstraints gbcJComboBoxSelection = 
+			new GridBagConstraints();
+		gbcJComboBoxSelection.insets = new Insets(5, 20, 5, 5);
+		gbcJComboBoxSelection.anchor = GridBagConstraints.EAST;
+		gbcJComboBoxSelection.gridx = 0;
+		gbcJComboBoxSelection.gridy = 0;
+		jPanelSelection.add(jComboBoxSelection, 
+				gbcJComboBoxSelection);
+		
+
 		
 		JLabel jLabelCrossover = new JLabel("Crossover Method:");
 		GridBagConstraints gbcJLabelCrossover = new GridBagConstraints();
 		gbcJLabelCrossover.anchor = GridBagConstraints.WEST;
 		gbcJLabelCrossover.insets = new Insets(5, 5, 5, 5);
 		gbcJLabelCrossover.gridx = 0;
-		gbcJLabelCrossover.gridy = 5;
+		gbcJLabelCrossover.gridy = 6;
 		panelGeneticAlgorithmSettings.add(
 				jLabelCrossover, gbcJLabelCrossover);
 		
@@ -1100,7 +1116,7 @@ public class MainFrame extends JFrame {
 		gbcJPanelCrossover.anchor = GridBagConstraints.WEST;
 		gbcJPanelCrossover.gridwidth = 2;
 		gbcJPanelCrossover.gridx = 1;
-		gbcJPanelCrossover.gridy = 5;
+		gbcJPanelCrossover.gridy = 6;
 		panelGeneticAlgorithmSettings.add(jPanelCrossover, gbcJPanelCrossover);
 		
 		jComboBoxCrossover = new JComboBox<String>();
@@ -1126,7 +1142,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelTerminationCriterion.anchor = GridBagConstraints.WEST;
 		gbcJLabelTerminationCriterion.insets = new Insets(5, 5, 0, 5);
 		gbcJLabelTerminationCriterion.gridx = 0;
-		gbcJLabelTerminationCriterion.gridy = 6;
+		gbcJLabelTerminationCriterion.gridy = 7;
 		panelGeneticAlgorithmSettings.add(
 				jLabelTerminationCriterion, gbcJLabelTerminationCriterion);
 		
@@ -1141,7 +1157,7 @@ public class MainFrame extends JFrame {
 		gbcJPanelTerminationCriterion.gridwidth = 2;
 		gbcJPanelTerminationCriterion.anchor = GridBagConstraints.WEST;
 		gbcJPanelTerminationCriterion.gridx = 1;
-		gbcJPanelTerminationCriterion.gridy = 6;
+		gbcJPanelTerminationCriterion.gridy = 7;
 		panelGeneticAlgorithmSettings.add(
 				jPanelTerminationCriterion, gbcJPanelTerminationCriterion);
 		
@@ -1242,7 +1258,6 @@ public class MainFrame extends JFrame {
 				gbcJCheckBoxAntAlgorithm);
 
 		JScrollPane jScrollPaneAntAlgorithm = new JScrollPane();
-		jScrollPaneAntAlgorithm.setBorder(new LineBorder(Color.BLACK));
 		GridBagConstraints gbcJScrollPaneAntAlgorithm = 
 			new GridBagConstraints();
 		// TODO: Find out why these insets are necessary.
@@ -1405,8 +1420,9 @@ public class MainFrame extends JFrame {
 		gbcJPanelAnalyticAlgorithm.gridy = 3;
 		contentPane.add(jPanelAnalyticAlgorithm, gbcJPanelAnalyticAlgorithm);
 		GridBagLayout gblJPanelAnalyticAlgorithm = new GridBagLayout();
-		gblJPanelAnalyticAlgorithm.columnWeights = new double[]{1.0};
-		gblJPanelAnalyticAlgorithm.rowWeights = new double[]{0.1, 0.8, 0.1};
+		gblJPanelAnalyticAlgorithm.columnWeights = new double[]{1.0, 1.0};
+		gblJPanelAnalyticAlgorithm.rowWeights = 
+				new double[]{0.1, 0.7, 0.1, 0.1};
 		jPanelAnalyticAlgorithm.setLayout(gblJPanelAnalyticAlgorithm);
 
 		jCheckBoxAnalyticAlgorithm = 
@@ -1421,6 +1437,7 @@ public class MainFrame extends JFrame {
 			new GridBagConstraints();
 		gbcJCheckBoxAnalyticAlgorithm.anchor = GridBagConstraints.NORTH;
 		gbcJCheckBoxAnalyticAlgorithm.insets = new Insets(0, 0, 5, 0);
+		gbcJCheckBoxAnalyticAlgorithm.gridwidth = 2;
 		gbcJCheckBoxAnalyticAlgorithm.gridx = 0;
 		gbcJCheckBoxAnalyticAlgorithm.gridy = 0;
 		jPanelAnalyticAlgorithm.add(
@@ -1431,6 +1448,7 @@ public class MainFrame extends JFrame {
 			new GridBagConstraints();
 		gbcJScrollPaneAnalyticAlgorithm.insets = new Insets(0, 0, 5, 0);
 		gbcJScrollPaneAnalyticAlgorithm.fill = GridBagConstraints.BOTH;
+		gbcJScrollPaneAnalyticAlgorithm.gridwidth = 2;
 		gbcJScrollPaneAnalyticAlgorithm.gridx = 0;
 		gbcJScrollPaneAnalyticAlgorithm.gridy = 1;
 		jPanelAnalyticAlgorithm.add(
@@ -1475,6 +1493,27 @@ public class MainFrame extends JFrame {
 		jTableAnalyticAlgorithm.setValueAt("Enumeration", 0, 1);
 		jTableAnalyticAlgorithm.setValueAt("Branch and Bound", 1, 1);
 		jScrollPaneAnalyticAlgorithm.setViewportView(jTableAnalyticAlgorithm);
+		
+		JLabel jLabelResultTiers = new JLabel("Number of Result Tiers:");
+		GridBagConstraints gbcJLabelResultTiers = new GridBagConstraints();
+		gbcJLabelResultTiers.insets = new Insets(0, 5, 5, 5);
+		gbcJLabelResultTiers.gridx = 0;
+		gbcJLabelResultTiers.gridy = 2;
+		gbcJLabelResultTiers.anchor = GridBagConstraints.WEST;
+		jPanelAnalyticAlgorithm.add(jLabelResultTiers, gbcJLabelResultTiers);
+
+		jSpinnerNumberResultTiers = 
+			new JSpinner(new SpinnerNumberModel(1, 1, 3, 1));
+		((JSpinner.DefaultEditor) jSpinnerNumberResultTiers.getEditor()).
+		getTextField().setEditable(false);
+		jSpinnerNumberResultTiers.setPreferredSize(new Dimension(35, 25));
+		GridBagConstraints gbcJSpinnerNumberResultTiers = 
+			new GridBagConstraints();
+		gbcJSpinnerNumberResultTiers.insets = new Insets(0, 0, 5, 5);
+		gbcJSpinnerNumberResultTiers.gridx = 1;
+		gbcJSpinnerNumberResultTiers.gridy = 2;
+		jPanelAnalyticAlgorithm.add(
+				jSpinnerNumberResultTiers, gbcJSpinnerNumberResultTiers);
 
 		jProgressBarAnalyticAlgorithm = new JProgressBar();
 		jProgressBarAnalyticAlgorithm.setStringPainted(true);
@@ -1482,8 +1521,9 @@ public class MainFrame extends JFrame {
 			new GridBagConstraints();
 		gbcJProgressBarAnalyticAlgorithm.fill = GridBagConstraints.HORIZONTAL;
 		gbcJProgressBarAnalyticAlgorithm.anchor = GridBagConstraints.SOUTH;
+		gbcJProgressBarAnalyticAlgorithm.gridwidth = 2;
 		gbcJProgressBarAnalyticAlgorithm.gridx = 0;
-		gbcJProgressBarAnalyticAlgorithm.gridy = 2;
+		gbcJProgressBarAnalyticAlgorithm.gridy = 3;
 		jPanelAnalyticAlgorithm.add(
 				jProgressBarAnalyticAlgorithm, 
 				gbcJProgressBarAnalyticAlgorithm);
@@ -1676,6 +1716,7 @@ public class MainFrame extends JFrame {
 			}
 			webServicesLoaded = true;
 			checkEnableStartButton();
+			setSliderExtremeValues();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -1692,18 +1733,6 @@ public class MainFrame extends JFrame {
 	}
 
 	private void buildResultTable() {
-		String chosenConstraintsCs = "# Composition;" +
-		"# Service;Service Title;Service Class;Utility Value;";
-		if (jCheckBoxMaxCosts.isSelected()) {
-			chosenConstraintsCs += "Costs;";
-		}
-		if (jCheckBoxMaxResponseTime.isSelected()) {
-			chosenConstraintsCs += "Response Time;";
-		}
-		if (jCheckBoxMinAvailability.isSelected()) {
-			chosenConstraintsCs += "Availability;";
-		}
-		String[] tierTablesColumnNames = chosenConstraintsCs.split(";");
 		if (jTabbedPane.getTabCount() > 0) {
 			jTabbedPane.removeAll();
 		}
@@ -1714,15 +1743,13 @@ public class MainFrame extends JFrame {
 		// COUNTER FOR EVERY CHOSEN ALGORITHM
 		for (Map.Entry<String, Algorithm> entry : algorithmsMap.entrySet()) {
 			showAlgorithmResults(
-					entry.getValue(), entry.getKey(), tierTablesColumnNames);
+					entry.getValue(), entry.getKey());
 		}		
 	}
 
 	private void pressStartButton() {
 		Map<String, Constraint> constraintsMap = getChosenConstraints();
 		printChosenConstraintsToConsole(constraintsMap);
-		qosMax = determineQosMax();
-		qosMin = determineQosMin();
 		
 		// Calculate the utility value for all service candidates.
 		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
@@ -2162,6 +2189,7 @@ public class MainFrame extends JFrame {
 		}
 		webServicesLoaded = true;
 		checkEnableStartButton();
+		setSliderExtremeValues();
 	}
 	
 	private Map<String, Algorithm> getChosenAlgorithms() {
@@ -2182,7 +2210,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void showAlgorithmResults(Algorithm algorithm, 
-			String algorithmTitle, String[] tierTablesColumnNames) {
+			String algorithmTitle) {
 		
 		int compositionNumber = 1;
 		
@@ -2230,6 +2258,9 @@ public class MainFrame extends JFrame {
 			}
 			
 			// TABLE CONSTRUCTION
+			String[] tierTablesColumnNames = {"# Composition", "# Service", 
+					"Service Title", "Service Class", "Utility Value", "Costs", 
+					"Response Time", "Availability"};
 			JTable jTableTier = new JTable(new BasicTableModel(
 					numberOfRows, 
 					tierTablesColumnNames.length, false));
@@ -2434,7 +2465,6 @@ public class MainFrame extends JFrame {
 	private void doGeneticAlgorithm(Map<String, Constraint> constraintsMap) {
 		geneticAlgorithm = new GeneticAlgorithm(
 				serviceClassesList, serviceCandidatesList, constraintsMap, 
-				(Integer) jSpinnerNumberResultTiers.getValue(), 
 				Integer.parseInt(jTextFieldPopulationSize.getText()), 
 				Integer.parseInt(jTextFieldTerminationCriterion.getText()),
 				((String) jComboBoxCrossover.getSelectedItem()),
@@ -2445,16 +2475,41 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void checkInputValue(JTextField textField) {
+		if (serviceClassesList == null) { 
+			return;
+		}
 		try {
 			Integer.parseInt(textField.getText());
 		} catch (Exception e1) {
-			textField.setText("50");
+			textField.setText("1");
 			writeErrorLogEntry("Input has to be from the type Integer");
 		}
-		if (Integer.parseInt(textField.getText()) > 100 || 
-				Integer.parseInt(textField.getText()) < 1) {
+		int maxStartPopulation = 1;
+		for (ServiceClass serviceClass : serviceClassesList) {
+			maxStartPopulation *= 
+					serviceClass.getServiceCandidateList().size();
+		}
+		int startPopulation = 
+				Integer.parseInt(jTextFieldPopulationSize.getText()) * 100;
+		if (Integer.parseInt(textField.getText()) > maxStartPopulation) {
+			textField.setText(String.valueOf(maxStartPopulation));
+			jLabelStartPopulationPercentage.setText(
+					"( = 100% )");
+			writeErrorLogEntry(
+					"Input has to be between 1 and " + maxStartPopulation);
+		}
+		else if (Integer.parseInt(textField.getText()) < 1) {
 			textField.setText("1");
-			writeErrorLogEntry("Input has to be between 1 and 100");
+			jLabelStartPopulationPercentage.setText(
+					"( = " + DECIMAL_FORMAT_TWO.format(
+							1.0 / maxStartPopulation) + " %)");
+			writeErrorLogEntry(
+					"Input has to be between 1 and " + maxStartPopulation);
+		}
+		else {
+			jLabelStartPopulationPercentage.setText(
+					"( = " + DECIMAL_FORMAT_TWO.format((double)
+							startPopulation / maxStartPopulation) + " %)");
 		}
 	}
 	
@@ -2465,5 +2520,93 @@ public class MainFrame extends JFrame {
 		else {
 			jLabelTerminationCriterionPercentage.setVisible(true);
 		}
+	}
+	
+	private void setSliderExtremeValues() {
+//		double maxCosts = 0.0;
+//		double minCosts = 0.0;
+//		double maxResponseTime = 0.0;
+//		double minResponseTime = 0.0;
+//		double maxAvailability = 1.0;
+//		double minAvailability = 1.0;
+//		for (int i = 0; i < serviceClassesList.size(); i++) {
+//			double[] extremeUtilityValues = {
+//				0.0,
+//				Double.MAX_VALUE,
+//				0.0,
+//				Double.MAX_VALUE,
+//				0.0,
+//				Double.MAX_VALUE
+//			};
+//			for (ServiceCandidate candidate : 
+//				serviceClassesList.get(i).getServiceCandidateList()) {
+//				if (extremeUtilityValues[0] < 
+//						candidate.getQosVector().getCosts()) {
+//					extremeUtilityValues[0] = 
+//							candidate.getQosVector().getCosts();
+//				}
+//				if (extremeUtilityValues[1] > 
+//				candidate.getQosVector().getCosts()) {
+//					extremeUtilityValues[1] = 
+//							candidate.getQosVector().getCosts();
+//				}
+//				if (extremeUtilityValues[2] < 
+//						candidate.getQosVector().getResponseTime()) {
+//					extremeUtilityValues[2] = 
+//							candidate.getQosVector().getResponseTime();
+//				}
+//				if (extremeUtilityValues[3] > 
+//				candidate.getQosVector().getResponseTime()) {
+//					extremeUtilityValues[3] = 
+//							candidate.getQosVector().getResponseTime();
+//				}
+//				if (extremeUtilityValues[4] < 
+//						candidate.getQosVector().getAvailability()) {
+//					extremeUtilityValues[4] = 
+//							candidate.getQosVector().getAvailability();
+//				}
+//				if (extremeUtilityValues[5] > 
+//				candidate.getQosVector().getAvailability()) {
+//					extremeUtilityValues[5] = 
+//							candidate.getQosVector().getAvailability();
+//				}
+//			}
+//			maxCosts += extremeUtilityValues[0];
+//			minCosts += extremeUtilityValues[1];
+//			maxResponseTime += extremeUtilityValues[2];
+//			minResponseTime += extremeUtilityValues[3];
+//			maxAvailability *= extremeUtilityValues[4];
+//			minAvailability *= extremeUtilityValues[5];
+//		}
+//		maxAvailability *= 100;
+//		minAvailability *= 100;
+
+		qosMax = determineQosMax();
+		qosMin = determineQosMin();
+		double maxCosts = qosMax.getCosts() * serviceClassesList.size();
+		double minCosts = qosMin.getCosts() * serviceClassesList.size();
+		double maxResponseTime = 
+			qosMax.getResponseTime() * serviceClassesList.size();
+		double minResponseTime = 
+			qosMin.getResponseTime() * serviceClassesList.size();
+		double maxAvailability = Math.pow(
+				qosMax.getAvailability(), serviceClassesList.size()) * 100;
+		double minAvailability = Math.pow(
+				qosMin.getAvailability(), serviceClassesList.size()) * 100;
+
+		jSliderMaxCosts.setMaximum((int) Math.round(maxCosts));
+		jSliderMaxCosts.setValue(
+				(int) Math.round((maxCosts + minCosts) / 2.0));
+		jSliderMaxCosts.setMinimum((int) Math.round(minCosts));
+		jSliderMaxResponseTime.setMaximum((int) Math.round(maxResponseTime));
+		jSliderMaxResponseTime.setValue((int) Math.round((
+				maxResponseTime + minResponseTime) / 2.0));
+		jSliderMaxResponseTime.setMinimum((int) Math.round(minResponseTime));
+		jSliderMinAvailability.setMaximum((int) Math.round(maxAvailability));
+		jSliderMinAvailability.setValue((int) Math.round((
+				maxAvailability + minAvailability) / 2.0));
+		jSliderMinAvailability.setMinimum((int) Math.round(
+				minAvailability));
+
 	}
 }
