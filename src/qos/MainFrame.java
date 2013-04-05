@@ -118,17 +118,13 @@ public class MainFrame extends JFrame {
 	private static MainFrame frame;
 
 
-	public static final int MAX_COSTS = 10000;
-	public static final int MAX_RESPONSE_TIME = 10000;
-	public static final int MAX_AVAILABILITY = 100;
-	public static final int MAX_RELIABILITY = 100;
-	public static final int MAX_PENALTY_FACTOR = 100;
+	private int maxCosts = 10000;
+	private int maxResponseTime = 10000;
+	private int maxAvailability = 100;
 	
-	public static final int MIN_COSTS = 0;
-	public static final int MIN_RESPONSE_TIME = 0;
-	public static final int MIN_AVAILABILITY = 0;
-	public static final int MIN_RELIABILITY = 0;
-	public static final int MIN_PENALTY_FACTOR = 0;
+	private int minCosts = 0;
+	private int minResponseTime = 0;
+	private int minAvailability = 0;
 	
 	
 	public static final DecimalFormat DECIMAL_FORMAT_TWO = 
@@ -420,9 +416,9 @@ public class MainFrame extends JFrame {
 		jPanelQosConstraints.add(jCheckBoxMaxCosts, gbcJCheckBoxMaxCosts);
 
 		jSliderMaxCosts = new JSlider();
-		jSliderMaxCosts.setMaximum(MAX_COSTS);
+		jSliderMaxCosts.setMaximum(maxCosts);
 		jSliderMaxCosts.setMinimum(0);
-		jSliderMaxCosts.setValue(MAX_COSTS / 2);
+		jSliderMaxCosts.setValue(maxCosts / 2);
 		jSliderMaxCosts.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				useConstraintSlider(jTextFieldMaxCosts, jSliderMaxCosts);
@@ -450,7 +446,7 @@ public class MainFrame extends JFrame {
 		gbcJTextFieldMaxCosts.fill = GridBagConstraints.HORIZONTAL;
 		gbcJTextFieldMaxCosts.gridx = 2;
 		gbcJTextFieldMaxCosts.gridy = 2;
-		jPanelQosConstraints.add(jTextFieldMaxCosts, gbcJTextFieldMaxCosts);
+		jPanelQosConstraints.add(jTextFieldMaxCosts, gbcJTextFieldMaxCosts);	
 
 		JLabel jLabelMaxCosts = new JLabel("\u20AC");
 		GridBagConstraints gbcJLabelMaxCosts = new GridBagConstraints();
@@ -503,9 +499,9 @@ public class MainFrame extends JFrame {
 				jCheckBoxMaxResponseTime, gbcJCheckBoxMaxResponseTime);
 
 		jSliderMaxResponseTime = new JSlider();
-		jSliderMaxResponseTime.setMaximum(MAX_RESPONSE_TIME);
+		jSliderMaxResponseTime.setMaximum(maxResponseTime);
 		jSliderMaxResponseTime.setMinimum(0);
-		jSliderMaxResponseTime.setValue(MAX_RESPONSE_TIME / 2);
+		jSliderMaxResponseTime.setValue(maxResponseTime / 2);
 		jSliderMaxResponseTime.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				useConstraintSlider(
@@ -676,10 +672,10 @@ public class MainFrame extends JFrame {
 		gbc_separatorWeights.gridy = 5;
 		jPanelQosConstraints.add(separatorWeights, gbc_separatorWeights);
 
-		lblWeightSum = new JLabel("\u03A3 100");
+		lblWeightSum = new JLabel("\u03A3     100");
 		lblWeightSum.setForeground(Color.GREEN);
 		GridBagConstraints gbc_lblWeightSum = new GridBagConstraints();
-		gbc_lblWeightSum.insets = new Insets(0, 0, 0, 5);
+		gbc_lblWeightSum.insets = new Insets(0, 0, 0, 0);
 		gbc_lblWeightSum.gridx = 4;
 		gbc_lblWeightSum.gridy = 6;
 		gbc_lblWeightSum.anchor = GridBagConstraints.WEST;
@@ -1203,7 +1199,8 @@ public class MainFrame extends JFrame {
 		
 		jTextFieldTerminationCriterion = new JTextField("0");
 		jTextFieldTerminationCriterion.setColumns(2);
-		jTextFieldTerminationCriterion.setHorizontalAlignment(JTextField.RIGHT);
+		jTextFieldTerminationCriterion.setHorizontalAlignment(
+				JTextField.RIGHT);
 		GridBagConstraints gbcJTextFieldTerminationCriterion = 
 			new GridBagConstraints();
 		gbcJTextFieldTerminationCriterion.insets = new Insets(5, 5, 5, 5);
@@ -1217,8 +1214,10 @@ public class MainFrame extends JFrame {
 		jLabelTerminationCriterionPercentage.setVisible(false);
 		GridBagConstraints gbcJLabelTerminationCriterionPercentage = 
 			new GridBagConstraints();
-		gbcJLabelTerminationCriterionPercentage.insets = new Insets(5, 5, 5, 5);
-		gbcJLabelTerminationCriterionPercentage.anchor = GridBagConstraints.WEST;
+		gbcJLabelTerminationCriterionPercentage.insets = 
+			new Insets(5, 5, 5, 5);
+		gbcJLabelTerminationCriterionPercentage.anchor = 
+			GridBagConstraints.WEST;
 		gbcJLabelTerminationCriterionPercentage.gridx = 3;
 		gbcJLabelTerminationCriterionPercentage.gridy = 0;
 		jPanelTerminationCriterion.add(jLabelTerminationCriterionPercentage, 
@@ -1271,8 +1270,7 @@ public class MainFrame extends JFrame {
 		JScrollPane jScrollPaneAntAlgorithm = new JScrollPane();
 		GridBagConstraints gbcJScrollPaneAntAlgorithm = 
 			new GridBagConstraints();
-		// TODO: Find out why these insets are necessary.
-		gbcJScrollPaneAntAlgorithm.insets = new Insets(-2, 0, 2, 0);
+		gbcJScrollPaneAntAlgorithm.insets = new Insets(0, 0, 5, 0);
 		gbcJScrollPaneAntAlgorithm.fill = GridBagConstraints.BOTH;
 		gbcJScrollPaneAntAlgorithm.gridx = 0;
 		gbcJScrollPaneAntAlgorithm.gridy = 1;
@@ -1431,9 +1429,9 @@ public class MainFrame extends JFrame {
 		gbcJPanelAnalyticAlgorithm.gridy = 3;
 		contentPane.add(jPanelAnalyticAlgorithm, gbcJPanelAnalyticAlgorithm);
 		GridBagLayout gblJPanelAnalyticAlgorithm = new GridBagLayout();
-		gblJPanelAnalyticAlgorithm.columnWeights = new double[]{1.0, 1.0};
+		gblJPanelAnalyticAlgorithm.columnWeights = new double[]{1.0};
 		gblJPanelAnalyticAlgorithm.rowWeights = 
-				new double[]{0.1, 0.7, 0.1, 0.1};
+				new double[]{0.1, 0.8, 0.1};
 		jPanelAnalyticAlgorithm.setLayout(gblJPanelAnalyticAlgorithm);
 
 		jCheckBoxAnalyticAlgorithm = 
@@ -1447,12 +1445,23 @@ public class MainFrame extends JFrame {
 		GridBagConstraints gbcJCheckBoxAnalyticAlgorithm = 
 			new GridBagConstraints();
 		gbcJCheckBoxAnalyticAlgorithm.anchor = GridBagConstraints.NORTH;
-		gbcJCheckBoxAnalyticAlgorithm.insets = new Insets(0, 0, 5, 0);
-		gbcJCheckBoxAnalyticAlgorithm.gridwidth = 2;
+		gbcJCheckBoxAnalyticAlgorithm.insets = new Insets(3, 0, 5, 0);
 		gbcJCheckBoxAnalyticAlgorithm.gridx = 0;
 		gbcJCheckBoxAnalyticAlgorithm.gridy = 0;
 		jPanelAnalyticAlgorithm.add(
 				jCheckBoxAnalyticAlgorithm, gbcJCheckBoxAnalyticAlgorithm);
+		
+		JPanel panelAnalyticBody = new JPanel();
+		GridBagLayout gbl_panelAnalyticBody = new GridBagLayout();
+		gbl_panelAnalyticBody.columnWeights = new double[] {1.0, 1.0};
+		gbl_panelAnalyticBody.rowWeights = new double[] {0.8, 0.2};
+		panelAnalyticBody.setLayout(gbl_panelAnalyticBody);
+		GridBagConstraints gbc_panelAnalyticBody = new GridBagConstraints();
+		gbc_panelAnalyticBody.fill = GridBagConstraints.BOTH;
+		gbc_panelAnalyticBody.gridx = 0;
+		gbc_panelAnalyticBody.gridy = 1;
+		jPanelAnalyticAlgorithm.add(
+				panelAnalyticBody, gbc_panelAnalyticBody);
 
 		JScrollPane jScrollPaneAnalyticAlgorithm = new JScrollPane();
 		GridBagConstraints gbcJScrollPaneAnalyticAlgorithm = 
@@ -1461,15 +1470,15 @@ public class MainFrame extends JFrame {
 		gbcJScrollPaneAnalyticAlgorithm.fill = GridBagConstraints.BOTH;
 		gbcJScrollPaneAnalyticAlgorithm.gridwidth = 2;
 		gbcJScrollPaneAnalyticAlgorithm.gridx = 0;
-		gbcJScrollPaneAnalyticAlgorithm.gridy = 1;
-		jPanelAnalyticAlgorithm.add(
+		gbcJScrollPaneAnalyticAlgorithm.gridy = 0;
+		panelAnalyticBody.add(
 				jScrollPaneAnalyticAlgorithm, gbcJScrollPaneAnalyticAlgorithm);
 
 		jTableAnalyticAlgorithm = new JTable();
 		jTableAnalyticAlgorithm.setEnabled(false);
 		// TODO: Look for a better solution for this listener.
-		//		 But not important as long as only one analytic algorithm
-		//		 can be selected.
+		//		 But not important as long as only one 
+		//		 analytic algorithm can be selected.
 		jTableAnalyticAlgorithm.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (jTableAnalyticAlgorithm.getSelectedRow() == 0 && 
@@ -1508,10 +1517,10 @@ public class MainFrame extends JFrame {
 		JLabel jLabelResultTiers = new JLabel("Number of Result Tiers:");
 		GridBagConstraints gbcJLabelResultTiers = new GridBagConstraints();
 		gbcJLabelResultTiers.insets = new Insets(0, 5, 5, 5);
+		gbcJLabelResultTiers.anchor = GridBagConstraints.CENTER;
 		gbcJLabelResultTiers.gridx = 0;
-		gbcJLabelResultTiers.gridy = 2;
-		gbcJLabelResultTiers.anchor = GridBagConstraints.WEST;
-		jPanelAnalyticAlgorithm.add(jLabelResultTiers, gbcJLabelResultTiers);
+		gbcJLabelResultTiers.gridy = 1;
+		panelAnalyticBody.add(jLabelResultTiers, gbcJLabelResultTiers);
 
 		jSpinnerNumberResultTiers = 
 			new JSpinner(new SpinnerNumberModel(1, 1, 3, 1));
@@ -1521,9 +1530,10 @@ public class MainFrame extends JFrame {
 		GridBagConstraints gbcJSpinnerNumberResultTiers = 
 			new GridBagConstraints();
 		gbcJSpinnerNumberResultTiers.insets = new Insets(0, 0, 5, 5);
+		gbcJSpinnerNumberResultTiers.anchor = GridBagConstraints.WEST;
 		gbcJSpinnerNumberResultTiers.gridx = 1;
-		gbcJSpinnerNumberResultTiers.gridy = 2;
-		jPanelAnalyticAlgorithm.add(
+		gbcJSpinnerNumberResultTiers.gridy = 1;
+		panelAnalyticBody.add(
 				jSpinnerNumberResultTiers, gbcJSpinnerNumberResultTiers);
 
 		jProgressBarAnalyticAlgorithm = new JProgressBar();
@@ -1534,7 +1544,7 @@ public class MainFrame extends JFrame {
 		gbcJProgressBarAnalyticAlgorithm.anchor = GridBagConstraints.SOUTH;
 		gbcJProgressBarAnalyticAlgorithm.gridwidth = 2;
 		gbcJProgressBarAnalyticAlgorithm.gridx = 0;
-		gbcJProgressBarAnalyticAlgorithm.gridy = 3;
+		gbcJProgressBarAnalyticAlgorithm.gridy = 2;
 		jPanelAnalyticAlgorithm.add(
 				jProgressBarAnalyticAlgorithm, 
 				gbcJProgressBarAnalyticAlgorithm);
@@ -1963,20 +1973,21 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	// TODO: ADJUST TO NEW CONSTRUCTION OF CONSTRAINT SETTINGS
 	private void setRandomConstraints() {
-		jSliderMaxCosts.setValue((int) (Math.random() * MAX_COSTS));
-		jSliderMaxResponseTime.setValue(
-				(int) (Math.random() * MAX_RESPONSE_TIME));
-		jSliderMinAvailability.setValue(
-				(int) (Math.random() * MAX_AVAILABILITY));
+		jSliderMaxCosts.setValue(minCosts + 
+				(int)(Math.random() * (maxCosts - minCosts)));
+		jSliderMaxResponseTime.setValue(minResponseTime + 
+				(int) (Math.random() * (maxResponseTime - minResponseTime)));
+		jSliderMinAvailability.setValue(minAvailability + 
+				(int) (Math.random() * (maxAvailability - minAvailability)));
 	}
 	
-	// TODO: ADJUST TO NEW CONSTRUCTION OF CONSTRAINT SETTINGS
 	private void setDefaultConstraints() {
-		jSliderMaxCosts.setValue(MAX_COSTS / 2);
-		jSliderMaxResponseTime.setValue(MAX_RESPONSE_TIME / 2);
-		jSliderMinAvailability.setValue(MAX_AVAILABILITY / 2);
+		jSliderMaxCosts.setValue((maxCosts + minCosts) / 2);
+		jSliderMaxResponseTime.setValue(
+				(maxResponseTime + minResponseTime) / 2);
+		jSliderMinAvailability.setValue(
+				(maxAvailability + minAvailability) / 2);
 	}
 
 	private void resetProgram() {
@@ -2003,7 +2014,8 @@ public class MainFrame extends JFrame {
 			cumulatedPercentage += Integer.parseInt(
 					txtAvailabilityWeight.getText());
 		}
-		lblWeightSum.setText("\u03A3 " + String.valueOf(cumulatedPercentage));
+		lblWeightSum.setText("\u03A3     " + 
+				String.valueOf(cumulatedPercentage));
 		if (cumulatedPercentage != 100) {
 			lblWeightSum.setForeground(Color.RED);
 			correctWeights = false;
@@ -2026,7 +2038,7 @@ public class MainFrame extends JFrame {
 			lblWeights = 
 				Integer.parseInt(lblWeightSum.getText().substring(2));
 			lblWeights -= Integer.parseInt(txtCostsWeight.getText());
-			lblWeightSum.setText("\u03A3 " + String.valueOf(lblWeights));
+			lblWeightSum.setText("\u03A3     " + String.valueOf(lblWeights));
 			txtCostsWeight.setText("0");
 			txtCostsWeight.setEditable(jCheckBoxMaxCosts.isSelected());
 			changeWeight(txtCostsWeight);
@@ -2039,7 +2051,7 @@ public class MainFrame extends JFrame {
 			lblWeights = 
 				Integer.parseInt(lblWeightSum.getText().substring(2));
 			lblWeights -= Integer.parseInt(txtResponseTimeWeight.getText());
-			lblWeightSum.setText("\u03A3 " + String.valueOf(lblWeights));
+			lblWeightSum.setText("\u03A3     " + String.valueOf(lblWeights));
 			txtResponseTimeWeight.setText("0");
 			txtResponseTimeWeight.setEditable(
 					jCheckBoxMaxResponseTime.isSelected());
@@ -2053,7 +2065,7 @@ public class MainFrame extends JFrame {
 			lblWeights = 
 				Integer.parseInt(lblWeightSum.getText().substring(2));
 			lblWeights -= Integer.parseInt(txtAvailabilityWeight.getText());
-			lblWeightSum.setText("\u03A3 " + String.valueOf(lblWeights));
+			lblWeightSum.setText("\u03A3    " + String.valueOf(lblWeights));
 			txtAvailabilityWeight.setText("0");
 			txtAvailabilityWeight.setEditable(
 					jCheckBoxMinAvailability.isSelected());
@@ -2632,30 +2644,31 @@ public class MainFrame extends JFrame {
 
 		qosMax = determineQosMax();
 		qosMin = determineQosMin();
-		double maxCosts = qosMax.getCosts() * serviceClassesList.size();
-		double minCosts = qosMin.getCosts() * serviceClassesList.size();
-		double maxResponseTime = 
-			qosMax.getResponseTime() * serviceClassesList.size();
-		double minResponseTime = 
-			qosMin.getResponseTime() * serviceClassesList.size();
-		double maxAvailability = Math.pow(
-				qosMax.getAvailability(), serviceClassesList.size()) * 100;
-		double minAvailability = Math.pow(
-				qosMin.getAvailability(), serviceClassesList.size()) * 100;
+		maxCosts = (int) Math.ceil(
+				qosMax.getCosts() * serviceClassesList.size());
+		minCosts = (int) Math.floor(
+				qosMin.getCosts() * serviceClassesList.size());
+		maxResponseTime = (int) Math.ceil(
+				qosMax.getResponseTime() * serviceClassesList.size());
+		minResponseTime = (int) Math.floor(
+				qosMin.getResponseTime() * serviceClassesList.size());
+		maxAvailability = (int) Math.ceil(Math.pow(
+				qosMax.getAvailability(), serviceClassesList.size()) * 100);
+		minAvailability = (int) Math.floor(Math.pow(
+				qosMin.getAvailability(), serviceClassesList.size()) * 100);
 
-		jSliderMaxCosts.setMaximum((int) Math.round(maxCosts));
+		jSliderMaxCosts.setMaximum(maxCosts);
 		jSliderMaxCosts.setValue(
 				(int) Math.round((maxCosts + minCosts) / 2.0));
-		jSliderMaxCosts.setMinimum((int) Math.round(minCosts));
-		jSliderMaxResponseTime.setMaximum((int) Math.round(maxResponseTime));
-		jSliderMaxResponseTime.setValue((int) Math.round((
-				maxResponseTime + minResponseTime) / 2.0));
-		jSliderMaxResponseTime.setMinimum((int) Math.round(minResponseTime));
-		jSliderMinAvailability.setMaximum((int) Math.round(maxAvailability));
-		jSliderMinAvailability.setValue((int) Math.round((
-				maxAvailability + minAvailability) / 2.0));
-		jSliderMinAvailability.setMinimum((int) Math.round(
-				minAvailability));
+		jSliderMaxCosts.setMinimum(minCosts);
+		jSliderMaxResponseTime.setMaximum(maxResponseTime);
+		jSliderMaxResponseTime.setValue(
+				(int) Math.round((maxResponseTime + minResponseTime) / 2.0));
+		jSliderMaxResponseTime.setMinimum(minResponseTime);
+		jSliderMinAvailability.setMaximum(maxAvailability);
+		jSliderMinAvailability.setValue(
+				(int) Math.round((maxAvailability + minAvailability) / 2.0));
+		jSliderMinAvailability.setMinimum(minAvailability);
 
 	}
 }
