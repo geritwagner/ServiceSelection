@@ -223,6 +223,12 @@ public class MainFrame extends JFrame {
 		contentPane.add(jLabelResults, gbcJLabelResults);
 
 		jButtonVisualize = new JButton("Visualize");
+		jButtonVisualize.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showResultVisualization();
+			}
+		});
 		jButtonVisualize.setEnabled(false);
 		GridBagConstraints gbcJButtonVisualize = new GridBagConstraints();
 		gbcJButtonVisualize.insets = new Insets(0, 0, 5, 0);
@@ -2669,6 +2675,18 @@ public class MainFrame extends JFrame {
 		jSliderMinAvailability.setValue(
 				(int) Math.round((maxAvailability + minAvailability) / 2.0));
 		jSliderMinAvailability.setMinimum(minAvailability);
-
+	}
+	
+	// TODO: First attempt to visualize the computed results
+	private void showResultVisualization() {
+		int[] serviceCandidatesPerClass = 
+			new int[serviceClassesList.size()];
+		for (int i = 0; i < serviceClassesList.size(); i++) {
+			serviceCandidatesPerClass[i] = 
+				serviceClassesList.get(i).
+				getServiceCandidateList().size();
+		}
+		new GeneticAlgorithmsVisualization(serviceCandidatesPerClass,
+				geneticAlgorithm.getStartPopulationVisualization());
 	}
 }

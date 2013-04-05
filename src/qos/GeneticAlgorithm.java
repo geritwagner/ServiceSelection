@@ -22,6 +22,8 @@ public class GeneticAlgorithm extends Algorithm {
 	private String crossoverMethod;
 	private String terminationMethod;
 	
+	private int[] startPopulationVisualization;
+	
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
 	
@@ -45,6 +47,7 @@ public class GeneticAlgorithm extends Algorithm {
 	public void start(JProgressBar progressBar) {
 		runtime = System.currentTimeMillis();
 		List<Composition> population = generateInitialPopulation();
+		setStartPopulationVisualization(population);
 		
 		int terminationCounter = terminationCriterion;
 //		updateAlgorithmSolutionTiers(population);
@@ -775,6 +778,27 @@ public class GeneticAlgorithm extends Algorithm {
 		return population.get((int) (random * population.size()));
 	}
 	
+	private void setStartPopulationVisualization(
+			List<Composition> population) {
+		List <ServiceCandidate> serviceCandidates = 
+			new LinkedList<ServiceCandidate>();
+		startPopulationVisualization = new int[serviceClassesList.size()];
+		for (int i = 0; i < serviceClassesList.size(); i++) {
+			startPopulationVisualization[i] = 0;
+		}
+		for (Composition composition : population) {
+			int serviceClassNumber = 0;
+			for (ServiceCandidate candidate : 
+				composition.getServiceCandidatesList()) {
+				if (!serviceCandidates.contains(candidate)){
+					serviceCandidates.add(candidate);
+					startPopulationVisualization[serviceClassNumber]++;
+				}
+				serviceClassNumber++;
+			}
+		}
+	}
+	
 
 	// GETTERS AND SETTERS
 	public List<ServiceClass> getServiceClassesList() {
@@ -808,5 +832,8 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	public void setRuntime(long runtime) {
 		this.runtime = runtime;
+	}
+	public int[] getStartPopulationVisualization() {
+		return startPopulationVisualization;
 	}
 }
