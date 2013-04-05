@@ -2687,6 +2687,8 @@ public class MainFrame extends JFrame {
 				getServiceCandidateList().size();
 		}
 		new GeneticAlgorithmsVisualization(serviceCandidatesPerClass,
-				geneticAlgorithm.getStartPopulationVisualization());
+				geneticAlgorithm.getStartPopulationVisualization(), 
+				geneticAlgorithm.getNumberOfDifferentSolutions(), 
+				Integer.parseInt(jTextFieldPopulationSize.getText()));
 	}
 }

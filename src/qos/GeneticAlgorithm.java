@@ -23,6 +23,7 @@ public class GeneticAlgorithm extends Algorithm {
 	private String terminationMethod;
 	
 	private int[] startPopulationVisualization;
+	private List<Integer> numberOfDifferentSolutions;
 	
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
@@ -48,11 +49,15 @@ public class GeneticAlgorithm extends Algorithm {
 		runtime = System.currentTimeMillis();
 		List<Composition> population = generateInitialPopulation();
 		setStartPopulationVisualization(population);
+		numberOfDifferentSolutions = new LinkedList<Integer>();
+		numberOfDifferentSolutions.add(
+				getDifferentSolutions(population).size());
 		
 		int terminationCounter = terminationCriterion;
 //		updateAlgorithmSolutionTiers(population);
 		
 		while (terminationCounter > 0) {
+			
 			// SELECTION (Elitism Based)
 			// TODO: Make the elitismRate variable!
 			int numberOfElites = (int) Math.round(populationSize * 0.25);
@@ -163,6 +168,9 @@ public class GeneticAlgorithm extends Algorithm {
 			population.removeAll(population);
 			population.addAll(population1);
 			population.addAll(population2);
+			
+			numberOfDifferentSolutions.add(
+					getDifferentSolutions(population).size());
 				
 			terminationCounter--;
 		}
@@ -835,5 +843,8 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	public int[] getStartPopulationVisualization() {
 		return startPopulationVisualization;
+	}
+	public List<Integer> getNumberOfDifferentSolutions() {
+		return numberOfDifferentSolutions;
 	}
 }
