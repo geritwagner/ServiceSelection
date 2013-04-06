@@ -25,6 +25,8 @@ public class GeneticAlgorithm extends Algorithm {
 	private int[] startPopulationVisualization;
 	private List<Integer> numberOfDifferentSolutions;
 	
+	private int workPercentage = 0;
+	
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
 	
@@ -52,12 +54,10 @@ public class GeneticAlgorithm extends Algorithm {
 		numberOfDifferentSolutions = new LinkedList<Integer>();
 		numberOfDifferentSolutions.add(
 				getDifferentSolutions(population).size());
-		
+		workPercentage = 0;
 		int terminationCounter = terminationCriterion;
-//		updateAlgorithmSolutionTiers(population);
 		
 		while (terminationCounter > 0) {
-			
 			// SELECTION (Elitism Based)
 			// TODO: Make the elitismRate variable!
 			int numberOfElites = (int) Math.round(populationSize * 0.25);
@@ -173,6 +173,8 @@ public class GeneticAlgorithm extends Algorithm {
 					getDifferentSolutions(population).size());
 				
 			terminationCounter--;
+			workPercentage = (int)
+				((1 - 1.0 * terminationCounter / terminationCriterion) * 100);
 		}
 			
 		// (Sort the population, see above.)
@@ -846,5 +848,8 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	public List<Integer> getNumberOfDifferentSolutions() {
 		return numberOfDifferentSolutions;
+	}
+	public int getWorkPercentage() {
+		return workPercentage;
 	}
 }

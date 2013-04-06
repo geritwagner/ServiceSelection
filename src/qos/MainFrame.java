@@ -1,6 +1,8 @@
 package qos;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -46,6 +48,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -126,6 +130,7 @@ public class MainFrame extends JFrame {
 	private int minResponseTime = 0;
 	private int minAvailability = 0;
 	
+	private double cumulatedRuntime;	
 	
 	public static final DecimalFormat DECIMAL_FORMAT_TWO = 
 		new DecimalFormat("###.##");
@@ -1774,44 +1779,87 @@ public class MainFrame extends JFrame {
 					entry.getValue(), entry.getKey());
 		}		
 	}
-
+	
 	private void pressStartButton() {
-		Map<String, Constraint> constraintsMap = getChosenConstraints();
+		final Map<String, Constraint> constraintsMap = getChosenConstraints();
 		printChosenConstraintsToConsole(constraintsMap);
+		cumulatedRuntime = 0;
 		
 		// Calculate the utility value for all service candidates.
 		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
 			serviceCandidate.determineUtilityValue(
 					constraintsMap, qosMax, qosMin);
 		}
-		
-		double cumulatedRuntime = 0;
+		// Handle the progressbar
+		jProgressBarGeneticAlgorithm.setValue(0);
 		if (jCheckboxGeneticAlgorithm.isSelected()) {
-			doGeneticAlgorithm(constraintsMap);
-			cumulatedRuntime += geneticAlgorithm.getRuntime();
+			geneticAlgorithm = new GeneticAlgorithm(
+					serviceClassesList, serviceCandidatesList, constraintsMap, 
+					Integer.parseInt(jTextFieldPopulationSize.getText()), 
+					Integer.parseInt(jTextFieldTerminationCriterion.getText()),
+					((String) jComboBoxCrossover.getSelectedItem()),
+					((String) jComboBoxTerminationCriterion.
+							getSelectedItem()));
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					while(geneticAlgorithm.getWorkPercentage() < 100) {
+						jProgressBarGeneticAlgorithm.setValue(
+								geneticAlgorithm.getWorkPercentage());
+//						try {
+//							Thread.sleep(500);
+//						} catch (InterruptedException e) {
+//							writeErrorLogEntry("Progressbar update failed");
+//						}
+					}
+				}
+			}).start();
 		}
-		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-			doEnumeration(constraintsMap);
-			cumulatedRuntime += analyticAlgorithm.getRuntime();
-		}
-		if (jCheckBoxAntColonyOptimization.isSelected()) {
-			doAntAlgorithm(constraintsMap);
-			cumulatedRuntime += antAlgorithm.getRuntime();
-		}
-		if (cumulatedRuntime > 120000) {
-			jTableGeneralResults.setValueAt(
-					cumulatedRuntime / 60000 + " min", 0, 1);
-		}
-		else if (cumulatedRuntime > 1000) {
-			jTableGeneralResults.setValueAt(
-					cumulatedRuntime / 1000 + " s", 0, 1);
-		}
-		else {
-			jTableGeneralResults.setValueAt(cumulatedRuntime + " ms", 0, 1);
-		}
-		
-		buildResultTable();
-		jButtonVisualize.setEnabled(true);
+		// TODO: Try to find a better solution for enabling the
+		//		 frame (in order to allow cursor definitions)
+		// Outsourcing of the calculation 
+		// in order to prevent freezing the gui
+		new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				setEnabled(false);
+//				setCursor(new Cursor(Cursor.WAIT_CURSOR));
+				if (jCheckboxGeneticAlgorithm.isSelected()) {
+					doGeneticAlgorithm(constraintsMap);
+				}
+				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+					doEnumeration(constraintsMap);
+					cumulatedRuntime += analyticAlgorithm.getRuntime();
+				}
+				if (jCheckBoxAntColonyOptimization.isSelected()) {
+					doAntAlgorithm(constraintsMap);
+					cumulatedRuntime += antAlgorithm.getRuntime();
+				}
+				// Wait for algorithm results before showing them
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						if (cumulatedRuntime > 120000) {
+							jTableGeneralResults.setValueAt(
+									cumulatedRuntime / 60000 + " min", 0, 1);
+						}
+						else if (cumulatedRuntime > 1000) {
+							jTableGeneralResults.setValueAt(
+									cumulatedRuntime / 1000 + " s", 0, 1);
+						}
+						else {
+							jTableGeneralResults.setValueAt(
+									cumulatedRuntime + " ms", 0, 1);
+						}
+						buildResultTable();
+						jButtonVisualize.setEnabled(true);
+						setEnabled(false);
+//						setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+					}
+				});
+				return null;
+			}
+		}.execute();
 	}
 
 	private void chooseAlgorithm(String algorithm) {
@@ -2519,26 +2567,11 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void doGeneticAlgorithm(Map<String, Constraint> constraintsMap) {
-		geneticAlgorithm = new GeneticAlgorithm(
-				serviceClassesList, serviceCandidatesList, constraintsMap, 
-				Integer.parseInt(jTextFieldPopulationSize.getText()), 
-				Integer.parseInt(jTextFieldTerminationCriterion.getText()),
-				((String) jComboBoxCrossover.getSelectedItem()),
-				((String) jComboBoxTerminationCriterion.getSelectedItem()));
+	
+
 		geneticAlgorithm.start(jProgressBarGeneticAlgorithm);
-		
-		if (geneticAlgorithm.getRuntime() > 120000) {
-			jTableGeneralResults.setValueAt(
-					geneticAlgorithm.getRuntime() / 60000.0 + " min", 1, 1);
-		}
-		else if (geneticAlgorithm.getRuntime() > 1000) {
-			jTableGeneralResults.setValueAt(
-					geneticAlgorithm.getRuntime() / 1000.0 + " s", 1, 1);
-		}
-		else {
-			jTableGeneralResults.setValueAt(
-					geneticAlgorithm.getRuntime() + " ms", 1, 1);
-		}
+		jProgressBarGeneticAlgorithm.setValue(100);
+		cumulatedRuntime += geneticAlgorithm.getRuntime();
 	}
 	
 	private void checkInputValue(JTextField textField) {
