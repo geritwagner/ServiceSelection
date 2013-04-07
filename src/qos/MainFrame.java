@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -1790,6 +1791,20 @@ public class MainFrame extends JFrame {
 			serviceCandidate.determineUtilityValue(
 					constraintsMap, qosMax, qosMin);
 		}
+		
+		final Thread progressBarThread = new Thread() {
+			@Override
+			public void run() {
+				while(!isInterrupted()) {
+					jProgressBarGeneticAlgorithm.setValue(
+							geneticAlgorithm.getWorkPercentage());
+					try {
+						sleep(1000);
+					} catch (InterruptedException e) {}
+				}
+			}
+		};
+		
 		// Handle the progressbar
 		jProgressBarGeneticAlgorithm.setValue(0);
 		if (jCheckboxGeneticAlgorithm.isSelected()) {
@@ -1800,32 +1815,23 @@ public class MainFrame extends JFrame {
 					((String) jComboBoxCrossover.getSelectedItem()),
 					((String) jComboBoxTerminationCriterion.
 							getSelectedItem()));
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					while(geneticAlgorithm.getWorkPercentage() < 100) {
-						jProgressBarGeneticAlgorithm.setValue(
-								geneticAlgorithm.getWorkPercentage());
-//						try {
-//							Thread.sleep(500);
-//						} catch (InterruptedException e) {
-//							writeErrorLogEntry("Progressbar update failed");
-//						}
-					}
-				}
-			}).start();
+			progressBarThread.start();
 		}
 		// TODO: Try to find a better solution for enabling the
 		//		 frame (in order to allow cursor definitions)
+		//		 -> idea: global mouse listener (no action performed
+		// 				  if cursor = wait_cursor)
 		// Outsourcing of the calculation 
 		// in order to prevent freezing the gui
 		new SwingWorker<Void, Void>() {
 			@Override
 			protected Void doInBackground() throws Exception {
 				setEnabled(false);
+				jButtonStart.setEnabled(false);
 //				setCursor(new Cursor(Cursor.WAIT_CURSOR));
 				if (jCheckboxGeneticAlgorithm.isSelected()) {
 					doGeneticAlgorithm(constraintsMap);
+					progressBarThread.interrupt();
 				}
 				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 					doEnumeration(constraintsMap);
@@ -1853,8 +1859,10 @@ public class MainFrame extends JFrame {
 						}
 						buildResultTable();
 						jButtonVisualize.setEnabled(true);
+						jButtonStart.setEnabled(true);
 						setEnabled(true);
-//						setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+//						contentPane.setCursor(
+//								new Cursor(Cursor.DEFAULT_CURSOR));
 					}
 				});
 				return null;
