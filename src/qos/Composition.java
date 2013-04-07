@@ -1,10 +1,11 @@
 package qos;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class Composition {
+public class Composition implements Comparator<Composition> {
 	
 	private List<ServiceCandidate> serviceCandidatesList;
 	private QosVector qosVectorAggregated;
@@ -26,9 +27,7 @@ public class Composition {
 	}
 	
 	// TODO: Funktion ist analog schon in der Klasse QosVector vorhanden. 
-	//		 Fraglich, was besser ist. Hier wird der Vektor immer wieder neu 
-	//		 berechnet, was eigtl nicht schlecht ist. In der anderen Variante 
-	//		 wird immer nur hinzugefügt bzw. weggenommen.
+	//		 Umstellung auf diese Variante vornehmen?
 	public void buildAggregatedQosVector() {
 		double costs = 0.0;
 		double responseTime = 0.0;
@@ -52,9 +51,10 @@ public class Composition {
 		this.utility = utility / serviceCandidatesList.size();
 	}
 
-	
+	// 
 	public void addServiceCandidate(ServiceCandidate serviceCandidate) {
 		serviceCandidatesList.add(serviceCandidate);
+		// TODO: Umstellung auf buildAggregatedQosVector() vornehmen?
 		qosVectorAggregated.add(serviceCandidate.getQosVector());
 	}
 	
@@ -62,6 +62,7 @@ public class Composition {
 	public void removeServiceCandidate() {
 		ServiceCandidate serviceCandidateRemoved = 
 				serviceCandidatesList.remove(serviceCandidatesList.size() - 1);
+		// TODO: Umstellung auf buildAggregatedQosVector() vornehmen?
 		qosVectorAggregated.subtract(
 				serviceCandidateRemoved.getQosVector());
 	}
@@ -147,6 +148,24 @@ public class Composition {
 	}
 	public void setUtility(double utility) {
 		this.utility = utility;
+	}
+
+
+	@Override
+	public int compare(Composition o1, Composition o2) {
+		if (o1.getUtility() < o2.getUtility()) {
+			// If o1.getUtility() is less than o2.getUtility(), the 
+			// method should normally return -1. But as sort() sorts 
+			// the list in ascending order, we need to do the 
+			// opposite here.
+			return 1;
+		}
+		else if (o1.getUtility() > o2.getUtility()) {
+			return -1;
+		}
+		else {
+			return 0;
+		}
 	}
 	
 }

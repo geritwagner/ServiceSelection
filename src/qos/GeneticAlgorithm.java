@@ -1,7 +1,6 @@
 package qos;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -86,21 +85,9 @@ public class GeneticAlgorithm extends Algorithm {
 				((1 - 1.0 * terminationCounter / terminationCriterion) * 100);
 		}
 			
-		// Sort the population.
-		// TODO: Write a class for this comparator.
-		Collections.sort(population, new Comparator<Composition>() {
-			public int compare(Composition o1, Composition o2) {
-				if (o1.getUtility() < o2.getUtility()) {
-					return 1;
-				}
-				else if (o1.getUtility() > o2.getUtility()) {
-					return -1;
-				}
-				else {
-					return 0;
-				}
-			}
-		});
+		// Sort the population according to the utility of the 
+		// compositions. Thus, the first elements are the elite elements.
+		Collections.sort(population, new Composition());
 		
 		// Print the best solution.
 		System.out.println(population.get(0).getUtility());
@@ -197,8 +184,6 @@ public class GeneticAlgorithm extends Algorithm {
 						j).getServiceCandidateList().size());
 				// Select the corresponding service candidate and add it to the 
 				// new composition. QoS values are aggregated automatically.
-				// TODO: Test if this cleaner and faster way works. (--> Seems 
-				//		 to be okay.)
 				ServiceCandidate serviceCandidate = serviceClassesList.get(
 						j).getServiceCandidateList().get((random));
 				composition.addServiceCandidate(serviceCandidate);
@@ -220,23 +205,7 @@ public class GeneticAlgorithm extends Algorithm {
 		List<Composition> population1 = new LinkedList<Composition>();
 		// Sort the population according to the utility of the 
 		// compositions. Thus, the first elements are the elite elements.
-		Collections.sort(population, new Comparator<Composition>() {
-			public int compare(Composition o1, Composition o2) {
-				if (o1.getUtility() < o2.getUtility()) {
-					// If o1.getUtility() is less than o2.getUtility(), the 
-					// method should normally return -1. But as sort() sorts 
-					// the list in ascending order, we need to do the 
-					// opposite here.
-					return 1;
-				}
-				else if (o1.getUtility() > o2.getUtility()) {
-					return -1;
-				}
-				else {
-					return 0;
-				}
-			}
-		});
+		Collections.sort(population, new Composition());
 		for (int i = 0; i < numberOfElites; i++) {
 			population1.add(population.get(i));
 		}
@@ -256,9 +225,12 @@ public class GeneticAlgorithm extends Algorithm {
 			Composition compositionA = population.get(a);
 			Composition compositionB = population.get(b);
 
-			// Randomly select the crossover point.
-			// TODO: Maybe ensure that 0 is not created. (--> Solution 
-			//		 should be correct, but has not been tested yet.)
+			// Randomly select the crossover point. 0 is excluded from the 
+			// different possibilities because the resulting composition 
+			// would be exactly the same as the first input composition. The
+			// last crossover point that is possible is included, however, 
+			// because then, at least the last service candidate is changed.
+			// This is because of the definition of List.subList().
 			int crossoverPoint = (int) (Math.random() * 
 					(serviceClassesList.size() - 1) + 1);
 
@@ -298,7 +270,7 @@ public class GeneticAlgorithm extends Algorithm {
 		// TODO: Check if the changes to population2 are effective, i.e. if
 		//		 call-by-reference is really applied. (--> First tests 
 		//		 indicated that it's correct.)
-		// TODO: By temporary defining some variables, the code is easier 
+		// TODO: By temporary defining some variables, the code is easier to
 		//		 understand, but maybe has a worse performance. What is 
 		//		 the best trade-off?
 		double mutationRate = 1.0 / serviceClassesList.size();
@@ -666,9 +638,8 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	
 	// TODO: TIER BUILDING DEPENDS ON UTILITY VALUE (?)
-	//		 --> Anders gesagt hängt es von der Fitness ab. Im Endeffekt ist es 
-	//			 aber (zumindest bei hohem Penalty Factor) das Gleiche. Oder?
-	//		 --> Seh ich auch so. Bin mir aber nicht ganz sicher.
+	//		 --> Sollte eigentlich von der Fitness abhängen. Aber wird beim 
+	//			 nächsten Treffen geklärt.
 //	private void updateAlgorithmSolutionTiers(
 //			List<Composition> newPopulation) {
 //		List<Composition> differentSolutions = new LinkedList<Composition>(
