@@ -10,7 +10,6 @@ import javax.swing.JProgressBar;
 public class AnalyticAlgorithm extends Algorithm {
 	
 	private List<ServiceClass> serviceClassesList;
-	private List<ServiceCandidate> serviceCandidatesList;
 	private Map<String, Constraint> constraintsMap;
 	
 	private List<Composition> compositionsList = new LinkedList<Composition>();
@@ -28,11 +27,9 @@ public class AnalyticAlgorithm extends Algorithm {
 	}
 	
 	public AnalyticAlgorithm(List<ServiceClass> serviceClassesList, 
-			List<ServiceCandidate> serviceCandidatesList, 
 			Map<String, Constraint> constraintsMap, 
 			int numberOfRequestedResultTiers) {
 		this.serviceClassesList = serviceClassesList;
-		this.serviceCandidatesList = serviceCandidatesList;
 		this.constraintsMap = constraintsMap;
 		this.numberOfRequestedResultTiers = numberOfRequestedResultTiers;
 	}
@@ -186,13 +183,6 @@ public class AnalyticAlgorithm extends Algorithm {
 	}
 	public void setServiceClassesList(List<ServiceClass> serviceClassesList) {
 		this.serviceClassesList = serviceClassesList;
-	}
-	public List<ServiceCandidate> getServiceCandidatesList() {
-		return serviceCandidatesList;
-	}
-	public void setServiceCandidatesList(
-			List<ServiceCandidate> serviceCandidatesList) {
-		this.serviceCandidatesList = serviceCandidatesList;
 	}
 	public Map<String, Constraint> getConstraintList() {
 		return constraintsMap;

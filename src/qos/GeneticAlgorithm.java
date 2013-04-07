@@ -12,7 +12,6 @@ import javax.swing.JProgressBar;
 public class GeneticAlgorithm extends Algorithm {
 	
 	private List<ServiceClass> serviceClassesList;
-	private List<ServiceCandidate> serviceCandidatesList;
 	private Map<String, Constraint> constraintsMap;
 	
 	private int populationSize;
@@ -32,12 +31,10 @@ public class GeneticAlgorithm extends Algorithm {
 	private long runtime = 0;
 	
 	public GeneticAlgorithm(List<ServiceClass> serviceClassesList, 
-			List<ServiceCandidate> serviceCandidatesList, 
 			Map<String, Constraint> constraintsMap, 
 			int populationSize, int terminationCriterion, 
 			String crossoverMethod, String terminationMethod) {
 		this.serviceClassesList = serviceClassesList;
-		this.serviceCandidatesList = serviceCandidatesList;
 		this.constraintsMap = constraintsMap;
 		this.populationSize = populationSize;
 		this.terminationCriterion = terminationCriterion;
@@ -810,13 +807,6 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	public void setServiceClassesList(List<ServiceClass> serviceClassesList) {
 		this.serviceClassesList = serviceClassesList;
-	}
-	public List<ServiceCandidate> getServiceCandidatesList() {
-		return serviceCandidatesList;
-	}
-	public void setServiceCandidatesList(
-			List<ServiceCandidate> serviceCandidatesList) {
-		this.serviceCandidatesList = serviceCandidatesList;
 	}
 	public Map<String, Constraint> getConstraintList() {
 		return constraintsMap;

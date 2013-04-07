@@ -1,8 +1,6 @@
 package qos;
 
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -13,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -895,35 +892,35 @@ public class MainFrame extends JFrame {
 				jCheckboxGeneticAlgorithm, gbcJCheckboxGeneticAlgorithm);
 
 		JScrollPane jScrollPaneGeneticAlgorithm = new JScrollPane();
-		GridBagConstraints gbc_jScrollPaneGeneticAlgorithm = 
+		GridBagConstraints gbcJScrollPaneGeneticAlgorithm = 
 			new GridBagConstraints();
-		gbc_jScrollPaneGeneticAlgorithm.insets = new Insets(0, 0, 5, 0);
-		gbc_jScrollPaneGeneticAlgorithm.fill = GridBagConstraints.BOTH;
-		gbc_jScrollPaneGeneticAlgorithm.gridx = 0;
-		gbc_jScrollPaneGeneticAlgorithm.gridy = 1;
+		gbcJScrollPaneGeneticAlgorithm.insets = new Insets(0, 0, 5, 0);
+		gbcJScrollPaneGeneticAlgorithm.fill = GridBagConstraints.BOTH;
+		gbcJScrollPaneGeneticAlgorithm.gridx = 0;
+		gbcJScrollPaneGeneticAlgorithm.gridy = 1;
 		jPanelGeneticAlgorithm.add(
-				jScrollPaneGeneticAlgorithm, gbc_jScrollPaneGeneticAlgorithm);
+				jScrollPaneGeneticAlgorithm, gbcJScrollPaneGeneticAlgorithm);
 
-		JPanel panelGeneticAlgorithmSettings = new JPanel();
+		JPanel jPanelGeneticAlgorithmSettings = new JPanel();
 		jScrollPaneGeneticAlgorithm.setViewportView(
-				panelGeneticAlgorithmSettings);
-		GridBagLayout gbl_panelGeneticAlgorithmSettings = new GridBagLayout();
-		gbl_panelGeneticAlgorithmSettings.columnWeights = 
+				jPanelGeneticAlgorithmSettings);
+		GridBagLayout gblJPanelGeneticAlgorithmSettings = new GridBagLayout();
+		gblJPanelGeneticAlgorithmSettings.columnWeights = 
 			new double[]{0.3, 1.0, 1.0, 1.0};
-		gbl_panelGeneticAlgorithmSettings.rowWeights = 
+		gblJPanelGeneticAlgorithmSettings.rowWeights = 
 			new double[]{0.2, 0.1, 0.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
-		panelGeneticAlgorithmSettings.setLayout(
-				gbl_panelGeneticAlgorithmSettings);
+		jPanelGeneticAlgorithmSettings.setLayout(
+				gblJPanelGeneticAlgorithmSettings);
 
-		JLabel lblFitnessFunction = new JLabel("Fitness:");
-		GridBagConstraints gbc_lblFitnessFunction = new GridBagConstraints();
-		gbc_lblFitnessFunction.insets = new Insets(5, 5, 5, 5);
-		gbc_lblFitnessFunction.gridheight = 3;
-		gbc_lblFitnessFunction.anchor = GridBagConstraints.WEST;
-		gbc_lblFitnessFunction.gridx = 0;
-		gbc_lblFitnessFunction.gridy = 0;
-		panelGeneticAlgorithmSettings.add(
-				lblFitnessFunction, gbc_lblFitnessFunction);
+		JLabel jLabelFitnessFunction = new JLabel("Fitness:");
+		GridBagConstraints gbcJLabelFitnessFunction = new GridBagConstraints();
+		gbcJLabelFitnessFunction.insets = new Insets(5, 5, 5, 5);
+		gbcJLabelFitnessFunction.gridheight = 3;
+		gbcJLabelFitnessFunction.anchor = GridBagConstraints.WEST;
+		gbcJLabelFitnessFunction.gridx = 0;
+		gbcJLabelFitnessFunction.gridy = 0;
+		jPanelGeneticAlgorithmSettings.add(
+				jLabelFitnessFunction, gbcJLabelFitnessFunction);
 		
 		JPanel jPanelFitness = new JPanel();
 		GridBagLayout gblJPanelFitness = new GridBagLayout();
@@ -937,69 +934,69 @@ public class MainFrame extends JFrame {
 		gbcJPanelFitness.gridwidth = 2;
 		gbcJPanelFitness.gridx = 1;
 		gbcJPanelFitness.gridy = 0;
-		panelGeneticAlgorithmSettings.add(jPanelFitness, gbcJPanelFitness);
+		jPanelGeneticAlgorithmSettings.add(jPanelFitness, gbcJPanelFitness);
 
 		Font fontFormula = new Font("formula", Font.ITALIC, 10);
 		jLabelGeneticAlgorithmNumerator = new JLabel();
-		GridBagConstraints gbc_jLabelNumerator = new GridBagConstraints();
-		gbc_jLabelNumerator.insets = new Insets(0, 0, 5, 0);
-		gbc_jLabelNumerator.anchor = GridBagConstraints.SOUTH;
-		gbc_jLabelNumerator.gridx = 0;
-		gbc_jLabelNumerator.gridy = 0;
+		GridBagConstraints gbcJLabelNumerator = new GridBagConstraints();
+		gbcJLabelNumerator.insets = new Insets(0, 0, 5, 0);
+		gbcJLabelNumerator.anchor = GridBagConstraints.SOUTH;
+		gbcJLabelNumerator.gridx = 0;
+		gbcJLabelNumerator.gridy = 0;
 		jPanelFitness.add(
-				jLabelGeneticAlgorithmNumerator, gbc_jLabelNumerator);
+				jLabelGeneticAlgorithmNumerator, gbcJLabelNumerator);
 		jLabelGeneticAlgorithmNumerator.setFont(fontFormula);
 
 		jSeparatorFormula = new JSeparator();
-		GridBagConstraints gbc_jSeparatorFormula = new GridBagConstraints();
-		gbc_jSeparatorFormula.fill = GridBagConstraints.HORIZONTAL;
-		gbc_jSeparatorFormula.gridx = 0;
-		gbc_jSeparatorFormula.gridy = 1;
+		GridBagConstraints gbcJSeparatorFormula = new GridBagConstraints();
+		gbcJSeparatorFormula.fill = GridBagConstraints.HORIZONTAL;
+		gbcJSeparatorFormula.gridx = 0;
+		gbcJSeparatorFormula.gridy = 1;
 		jPanelFitness.add(
-				jSeparatorFormula, gbc_jSeparatorFormula);
+				jSeparatorFormula, gbcJSeparatorFormula);
 
 		jLabelGeneticAlgorithmDenominator = new JLabel();
-		GridBagConstraints gbc_jLabelDenominator = new GridBagConstraints();
-		gbc_jLabelDenominator.insets = new Insets(5, 0, 0, 0);
-		gbc_jLabelDenominator.anchor = GridBagConstraints.NORTH;
-		gbc_jLabelDenominator.gridx = 0;
-		gbc_jLabelDenominator.gridy = 2;
+		GridBagConstraints gbcJLabelDenominator = new GridBagConstraints();
+		gbcJLabelDenominator.insets = new Insets(5, 0, 0, 0);
+		gbcJLabelDenominator.anchor = GridBagConstraints.NORTH;
+		gbcJLabelDenominator.gridx = 0;
+		gbcJLabelDenominator.gridy = 2;
 		jPanelFitness.add(
-				jLabelGeneticAlgorithmDenominator, gbc_jLabelDenominator);
+				jLabelGeneticAlgorithmDenominator, gbcJLabelDenominator);
 		jLabelGeneticAlgorithmDenominator.setFont(fontFormula);
 
 		jLabelWeightedPenalty = new JLabel();
-		GridBagConstraints gbc_jLabelWeightedPenalty = 
+		GridBagConstraints gbcJLabelWeightedPenalty = 
 			new GridBagConstraints();
-		gbc_jLabelWeightedPenalty.gridx = 1;
-		gbc_jLabelWeightedPenalty.gridy = 0;
-		gbc_jLabelWeightedPenalty.gridheight = 3;
-		gbc_jLabelWeightedPenalty.anchor = GridBagConstraints.WEST;
+		gbcJLabelWeightedPenalty.gridx = 1;
+		gbcJLabelWeightedPenalty.gridy = 0;
+		gbcJLabelWeightedPenalty.gridheight = 3;
+		gbcJLabelWeightedPenalty.anchor = GridBagConstraints.WEST;
 		jPanelFitness.add(
-				jLabelWeightedPenalty, gbc_jLabelWeightedPenalty);
+				jLabelWeightedPenalty, gbcJLabelWeightedPenalty);
 		jLabelWeightedPenalty.setFont(fontFormula);
 
-		JLabel lblPenaltyFactor = new JLabel("Penalty Factor:");
-		GridBagConstraints gbc_lblPenaltyFactor = new GridBagConstraints();
-		gbc_lblPenaltyFactor.anchor = GridBagConstraints.WEST;
-		gbc_lblPenaltyFactor.insets = new Insets(5, 5, 5, 5);
-		gbc_lblPenaltyFactor.gridx = 0;
-		gbc_lblPenaltyFactor.gridy = 3;
-		panelGeneticAlgorithmSettings.add(
-				lblPenaltyFactor, gbc_lblPenaltyFactor);
+		JLabel jLabelPenaltyFactor = new JLabel("Penalty Factor:");
+		GridBagConstraints gbcJLabelPenaltyFactor = new GridBagConstraints();
+		gbcJLabelPenaltyFactor.anchor = GridBagConstraints.WEST;
+		gbcJLabelPenaltyFactor.insets = new Insets(5, 5, 5, 5);
+		gbcJLabelPenaltyFactor.gridx = 0;
+		gbcJLabelPenaltyFactor.gridy = 3;
+		jPanelGeneticAlgorithmSettings.add(
+				jLabelPenaltyFactor, gbcJLabelPenaltyFactor);
 		
-		JPanel panelPenaltyFactor = new JPanel();
-		GridBagLayout gbl_panelPenaltyFactor = new GridBagLayout();
-		gbl_panelPenaltyFactor.columnWeights = new double[] {1.0, 1.0};
-		gbl_panelPenaltyFactor.rowWeights = new double[] {1.0};
-		panelPenaltyFactor.setLayout(gbl_panelPenaltyFactor);
-		GridBagConstraints gbc_panelPenaltyFactor = new GridBagConstraints();
-		gbc_panelPenaltyFactor.anchor = GridBagConstraints.WEST;
-		gbc_panelPenaltyFactor.gridwidth = 2;
-		gbc_panelPenaltyFactor.gridx = 1;
-		gbc_panelPenaltyFactor.gridy = 3;
-		panelGeneticAlgorithmSettings.add(
-				panelPenaltyFactor, gbc_panelPenaltyFactor);
+		JPanel jPanelPenaltyFactor = new JPanel();
+		GridBagLayout gblJPanelPenaltyFactor = new GridBagLayout();
+		gblJPanelPenaltyFactor.columnWeights = new double[] {1.0, 1.0};
+		gblJPanelPenaltyFactor.rowWeights = new double[] {1.0};
+		jPanelPenaltyFactor.setLayout(gblJPanelPenaltyFactor);
+		GridBagConstraints gbcJPanelPenaltyFactor = new GridBagConstraints();
+		gbcJPanelPenaltyFactor.anchor = GridBagConstraints.WEST;
+		gbcJPanelPenaltyFactor.gridwidth = 2;
+		gbcJPanelPenaltyFactor.gridx = 1;
+		gbcJPanelPenaltyFactor.gridy = 3;
+		jPanelGeneticAlgorithmSettings.add(
+				jPanelPenaltyFactor, gbcJPanelPenaltyFactor);
 
 		jTextFieldPenaltyFactor = new JTextField("0");
 		jTextFieldPenaltyFactor.setColumns(3);
@@ -1009,22 +1006,22 @@ public class MainFrame extends JFrame {
 				setPenaltyFactor();
 			}
 		});
-		GridBagConstraints gbc_jTextFieldPenaltyFactor = 
+		GridBagConstraints gbcJTextFieldPenaltyFactor = 
 			new GridBagConstraints();
-		gbc_jTextFieldPenaltyFactor.insets = new Insets(5, 10, 5, 5);
-		gbc_jTextFieldPenaltyFactor.anchor = GridBagConstraints.EAST;
-		gbc_jTextFieldPenaltyFactor.gridx = 0;
-		gbc_jTextFieldPenaltyFactor.gridy = 0;
-		panelPenaltyFactor.add(
-				jTextFieldPenaltyFactor, gbc_jTextFieldPenaltyFactor);
+		gbcJTextFieldPenaltyFactor.insets = new Insets(5, 10, 5, 5);
+		gbcJTextFieldPenaltyFactor.anchor = GridBagConstraints.EAST;
+		gbcJTextFieldPenaltyFactor.gridx = 0;
+		gbcJTextFieldPenaltyFactor.gridy = 0;
+		jPanelPenaltyFactor.add(
+				jTextFieldPenaltyFactor, gbcJTextFieldPenaltyFactor);
 
-		JLabel lblPercentagepenalty = new JLabel("%");
-		GridBagConstraints gbc_lblPercentagePenalty = new GridBagConstraints();
-		gbc_lblPercentagePenalty.insets = new Insets(5, 0, 5, 5);
-		gbc_lblPercentagePenalty.anchor = GridBagConstraints.WEST;
-		gbc_lblPercentagePenalty.gridx = 1;
-		gbc_lblPercentagePenalty.gridy = 0;
-		panelPenaltyFactor.add(lblPercentagepenalty, gbc_lblPercentagePenalty);
+		JLabel jLabelPercentagePenalty = new JLabel("%");
+		GridBagConstraints gbcJLabelPercentagePenalty = new GridBagConstraints();
+		gbcJLabelPercentagePenalty.insets = new Insets(5, 0, 5, 5);
+		gbcJLabelPercentagePenalty.anchor = GridBagConstraints.WEST;
+		gbcJLabelPercentagePenalty.gridx = 1;
+		gbcJLabelPercentagePenalty.gridy = 0;
+		jPanelPenaltyFactor.add(jLabelPercentagePenalty, gbcJLabelPercentagePenalty);
 		
 		
 		
@@ -1035,7 +1032,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelPopulationSize.insets = new Insets(5, 5, 5, 5);
 		gbcJLabelPopulationSize.gridx = 0;
 		gbcJLabelPopulationSize.gridy = 4;
-		panelGeneticAlgorithmSettings.add(jLabelPopulationSize, 
+		jPanelGeneticAlgorithmSettings.add(jLabelPopulationSize, 
 				gbcJLabelPopulationSize);
 		
 		JPanel jPanelPopulationSize = new JPanel();
@@ -1048,7 +1045,7 @@ public class MainFrame extends JFrame {
 		gbcJPanelPopulationSize.gridwidth = 2;
 		gbcJPanelPopulationSize.gridx = 1;
 		gbcJPanelPopulationSize.gridy = 4;
-		panelGeneticAlgorithmSettings.add(jPanelPopulationSize, 
+		jPanelGeneticAlgorithmSettings.add(jPanelPopulationSize, 
 				gbcJPanelPopulationSize);
 		
 		jTextFieldPopulationSize = new JTextField("10");
@@ -1060,22 +1057,24 @@ public class MainFrame extends JFrame {
 				checkInputValue(jTextFieldPopulationSize);
 			}
 		});
-		GridBagConstraints gbcPopulationSize = new GridBagConstraints();
-		gbcPopulationSize.insets = new Insets(5, 10, 5, 5);
-		gbcPopulationSize.anchor = GridBagConstraints.EAST;
-		gbcPopulationSize.gridx = 0;
-		gbcPopulationSize.gridy = 0;
-		jPanelPopulationSize.add(jTextFieldPopulationSize, gbcPopulationSize);
+		GridBagConstraints gbcJTextFieldPopulationSize = 
+				new GridBagConstraints();
+		gbcJTextFieldPopulationSize.insets = new Insets(5, 10, 5, 5);
+		gbcJTextFieldPopulationSize.anchor = GridBagConstraints.EAST;
+		gbcJTextFieldPopulationSize.gridx = 0;
+		gbcJTextFieldPopulationSize.gridy = 0;
+		jPanelPopulationSize.add(jTextFieldPopulationSize, 
+				gbcJTextFieldPopulationSize);
 
 		jLabelPopulationPercentage = new JLabel();
-		GridBagConstraints gbc_jLabelStartPopulationPercentage = 
+		GridBagConstraints gbcJLabelStartPopulationPercentage = 
 			new GridBagConstraints();
-		gbc_jLabelStartPopulationPercentage.insets = new Insets(5, 0, 5, 5);
-		gbc_jLabelStartPopulationPercentage.anchor = GridBagConstraints.WEST;
-		gbc_jLabelStartPopulationPercentage.gridx = 1;
-		gbc_jLabelStartPopulationPercentage.gridy = 0;
+		gbcJLabelStartPopulationPercentage.insets = new Insets(5, 0, 5, 5);
+		gbcJLabelStartPopulationPercentage.anchor = GridBagConstraints.WEST;
+		gbcJLabelStartPopulationPercentage.gridx = 1;
+		gbcJLabelStartPopulationPercentage.gridy = 0;
 		jPanelPopulationSize.add(jLabelPopulationPercentage, 
-				gbc_jLabelStartPopulationPercentage);
+				gbcJLabelStartPopulationPercentage);
 		
 		JLabel jLabelSelection = new JLabel("Selection Method:");
 		GridBagConstraints gbcJLabelSelection = new GridBagConstraints();
@@ -1083,7 +1082,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelSelection.insets = new Insets(5, 5, 5, 5);
 		gbcJLabelSelection.gridx = 0;
 		gbcJLabelSelection.gridy = 5;
-		panelGeneticAlgorithmSettings.add(
+		jPanelGeneticAlgorithmSettings.add(
 				jLabelSelection, gbcJLabelSelection);
 		
 		JPanel jPanelSelection = new JPanel();
@@ -1097,7 +1096,7 @@ public class MainFrame extends JFrame {
 		gbcJPanelSelection.gridwidth = 2;
 		gbcJPanelSelection.gridx = 1;
 		gbcJPanelSelection.gridy = 5;
-		panelGeneticAlgorithmSettings.add(jPanelSelection, gbcJPanelSelection);
+		jPanelGeneticAlgorithmSettings.add(jPanelSelection, gbcJPanelSelection);
 		
 		jComboBoxSelection = new JComboBox<String>();
 		jComboBoxSelection.addItem("Elitism Based");
@@ -1112,6 +1111,11 @@ public class MainFrame extends JFrame {
 		jPanelSelection.add(jComboBoxSelection, 
 				gbcJComboBoxSelection);
 		
+		// TODO: Hier ein Text Field einfügen, in das man die Elitism Rate 
+		//		 eintragen kann. Idealerweise wird es nur angezeigt, wenn man 
+		//		 "Elitism Based" ausgewählt hat. Sollte man für alle 
+		//		 Selektionsmethoden ein Text Field brauchen, ist es aber 
+		//		 ohnehin egal.
 
 		
 		JLabel jLabelCrossover = new JLabel("Crossover Method:");
@@ -1120,7 +1124,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelCrossover.insets = new Insets(5, 5, 5, 5);
 		gbcJLabelCrossover.gridx = 0;
 		gbcJLabelCrossover.gridy = 6;
-		panelGeneticAlgorithmSettings.add(
+		jPanelGeneticAlgorithmSettings.add(
 				jLabelCrossover, gbcJLabelCrossover);
 		
 		JPanel jPanelCrossover = new JPanel();
@@ -1134,7 +1138,7 @@ public class MainFrame extends JFrame {
 		gbcJPanelCrossover.gridwidth = 2;
 		gbcJPanelCrossover.gridx = 1;
 		gbcJPanelCrossover.gridy = 6;
-		panelGeneticAlgorithmSettings.add(jPanelCrossover, gbcJPanelCrossover);
+		jPanelGeneticAlgorithmSettings.add(jPanelCrossover, gbcJPanelCrossover);
 		
 		jComboBoxCrossover = new JComboBox<String>();
 		jComboBoxCrossover.addItem("One-Point Crossover");
@@ -1162,7 +1166,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelTerminationCriterion.insets = new Insets(5, 5, 0, 5);
 		gbcJLabelTerminationCriterion.gridx = 0;
 		gbcJLabelTerminationCriterion.gridy = 7;
-		panelGeneticAlgorithmSettings.add(
+		jPanelGeneticAlgorithmSettings.add(
 				jLabelTerminationCriterion, gbcJLabelTerminationCriterion);
 		
 		JPanel jPanelTerminationCriterion = new JPanel();
@@ -1177,7 +1181,7 @@ public class MainFrame extends JFrame {
 		gbcJPanelTerminationCriterion.anchor = GridBagConstraints.WEST;
 		gbcJPanelTerminationCriterion.gridx = 1;
 		gbcJPanelTerminationCriterion.gridy = 7;
-		panelGeneticAlgorithmSettings.add(
+		jPanelGeneticAlgorithmSettings.add(
 				jPanelTerminationCriterion, gbcJPanelTerminationCriterion);
 		
 		jComboBoxTerminationCriterion = new JComboBox<String>();
@@ -1201,6 +1205,8 @@ public class MainFrame extends JFrame {
 		jPanelTerminationCriterion.add(jComboBoxTerminationCriterion, 
 				gbcJComboBoxTerminationCriterion);
 		
+		// TODO: Den Doppelpunkt könnte man evtl. sogar wegmachen. Könnte 
+		//		 ohne auch nicht schlecht aussehen.
 		jLabelColon = new JLabel(":");
 		GridBagConstraints gbcJLabelColon = new GridBagConstraints();
 		gbcJLabelColon.insets = new Insets(5, 5, 5, 5);
@@ -1210,7 +1216,7 @@ public class MainFrame extends JFrame {
 		jPanelTerminationCriterion.add(jLabelColon, gbcJLabelColon);
 		
 		jTextFieldTerminationCriterion = new JTextField("0");
-		jTextFieldTerminationCriterion.setColumns(2);
+		jTextFieldTerminationCriterion.setColumns(3);
 		jTextFieldTerminationCriterion.setHorizontalAlignment(
 				JTextField.RIGHT);
 		GridBagConstraints gbcJTextFieldTerminationCriterion = 
@@ -1776,8 +1782,7 @@ public class MainFrame extends JFrame {
 		}
 		// COUNTER FOR EVERY CHOSEN ALGORITHM
 		for (Map.Entry<String, Algorithm> entry : algorithmsMap.entrySet()) {
-			showAlgorithmResults(
-					entry.getValue(), entry.getKey());
+			showAlgorithmResults(entry.getValue(), entry.getKey());
 		}		
 	}
 	
@@ -1809,7 +1814,7 @@ public class MainFrame extends JFrame {
 		jProgressBarGeneticAlgorithm.setValue(0);
 		if (jCheckboxGeneticAlgorithm.isSelected()) {
 			geneticAlgorithm = new GeneticAlgorithm(
-					serviceClassesList, serviceCandidatesList, constraintsMap, 
+					serviceClassesList, constraintsMap, 
 					Integer.parseInt(jTextFieldPopulationSize.getText()), 
 					Integer.parseInt(jTextFieldTerminationCriterion.getText()),
 					((String) jComboBoxCrossover.getSelectedItem()),
@@ -1830,7 +1835,7 @@ public class MainFrame extends JFrame {
 				jButtonStart.setEnabled(false);
 //				setCursor(new Cursor(Cursor.WAIT_CURSOR));
 				if (jCheckboxGeneticAlgorithm.isSelected()) {
-					doGeneticAlgorithm(constraintsMap);
+					doGeneticAlgorithm();
 					progressBarThread.interrupt();
 				}
 				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
@@ -1948,7 +1953,7 @@ public class MainFrame extends JFrame {
 
 	private void doEnumeration(Map<String, Constraint> constraintsMap) {
 		analyticAlgorithm = new AnalyticAlgorithm(
-				serviceClassesList, serviceCandidatesList, constraintsMap, 
+				serviceClassesList, constraintsMap, 
 				(Integer) jSpinnerNumberResultTiers.getValue());
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 			analyticAlgorithm.start(jProgressBarAnalyticAlgorithm);
@@ -2145,6 +2150,8 @@ public class MainFrame extends JFrame {
 		if (Integer.parseInt(jTextFieldPenaltyFactor.getText()) < 0 || 
 				Integer.parseInt(jTextFieldPenaltyFactor.getText()) > 100) {
 			jTextFieldPenaltyFactor.setText("0");
+			// TODO: Dass der Penalty Factor weniger als 100% sein muss, ist 
+			//		 evtl. nicht zwingend der Fall. Müsste man noch prüfen.
 			writeErrorLogEntry("Penalty Factor has to be between 0 and 100%");
 			correctPenalty = false;
 		}
@@ -2252,7 +2259,7 @@ public class MainFrame extends JFrame {
 				jTableServiceClasses, 0, DefaultTableCellRenderer.CENTER);
 
 		// Write service classes data. Load service candidates into list.
-		for (int k = 0 ; k < serviceClassesList.size() ; k++) {
+		for (int k = 0; k < serviceClassesList.size(); k++) {
 			ServiceClass serviceClass = serviceClassesList.get(k);
 			jTableServiceClasses.setValueAt(
 					serviceClass.getServiceClassId(), k, 0);
@@ -2271,7 +2278,7 @@ public class MainFrame extends JFrame {
 			jTableWebServices.getColumnModel();
 		String[] headerArray = new String[] {"Service Class ", "ID", 
 			"Name", "Costs", "ResponseTime", "Availability"};
-		for (int k = 0 ; k < 6 ; k++) {
+		for (int k = 0; k < 6; k++) {
 			webServicesColumnModel.getColumn(k).setHeaderValue(
 					headerArray[k]);
 		}
@@ -2284,7 +2291,7 @@ public class MainFrame extends JFrame {
 					DefaultTableCellRenderer.RIGHT);
 		}
 		// Write service candidates data.
-		for (int k = 0 ; k < serviceCandidatesList.size() ; k++) {
+		for (int k = 0; k < serviceCandidatesList.size(); k++) {
 			ServiceCandidate serviceCandidate = 
 				serviceCandidatesList.get(k);
 			QosVector qosVector = serviceCandidate.getQosVector();
@@ -2355,6 +2362,7 @@ public class MainFrame extends JFrame {
 
 
 		// COUNTER FOR ALL TIER TABLES
+		// TODO: Wieso "innerCount"?
 		for (int innerCount = 1; 
 		innerCount < rows.length; innerCount = innerCount + 2) {
 			List<Composition> tierServiceCompositionList = 
@@ -2370,20 +2378,18 @@ public class MainFrame extends JFrame {
 			}
 			
 			// TABLE CONSTRUCTION
+			// TODO: "# Composition" ist überflüssig.
 			String[] tierTablesColumnNames = {"# Composition", "# Service", 
 					"Service Title", "Service Class", "Utility Value", "Costs", 
 					"Response Time", "Availability"};
 			JTable jTableTier = new JTable(new BasicTableModel(
-					numberOfRows, 
-					tierTablesColumnNames.length, false));
-			GridBagConstraints gbc_jTableTier = 
-				new GridBagConstraints();
-			gbc_jTableTier.gridx = 0;
-			gbc_jTableTier.gridy = innerCount;
-			gbc_jTableTier.fill = GridBagConstraints.HORIZONTAL;
-			gbc_jTableTier.anchor = GridBagConstraints.NORTH;
-			jPanelAlgorithmResult.add(
-					jTableTier, gbc_jTableTier);
+					numberOfRows, tierTablesColumnNames.length, false));
+			GridBagConstraints gbcJTableTier = new GridBagConstraints();
+			gbcJTableTier.gridx = 0;
+			gbcJTableTier.gridy = innerCount;
+			gbcJTableTier.fill = GridBagConstraints.HORIZONTAL;
+			gbcJTableTier.anchor = GridBagConstraints.NORTH;
+			jPanelAlgorithmResult.add(jTableTier, gbcJTableTier);
 			
 			setColumnTextAlignment(
 					jTableTier, 1, DefaultTableCellRenderer.CENTER);
@@ -2461,21 +2467,24 @@ public class MainFrame extends JFrame {
 									rowCount + candidateCount, 7);
 				}
 				rowCount = rowCount + candidateCount - 1;
+				
+				// TODO: Es wäre gut, wenn man die aggregierten QoS-Werte für 
+				// 		 die Composition angezeigt bekommt. Sollte eigentlich 
+				//		 kein Problem sein.
 			}
 			jTableTier.setEnabled(false);
 			
 			if (innerCount + 1 < rows.length) {
-				JSeparator tierTablesSeparator = new JSeparator();
-				GridBagConstraints gbc_tierTablesSeparator = 
+				JSeparator jSeparatorTierTables = new JSeparator();
+				GridBagConstraints gbcJSeparatorTierTables = 
 					new GridBagConstraints();
-				gbc_tierTablesSeparator.gridx = 0;
-				gbc_tierTablesSeparator.gridy = innerCount + 1;
-				gbc_tierTablesSeparator.fill = 
-					GridBagConstraints.HORIZONTAL;
-				gbc_tierTablesSeparator.anchor = GridBagConstraints.NORTH;
-				gbc_tierTablesSeparator.insets = new Insets(10, 5, 10, 5);
+				gbcJSeparatorTierTables.gridx = 0;
+				gbcJSeparatorTierTables.gridy = innerCount + 1;
+				gbcJSeparatorTierTables.fill = GridBagConstraints.HORIZONTAL;
+				gbcJSeparatorTierTables.anchor = GridBagConstraints.NORTH;
+				gbcJSeparatorTierTables.insets = new Insets(10, 5, 10, 5);
 				jPanelAlgorithmResult.add(
-						tierTablesSeparator, gbc_tierTablesSeparator);
+						jSeparatorTierTables, gbcJSeparatorTierTables);
 			}
 		}
 	}
@@ -2574,11 +2583,15 @@ public class MainFrame extends JFrame {
 		jLabelUtilityText.setText(utilityText + "</html>");
 	}
 	
-	private void doGeneticAlgorithm(Map<String, Constraint> constraintsMap) {
-	
-
+	private void doGeneticAlgorithm() {
 		geneticAlgorithm.start(jProgressBarGeneticAlgorithm);
 		jProgressBarGeneticAlgorithm.setValue(100);
+		// TODO: Runtime für Genetischen Algorithmus wieder eingefügt. Die 
+		//		 einzelnen Runtimes sollten aber einheitlich gehandhabt werden, 
+		//		 sprich: Entweder alle in der Methode do...Algorithm() oder 
+		//		 alle innerhalb doInBackground().
+		jTableGeneralResults.setValueAt(
+				geneticAlgorithm.getRuntime() + " ms", 1, 1); 
 		cumulatedRuntime += geneticAlgorithm.getRuntime();
 	}
 	
