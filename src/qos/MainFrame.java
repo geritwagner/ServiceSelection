@@ -1853,7 +1853,7 @@ public class MainFrame extends JFrame {
 						}
 						buildResultTable();
 						jButtonVisualize.setEnabled(true);
-						setEnabled(false);
+						setEnabled(true);
 //						setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 					}
 				});
