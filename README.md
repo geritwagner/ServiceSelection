@@ -1,4 +1,4 @@
 ServiceSelection
 ================
 
-Genetic and Ant colony optimization for web servcie selection, Praxisseminar 2013
+Genetic and Ant colony optimization for web service selection, Praxisseminar 2013
