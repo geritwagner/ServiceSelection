@@ -158,12 +158,14 @@ public class GeneticAlgorithmsVisualization extends JFrame{
 		final int middleX = 200;
 		final int middleY = 150;
 		
-		double bigArea = (Math.PI / 4) * 300 * 200;
+		double bigArea = (Math.PI / 4.0) * 300 * 200;
 		double chosenArea = quotient * bigArea;
 		
 		int width = (int) Math.round(
-				(Math.sqrt(chosenArea * 6 / Math.PI)));
-		int height = (int) Math.round(width * 2 / 3);
+				(Math.sqrt(chosenArea * 6.0 / Math.PI)));
+		// TODO: "2.0" and "3.0" anstatt "2" und "3". Evtl. bringt das ja 
+		//		 schon was bzgl. des y-Achsen-TODOs.
+		int height = (int) Math.round(width * 2.0 / 3.0);
 	
 		g.fillOval((int)((middleX - 0.5 * width)), 
 				(int)((middleY - 0.5 * height)), 

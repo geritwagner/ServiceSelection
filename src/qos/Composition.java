@@ -32,7 +32,7 @@ public class Composition {
 	public void buildAggregatedQosVector() {
 		double costs = 0.0;
 		double responseTime = 0.0;
-		double availability = 0.0;
+		double availability = 1.0;
 		for (ServiceCandidate candidate : serviceCandidatesList) {
 			costs += candidate.getQosVector().getCosts();
 			responseTime += candidate.getQosVector().getResponseTime();
