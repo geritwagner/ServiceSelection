@@ -2,11 +2,10 @@ package qos;
 
 import java.util.List;
 
-import javax.swing.JProgressBar;
-
 public abstract class Algorithm {
 	
-	public abstract void start(JProgressBar progressBar);
+	public abstract void start();
 	public abstract List<AlgorithmSolutionTier> getAlgorithmSolutionTiers();
+	public abstract long getRuntime();
 
 }

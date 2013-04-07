@@ -43,7 +43,7 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 
 	@Override
-	public void start(JProgressBar progressBar) {
+	public void start() {
 		runtime = System.currentTimeMillis();
 		List<Composition> population = generateInitialPopulation();
 		setStartPopulationVisualization(population);

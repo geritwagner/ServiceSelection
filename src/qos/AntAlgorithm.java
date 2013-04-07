@@ -5,8 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JProgressBar;
-
 public class AntAlgorithm extends Algorithm {
 
 	private List<ServiceClass> serviceClassesList;
@@ -47,7 +45,7 @@ public class AntAlgorithm extends Algorithm {
 		this.dilution = dilution;
 	}
 
-	public void start(JProgressBar progressBar) {	
+	public void start() {	
 		runtime = System.currentTimeMillis();
 		initAlgo();
 

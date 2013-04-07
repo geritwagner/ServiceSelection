@@ -1801,17 +1801,23 @@ public class MainFrame extends JFrame {
 			@Override
 			public void run() {
 				while(!isInterrupted()) {
-					jProgressBarGeneticAlgorithm.setValue(
-							geneticAlgorithm.getWorkPercentage());
+					if (jCheckboxGeneticAlgorithm.isSelected()) {
+						jProgressBarGeneticAlgorithm.setValue(
+								geneticAlgorithm.getWorkPercentage());
+					}
+					if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+						jProgressBarAnalyticAlgorithm.setValue(
+								analyticAlgorithm.getWorkPercentage());
+					}
 					try {
 						sleep(1000);
 					} catch (InterruptedException e) {}
 				}
 			}
 		};
+
 		
 		// Handle the progressbar
-		jProgressBarGeneticAlgorithm.setValue(0);
 		if (jCheckboxGeneticAlgorithm.isSelected()) {
 			geneticAlgorithm = new GeneticAlgorithm(
 					serviceClassesList, constraintsMap, 
@@ -1820,6 +1826,17 @@ public class MainFrame extends JFrame {
 					((String) jComboBoxCrossover.getSelectedItem()),
 					((String) jComboBoxTerminationCriterion.
 							getSelectedItem()));
+			jProgressBarGeneticAlgorithm.setValue(0);
+			
+		}
+		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+			analyticAlgorithm = new AnalyticAlgorithm(
+					serviceClassesList, constraintsMap, 
+					(Integer) jSpinnerNumberResultTiers.getValue());
+			jProgressBarAnalyticAlgorithm.setValue(0);
+		}
+		if (jCheckboxGeneticAlgorithm.isSelected() || 
+				jCheckBoxAnalyticAlgorithm.isSelected()) {
 			progressBarThread.start();
 		}
 		// TODO: Try to find a better solution for enabling the
@@ -1840,7 +1857,10 @@ public class MainFrame extends JFrame {
 				}
 				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 					doEnumeration(constraintsMap);
-					cumulatedRuntime += analyticAlgorithm.getRuntime();
+				}
+				if (jCheckboxGeneticAlgorithm.isSelected() || 
+						jCheckBoxAnalyticAlgorithm.isSelected()) {
+					progressBarThread.interrupt();
 				}
 				if (jCheckBoxAntColonyOptimization.isSelected()) {
 					doAntAlgorithm(constraintsMap);
@@ -1952,12 +1972,8 @@ public class MainFrame extends JFrame {
 	}
 
 	private void doEnumeration(Map<String, Constraint> constraintsMap) {
-		analyticAlgorithm = new AnalyticAlgorithm(
-				serviceClassesList, constraintsMap, 
-				(Integer) jSpinnerNumberResultTiers.getValue());
-		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-			analyticAlgorithm.start(jProgressBarAnalyticAlgorithm);
-		}
+		analyticAlgorithm.start();
+		cumulatedRuntime += analyticAlgorithm.getRuntime();
 		if (analyticAlgorithm.getRuntime() > 120000) {
 			jTableGeneralResults.setValueAt(
 					analyticAlgorithm.getRuntime() / 60000.0 + " min", 3, 1);
@@ -2515,8 +2531,9 @@ public class MainFrame extends JFrame {
 				serviceClassesList, serviceCandidatesList, constraintsMap,
 				iterations, ants, alpha, beta,
 				dilution, piInit);
-		antAlgorithm.start(jProgressBarAntAlgorithm);        
+		antAlgorithm.start();        
 		long runtime = antAlgorithm.getRuntime();
+		cumulatedRuntime += antAlgorithm.getRuntime();
 		jTableGeneralResults.setValueAt(runtime + " ms", 2, 1);    
 	} 
 	
@@ -2584,15 +2601,21 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void doGeneticAlgorithm() {
-		geneticAlgorithm.start(jProgressBarGeneticAlgorithm);
+		geneticAlgorithm.start();
 		jProgressBarGeneticAlgorithm.setValue(100);
-		// TODO: Runtime für Genetischen Algorithmus wieder eingefügt. Die 
-		//		 einzelnen Runtimes sollten aber einheitlich gehandhabt werden, 
-		//		 sprich: Entweder alle in der Methode do...Algorithm() oder 
-		//		 alle innerhalb doInBackground().
-		jTableGeneralResults.setValueAt(
-				geneticAlgorithm.getRuntime() + " ms", 1, 1); 
 		cumulatedRuntime += geneticAlgorithm.getRuntime();
+		if (geneticAlgorithm.getRuntime() > 120000) {
+			jTableGeneralResults.setValueAt(
+					geneticAlgorithm.getRuntime() / 60000.0 + " min", 1, 1);
+		}
+		else if (geneticAlgorithm.getRuntime() > 1000) {
+			jTableGeneralResults.setValueAt(
+					geneticAlgorithm.getRuntime() / 1000.0 + " s", 1, 1);
+		}
+		else {
+			jTableGeneralResults.setValueAt(
+					geneticAlgorithm.getRuntime() + " ms", 1, 1);
+		}
 	}
 	
 	private void checkInputValue(JTextField textField) {

@@ -5,8 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JProgressBar;
-
 public class AnalyticAlgorithm extends Algorithm {
 	
 	private List<ServiceClass> serviceClassesList;
@@ -19,6 +17,8 @@ public class AnalyticAlgorithm extends Algorithm {
 	private int numberOfRequestedResultTiers;
 	
 	private long runtime = 0;
+	
+	private int workPercentage;
 
 	
 	// CONSTRUCTORS
@@ -35,12 +35,14 @@ public class AnalyticAlgorithm extends Algorithm {
 	}
 	
 	@Override
-	public void start(JProgressBar progressBar) {
+	public void start() {
 		runtime = System.currentTimeMillis();
+		workPercentage = 0;
 		// Do complete enumeration.
 		for (int i = 0; i < serviceClassesList.get(0).
 				getServiceCandidateList().size(); i++) {
 			doCompleteEnumeration(new Composition(), 0, i);
+			workPercentage = (int) (100 * i / serviceClassesList.size());
 			// TODO: ProgressBar doesn's work correctly.
 //			progressBar.setValue((int) Math.round((
 //					(double) (i + 1) / ((double) serviceClassesList.get(
@@ -205,6 +207,9 @@ public class AnalyticAlgorithm extends Algorithm {
 	}
 	public long getRuntime() {
 		return runtime;
+	}
+	public int getWorkPercentage() {
+		return workPercentage;
 	}
 	
 }
