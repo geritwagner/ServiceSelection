@@ -160,7 +160,7 @@ public class MainFrame extends JFrame {
 	private JComboBox<String> jComboBoxCrossover;
 	private JComboBox<String> jComboBoxSelection;
 	private JComboBox<String> jComboBoxTerminationCriterion;
-	private JLabel jLabelStartPopulationPercentage;
+	private JLabel jLabelPopulationPercentage;
 
 	/**
 	 * Launch the application.
@@ -1067,14 +1067,14 @@ public class MainFrame extends JFrame {
 		gbcPopulationSize.gridy = 0;
 		jPanelPopulationSize.add(jTextFieldPopulationSize, gbcPopulationSize);
 
-		jLabelStartPopulationPercentage = new JLabel();
+		jLabelPopulationPercentage = new JLabel();
 		GridBagConstraints gbc_jLabelStartPopulationPercentage = 
 			new GridBagConstraints();
 		gbc_jLabelStartPopulationPercentage.insets = new Insets(5, 0, 5, 5);
 		gbc_jLabelStartPopulationPercentage.anchor = GridBagConstraints.WEST;
 		gbc_jLabelStartPopulationPercentage.gridx = 1;
 		gbc_jLabelStartPopulationPercentage.gridy = 0;
-		jPanelPopulationSize.add(jLabelStartPopulationPercentage, 
+		jPanelPopulationSize.add(jLabelPopulationPercentage, 
 				gbc_jLabelStartPopulationPercentage);
 		
 		JLabel jLabelSelection = new JLabel("Selection Method:");
@@ -2592,32 +2592,37 @@ public class MainFrame extends JFrame {
 			textField.setText("1");
 			writeErrorLogEntry("Input has to be from the type Integer");
 		}
-		int maxStartPopulation = 1;
+		// TODO: Variable stößt sehr schnell an ihre Grenzen. Long bringt auch 
+		//		 eher wenig. Überprüfung daher nochmal überdenken. Wäre 
+		//		 prinzipiell notwendig, sollte aber aufgrund extrem schnell 
+		//		 steigender Zahlen begrenzt werden (z.B. auf 9999).
+		int maxPopulationSize = 1;
 		for (ServiceClass serviceClass : serviceClassesList) {
-			maxStartPopulation *= 
+			maxPopulationSize *= 
 					serviceClass.getServiceCandidateList().size();
 		}
-		int startPopulation = 
+		int populationSize = 
 				Integer.parseInt(jTextFieldPopulationSize.getText()) * 100;
-		if (Integer.parseInt(textField.getText()) > maxStartPopulation) {
-			textField.setText(String.valueOf(maxStartPopulation));
-			jLabelStartPopulationPercentage.setText(
-					"( = 100 % )");
+		if (Integer.parseInt(textField.getText()) > maxPopulationSize) {
+			textField.setText(String.valueOf(maxPopulationSize));
+			jLabelPopulationPercentage.setText("( = 100 % )");
 			writeErrorLogEntry(
-					"Input has to be between 1 and " + maxStartPopulation);
+					"Input has to be between 1 and " + maxPopulationSize);
 		}
 		else if (Integer.parseInt(textField.getText()) < 1) {
 			textField.setText("1");
-			jLabelStartPopulationPercentage.setText(
+			jLabelPopulationPercentage.setText(
 					"( = " + DECIMAL_FORMAT_FOUR.format(
-							1.0 / maxStartPopulation) + " %)");
+							1.0 / maxPopulationSize) + " %)");
 			writeErrorLogEntry(
-					"Input has to be between 1 and " + maxStartPopulation);
+					"Input has to be between 1 and " + maxPopulationSize);
 		}
 		else {
-			jLabelStartPopulationPercentage.setText(
+			// TODO: Fraglich, ob das (außer bei kleinen Input-Sets) einen 
+			//		 wirklichen Mehrwert hat.
+			jLabelPopulationPercentage.setText(
 					"( = " + DECIMAL_FORMAT_FOUR.format((double)
-							startPopulation / maxStartPopulation) + " % )");
+							populationSize / maxPopulationSize) + " % )");
 		}
 	}
 	
