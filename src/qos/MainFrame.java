@@ -1048,7 +1048,7 @@ public class MainFrame extends JFrame {
 		jPanelGeneticAlgorithmSettings.add(jPanelPopulationSize, 
 				gbcJPanelPopulationSize);
 		
-		jTextFieldPopulationSize = new JTextField("10");
+		jTextFieldPopulationSize = new JTextField("100");
 		jTextFieldPopulationSize.setColumns(3);
 		jTextFieldPopulationSize.setHorizontalAlignment(JTextField.RIGHT);
 		jTextFieldPopulationSize.addActionListener(new ActionListener() {
@@ -1215,7 +1215,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelColon.gridy = 0;
 		jPanelTerminationCriterion.add(jLabelColon, gbcJLabelColon);
 		
-		jTextFieldTerminationCriterion = new JTextField("0");
+		jTextFieldTerminationCriterion = new JTextField("100");
 		jTextFieldTerminationCriterion.setColumns(3);
 		jTextFieldTerminationCriterion.setHorizontalAlignment(
 				JTextField.RIGHT);

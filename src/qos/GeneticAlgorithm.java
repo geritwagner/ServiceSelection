@@ -292,6 +292,7 @@ public class GeneticAlgorithm extends Algorithm {
 					serviceCandidates.set(j, newServiceCandidates.get(
 							(int) (random * newServiceCandidates.size())));
 					composition.buildAggregatedQosVector();
+					composition.computeUtilityValue();
 				}
 			}
 		}
