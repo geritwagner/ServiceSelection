@@ -84,9 +84,12 @@ public class MainFrame extends JFrame {
 	private JLabel jLabelWeightedPenalty;
 	private JLabel jLabelUtilityText;
 
-	private JLabel jLabelColon;
+	private JLabel jLabelTerminationColon;
 	private JLabel jLabelTerminationCriterionPercentage;
+	private JLabel jLabelElitismColon;
+	private JLabel jLabelElitismRatePercentage;
 	private JTextField jTextFieldTerminationCriterion;
+	private JTextField jTextFieldElitismRate;
 	
 	private JCheckBox jCheckboxGeneticAlgorithm;
 	private JCheckBox jCheckBoxAntColonyOptimization;
@@ -118,7 +121,11 @@ public class MainFrame extends JFrame {
 	private boolean correctPenalty = true;
 
 	private static MainFrame frame;
-
+	
+	private static final int DEFAULT_ELITISM_RATE = 25;
+	private static final int DEFAULT_TERMINATION_CRITERION = 100;
+	private static final int DEFAULT_START_POPULATION_SIZE = 100;
+	private static final int MAX_START_POPULATION_SIZE = 10000;
 
 	private int maxCosts = 10000;
 	private int maxResponseTime = 10000;
@@ -130,9 +137,9 @@ public class MainFrame extends JFrame {
 	
 	private double cumulatedRuntime;	
 	
-	public static final DecimalFormat DECIMAL_FORMAT_TWO = 
+	private static final DecimalFormat DECIMAL_FORMAT_TWO = 
 		new DecimalFormat("###.##");
-	public static final DecimalFormat DECIMAL_FORMAT_FOUR = 
+	private static final DecimalFormat DECIMAL_FORMAT_FOUR = 
 		new DecimalFormat("###.####");
 
 
@@ -1016,12 +1023,14 @@ public class MainFrame extends JFrame {
 				jTextFieldPenaltyFactor, gbcJTextFieldPenaltyFactor);
 
 		JLabel jLabelPercentagePenalty = new JLabel("%");
-		GridBagConstraints gbcJLabelPercentagePenalty = new GridBagConstraints();
+		GridBagConstraints gbcJLabelPercentagePenalty = 
+				new GridBagConstraints();
 		gbcJLabelPercentagePenalty.insets = new Insets(5, 0, 5, 5);
 		gbcJLabelPercentagePenalty.anchor = GridBagConstraints.WEST;
 		gbcJLabelPercentagePenalty.gridx = 1;
 		gbcJLabelPercentagePenalty.gridy = 0;
-		jPanelPenaltyFactor.add(jLabelPercentagePenalty, gbcJLabelPercentagePenalty);
+		jPanelPenaltyFactor.add(
+				jLabelPercentagePenalty, gbcJLabelPercentagePenalty);
 		
 		
 		
@@ -1048,13 +1057,16 @@ public class MainFrame extends JFrame {
 		jPanelGeneticAlgorithmSettings.add(jPanelPopulationSize, 
 				gbcJPanelPopulationSize);
 		
-		jTextFieldPopulationSize = new JTextField("100");
+		jTextFieldPopulationSize = new JTextField(
+				String.valueOf(DEFAULT_START_POPULATION_SIZE));
 		jTextFieldPopulationSize.setColumns(3);
 		jTextFieldPopulationSize.setHorizontalAlignment(JTextField.RIGHT);
 		jTextFieldPopulationSize.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				checkInputValue(jTextFieldPopulationSize);
+				checkInputValue(jTextFieldPopulationSize, 
+						MAX_START_POPULATION_SIZE, 1, 
+						DEFAULT_START_POPULATION_SIZE);
 			}
 		});
 		GridBagConstraints gbcJTextFieldPopulationSize = 
@@ -1102,6 +1114,12 @@ public class MainFrame extends JFrame {
 		jComboBoxSelection.addItem("Elitism Based");
 		jComboBoxSelection.addItem("Roulette Wheel Selection");
 		jComboBoxSelection.addItem("Tournament Selection");
+		jComboBoxSelection.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				isElitismInputVisible();
+			}
+		});
 		GridBagConstraints gbcJComboBoxSelection = 
 			new GridBagConstraints();
 		gbcJComboBoxSelection.insets = new Insets(5, 10, 5, 5);
@@ -1111,12 +1129,49 @@ public class MainFrame extends JFrame {
 		jPanelSelection.add(jComboBoxSelection, 
 				gbcJComboBoxSelection);
 		
-		// TODO: Hier ein Text Field einfügen, in das man die Elitism Rate 
-		//		 eintragen kann. Idealerweise wird es nur angezeigt, wenn man 
-		//		 "Elitism Based" ausgewählt hat. Sollte man für alle 
-		//		 Selektionsmethoden ein Text Field brauchen, ist es aber 
-		//		 ohnehin egal.
+		jLabelElitismColon = new JLabel(":");
+		GridBagConstraints gbcJLabelElitismColon = new GridBagConstraints();
+		gbcJLabelElitismColon.insets = new Insets(5, 0, 5, 0);
+		gbcJLabelElitismColon.anchor = GridBagConstraints.CENTER;
+		gbcJLabelElitismColon.gridx = 1;
+		gbcJLabelElitismColon.gridy = 0;
+		jPanelSelection.add(
+				jLabelElitismColon, gbcJLabelElitismColon);
+		
+		jTextFieldElitismRate = new JTextField(
+				String.valueOf(DEFAULT_ELITISM_RATE));
+		jTextFieldElitismRate.setColumns(2);
+		jTextFieldElitismRate.setHorizontalAlignment(
+				JTextField.RIGHT);
+		jTextFieldElitismRate.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				checkInputValue(jTextFieldElitismRate,
+						100, 1, DEFAULT_ELITISM_RATE);
+			}
+		});
+		GridBagConstraints gbcJTextFieldElitismRate = 
+			new GridBagConstraints();
+		gbcJTextFieldElitismRate.insets = new Insets(5, 5, 5, 0);
+		gbcJTextFieldElitismRate.anchor = GridBagConstraints.EAST;
+		gbcJTextFieldElitismRate.gridx = 2;
+		gbcJTextFieldElitismRate.gridy = 0;
+		jPanelSelection.add(jTextFieldElitismRate, 
+				gbcJTextFieldElitismRate);
+		
+		jLabelElitismRatePercentage = new JLabel("%");
+		GridBagConstraints gbcJLabelElitismRatePercentage = 
+			new GridBagConstraints();
+		gbcJLabelElitismRatePercentage.insets = 
+			new Insets(5, 5, 5, 5);
+		gbcJLabelElitismRatePercentage.anchor = 
+			GridBagConstraints.WEST;
+		gbcJLabelElitismRatePercentage.gridx = 3;
+		gbcJLabelElitismRatePercentage.gridy = 0;
+		jPanelSelection.add(jLabelElitismRatePercentage, 
+				gbcJLabelElitismRatePercentage);
 
+		
 		
 		JLabel jLabelCrossover = new JLabel("Crossover Method:");
 		GridBagConstraints gbcJLabelCrossover = new GridBagConstraints();
@@ -1138,7 +1193,8 @@ public class MainFrame extends JFrame {
 		gbcJPanelCrossover.gridwidth = 2;
 		gbcJPanelCrossover.gridx = 1;
 		gbcJPanelCrossover.gridy = 6;
-		jPanelGeneticAlgorithmSettings.add(jPanelCrossover, gbcJPanelCrossover);
+		jPanelGeneticAlgorithmSettings.add(
+				jPanelCrossover, gbcJPanelCrossover);
 		
 		jComboBoxCrossover = new JComboBox<String>();
 		jComboBoxCrossover.addItem("One-Point Crossover");
@@ -1205,24 +1261,31 @@ public class MainFrame extends JFrame {
 		jPanelTerminationCriterion.add(jComboBoxTerminationCriterion, 
 				gbcJComboBoxTerminationCriterion);
 		
-		// TODO: Den Doppelpunkt könnte man evtl. sogar wegmachen. Könnte 
-		//		 ohne auch nicht schlecht aussehen.
-		jLabelColon = new JLabel(":");
-		GridBagConstraints gbcJLabelColon = new GridBagConstraints();
-		gbcJLabelColon.insets = new Insets(5, 5, 5, 5);
-		gbcJLabelColon.anchor = GridBagConstraints.WEST;
-		gbcJLabelColon.gridx = 1;
-		gbcJLabelColon.gridy = 0;
-		jPanelTerminationCriterion.add(jLabelColon, gbcJLabelColon);
+		jLabelTerminationColon = new JLabel(":");
+		GridBagConstraints gbcJLabelTerminationColon = new GridBagConstraints();
+		gbcJLabelTerminationColon.insets = new Insets(5, 0, 5, 0);
+		gbcJLabelTerminationColon.anchor = GridBagConstraints.CENTER;
+		gbcJLabelTerminationColon.gridx = 1;
+		gbcJLabelTerminationColon.gridy = 0;
+		jPanelTerminationCriterion.add(
+				jLabelTerminationColon, gbcJLabelTerminationColon);
 		
-		jTextFieldTerminationCriterion = new JTextField("100");
+		jTextFieldTerminationCriterion = new JTextField(
+				String.valueOf(DEFAULT_TERMINATION_CRITERION));
 		jTextFieldTerminationCriterion.setColumns(3);
 		jTextFieldTerminationCriterion.setHorizontalAlignment(
 				JTextField.RIGHT);
+		jTextFieldTerminationCriterion.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				checkInputValue(jTextFieldTerminationCriterion, 
+						Integer.MAX_VALUE, 1, DEFAULT_TERMINATION_CRITERION);
+			}
+		});
 		GridBagConstraints gbcJTextFieldTerminationCriterion = 
 			new GridBagConstraints();
-		gbcJTextFieldTerminationCriterion.insets = new Insets(5, 5, 5, 5);
-		gbcJTextFieldTerminationCriterion.anchor = GridBagConstraints.WEST;
+		gbcJTextFieldTerminationCriterion.insets = new Insets(5, 5, 5, 0);
+		gbcJTextFieldTerminationCriterion.anchor = GridBagConstraints.EAST;
 		gbcJTextFieldTerminationCriterion.gridx = 2;
 		gbcJTextFieldTerminationCriterion.gridy = 0;
 		jPanelTerminationCriterion.add(jTextFieldTerminationCriterion, 
@@ -1756,7 +1819,9 @@ public class MainFrame extends JFrame {
 			webServicesLoaded = true;
 			checkEnableStartButton();
 			setSliderExtremeValues();
-			checkInputValue(jTextFieldPopulationSize);
+			checkInputValue(jTextFieldPopulationSize, 
+					MAX_START_POPULATION_SIZE, 1, 
+					DEFAULT_START_POPULATION_SIZE);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -1796,7 +1861,10 @@ public class MainFrame extends JFrame {
 			serviceCandidate.determineUtilityValue(
 					constraintsMap, qosMax, qosMin);
 		}
+		jProgressBarGeneticAlgorithm.setValue(0);
+		jProgressBarAnalyticAlgorithm.setValue(0);
 		
+		// TODO: Stop this Thread (doesn't work)
 		final Thread progressBarThread = new Thread() {
 			@Override
 			public void run() {
@@ -1811,12 +1879,13 @@ public class MainFrame extends JFrame {
 					}
 					try {
 						sleep(1000);
-					} catch (InterruptedException e) {}
+					} catch (InterruptedException e) {
+
+					}
 				}
 			}
 		};
 
-		
 		// Handle the progressbar
 		if (jCheckboxGeneticAlgorithm.isSelected()) {
 			geneticAlgorithm = new GeneticAlgorithm(
@@ -1826,26 +1895,25 @@ public class MainFrame extends JFrame {
 					((String) jComboBoxCrossover.getSelectedItem()),
 					((String) jComboBoxTerminationCriterion.
 							getSelectedItem()));
-			jProgressBarGeneticAlgorithm.setValue(0);
-			
 		}
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 			analyticAlgorithm = new AnalyticAlgorithm(
 					serviceClassesList, constraintsMap, 
 					(Integer) jSpinnerNumberResultTiers.getValue());
-			jProgressBarAnalyticAlgorithm.setValue(0);
 		}
 		if (jCheckboxGeneticAlgorithm.isSelected() || 
 				jCheckBoxAnalyticAlgorithm.isSelected()) {
 			progressBarThread.start();
 		}
-		// TODO: Try to find a better solution for enabling the
-		//		 frame (in order to allow cursor definitions)
-		//		 -> idea: global mouse listener (no action performed
-		// 				  if cursor = wait_cursor)
+		
+		// TODO: Stop this Worker (doesn't work)
+		/* TODO: Try to find a better solution for enabling the
+				 frame (in order to allow cursor definitions)
+				 -> idea: global mouse listener (no action performed
+		 				  if cursor = wait_cursor) */
 		// Outsourcing of the calculation 
 		// in order to prevent freezing the gui
-		new SwingWorker<Void, Void>() {
+		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 			@Override
 			protected Void doInBackground() throws Exception {
 				setEnabled(false);
@@ -1858,10 +1926,7 @@ public class MainFrame extends JFrame {
 				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 					doEnumeration(constraintsMap);
 				}
-				if (jCheckboxGeneticAlgorithm.isSelected() || 
-						jCheckBoxAnalyticAlgorithm.isSelected()) {
-					progressBarThread.interrupt();
-				}
+				progressBarThread.interrupt();
 				if (jCheckBoxAntColonyOptimization.isSelected()) {
 					doAntAlgorithm(constraintsMap);
 					cumulatedRuntime += antAlgorithm.getRuntime();
@@ -1870,6 +1935,12 @@ public class MainFrame extends JFrame {
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
+						if (jCheckboxGeneticAlgorithm.isSelected()) {
+							jProgressBarGeneticAlgorithm.setValue(100);
+						}
+						if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+							jProgressBarAnalyticAlgorithm.setValue(100);
+						}
 						if (cumulatedRuntime > 120000) {
 							jTableGeneralResults.setValueAt(
 									cumulatedRuntime / 60000 + " min", 0, 1);
@@ -1892,7 +1963,8 @@ public class MainFrame extends JFrame {
 				});
 				return null;
 			}
-		}.execute();
+		};
+		worker.execute();
 	}
 
 	private void chooseAlgorithm(String algorithm) {
@@ -2168,6 +2240,8 @@ public class MainFrame extends JFrame {
 			jTextFieldPenaltyFactor.setText("0");
 			// TODO: Dass der Penalty Factor weniger als 100% sein muss, ist 
 			//		 evtl. nicht zwingend der Fall. Müsste man noch prüfen.
+			// -> da geb ich Dir recht, die Grenzen
+			//    sollten noch explizit abgeklärt werden.
 			writeErrorLogEntry("Penalty Factor has to be between 0 and 100%");
 			correctPenalty = false;
 		}
@@ -2223,7 +2297,7 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	// TODO: CHECK SPINNER INPUTS
+	// TODO: Check Spinner inputs!
 	private void loadRandomWebServices() {
 		final JSpinner spinnerNumberOfServiceClasses = new JSpinner(
 				new SpinnerNumberModel(1, 1, 1000, 1));		
@@ -2324,7 +2398,9 @@ public class MainFrame extends JFrame {
 		webServicesLoaded = true;
 		checkEnableStartButton();
 		setSliderExtremeValues();
-		checkInputValue(jTextFieldPopulationSize);
+		checkInputValue(jTextFieldPopulationSize, 
+				MAX_START_POPULATION_SIZE, 1, 
+				DEFAULT_START_POPULATION_SIZE);
 	}
 	
 	private Map<String, Algorithm> getChosenAlgorithms() {
@@ -2346,8 +2422,6 @@ public class MainFrame extends JFrame {
 	
 	private void showAlgorithmResults(Algorithm algorithm, 
 			String algorithmTitle) {
-		
-		int compositionNumber = 1;
 		
 		JScrollPane jScrollPane = new JScrollPane();
 		this.jTabbedPane.addTab(algorithmTitle, jScrollPane);
@@ -2378,13 +2452,12 @@ public class MainFrame extends JFrame {
 
 
 		// COUNTER FOR ALL TIER TABLES
-		// TODO: Wieso "innerCount"?
-		for (int innerCount = 1; 
-		innerCount < rows.length; innerCount = innerCount + 2) {
+		for (int count = 1; 
+		count < rows.length; count = count + 2) {
 			List<Composition> tierServiceCompositionList = 
 				new LinkedList<Composition>(
 						algorithm.getAlgorithmSolutionTiers().get(
-								innerCount / 2).getServiceCompositionList());
+								count / 2).getServiceCompositionList());
 			int numberOfRows = 0;
 			// COUNTER FOR COMPUTING THE NUMBER OF COMPOSITIONS PER TIER
 			for (int rowCount = 0; rowCount < 
@@ -2394,23 +2467,23 @@ public class MainFrame extends JFrame {
 			}
 			
 			// TABLE CONSTRUCTION
-			// TODO: "# Composition" ist überflüssig.
-			String[] tierTablesColumnNames = {"# Composition", "# Service", 
+			String[] tierTablesColumnNames = {"# Service", 
 					"Service Title", "Service Class", "Utility Value", "Costs", 
 					"Response Time", "Availability"};
-			JTable jTableTier = new JTable(new BasicTableModel(
-					numberOfRows, tierTablesColumnNames.length, false));
+			JTable jTableTier = new JTable(new BasicTableModel(numberOfRows + 
+					tierServiceCompositionList.size(), 
+					tierTablesColumnNames.length, false));
 			GridBagConstraints gbcJTableTier = new GridBagConstraints();
 			gbcJTableTier.gridx = 0;
-			gbcJTableTier.gridy = innerCount;
+			gbcJTableTier.gridy = count;
 			gbcJTableTier.fill = GridBagConstraints.HORIZONTAL;
 			gbcJTableTier.anchor = GridBagConstraints.NORTH;
 			jPanelAlgorithmResult.add(jTableTier, gbcJTableTier);
 			
 			setColumnTextAlignment(
-					jTableTier, 1, DefaultTableCellRenderer.CENTER);
+					jTableTier, 0, DefaultTableCellRenderer.CENTER);
 			setColumnTextAlignment(
-					jTableTier, 3, DefaultTableCellRenderer.CENTER);
+					jTableTier, 2, DefaultTableCellRenderer.CENTER);
 			
 			// COUNTER FOR CONSTRUCTION OF TABLE HEADERS
 			for (int columnCount = 0; columnCount < 
@@ -2419,7 +2492,7 @@ public class MainFrame extends JFrame {
 						columnCount).setHeaderValue(
 								tierTablesColumnNames[columnCount]);
 			}
-			if (innerCount == 1) {
+			if (count == 1) {
 				GridBagConstraints gbc_tableHeader = new GridBagConstraints();
 				gbc_tableHeader.gridx = 0;
 				gbc_tableHeader.gridy = 0;
@@ -2429,14 +2502,25 @@ public class MainFrame extends JFrame {
 				jPanelAlgorithmResult.add(
 						jTableTier.getTableHeader(), gbc_tableHeader);
 			}
+			int x = 0;
 			// COUNTER FOR ALL ROWS OF A TIER
 			for (int rowCount = 0; rowCount < numberOfRows; rowCount++) {
-				jTableTier.setValueAt("Composition " + 
-						compositionNumber++, rowCount, 0);
-				jTableTier.setValueAt(
-						DECIMAL_FORMAT_FOUR.format(
-								tierServiceCompositionList.get(
-										rowCount).getUtility()), rowCount, 4);
+				jTableTier.setValueAt(DECIMAL_FORMAT_FOUR.format(
+						tierServiceCompositionList.get(rowCount).
+						getUtility()), rowCount, 3);
+				jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
+						tierServiceCompositionList.get(rowCount).
+						getQosVectorAggregated().getCosts()), 
+						rowCount + x, 4);
+				jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
+						tierServiceCompositionList.get(rowCount).
+						getQosVectorAggregated().getResponseTime()), 
+						rowCount + x, 5);
+				jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
+						tierServiceCompositionList.get(rowCount).
+						getQosVectorAggregated().getAvailability()), 
+						rowCount + x, 6);
+				x++;
 				int candidateCount = 0;
 				// COUNTER FOR ALL SERVICE CANDIDATES PER COMPOSITION
 				for (candidateCount = 0; candidateCount < 
@@ -2447,40 +2531,40 @@ public class MainFrame extends JFrame {
 							tierServiceCompositionList.get(rowCount).
 							getServiceCandidatesList().
 							get(candidateCount).getServiceCandidateId(), 
-							rowCount + candidateCount, 1);
+							rowCount + x + candidateCount, 0);
 					// SERVICE CANDIDATE TITLE
 					jTableTier.setValueAt(
 							tierServiceCompositionList.get(rowCount).
 							getServiceCandidatesList().
 							get(candidateCount).getName(), 
-							rowCount + candidateCount, 2);
+							rowCount + x + candidateCount, 1);
 					// SERVICE CLASS ID
 					jTableTier.setValueAt(
 							tierServiceCompositionList.get(rowCount).
 							getServiceCandidatesList().
 							get(candidateCount).getServiceClassId(), 
-							rowCount + candidateCount, 3);
+							rowCount + x + candidateCount, 2);
 					// COSTS
 					jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
 							tierServiceCompositionList.get(rowCount).
 							getServiceCandidatesList().get(
 									candidateCount).getQosVector().
 									getCosts()), 
-									rowCount + candidateCount, 5);
+									rowCount + x + candidateCount, 4);
 					// RESPONSE TIME
 					jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
 							tierServiceCompositionList.get(rowCount).
 							getServiceCandidatesList().get(
 									candidateCount).getQosVector().
 									getResponseTime()), 
-									rowCount + candidateCount, 6);
+									rowCount + x + candidateCount, 5);
 					// AVAILABILITY
 					jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
 							tierServiceCompositionList.get(rowCount).
 							getServiceCandidatesList().get(
 									candidateCount).getQosVector().
 									getAvailability()), 
-									rowCount + candidateCount, 7);
+									rowCount + x + candidateCount, 6);
 				}
 				rowCount = rowCount + candidateCount - 1;
 				
@@ -2490,12 +2574,12 @@ public class MainFrame extends JFrame {
 			}
 			jTableTier.setEnabled(false);
 			
-			if (innerCount + 1 < rows.length) {
+			if (count + 1 < rows.length) {
 				JSeparator jSeparatorTierTables = new JSeparator();
 				GridBagConstraints gbcJSeparatorTierTables = 
 					new GridBagConstraints();
 				gbcJSeparatorTierTables.gridx = 0;
-				gbcJSeparatorTierTables.gridy = innerCount + 1;
+				gbcJSeparatorTierTables.gridy = count + 1;
 				gbcJSeparatorTierTables.fill = GridBagConstraints.HORIZONTAL;
 				gbcJSeparatorTierTables.anchor = GridBagConstraints.NORTH;
 				gbcJSeparatorTierTables.insets = new Insets(10, 5, 10, 5);
@@ -2602,7 +2686,6 @@ public class MainFrame extends JFrame {
 	
 	private void doGeneticAlgorithm() {
 		geneticAlgorithm.start();
-		jProgressBarGeneticAlgorithm.setValue(100);
 		cumulatedRuntime += geneticAlgorithm.getRuntime();
 		if (geneticAlgorithm.getRuntime() > 120000) {
 			jTableGeneralResults.setValueAt(
@@ -2615,50 +2698,6 @@ public class MainFrame extends JFrame {
 		else {
 			jTableGeneralResults.setValueAt(
 					geneticAlgorithm.getRuntime() + " ms", 1, 1);
-		}
-	}
-	
-	private void checkInputValue(JTextField textField) {
-		if (serviceClassesList == null) { 
-			return;
-		}
-		try {
-			Integer.parseInt(textField.getText());
-		} catch (Exception e1) {
-			textField.setText("1");
-			writeErrorLogEntry("Input has to be from the type Integer");
-		}
-		// TODO: Variable stößt sehr schnell an ihre Grenzen. Long bringt auch 
-		//		 eher wenig. Überprüfung daher nochmal überdenken. Wäre 
-		//		 prinzipiell notwendig, sollte aber aufgrund extrem schnell 
-		//		 steigender Zahlen begrenzt werden (z.B. auf 9999).
-		int maxPopulationSize = 1;
-		for (ServiceClass serviceClass : serviceClassesList) {
-			maxPopulationSize *= 
-					serviceClass.getServiceCandidateList().size();
-		}
-		int populationSize = 
-				Integer.parseInt(jTextFieldPopulationSize.getText()) * 100;
-		if (Integer.parseInt(textField.getText()) > maxPopulationSize) {
-			textField.setText(String.valueOf(maxPopulationSize));
-			jLabelPopulationPercentage.setText("( = 100 % )");
-			writeErrorLogEntry(
-					"Input has to be between 1 and " + maxPopulationSize);
-		}
-		else if (Integer.parseInt(textField.getText()) < 1) {
-			textField.setText("1");
-			jLabelPopulationPercentage.setText(
-					"( = " + DECIMAL_FORMAT_FOUR.format(
-							1.0 / maxPopulationSize) + " %)");
-			writeErrorLogEntry(
-					"Input has to be between 1 and " + maxPopulationSize);
-		}
-		else {
-			// TODO: Fraglich, ob das (außer bei kleinen Input-Sets) einen 
-			//		 wirklichen Mehrwert hat.
-			jLabelPopulationPercentage.setText(
-					"( = " + DECIMAL_FORMAT_FOUR.format((double)
-							populationSize / maxPopulationSize) + " % )");
 		}
 	}
 	
@@ -2772,5 +2811,82 @@ public class MainFrame extends JFrame {
 				geneticAlgorithm.getStartPopulationVisualization(), 
 				geneticAlgorithm.getNumberOfDifferentSolutions(), 
 				Integer.parseInt(jTextFieldPopulationSize.getText()));
+	}
+	
+	private void isElitismInputVisible() {
+		if (jComboBoxSelection.getSelectedIndex() == 0) {
+			jTextFieldElitismRate.setVisible(true);
+			jLabelElitismRatePercentage.setVisible(true);
+		}
+		else {
+			jTextFieldElitismRate.setVisible(false);
+			jLabelElitismRatePercentage.setVisible(false);
+		}
+	}
+	
+	private void checkInputValue(JTextField textField, 
+			int maxInput, int minInput, int defaultInput) {
+		int input = 0;
+		try {
+			input = Integer.parseInt(textField.getText());
+		} catch (NumberFormatException e) {
+			textField.setText(String.valueOf(defaultInput));
+			writeErrorLogEntry("Value has to be from the type Integer");
+			return;
+		}
+		if (input > maxInput || input < minInput) {
+			writeErrorLogEntry("Value has to be between " + minInput + 
+					" and " + maxInput);
+			textField.setText(String.valueOf(defaultInput));
+			return;
+		}
+		
+		
+		
+		if (textField.equals(jTextFieldPopulationSize) && 
+				serviceClassesList != null) {
+			int populationSize = Integer.parseInt(textField.getText());
+			long maxPopulationSize = 1;
+			for (ServiceClass serviceClass : serviceClassesList) {
+				maxPopulationSize *= 
+						serviceClass.getServiceCandidateList().size();
+				if (maxPopulationSize >= Long.MAX_VALUE) {
+					break;
+				}
+			}
+			if (maxPopulationSize < Long.MAX_VALUE) {
+				if (Integer.parseInt(
+						textField.getText()) > maxPopulationSize) {
+					textField.setText(String.valueOf(maxPopulationSize));
+					jLabelPopulationPercentage.setText("( = 100 % )");
+					writeErrorLogEntry(
+							"Input has to be between " + minInput + 
+							" and " + maxPopulationSize);
+				}
+				else if (Integer.parseInt(textField.getText()) < minInput) {
+					textField.setText(String.valueOf(minInput));
+					jLabelPopulationPercentage.setText(
+							"( = " + DECIMAL_FORMAT_FOUR.format(
+									1.0 / maxPopulationSize) + " %)");
+					writeErrorLogEntry(
+							"Input has to be between " + minInput + 
+							" and " + maxPopulationSize);
+				}
+				else {
+					if (maxInput < Long.MAX_VALUE) {
+						jLabelPopulationPercentage.setText(
+								"( = " + DECIMAL_FORMAT_FOUR.format((double)
+										populationSize / maxPopulationSize) + 
+								" % )");
+						jLabelPopulationPercentage.setVisible(true);
+					}
+				}
+			}
+			else { 
+				jLabelPopulationPercentage.setVisible(false);
+				writeErrorLogEntry(
+						"Max. Population is too big to be computed");
+			}
+		}
 	}
 }
