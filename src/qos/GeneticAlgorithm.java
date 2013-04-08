@@ -143,19 +143,6 @@ public class GeneticAlgorithm extends Algorithm {
 			else {
 
 			}
-			
-			
-			
-		}
-		
-		// TODO: Für was ist denn das setTierTitle() gut? getTierTitle() wird 
-		//		 ja nie aufgerufen.
-		// -> wird benötigt, um die TierID korrekt zu setzen;
-		//	  diese wird bei Erstellung der ResultTables benötigt.
-		//	  Es reicht aus, dies ganz am Ende zu machen.
-		//    Aber: Funktion könnte in setTierId umbenannt werden.
-		for (int count = 0; count < algorithmSolutionTiers.size(); count++) {
-			algorithmSolutionTiers.get(count).setTierTitle(count + 1);
 		}
 		runtime = System.currentTimeMillis() - runtime;
 

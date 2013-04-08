@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -46,7 +47,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
@@ -103,6 +103,8 @@ public class MainFrame extends JFrame {
 	private JTable jTableGeneralResults;
 
 	private JTabbedPane jTabbedPane;
+	
+	private boolean algorithmInProgress;
 
 	private JButton jButtonStart;
 	private JButton jButtonVisualize;
@@ -1855,6 +1857,7 @@ public class MainFrame extends JFrame {
 		final Map<String, Constraint> constraintsMap = getChosenConstraints();
 		printChosenConstraintsToConsole(constraintsMap);
 		cumulatedRuntime = 0;
+		algorithmInProgress = true;
 		
 		// Calculate the utility value for all service candidates.
 		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
@@ -1864,29 +1867,6 @@ public class MainFrame extends JFrame {
 		jProgressBarGeneticAlgorithm.setValue(0);
 		jProgressBarAnalyticAlgorithm.setValue(0);
 		
-		// TODO: Stop this Thread (doesn't work)
-		final Thread progressBarThread = new Thread() {
-			@Override
-			public void run() {
-				while(!isInterrupted()) {
-					if (jCheckboxGeneticAlgorithm.isSelected()) {
-						jProgressBarGeneticAlgorithm.setValue(
-								geneticAlgorithm.getWorkPercentage());
-					}
-					if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-						jProgressBarAnalyticAlgorithm.setValue(
-								analyticAlgorithm.getWorkPercentage());
-					}
-					try {
-						sleep(1000);
-					} catch (InterruptedException e) {
-
-					}
-				}
-			}
-		};
-
-		// Handle the progressbar
 		if (jCheckboxGeneticAlgorithm.isSelected()) {
 			geneticAlgorithm = new GeneticAlgorithm(
 					serviceClassesList, constraintsMap, 
@@ -1900,17 +1880,35 @@ public class MainFrame extends JFrame {
 			analyticAlgorithm = new AnalyticAlgorithm(
 					serviceClassesList, constraintsMap, 
 					(Integer) jSpinnerNumberResultTiers.getValue());
-		}
+		}	
+
+		// Progress Bar Thread (
 		if (jCheckboxGeneticAlgorithm.isSelected() || 
 				jCheckBoxAnalyticAlgorithm.isSelected()) {
-			progressBarThread.start();
+			new Thread() {
+				@Override
+				public void run() {
+					while(algorithmInProgress) {
+						if (jCheckboxGeneticAlgorithm.isSelected()) {
+							jProgressBarGeneticAlgorithm.setValue(
+									geneticAlgorithm.getWorkPercentage());
+						}
+						if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+							jProgressBarAnalyticAlgorithm.setValue(
+									analyticAlgorithm.getWorkPercentage());
+						}
+						try {
+							sleep(1000);
+						} catch (InterruptedException e) {
+						}
+					}
+				}
+			}.start();
 		}
-		
-		// TODO: Stop this Worker (doesn't work)
-		/* TODO: Try to find a better solution for enabling the
-				 frame (in order to allow cursor definitions)
-				 -> idea: global mouse listener (no action performed
-		 				  if cursor = wait_cursor) */
+
+		/* TODO: Thread started by the worker does not terminate - 
+				 how can this problem be handled?
+				 */
 		// Outsourcing of the calculation 
 		// in order to prevent freezing the gui
 		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -1918,53 +1916,98 @@ public class MainFrame extends JFrame {
 			protected Void doInBackground() throws Exception {
 				setEnabled(false);
 				jButtonStart.setEnabled(false);
-//				setCursor(new Cursor(Cursor.WAIT_CURSOR));
+				// setCursor(new Cursor(Cursor.WAIT_CURSOR));
 				if (jCheckboxGeneticAlgorithm.isSelected()) {
 					doGeneticAlgorithm();
-					progressBarThread.interrupt();
 				}
 				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 					doEnumeration(constraintsMap);
 				}
-				progressBarThread.interrupt();
 				if (jCheckBoxAntColonyOptimization.isSelected()) {
 					doAntAlgorithm(constraintsMap);
 					cumulatedRuntime += antAlgorithm.getRuntime();
 				}
-				// Wait for algorithm results before showing them
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						if (jCheckboxGeneticAlgorithm.isSelected()) {
-							jProgressBarGeneticAlgorithm.setValue(100);
-						}
-						if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-							jProgressBarAnalyticAlgorithm.setValue(100);
-						}
-						if (cumulatedRuntime > 120000) {
-							jTableGeneralResults.setValueAt(
-									cumulatedRuntime / 60000 + " min", 0, 1);
-						}
-						else if (cumulatedRuntime > 1000) {
-							jTableGeneralResults.setValueAt(
-									cumulatedRuntime / 1000 + " s", 0, 1);
-						}
-						else {
-							jTableGeneralResults.setValueAt(
-									cumulatedRuntime + " ms", 0, 1);
-						}
-						buildResultTable();
-						jButtonVisualize.setEnabled(true);
-						jButtonStart.setEnabled(true);
-						setEnabled(true);
-//						contentPane.setCursor(
-//								new Cursor(Cursor.DEFAULT_CURSOR));
-					}
-				});
+				algorithmInProgress = false;
 				return null;
+			}
+
+			@Override
+			protected void done() {
+				try {
+					get();
+				} catch (InterruptedException e) {
+				} catch (ExecutionException e) {
+				}
+				if (jCheckboxGeneticAlgorithm.isSelected()) {
+					jProgressBarGeneticAlgorithm.setValue(100);
+				}
+				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+					jProgressBarAnalyticAlgorithm.setValue(100);
+				}
+				if (cumulatedRuntime > 120000) {
+					jTableGeneralResults.setValueAt(
+							cumulatedRuntime / 60000 + " min", 0, 1);
+				}
+				else if (cumulatedRuntime > 1000) {
+					jTableGeneralResults.setValueAt(
+							cumulatedRuntime / 1000 + " s", 0, 1);
+				}
+				else {
+					jTableGeneralResults.setValueAt(
+							cumulatedRuntime + " ms", 0, 1);
+				}
+				buildResultTable();
+				jButtonVisualize.setEnabled(true);
+				jButtonStart.setEnabled(true);
+				setEnabled(true);
+				//	contentPane.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			}
 		};
 		worker.execute();
+		
+		
+		// Calculation and Results Display Thread
+//		new Thread() {
+//			@Override
+//			public void run() {
+//				setEnabled(false);
+//				jButtonStart.setEnabled(false);
+////				setCursor(new Cursor(Cursor.WAIT_CURSOR));
+//				if (jCheckboxGeneticAlgorithm.isSelected()) {
+//					doGeneticAlgorithm();
+//				}
+//				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+//					doEnumeration(constraintsMap);
+//				}
+//				algorithmInProgress = false;
+//				if (jCheckBoxAntColonyOptimization.isSelected()) {
+//					doAntAlgorithm(constraintsMap);
+//					cumulatedRuntime += antAlgorithm.getRuntime();
+//				}
+//				if (jCheckboxGeneticAlgorithm.isSelected()) {
+//					jProgressBarGeneticAlgorithm.setValue(100);
+//				}
+//				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+//					jProgressBarAnalyticAlgorithm.setValue(100);
+//				}
+//				if (cumulatedRuntime > 120000) {
+//					jTableGeneralResults.setValueAt(
+//							cumulatedRuntime / 60000 + " min", 0, 1);
+//				}
+//				else if (cumulatedRuntime > 1000) {
+//					jTableGeneralResults.setValueAt(
+//							cumulatedRuntime / 1000 + " s", 0, 1);
+//				}
+//				else {
+//					jTableGeneralResults.setValueAt(
+//							cumulatedRuntime + " ms", 0, 1);
+//				}
+//				buildResultTable();
+//				jButtonVisualize.setEnabled(true);
+//				jButtonStart.setEnabled(true);
+//				setEnabled(true);
+//			}
+//		}.start();
 	}
 
 	private void chooseAlgorithm(String algorithm) {
@@ -2154,7 +2197,7 @@ public class MainFrame extends JFrame {
 	private void changeWeight(JTextField textField) {
 		try {
 			Integer.parseInt(textField.getText());
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 			textField.setText("0");
 		}
 		int cumulatedPercentage = 0;
@@ -2231,7 +2274,7 @@ public class MainFrame extends JFrame {
 	private void setPenaltyFactor() {
 		try {
 			Integer.parseInt(jTextFieldPenaltyFactor.getText());
-		} catch (Exception e1) {
+		} catch (NumberFormatException e) {
 			jTextFieldPenaltyFactor.setText("0");
 			writeErrorLogEntry("Input has to be from the type Integer");
 		}
@@ -2280,7 +2323,7 @@ public class MainFrame extends JFrame {
 		int average = (minValue + maxValue) / 2;
 		try {
 			Integer.parseInt(textField.getText());
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 			textField.setText(String.valueOf(average));
 			slider.setValue(average);
 			writeErrorLogEntry("Value has to be from the type Integer!");
@@ -2484,6 +2527,8 @@ public class MainFrame extends JFrame {
 					jTableTier, 0, DefaultTableCellRenderer.CENTER);
 			setColumnTextAlignment(
 					jTableTier, 2, DefaultTableCellRenderer.CENTER);
+			setColumnTextAlignment(
+					jTableTier, 3, DefaultTableCellRenderer.CENTER);
 			
 			// COUNTER FOR CONSTRUCTION OF TABLE HEADERS
 			for (int columnCount = 0; columnCount < 
@@ -2505,21 +2550,22 @@ public class MainFrame extends JFrame {
 			int x = 0;
 			// COUNTER FOR ALL ROWS OF A TIER
 			for (int rowCount = 0; rowCount < numberOfRows; rowCount++) {
-				jTableTier.setValueAt(DECIMAL_FORMAT_FOUR.format(
+				
+				jTableTier.setValueAt("<html><b>" + DECIMAL_FORMAT_FOUR.format(
 						tierServiceCompositionList.get(rowCount).
-						getUtility()), rowCount, 3);
-				jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
+						getUtility()) + "</b></html>", rowCount, 3);
+				jTableTier.setValueAt("<html><b>" + DECIMAL_FORMAT_TWO.format(
 						tierServiceCompositionList.get(rowCount).
-						getQosVectorAggregated().getCosts()), 
-						rowCount + x, 4);
-				jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
+						getQosVectorAggregated().getCosts()) + 
+						"</b></html>", rowCount + x, 4);
+				jTableTier.setValueAt("<html><b>" + DECIMAL_FORMAT_TWO.format(
 						tierServiceCompositionList.get(rowCount).
-						getQosVectorAggregated().getResponseTime()), 
-						rowCount + x, 5);
-				jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
+						getQosVectorAggregated().getResponseTime()) + 
+						"</b></html>", rowCount + x, 5);
+				jTableTier.setValueAt("<html><b>" + DECIMAL_FORMAT_TWO.format(
 						tierServiceCompositionList.get(rowCount).
-						getQosVectorAggregated().getAvailability()), 
-						rowCount + x, 6);
+						getQosVectorAggregated().getAvailability()) + 
+						"</b></html>", rowCount + x, 6);
 				x++;
 				int candidateCount = 0;
 				// COUNTER FOR ALL SERVICE CANDIDATES PER COMPOSITION
@@ -2567,10 +2613,6 @@ public class MainFrame extends JFrame {
 									rowCount + x + candidateCount, 6);
 				}
 				rowCount = rowCount + candidateCount - 1;
-				
-				// TODO: Es wäre gut, wenn man die aggregierten QoS-Werte für 
-				// 		 die Composition angezeigt bekommt. Sollte eigentlich 
-				//		 kein Problem sein.
 			}
 			jTableTier.setEnabled(false);
 			
