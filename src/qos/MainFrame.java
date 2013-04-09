@@ -120,10 +120,10 @@ public class MainFrame extends JFrame {
 	
 	private boolean webServicesLoaded = false;
 	private boolean correctWeights = true;
-	private boolean correctPenalty = true;
 
 	private static MainFrame frame;
 	
+	private static final int DEFAULT_PENALTY_FACTOR = 10;
 	private static final int DEFAULT_ELITISM_RATE = 25;
 	private static final int DEFAULT_TERMINATION_CRITERION = 100;
 	private static final int DEFAULT_START_POPULATION_SIZE = 100;
@@ -167,6 +167,8 @@ public class MainFrame extends JFrame {
 	private JComboBox<String> jComboBoxSelection;
 	private JComboBox<String> jComboBoxTerminationCriterion;
 	private JLabel jLabelPopulationPercentage;
+	
+	private JLabel lblWeightSumSigma;
 
 	/**
 	 * Launch the application.
@@ -689,15 +691,36 @@ public class MainFrame extends JFrame {
 		gbc_separatorWeights.gridx = 4;
 		gbc_separatorWeights.gridy = 5;
 		jPanelQosConstraints.add(separatorWeights, gbc_separatorWeights);
+		
+		JPanel jPanelWeightSum = new JPanel();
+		GridBagLayout gblJPanelWeightSum = new GridBagLayout();
+		gblJPanelWeightSum.columnWeights = new double[] {1.0, 1.0};
+		gblJPanelWeightSum.rowWeights = new double[] {1.0};
+		jPanelWeightSum.setLayout(gblJPanelWeightSum);
+		GridBagConstraints gbcJPanelWeightSum = new GridBagConstraints();
+		gbcJPanelWeightSum.anchor = GridBagConstraints.WEST;
+		gbcJPanelWeightSum.fill = GridBagConstraints.HORIZONTAL;
+		gbcJPanelWeightSum.insets = new Insets(0, 0, 0, 7);
+		gbcJPanelWeightSum.gridx = 4;
+		gbcJPanelWeightSum.gridy = 6;
+		jPanelQosConstraints.add(
+				jPanelWeightSum, gbcJPanelWeightSum);
+		
+		lblWeightSumSigma = new JLabel("\u03A3");
+		lblWeightSumSigma.setForeground(Color.GREEN);
+		GridBagConstraints gbc_lblWeightSumSigma = new GridBagConstraints();
+		gbc_lblWeightSumSigma.gridx = 0;
+		gbc_lblWeightSumSigma.gridy = 0;
+		gbc_lblWeightSumSigma.anchor = GridBagConstraints.WEST;
+		jPanelWeightSum.add(lblWeightSumSigma, gbc_lblWeightSumSigma);
 
-		lblWeightSum = new JLabel("\u03A3     100");
+		lblWeightSum = new JLabel("100");
 		lblWeightSum.setForeground(Color.GREEN);
 		GridBagConstraints gbc_lblWeightSum = new GridBagConstraints();
-		gbc_lblWeightSum.insets = new Insets(0, 0, 0, 0);
-		gbc_lblWeightSum.gridx = 4;
-		gbc_lblWeightSum.gridy = 6;
-		gbc_lblWeightSum.anchor = GridBagConstraints.WEST;
-		jPanelQosConstraints.add(lblWeightSum, gbc_lblWeightSum);
+		gbc_lblWeightSum.gridx = 1;
+		gbc_lblWeightSum.gridy = 0;
+		gbc_lblWeightSum.anchor = GridBagConstraints.EAST;
+		jPanelWeightSum.add(lblWeightSum, gbc_lblWeightSum);
 
 		JLabel lblPercentageWeightSum = new JLabel("%");
 		GridBagConstraints gbc_lblPercentageWeightSum = 
@@ -1007,12 +1030,14 @@ public class MainFrame extends JFrame {
 		jPanelGeneticAlgorithmSettings.add(
 				jPanelPenaltyFactor, gbcJPanelPenaltyFactor);
 
-		jTextFieldPenaltyFactor = new JTextField("0");
+		jTextFieldPenaltyFactor = new JTextField(
+				String.valueOf(DEFAULT_PENALTY_FACTOR));
 		jTextFieldPenaltyFactor.setColumns(3);
 		jTextFieldPenaltyFactor.setHorizontalAlignment(JTextField.RIGHT);
 		jTextFieldPenaltyFactor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setPenaltyFactor();
+				checkInputValue(jTextFieldPenaltyFactor, 100, 0, 
+						DEFAULT_PENALTY_FACTOR);
 			}
 		});
 		GridBagConstraints gbcJTextFieldPenaltyFactor = 
@@ -1221,7 +1246,7 @@ public class MainFrame extends JFrame {
 		GridBagConstraints gbcJLabelTerminationCriterion = 
 				new GridBagConstraints();
 		gbcJLabelTerminationCriterion.anchor = GridBagConstraints.WEST;
-		gbcJLabelTerminationCriterion.insets = new Insets(5, 5, 0, 5);
+		gbcJLabelTerminationCriterion.insets = new Insets(5, 5, 5, 5);
 		gbcJLabelTerminationCriterion.gridx = 0;
 		gbcJLabelTerminationCriterion.gridy = 7;
 		jPanelGeneticAlgorithmSettings.add(
@@ -1911,78 +1936,32 @@ public class MainFrame extends JFrame {
 				 */
 		// Outsourcing of the calculation 
 		// in order to prevent freezing the gui
-		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-			@Override
-			protected Void doInBackground() throws Exception {
-				setEnabled(false);
-				jButtonStart.setEnabled(false);
-				// setCursor(new Cursor(Cursor.WAIT_CURSOR));
-				if (jCheckboxGeneticAlgorithm.isSelected()) {
-					doGeneticAlgorithm();
-				}
-				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-					doEnumeration(constraintsMap);
-				}
-				if (jCheckBoxAntColonyOptimization.isSelected()) {
-					doAntAlgorithm(constraintsMap);
-					cumulatedRuntime += antAlgorithm.getRuntime();
-				}
-				algorithmInProgress = false;
-				return null;
-			}
-
-			@Override
-			protected void done() {
-				try {
-					get();
-				} catch (InterruptedException e) {
-				} catch (ExecutionException e) {
-				}
-				if (jCheckboxGeneticAlgorithm.isSelected()) {
-					jProgressBarGeneticAlgorithm.setValue(100);
-				}
-				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-					jProgressBarAnalyticAlgorithm.setValue(100);
-				}
-				if (cumulatedRuntime > 120000) {
-					jTableGeneralResults.setValueAt(
-							cumulatedRuntime / 60000 + " min", 0, 1);
-				}
-				else if (cumulatedRuntime > 1000) {
-					jTableGeneralResults.setValueAt(
-							cumulatedRuntime / 1000 + " s", 0, 1);
-				}
-				else {
-					jTableGeneralResults.setValueAt(
-							cumulatedRuntime + " ms", 0, 1);
-				}
-				buildResultTable();
-				jButtonVisualize.setEnabled(true);
-				jButtonStart.setEnabled(true);
-				setEnabled(true);
-				//	contentPane.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-			}
-		};
-		worker.execute();
-		
-		
-		// Calculation and Results Display Thread
-//		new Thread() {
+//		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 //			@Override
-//			public void run() {
+//			protected Void doInBackground() throws Exception {
 //				setEnabled(false);
 //				jButtonStart.setEnabled(false);
-////				setCursor(new Cursor(Cursor.WAIT_CURSOR));
+//				// setCursor(new Cursor(Cursor.WAIT_CURSOR));
 //				if (jCheckboxGeneticAlgorithm.isSelected()) {
 //					doGeneticAlgorithm();
 //				}
 //				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 //					doEnumeration(constraintsMap);
 //				}
-//				algorithmInProgress = false;
 //				if (jCheckBoxAntColonyOptimization.isSelected()) {
 //					doAntAlgorithm(constraintsMap);
 //					cumulatedRuntime += antAlgorithm.getRuntime();
+//				}
+//				algorithmInProgress = false;
+//				return null;
+//			}
+//
+//			@Override
+//			protected void done() {
+//				try {
+//					get();
+//				} catch (InterruptedException e) {
+//				} catch (ExecutionException e) {
 //				}
 //				if (jCheckboxGeneticAlgorithm.isSelected()) {
 //					jProgressBarGeneticAlgorithm.setValue(100);
@@ -2006,8 +1985,59 @@ public class MainFrame extends JFrame {
 //				jButtonVisualize.setEnabled(true);
 //				jButtonStart.setEnabled(true);
 //				setEnabled(true);
+//				//	contentPane.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 //			}
-//		}.start();
+//		};
+//		worker.execute();
+		
+		/* TODO: Sometimes, this solution throws an 
+		 *       ArrayIndexOutOfBounds-Exception; it seems like
+		 *       the results are not affected by this, and everything
+		 *       works the way it should. But nevertheless, it's not 
+		 *       very nice
+		 */
+		// Calculation and Results Display Thread
+		new Thread() {
+			@Override
+			public void run() {
+				setEnabled(false);
+				jButtonStart.setEnabled(false);
+//				setCursor(new Cursor(Cursor.WAIT_CURSOR));
+				if (jCheckboxGeneticAlgorithm.isSelected()) {
+					doGeneticAlgorithm();
+				}
+				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+					doEnumeration(constraintsMap);
+				}
+				algorithmInProgress = false;
+				if (jCheckBoxAntColonyOptimization.isSelected()) {
+					doAntAlgorithm(constraintsMap);
+					cumulatedRuntime += antAlgorithm.getRuntime();
+				}
+				if (jCheckboxGeneticAlgorithm.isSelected()) {
+					jProgressBarGeneticAlgorithm.setValue(100);
+				}
+				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+					jProgressBarAnalyticAlgorithm.setValue(100);
+				}
+				if (cumulatedRuntime > 120000) {
+					jTableGeneralResults.setValueAt(
+							cumulatedRuntime / 60000 + " min", 0, 1);
+				}
+				else if (cumulatedRuntime > 1000) {
+					jTableGeneralResults.setValueAt(
+							cumulatedRuntime / 1000 + " s", 0, 1);
+				}
+				else {
+					jTableGeneralResults.setValueAt(
+							cumulatedRuntime + " ms", 0, 1);
+				}
+				buildResultTable();
+				jButtonVisualize.setEnabled(true);
+				jButtonStart.setEnabled(true);
+				setEnabled(true);
+			}
+		}.start();
 	}
 
 	private void chooseAlgorithm(String algorithm) {
@@ -2212,15 +2242,17 @@ public class MainFrame extends JFrame {
 			cumulatedPercentage += Integer.parseInt(
 					txtAvailabilityWeight.getText());
 		}
-		lblWeightSum.setText("\u03A3     " + 
-				String.valueOf(cumulatedPercentage));
+		
+		lblWeightSum.setText(String.valueOf(cumulatedPercentage));
 		if (cumulatedPercentage != 100) {
 			lblWeightSum.setForeground(Color.RED);
+			lblWeightSumSigma.setForeground(Color.RED);
 			correctWeights = false;
 			writeErrorLogEntry(
 					"Sum of active constraint weights has to be 100%");
 		}
 		else {
+			lblWeightSumSigma.setForeground(Color.GREEN);
 			lblWeightSum.setForeground(Color.GREEN);
 			correctWeights = true;
 			getUtilityFunction();
@@ -2234,9 +2266,9 @@ public class MainFrame extends JFrame {
 			jSliderMaxCosts.setEnabled(jCheckBoxMaxCosts.isSelected());
 			jTextFieldMaxCosts.setEditable(jCheckBoxMaxCosts.isSelected());
 			lblWeights = 
-				Integer.parseInt(lblWeightSum.getText().substring(2));
+				Integer.parseInt(lblWeightSum.getText());
 			lblWeights -= Integer.parseInt(txtCostsWeight.getText());
-			lblWeightSum.setText("\u03A3     " + String.valueOf(lblWeights));
+			lblWeightSum.setText(String.valueOf(lblWeights));
 			txtCostsWeight.setText("0");
 			txtCostsWeight.setEditable(jCheckBoxMaxCosts.isSelected());
 			changeWeight(txtCostsWeight);
@@ -2247,9 +2279,9 @@ public class MainFrame extends JFrame {
 			jTextFieldMaxResponseTime.setEditable(
 					jCheckBoxMaxResponseTime.isSelected());
 			lblWeights = 
-				Integer.parseInt(lblWeightSum.getText().substring(2));
+				Integer.parseInt(lblWeightSum.getText());
 			lblWeights -= Integer.parseInt(txtResponseTimeWeight.getText());
-			lblWeightSum.setText("\u03A3     " + String.valueOf(lblWeights));
+			lblWeightSum.setText(String.valueOf(lblWeights));
 			txtResponseTimeWeight.setText("0");
 			txtResponseTimeWeight.setEditable(
 					jCheckBoxMaxResponseTime.isSelected());
@@ -2261,9 +2293,9 @@ public class MainFrame extends JFrame {
 			jTextFieldMinAvailability.setEditable(
 					jCheckBoxMinAvailability.isSelected());
 			lblWeights = 
-				Integer.parseInt(lblWeightSum.getText().substring(2));
+				Integer.parseInt(lblWeightSum.getText());
 			lblWeights -= Integer.parseInt(txtAvailabilityWeight.getText());
-			lblWeightSum.setText("\u03A3    " + String.valueOf(lblWeights));
+			lblWeightSum.setText(String.valueOf(lblWeights));
 			txtAvailabilityWeight.setText("0");
 			txtAvailabilityWeight.setEditable(
 					jCheckBoxMinAvailability.isSelected());
@@ -2271,28 +2303,28 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	private void setPenaltyFactor() {
-		try {
-			Integer.parseInt(jTextFieldPenaltyFactor.getText());
-		} catch (NumberFormatException e) {
-			jTextFieldPenaltyFactor.setText("0");
-			writeErrorLogEntry("Input has to be from the type Integer");
-		}
-		if (Integer.parseInt(jTextFieldPenaltyFactor.getText()) < 0 || 
-				Integer.parseInt(jTextFieldPenaltyFactor.getText()) > 100) {
-			jTextFieldPenaltyFactor.setText("0");
-			// TODO: Dass der Penalty Factor weniger als 100% sein muss, ist 
-			//		 evtl. nicht zwingend der Fall. Müsste man noch prüfen.
-			// -> da geb ich Dir recht, die Grenzen
-			//    sollten noch explizit abgeklärt werden.
-			writeErrorLogEntry("Penalty Factor has to be between 0 and 100%");
-			correctPenalty = false;
-		}
-		else {
-			correctPenalty = true;
-		}
-		checkEnableStartButton();
-	}
+//	private void setPenaltyFactor() {
+//		try {
+//			Integer.parseInt(jTextFieldPenaltyFactor.getText());
+//		} catch (NumberFormatException e) {
+//			jTextFieldPenaltyFactor.setText("0");
+//			writeErrorLogEntry("Input has to be from the type Integer");
+//		}
+//		if (Integer.parseInt(jTextFieldPenaltyFactor.getText()) < 0 || 
+//				Integer.parseInt(jTextFieldPenaltyFactor.getText()) > 100) {
+//			jTextFieldPenaltyFactor.setText("0");
+//			// TODO: Dass der Penalty Factor weniger als 100% sein muss, ist 
+//			//		 evtl. nicht zwingend der Fall. Müsste man noch prüfen.
+//			// -> da geb ich Dir recht, die Grenzen
+//			//    sollten noch explizit abgeklärt werden.
+//			writeErrorLogEntry("Penalty Factor has to be between 0 and 100%");
+//			correctPenalty = false;
+//		}
+//		else {
+//			correctPenalty = true;
+//		}
+//		checkEnableStartButton();
+//	}
 	
 	private void writeErrorLogEntry(String entry) {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss: ");
@@ -2301,17 +2333,7 @@ public class MainFrame extends JFrame {
 	
 	private void checkEnableStartButton() {
 		if (webServicesLoaded && correctWeights) {
-			if (jCheckboxGeneticAlgorithm.isSelected()) {
-				if (correctPenalty) {
-					jButtonStart.setEnabled(true);
-				}
-				else {
-					jButtonStart.setEnabled(false);
-				}
-			}
-			else {
-				jButtonStart.setEnabled(true);
-			}
+			jButtonStart.setEnabled(true);
 		}
 		else {
 			jButtonStart.setEnabled(false);
@@ -2852,7 +2874,9 @@ public class MainFrame extends JFrame {
 		new GeneticAlgorithmsVisualization(serviceCandidatesPerClass,
 				geneticAlgorithm.getStartPopulationVisualization(), 
 				geneticAlgorithm.getNumberOfDifferentSolutions(), 
-				Integer.parseInt(jTextFieldPopulationSize.getText()));
+				Integer.parseInt(jTextFieldPopulationSize.getText()),
+				geneticAlgorithm.getMaxUtilityPerPopulation(),
+				geneticAlgorithm.getAverageUtilityPerPopulation());
 	}
 	
 	private void isElitismInputVisible() {
@@ -2868,23 +2892,6 @@ public class MainFrame extends JFrame {
 	
 	private void checkInputValue(JTextField textField, 
 			int maxInput, int minInput, int defaultInput) {
-		int input = 0;
-		try {
-			input = Integer.parseInt(textField.getText());
-		} catch (NumberFormatException e) {
-			textField.setText(String.valueOf(defaultInput));
-			writeErrorLogEntry("Value has to be from the type Integer");
-			return;
-		}
-		if (input > maxInput || input < minInput) {
-			writeErrorLogEntry("Value has to be between " + minInput + 
-					" and " + maxInput);
-			textField.setText(String.valueOf(defaultInput));
-			return;
-		}
-		
-		
-		
 		if (textField.equals(jTextFieldPopulationSize) && 
 				serviceClassesList != null) {
 			int populationSize = Integer.parseInt(textField.getText());
@@ -2897,15 +2904,16 @@ public class MainFrame extends JFrame {
 				}
 			}
 			if (maxPopulationSize < Long.MAX_VALUE) {
-				if (Integer.parseInt(
+				if (Long.parseLong(
 						textField.getText()) > maxPopulationSize) {
 					textField.setText(String.valueOf(maxPopulationSize));
 					jLabelPopulationPercentage.setText("( = 100 % )");
 					writeErrorLogEntry(
 							"Input has to be between " + minInput + 
 							" and " + maxPopulationSize);
+					return;
 				}
-				else if (Integer.parseInt(textField.getText()) < minInput) {
+				else if (Long.parseLong(textField.getText()) < minInput) {
 					textField.setText(String.valueOf(minInput));
 					jLabelPopulationPercentage.setText(
 							"( = " + DECIMAL_FORMAT_FOUR.format(
@@ -2913,6 +2921,7 @@ public class MainFrame extends JFrame {
 					writeErrorLogEntry(
 							"Input has to be between " + minInput + 
 							" and " + maxPopulationSize);
+					return;
 				}
 				else {
 					if (maxInput < Long.MAX_VALUE) {
@@ -2929,6 +2938,19 @@ public class MainFrame extends JFrame {
 				writeErrorLogEntry(
 						"Max. Population is too big to be computed");
 			}
+		}
+
+		long input = 0;
+		try {
+			input = Long.parseLong(textField.getText());
+		} catch (NumberFormatException e) {
+			textField.setText(String.valueOf(defaultInput));
+			writeErrorLogEntry("Value has to be from the type Integer");
+		}
+		if (input > maxInput || input < minInput) {
+			writeErrorLogEntry("Value has to be between " + minInput + 
+					" and " + maxInput);
+			textField.setText(String.valueOf(defaultInput));
 		}
 	}
 }

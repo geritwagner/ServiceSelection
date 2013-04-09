@@ -20,6 +20,8 @@ public class GeneticAlgorithm extends Algorithm {
 	
 	private int[] startPopulationVisualization;
 	private List<Integer> numberOfDifferentSolutions;
+	private List<Double> maxUtilityPerPopulation;
+	private List<Double> averageUtilityPerPopulation;
 	
 	private int workPercentage = 0;
 	
@@ -46,8 +48,9 @@ public class GeneticAlgorithm extends Algorithm {
 		List<Composition> population = generateInitialPopulation();
 		setStartPopulationVisualization(population);
 		numberOfDifferentSolutions = new LinkedList<Integer>();
-		numberOfDifferentSolutions.add(
-				getDifferentSolutions(population).size());
+		maxUtilityPerPopulation = new LinkedList<Double>();
+		averageUtilityPerPopulation = new LinkedList<Double>();
+		setVisualizationValues(population);
 		workPercentage = 0;
 		int terminationCounter = terminationCriterion;
 		
@@ -72,8 +75,7 @@ public class GeneticAlgorithm extends Algorithm {
 			population.addAll(population1);
 			population.addAll(population2);
 			
-			numberOfDifferentSolutions.add(
-					getDifferentSolutions(population).size());
+			setVisualizationValues(population);
 				
 			terminationCounter--;
 			workPercentage = (int)
@@ -620,9 +622,11 @@ public class GeneticAlgorithm extends Algorithm {
 		return false;
 	}
 	
-	private List<Composition> getDifferentSolutions(
+	private void setVisualizationValues(
 			List<Composition> population) {
 		List<Composition> differentSolutions = new LinkedList<Composition>();
+		double maxUtility = 0.0;
+		double averageUtility = 0.0;
 		for (int count = 0; count < population.size(); count++) {
 			boolean newComposition = true;
 			for (int innerCount = 0; innerCount < population.size(); 
@@ -636,8 +640,14 @@ public class GeneticAlgorithm extends Algorithm {
 			if (newComposition) {
 				differentSolutions.add(population.get(count));
 			}
+			if (population.get(count).getUtility() > maxUtility) {
+				maxUtility = population.get(count).getUtility();
+			}
+			averageUtility += population.get(count).getUtility();
 		}
-		return differentSolutions;
+		numberOfDifferentSolutions.add(differentSolutions.size());
+		maxUtilityPerPopulation.add(maxUtility);
+		averageUtilityPerPopulation.add(averageUtility / population.size());
 	}
 	
 	// Compute the distance of a composition's aggregated QoS attributes to 
@@ -743,6 +753,12 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	public List<Integer> getNumberOfDifferentSolutions() {
 		return numberOfDifferentSolutions;
+	}
+	public List<Double> getMaxUtilityPerPopulation() {
+		return maxUtilityPerPopulation;
+	}
+	public List<Double> getAverageUtilityPerPopulation() {
+		return averageUtilityPerPopulation;
 	}
 	public int getWorkPercentage() {
 		return workPercentage;
