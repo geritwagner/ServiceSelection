@@ -15,6 +15,7 @@ public class GeneticAlgorithm extends Algorithm {
 	private int populationSize;
 	private int terminationCriterion;
 	
+	private String selectionMethod;
 	private String crossoverMethod;
 	private String terminationMethod;
 	
@@ -24,6 +25,7 @@ public class GeneticAlgorithm extends Algorithm {
 	private List<Double> averageUtilityPerPopulation;
 	
 	private int workPercentage = 0;
+	private double elitismRate = 0;
 	
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
@@ -33,11 +35,13 @@ public class GeneticAlgorithm extends Algorithm {
 	public GeneticAlgorithm(List<ServiceClass> serviceClassesList, 
 			Map<String, Constraint> constraintsMap, 
 			int populationSize, int terminationCriterion, 
-			String crossoverMethod, String terminationMethod) {
+			String selectionMethod,	String crossoverMethod, 
+			String terminationMethod) {
 		this.serviceClassesList = serviceClassesList;
 		this.constraintsMap = constraintsMap;
 		this.populationSize = populationSize;
 		this.terminationCriterion = terminationCriterion;
+		this.selectionMethod = selectionMethod;
 		this.crossoverMethod = crossoverMethod;
 		this.terminationMethod = terminationMethod;
 	}
@@ -46,18 +50,20 @@ public class GeneticAlgorithm extends Algorithm {
 	public void start() {
 		runtime = System.currentTimeMillis();
 		List<Composition> population = generateInitialPopulation();
-		setStartPopulationVisualization(population);
 		numberOfDifferentSolutions = new LinkedList<Integer>();
 		maxUtilityPerPopulation = new LinkedList<Double>();
 		averageUtilityPerPopulation = new LinkedList<Double>();
 		setVisualizationValues(population);
 		workPercentage = 0;
 		int terminationCounter = terminationCriterion;
-		
+		if (selectionMethod.contains("Elitism Based")) {
+			elitismRate = Integer.parseInt(
+					selectionMethod.substring(13)) / 100.0;
+		}
 		while (terminationCounter > 0) {
 			// SELECTION (Elitism Based)
-			// TODO: Make the elitismRate variable!
-			int numberOfElites = (int) Math.round(populationSize * 0.25);
+			int numberOfElites = (int) Math.round(
+					populationSize * elitismRate);
 			List<Composition> population1 = doSelectionElitismBased(
 					population, numberOfElites);
 			
@@ -81,7 +87,6 @@ public class GeneticAlgorithm extends Algorithm {
 			workPercentage = (int)
 				((1 - 1.0 * terminationCounter / terminationCriterion) * 100);
 		}
-			
 		// Sort the population according to the utility of the 
 		// compositions. Thus, the first elements are the elite elements.
 		Collections.sort(population, new Composition());
@@ -700,28 +705,6 @@ public class GeneticAlgorithm extends Algorithm {
 		return population.get((int) (random * population.size()));
 	}
 	
-	private void setStartPopulationVisualization(
-			List<Composition> population) {
-		List <ServiceCandidate> serviceCandidates = 
-			new LinkedList<ServiceCandidate>();
-		startPopulationVisualization = new int[serviceClassesList.size()];
-		for (int i = 0; i < serviceClassesList.size(); i++) {
-			startPopulationVisualization[i] = 0;
-		}
-		for (Composition composition : population) {
-			int serviceClassNumber = 0;
-			for (ServiceCandidate candidate : 
-				composition.getServiceCandidatesList()) {
-				if (!serviceCandidates.contains(candidate)){
-					serviceCandidates.add(candidate);
-					startPopulationVisualization[serviceClassNumber]++;
-				}
-				serviceClassNumber++;
-			}
-		}
-	}
-	
-
 	// GETTERS AND SETTERS
 	public List<ServiceClass> getServiceClassesList() {
 		return serviceClassesList;

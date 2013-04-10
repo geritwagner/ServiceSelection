@@ -169,6 +169,11 @@ public class MainFrame extends JFrame {
 	private JLabel jLabelPopulationPercentage;
 	
 	private JLabel lblWeightSumSigma;
+	
+	private SimpleDateFormat dateFormatLog = 
+			new SimpleDateFormat("HH:mm:ss: ");
+	
+	private AlgorithmsVisualization algorithmVisualization;
 
 	/**
 	 * Launch the application.
@@ -190,12 +195,129 @@ public class MainFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public MainFrame() {
-		// FRAME SETTINGS
+		System.out.println(dateFormatLog.format(new Date()) + 
+				"Initialize Main Content Panel - Started");
+		boolean correctInitialization = true;
+
+		try {
+			initializeMainContentPanel();
+			System.out.println(dateFormatLog.format(new Date()) + 
+					"Initialize Main Content Panel - Completed");
+		} catch (Exception e) {
+			System.err.println(dateFormatLog.format(new Date()) + 
+				"Initialize Main Content Panel - Failed");
+			correctInitialization = false;
+		}
+		System.out.println(dateFormatLog.format(new Date()) + 
+				"Initialize Menu Bar - Started");
+		try {
+			initializeMenuBar();
+			System.out.println(dateFormatLog.format(new Date()) + 
+					"Initialize Menu Bar - Completed");
+		} catch (Exception e) {
+			System.err.println(dateFormatLog.format(new Date()) + 
+					"Initialize Menu Bar - Failed");
+			correctInitialization = false;
+		}
+		System.out.println(dateFormatLog.format(new Date()) + 
+				"Initialize General Settings Panel - Started");
+		try {
+			initializeGeneralSettingsPanel(contentPane);
+			System.out.println(dateFormatLog.format(new Date()) + 
+					"Initialize General Settings Panel - Completed");
+		} catch (Exception e) {
+			System.err.println(dateFormatLog.format(new Date()) + 
+					"Initialize General Settings Panel - Failed");
+			correctInitialization = false;
+		}
+		System.out.println(dateFormatLog.format(new Date()) + 
+				"Initialize Center Area Panel - Started");
+		try {
+			initializeCenterArea(contentPane);
+			System.out.println(dateFormatLog.format(new Date()) + 
+					"Initialize Center Area Panel - Completed");
+		} catch (Exception e) {
+			System.err.println(dateFormatLog.format(new Date()) + 
+					"Initialize Center Area Panel - Failed");
+			correctInitialization = false;
+		}
+		System.out.println(dateFormatLog.format(new Date()) + 
+				"Initialize Genetic Algorithm Settings Panel - Started");
+		try {
+			initializeGeneticAlgorithmPanel(contentPane);
+			System.out.println(dateFormatLog.format(new Date()) + 
+					"Initialize Genetic Algorithm Panel - Completed");
+		} catch (Exception e) {
+			System.err.println(dateFormatLog.format(new Date()) + 
+					"Initialize Genetic Algorithm Panel - Failed");
+			correctInitialization = false;
+		}
+		System.out.println(dateFormatLog.format(new Date()) + 
+				"Initialize Ant Algorithm Panel - Started");
+		try {
+			initializeAntAlgorithmPanel(contentPane);
+			System.out.println(dateFormatLog.format(new Date()) + 
+					"Initialize Ant Algorithm Panel - Completed");
+		} catch (Exception e) {
+			System.err.println(dateFormatLog.format(new Date()) + 
+					"Initialize Ant Algorithm Panel - Failed");
+			correctInitialization = false;
+		}
+		System.out.println(dateFormatLog.format(new Date()) + 
+				"Initialize Analytic Algorithm Panel - Started");
+		try {
+			initializeAnalyticAlgorithmPanel(contentPane);
+			System.out.println(dateFormatLog.format(new Date()) + 
+					"Initialize Analytic Algorithm Panel - Completed");
+		} catch (Exception e) {
+			System.err.println(dateFormatLog.format(new Date()) + 
+					"Initialize Analytic Algorithm Panel - Failed");
+			correctInitialization = false;
+		}
+		System.out.println(dateFormatLog.format(new Date()) + 
+				"Initialize Tabbed Results Panel - Started");
+		try {
+			initializeTabbedResultsPanel(contentPane);
+			System.out.println(dateFormatLog.format(new Date()) + 
+					"Initialize Tabbed Results Panel - Completed");
+		} catch (Exception e) {
+			System.err.println(dateFormatLog.format(new Date()) + 
+					"Initialize Tabbed Results Panel - Failed");
+			correctInitialization = false;
+		}
+		System.out.println(dateFormatLog.format(new Date()) + 
+				"Initialize General Results Panel - Started");
+		try {
+			initializeGeneralResultsPanel(contentPane);
+			System.out.println(dateFormatLog.format(new Date()) + 
+					"Initialize General Results Panel - Completed");
+		} catch (Exception e) {
+			System.err.println(dateFormatLog.format(new Date()) + 
+					"Initialize General Results Panel - Failed");
+			correctInitialization = false;
+		}
+		System.out.println(dateFormatLog.format(new Date()) + 
+				"Initialize Log Panel - Started");
+		try {
+			initializeLogPanel(contentPane);
+			System.out.println(dateFormatLog.format(new Date()) + 
+					"Initialize Log Panel - Completed");
+		} catch (Exception e) {
+			System.err.println(dateFormatLog.format(new Date()) + 
+					"Initialize Log Panel - Failed");
+			correctInitialization = false;
+		}
+		if (!correctInitialization) {
+			System.exit(1);
+		}
+	}
+	
+	private void initializeMainContentPanel() {
+		// TODO: Find another title!
 		setTitle("test_gui");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 0, 1000, 850);
 
-		// MAIN CONTENT PANEL CONFIGURATION
 		contentPane = new JPanel();
 		contentPane.setBorder(new LineBorder(new Color(0, 0, 0)));
 		setContentPane(contentPane);
@@ -218,7 +340,7 @@ public class MainFrame extends JFrame {
 
 		JSeparator jSeparatorSettingsResults = new JSeparator();
 		GridBagConstraints gbcJSeparatorSettingsResults = 
-			new GridBagConstraints();
+				new GridBagConstraints();
 		gbcJSeparatorSettingsResults.gridwidth = 3;
 		gbcJSeparatorSettingsResults.fill = GridBagConstraints.BOTH;
 		gbcJSeparatorSettingsResults.insets = new Insets(10, 5, 10, 5);
@@ -249,16 +371,6 @@ public class MainFrame extends JFrame {
 		gbcJButtonVisualize.gridx = 2;
 		gbcJButtonVisualize.gridy = 5;
 		contentPane.add(jButtonVisualize, gbcJButtonVisualize);
-
-		initializeMenuBar();
-		initializeGeneralSettingsPanel(contentPane);
-		initializeCenterArea(contentPane);
-		initializeGeneticAlgorithmPanel(contentPane);
-		initializeAntAlgorithmPanel(contentPane);
-		initializeAnalyticAlgorithmPanel(contentPane);
-		initializeTabbedResultsPanel(contentPane);
-		initializeGeneralResultsPanel(contentPane);
-		initializeLogPanel(contentPane);
 	}
 
 	private void initializeMenuBar() {
@@ -1135,7 +1247,8 @@ public class MainFrame extends JFrame {
 		gbcJPanelSelection.gridwidth = 2;
 		gbcJPanelSelection.gridx = 1;
 		gbcJPanelSelection.gridy = 5;
-		jPanelGeneticAlgorithmSettings.add(jPanelSelection, gbcJPanelSelection);
+		jPanelGeneticAlgorithmSettings.add(
+				jPanelSelection, gbcJPanelSelection);
 		
 		jComboBoxSelection = new JComboBox<String>();
 		jComboBoxSelection.addItem("Elitism Based");
@@ -1893,10 +2006,16 @@ public class MainFrame extends JFrame {
 		jProgressBarAnalyticAlgorithm.setValue(0);
 		
 		if (jCheckboxGeneticAlgorithm.isSelected()) {
+			String selectionMethod = 
+					(String) jComboBoxSelection.getSelectedItem();
+			if (selectionMethod.equals("Elitism Based")) {
+				selectionMethod += jTextFieldElitismRate.getText();
+			}
 			geneticAlgorithm = new GeneticAlgorithm(
 					serviceClassesList, constraintsMap, 
 					Integer.parseInt(jTextFieldPopulationSize.getText()), 
 					Integer.parseInt(jTextFieldTerminationCriterion.getText()),
+					selectionMethod,
 					((String) jComboBoxCrossover.getSelectedItem()),
 					((String) jComboBoxTerminationCriterion.
 							getSelectedItem()));
@@ -1907,7 +2026,7 @@ public class MainFrame extends JFrame {
 					(Integer) jSpinnerNumberResultTiers.getValue());
 		}	
 
-		// Progress Bar Thread (
+		// Progress Bar Thread
 		if (jCheckboxGeneticAlgorithm.isSelected() || 
 				jCheckBoxAnalyticAlgorithm.isSelected()) {
 			new Thread() {
@@ -2045,14 +2164,18 @@ public class MainFrame extends JFrame {
 			if (!jCheckboxGeneticAlgorithm.isSelected()) {
 				jTextFieldPenaltyFactor.setEditable(false);
 				jTextFieldPopulationSize.setEditable(false);
+				jTextFieldElitismRate.setEditable(false);
 				jTextFieldTerminationCriterion.setEditable(false);
+				jComboBoxSelection.setEnabled(false);
 				jComboBoxCrossover.setEnabled(false);
 				jComboBoxTerminationCriterion.setEnabled(false);
 			}
 			else {
 				jTextFieldPenaltyFactor.setEditable(true);
 				jTextFieldPopulationSize.setEditable(true);
+				jTextFieldElitismRate.setEditable(true);
 				jTextFieldTerminationCriterion.setEditable(true);
+				jComboBoxSelection.setEnabled(true);
 				jComboBoxCrossover.setEnabled(true);
 				jComboBoxTerminationCriterion.setEnabled(true);
 			}
@@ -2072,30 +2195,37 @@ public class MainFrame extends JFrame {
 
 	private void buildGeneticAlgorithmFitnessFunction() {
 		int weightCount = 1;
-		String numerator = "";
-		String denominator = "";
+		String numerator = "<html>";
+		String denominator = "<html>";
 		if (jCheckBoxMaxCosts.isSelected()) {
-			numerator = "w" + weightCount + " * MaxCosts";
+			numerator += "w<sub>" + weightCount + "</sub> * Costs";
 			weightCount++;
 		}
 		if (jCheckBoxMaxResponseTime.isSelected()) {
-			if (numerator.equals("")) {
-				numerator = "w" + weightCount + " * MaxResponseTime";
+			if (numerator.equals("<html>")) {
+				numerator += "w<sub>" + weightCount + "</sub> * Response Time";
 			}
 			else {
-				numerator += " + w" + weightCount + " * MaxResponseTime";
+				numerator += " + w<sub>" + weightCount + 
+						"</sub> * Response Time";
 			}
 			weightCount++;
 		}
 		if (jCheckBoxMinAvailability.isSelected()) {
-			denominator = "w" + weightCount + " * MinAvailability ";
+			denominator += "w<sub>" + weightCount + "</sub> * Availability ";
 			weightCount++;
 		}
-		if (numerator.equals("")) {
+		if (numerator.equals("<html>")) {
 			numerator = "1";
 		}
-		if (denominator.equals("")) {
+		else {
+			numerator += "</html>";
+		}
+		if (denominator.equals("<html>")) {
 			denominator = "1";
+		}
+		else {
+			denominator += "</html>";
 		}
 		jLabelGeneticAlgorithmNumerator.setText(numerator);
 		jLabelGeneticAlgorithmDenominator.setText(denominator);
@@ -2104,15 +2234,15 @@ public class MainFrame extends JFrame {
 			jLabelGeneticAlgorithmNumerator.setVisible(false);
 			jSeparatorFormula.setVisible(false);
 			jLabelGeneticAlgorithmDenominator.setVisible(false);
-			jLabelWeightedPenalty.setText("w" + weightCount + 
-					" * PenaltyFactor");
+			jLabelWeightedPenalty.setText("<html>w<sub>" + weightCount + 
+					"</sub> * Penalty Factor</html>");
 		}
 		else {
 			jLabelGeneticAlgorithmNumerator.setVisible(true);
 			jSeparatorFormula.setVisible(true);
 			jLabelGeneticAlgorithmDenominator.setVisible(true);
-			jLabelWeightedPenalty.setText(" + w" + weightCount + 
-					" * PenaltyFactor");
+			jLabelWeightedPenalty.setText("<html> + w<sub>" + weightCount + 
+					"</sub> * Penalty Factor</html>");
 		}
 	}
 
@@ -2327,8 +2457,7 @@ public class MainFrame extends JFrame {
 //	}
 	
 	private void writeErrorLogEntry(String entry) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss: ");
-		textAreaLog.append("\n" + dateFormat.format(new Date()) + entry);
+		textAreaLog.append("\n" + dateFormatLog.format(new Date()) + entry);
 	}
 	
 	private void checkEnableStartButton() {
@@ -2871,20 +3000,26 @@ public class MainFrame extends JFrame {
 				serviceClassesList.get(i).
 				getServiceCandidateList().size();
 		}
-		new GeneticAlgorithmsVisualization(serviceCandidatesPerClass,
-				geneticAlgorithm.getStartPopulationVisualization(), 
-				geneticAlgorithm.getNumberOfDifferentSolutions(), 
-				Integer.parseInt(jTextFieldPopulationSize.getText()),
-				geneticAlgorithm.getMaxUtilityPerPopulation(),
-				geneticAlgorithm.getAverageUtilityPerPopulation());
+		if (algorithmVisualization != null) {
+			algorithmVisualization.closeWindow();
+		}
+		algorithmVisualization = 
+				new AlgorithmsVisualization(serviceCandidatesPerClass,
+						geneticAlgorithm.getStartPopulationVisualization(), 
+						geneticAlgorithm.getNumberOfDifferentSolutions(), 
+						Integer.parseInt(jTextFieldPopulationSize.getText()),
+						geneticAlgorithm.getMaxUtilityPerPopulation(),
+						geneticAlgorithm.getAverageUtilityPerPopulation());
 	}
 	
 	private void isElitismInputVisible() {
 		if (jComboBoxSelection.getSelectedIndex() == 0) {
+			jLabelElitismColon.setVisible(true);
 			jTextFieldElitismRate.setVisible(true);
 			jLabelElitismRatePercentage.setVisible(true);
 		}
 		else {
+			jLabelElitismColon.setVisible(false);
 			jTextFieldElitismRate.setVisible(false);
 			jLabelElitismRatePercentage.setVisible(false);
 		}
