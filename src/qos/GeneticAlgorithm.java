@@ -5,7 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-// TODO: TEST RECOMBINATION METHODS!
+// TODO: TEST DIFFERENT SELECTION METHODS
+// TODO: TEST RECOMBINATION METHODS
+// TODO: IMPLEMENT DYNAMIC PENALTY
+// TODO: IMPLEMENT DIFFERENT TERMINATION CRITERIA
 
 public class GeneticAlgorithm extends Algorithm {
 	
@@ -25,7 +28,9 @@ public class GeneticAlgorithm extends Algorithm {
 	private List<Double> averageUtilityPerPopulation;
 	
 	private int workPercentage = 0;
-	private double elitismRate = 0;
+	private double elitismRate;
+	
+	private int terminationCounter;
 	
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
@@ -35,13 +40,14 @@ public class GeneticAlgorithm extends Algorithm {
 	public GeneticAlgorithm(List<ServiceClass> serviceClassesList, 
 			Map<String, Constraint> constraintsMap, 
 			int populationSize, int terminationCriterion, 
-			String selectionMethod,	String crossoverMethod, 
+			String selectionMethod, int elitismRate, String crossoverMethod, 
 			String terminationMethod) {
 		this.serviceClassesList = serviceClassesList;
 		this.constraintsMap = constraintsMap;
 		this.populationSize = populationSize;
 		this.terminationCriterion = terminationCriterion;
 		this.selectionMethod = selectionMethod;
+		this.elitismRate = elitismRate;
 		this.crossoverMethod = crossoverMethod;
 		this.terminationMethod = terminationMethod;
 	}
@@ -50,27 +56,46 @@ public class GeneticAlgorithm extends Algorithm {
 	public void start() {
 		runtime = System.currentTimeMillis();
 		List<Composition> population = generateInitialPopulation();
+		
+		setStartPopulationVisualization(population);
+
 		numberOfDifferentSolutions = new LinkedList<Integer>();
 		maxUtilityPerPopulation = new LinkedList<Double>();
 		averageUtilityPerPopulation = new LinkedList<Double>();
 		setVisualizationValues(population);
 		workPercentage = 0;
-		int terminationCounter = terminationCriterion;
-		if (selectionMethod.contains("Elitism Based")) {
-			elitismRate = Integer.parseInt(
-					selectionMethod.substring(13)) / 100.0;
-		}
+		terminationCounter = terminationCriterion;
+		elitismRate /= 100.0;
 		while (terminationCounter > 0) {
 			// SELECTION (Elitism Based)
 			int numberOfElites = (int) Math.round(
 					populationSize * elitismRate);
 			List<Composition> population1 = doSelectionElitismBased(
 					population, numberOfElites);
+			List<Composition> population2;
+			if (selectionMethod.contains("Roulette Wheel")) {
+				population2 = 
+						doSelectionRouletteWheel(population, 
+								populationSize - numberOfElites);
+			}
+			else if (selectionMethod.contains("Linear Ranking")) {
+				population2 = 
+				doSelectionLinearRanking(population, 
+						populationSize - numberOfElites);
+			}
+			else {
+				population2 = 
+				new LinkedList<Composition>(population.subList(
+						numberOfElites, population.size() - 1));
+			population2 = 
+				doSelectionBinaryTournament(population2);
+			}
 			
+			// RECOMBINATION
 			// CROSSOVER (One-Point Crossover)
 			int numberOfCrossovers = (int) Math.round((
 					(populationSize - numberOfElites) / 2.0));
-			List<Composition> population2 = doCrossoverOnePoint(
+			population2 = doCrossoverOnePoint(
 					population, numberOfCrossovers);
 			
 			// MUTATION
@@ -92,7 +117,11 @@ public class GeneticAlgorithm extends Algorithm {
 		Collections.sort(population, new Composition());
 		
 		// Print the best solution.
+		System.out.println("--------------");
+		System.out.println("BEST COMPOSITION:");
+		System.out.println(population.get(0).getServiceCandidatesAsString());
 		System.out.println(population.get(0).getUtility());
+		System.out.println("--------------");
 		List<Composition> optimalComposition = new LinkedList<Composition>();
 		optimalComposition.add(population.get(0));
 		algorithmSolutionTiers.add(
@@ -101,11 +130,7 @@ public class GeneticAlgorithm extends Algorithm {
 			
 			
 			/*
-			
 			List<Composition> oldPopulation = population;
-			
-			// MUTATION
-			population = mutate(population);
 
 			// RECOMBINATION
 			if (crossoverMethod.contains("One-Point")) {
@@ -120,11 +145,6 @@ public class GeneticAlgorithm extends Algorithm {
 			else {
 				population = doUniformCrossover(population);
 			}
-			
-			// SELECTION
-			population = doSelection(population);
-			
-			updateAlgorithmSolutionTiers(population);
 			
 			// CHECK TERMINATION CRITERION
 			if (terminationMethod.contains("Iteration")) {
@@ -145,14 +165,10 @@ public class GeneticAlgorithm extends Algorithm {
 					}
 				}
 			}
-			// TODO: IMPLEMENT MIN IMPROVEMENT METHOD
-			// -> COULD NEED MUCH WORK...
 			else {
 
 			}
 		}
-		runtime = System.currentTimeMillis() - runtime;
-
 		*/
 		
 	}
@@ -206,10 +222,10 @@ public class GeneticAlgorithm extends Algorithm {
 		List<Composition> population2 = new LinkedList<Composition>();
 		for (int i = 0; i < numberOfCrossovers; i++) {
 			// Randomly select two compositions for crossover.
-			int a = (int) (Math.random() * populationSize);
-			int b = (int) (Math.random() * populationSize);
+			int a = (int) (Math.random() * population.size());
+			int b = (int) (Math.random() * population.size());
 			while (b == a) {
-				b = (int) (Math.random() * populationSize);
+				b = (int) (Math.random() * population.size());
 			}
 			Composition compositionA = population.get(a);
 			Composition compositionB = population.get(b);
@@ -256,9 +272,6 @@ public class GeneticAlgorithm extends Algorithm {
 	
 	private void doMutation(List<Composition> population2, 
 			int numberOfCrossovers) {
-		// TODO: Check if the changes to population2 are effective, i.e. if
-		//		 call-by-reference is really applied. (--> First tests 
-		//		 indicated that it's correct.)
 		// TODO: By temporary defining some variables, the code is easier to
 		//		 understand, but maybe has a worse performance. What is 
 		//		 the best trade-off?
@@ -290,55 +303,84 @@ public class GeneticAlgorithm extends Algorithm {
 		}
 	}
 	
-	// Use the selection operator. Calculating the fitness values is 
-	// contained in here.
-	private List<Composition> doSelection(List<Composition> population) {
+	private List<Composition> doSelectionRouletteWheel(
+			List<Composition> oldPopulation, int numberOfSpins) {
+		double[] fitnessAreas = new double[oldPopulation.size()];
 		List<Composition> newPopulation = new LinkedList<Composition>();
-		double[] fitnessArray = new double[population.size()];
-		double fitnessSum = 0.0;
-		
-		// Compute the fitness for all compositions as follows:
-		// - Sum up the fitness values of all service candidates contained
-		// - Add penalty if constraints are violated
-		// Store the fitness values of all of the population's compositions 
-		// in an array.
-		for (int count = 0; count < population.size(); count++) {	
-			fitnessArray[count] = computeAggregatedFitness(
-					population.get(count));
-			fitnessSum += fitnessArray[count];
+		// Compute cumulated fitness areas of 
+		// every composition of population
+		for (int i = 0; i < oldPopulation.size(); i++) {
+			fitnessAreas[i] = computeFitness(oldPopulation.get(i));
+			if (i != 0) {
+				fitnessAreas[i] += fitnessAreas[i - 1];
+			}
 		}
-		
-		// Do the actual selection (Survival of the Fittest)
-		for (int count = 0; count < population.size(); count++) {
-			double randomValue = Math.random();
-			double distance = Double.MAX_VALUE;
-			int selectionIndex = 0;
-			for (int innerCount = 0; 
-			innerCount < population.size(); innerCount++) {
-				if (Math.abs(1 - (fitnessArray[innerCount] / fitnessSum) - 
-						randomValue) < distance) {
-					selectionIndex = innerCount;
-					distance = Math.abs(1 - (fitnessArray[innerCount] / 
-							fitnessSum) - randomValue);
+		// Save the fitnessAreaSum
+		double fitnessAreaSum = fitnessAreas[oldPopulation.size() - 1];
+		// Choose every member of the new population by random
+		// with respect to the fitness values of the different
+		// compositions
+		for (int i = 0; i < numberOfSpins; i++) {
+			double random = Math.random() * fitnessAreaSum;
+			for (int j = 0; j < oldPopulation.size(); j++) {
+				if (random < fitnessAreas[j]) {
+					newPopulation.add(oldPopulation.get(j));
+					break;
 				}
 			}
-			
-			// Version with constant population size
-			newPopulation.add(population.get(selectionIndex));
-			
-			// Alternatively: Declining population size
-//			boolean newComposition = true;
-//			for (Composition composition : newPopulation) {
-//				if (population.get(selectionIndex).equals(composition)) {
-//					newComposition = false;
-//					break;
-//				}
-//			}
-//			if (newComposition) {
-//				newPopulation.add(population.get(selectionIndex));
-//			}
 		}
-		
+		return newPopulation;
+	}
+	
+	private List<Composition> doSelectionLinearRanking(
+			List<Composition> oldPopulation, int numberOfSpins) {
+		double[] fitnessRanks = new double[oldPopulation.size()];
+		double selectionPressure = 2.0;
+		Collections.sort(oldPopulation, new Composition());
+		// Compute cumulated fitness rank areas of 
+		// every composition of population
+		for (int i = 0; i < oldPopulation.size(); i++) {
+			fitnessRanks[i] = 2 - selectionPressure + (2 * 
+				(selectionPressure - 1) * 
+				(i / (oldPopulation.size() - 1)));
+			if (i != 0) {
+				fitnessRanks[i] += fitnessRanks[i - 1];
+			}
+		}
+		// Save the fitnessRankSum
+		double fitnessRankSum = fitnessRanks[oldPopulation.size() - 1];
+		List<Composition> newPopulation = new LinkedList<Composition>();
+		// Choose every member of the new population by random
+		// with respect to the ranks of the different
+		// compositions (like roulette wheel)
+		for (int i = 0; i < numberOfSpins; i++) {
+			double random = Math.random() * fitnessRankSum;
+			for (int j = 0; j < oldPopulation.size(); j++) {
+				if (random < fitnessRanks[j]) {
+					newPopulation.add(oldPopulation.get(j));
+					break;
+				}
+			}
+		}
+		return newPopulation;
+	}
+	
+	private List<Composition> doSelectionBinaryTournament(
+			List<Composition> oldPopulation) {
+		List<Composition> newPopulation = 
+			new LinkedList<Composition>(oldPopulation);
+		// Permutation
+		int[] permutationIndices = permuteIndices(oldPopulation.size());
+		// Binary Tournament between two compositions, 
+		// determined by the permutation above
+		for (int i = 0; i < oldPopulation.size(); i++) {
+			if (computeFitness(oldPopulation.get(i)) < 
+					computeFitness(oldPopulation.get(
+							permutationIndices[i]))) {
+				newPopulation.set(i, oldPopulation.get(
+						permutationIndices[i]));
+			}
+		}
 		return newPopulation;
 	}
 	
@@ -402,6 +444,7 @@ public class GeneticAlgorithm extends Algorithm {
 		}
 		return newPopulation;
 	}
+	
 	private List<Composition> doTwoPointCrossover(
 			List<Composition> population) {
 		List<Composition> newPopulation = new LinkedList<Composition>();
@@ -591,32 +634,6 @@ public class GeneticAlgorithm extends Algorithm {
 		return newPopulation;
 	}
 	
-	// Computes the fitness of a single service candidate.
-	private double computeFitness(ServiceCandidate candidate) {
-		double fitness = 0.0;
-		if (constraintsMap.get(Constraint.COSTS) != null) {
-			fitness += constraintsMap.get(
-					Constraint.COSTS).getWeight() / 100 * 
-					candidate.getQosVector().getCosts();
-		}
-		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null) {
-			fitness += constraintsMap.get(
-					Constraint.RESPONSE_TIME).getWeight() / 100 * 
-					candidate.getQosVector().getResponseTime();
-		}
-		if (fitness == 0.0) {
-			fitness = 1.0;
-		}
-		if (constraintsMap.get(Constraint.AVAILABILITY) != null && 
-				constraintsMap.get(
-						Constraint.AVAILABILITY).getWeight() != 0.0) {
-			fitness /= constraintsMap.get(
-					Constraint.AVAILABILITY).getWeight() / 100 * 
-					candidate.getQosVector().getAvailability();
-		}
-		return fitness;
-	}
-	
 	private boolean hasPopulationChanged(
 			List<Composition> oldPopulation, List<Composition> newPopulation) {
 		for (int count = 0; count < oldPopulation.size(); count++) {
@@ -633,22 +650,13 @@ public class GeneticAlgorithm extends Algorithm {
 		double maxUtility = 0.0;
 		double averageUtility = 0.0;
 		for (int count = 0; count < population.size(); count++) {
-			boolean newComposition = true;
-			for (int innerCount = 0; innerCount < population.size(); 
-			innerCount++) {
-				if (innerCount != count && population.get(count).equals(
-						population.get(innerCount))) {
-					newComposition = false;
-					break;
-				}
-			}
-			if (newComposition) {
+			if (!differentSolutions.contains(population.get(count))) {
 				differentSolutions.add(population.get(count));
 			}
-			if (population.get(count).getUtility() > maxUtility) {
-				maxUtility = population.get(count).getUtility();
+			if (computeFitness(population.get(count)) > maxUtility) {
+				maxUtility = computeFitness(population.get(count));
 			}
-			averageUtility += population.get(count).getUtility();
+			averageUtility += computeFitness(population.get(count));
 		}
 		numberOfDifferentSolutions.add(differentSolutions.size());
 		maxUtilityPerPopulation.add(maxUtility);
@@ -670,7 +678,7 @@ public class GeneticAlgorithm extends Algorithm {
 			distance += 1.0;
 		}
 		if (constraintsMap.get(Constraint.AVAILABILITY) != null &&  
-				composition.getQosVectorAggregated().getAvailability() > 
+				composition.getQosVectorAggregated().getAvailability() < 
 				constraintsMap.get(Constraint.AVAILABILITY).getValue()) {
 			distance += 1.0;
 		}
@@ -678,22 +686,19 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	
 	// Compute the fitness of a composition.
-	private double computeAggregatedFitness(Composition composition) {
-		double aggregatedFitness = 0.0;
-		int numberOfServiceCandidates = 0;
-		for (ServiceCandidate candidate : 
-			composition.getServiceCandidatesList()) {
-			aggregatedFitness += computeFitness(candidate);
-			numberOfServiceCandidates++;
-		}
+	private double computeFitness(Composition composition) {
+		double fitness = composition.getUtility();
 		// Penalty factor has to be considered only if the composition 
 		// violates the constraints.
 		if (!composition.isWithinConstraints(constraintsMap)) {
-			aggregatedFitness += constraintsMap.get(
+			fitness -= constraintsMap.get(
 					Constraint.PENALTY_FACTOR).getWeight() * 
 					computeDistanceToConstraints(composition);	
 		}
-		return (aggregatedFitness / numberOfServiceCandidates);
+		if (fitness < 0.0) {
+			return 0.0;
+		}
+		return fitness;
 	}
 	
 	private Composition getRandomComposition(List<Composition> population) {
@@ -703,6 +708,57 @@ public class GeneticAlgorithm extends Algorithm {
 			random -= 0.01;
 		}
 		return population.get((int) (random * population.size()));
+	}
+	
+	private int[] permuteIndices(int populationSize) {
+		int[] permutationArray = new int[populationSize];
+		List<Integer> indicesList = new LinkedList<Integer>();
+		for (int i = 0; i < populationSize; i++) {
+			indicesList.add(i);
+		}
+		for (int i = 0; i < populationSize; i++) {
+			int permutationIndex = 0;
+			boolean swapLastIndex = false;
+			int indexPosition = 0;
+			do {
+				indexPosition = (int) Math.round(
+						(Math.random() * (indicesList.size() - 1)));
+				permutationIndex = indicesList.get(indexPosition);
+				if (indicesList.size() == 1 && 
+						i == permutationIndex) {
+					swapLastIndex = true;
+					permutationArray[i] = permutationArray[i - 1];
+					permutationArray[i - 1] = permutationIndex;
+					break;
+				}
+			} while(permutationIndex == i);
+			if (!swapLastIndex) {
+				permutationArray[i] = permutationIndex;
+			}
+			indicesList.remove(indexPosition);
+		}
+		return permutationArray;
+	}
+	
+	private void setStartPopulationVisualization(
+			List<Composition> population) {
+		List <ServiceCandidate> serviceCandidates = 
+			new LinkedList<ServiceCandidate>();
+		startPopulationVisualization = new int[serviceClassesList.size()];
+		for (int i = 0; i < serviceClassesList.size(); i++) {
+			startPopulationVisualization[i] = 0;
+		}
+		for (Composition composition : population) {
+			int serviceClassNumber = 0;
+			for (ServiceCandidate candidate : 
+				composition.getServiceCandidatesList()) {
+				if (!serviceCandidates.contains(candidate)){
+					serviceCandidates.add(candidate);
+					startPopulationVisualization[serviceClassNumber]++;
+				}
+				serviceClassNumber++;
+			}
+		}
 	}
 	
 	// GETTERS AND SETTERS

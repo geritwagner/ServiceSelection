@@ -43,10 +43,6 @@ public class AnalyticAlgorithm extends Algorithm {
 				getServiceCandidateList().size(); i++) {
 			doCompleteEnumeration(new Composition(), 0, i);
 			workPercentage = (int) (100 * i / serviceClassesList.size());
-			// TODO: ProgressBar doesn's work correctly.
-//			progressBar.setValue((int) Math.round((
-//					(double) (i + 1) / ((double) serviceClassesList.get(
-//							0).getServiceCandidateList().size())) * 100));
 		}	
 		for (int count = 0; 
 				count < algorithmSolutionTiers.size(); count++) {
@@ -56,9 +52,6 @@ public class AnalyticAlgorithm extends Algorithm {
 	}
 	
 	// ENUMERATION
-	// TODO: [MAYBE] Do not consider paths that violate any constraints
-	//		 anymore. (Optimization that could result in some work! And 
-	//		 actually, it wouldn't be a complete enumeration anymore!)
 	private void doCompleteEnumeration(Composition composition, 
 			int serviceClassNumber, int serviceCandidateNumber) {
 		composition = forward(composition, serviceClassNumber, 

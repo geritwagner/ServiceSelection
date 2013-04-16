@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.swing.JFrame;
 import java.awt.GridBagLayout;
-import javax.swing.JScrollPane;
 import java.awt.GridBagConstraints;
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
@@ -66,9 +65,9 @@ public class AlgorithmsVisualization extends JFrame {
 		JPanel jPanelAntAlgorithm = new JPanel();
 		tabbedPane.addTab("Ant Algorithm", null, jPanelAntAlgorithm, null);
 		
-		JPanel jPanelAnalyticAlgorithm = new JPanel();
-		tabbedPane.addTab("Analytic Algorithm", null, 
-				jPanelAnalyticAlgorithm, null);
+//		JPanel jPanelAnalyticAlgorithm = new JPanel();
+//		tabbedPane.addTab("Analytic Algorithm", null, 
+//				jPanelAnalyticAlgorithm, null);
 	}
 	
 	public void closeWindow() {

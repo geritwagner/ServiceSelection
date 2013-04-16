@@ -86,10 +86,11 @@ public class MainFrame extends JFrame {
 
 	private JLabel jLabelTerminationColon;
 	private JLabel jLabelTerminationCriterionPercentage;
-	private JLabel jLabelElitismColon;
 	private JLabel jLabelElitismRatePercentage;
 	private JTextField jTextFieldTerminationCriterion;
 	private JTextField jTextFieldElitismRate;
+	
+	private JCheckBox jCheckBoxElitismRate;
 	
 	private JCheckBox jCheckboxGeneticAlgorithm;
 	private JCheckBox jCheckBoxAntColonyOptimization;
@@ -166,7 +167,7 @@ public class MainFrame extends JFrame {
 	private JComboBox<String> jComboBoxCrossover;
 	private JComboBox<String> jComboBoxSelection;
 	private JComboBox<String> jComboBoxTerminationCriterion;
-	private JLabel jLabelPopulationPercentage;
+//	private JLabel jLabelPopulationPercentage;
 	
 	private JLabel lblWeightSumSigma;
 	
@@ -314,7 +315,7 @@ public class MainFrame extends JFrame {
 	
 	private void initializeMainContentPanel() {
 		// TODO: Find another title!
-		setTitle("test_gui");
+		setTitle("Service Selection");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 0, 1000, 850);
 
@@ -389,9 +390,6 @@ public class MainFrame extends JFrame {
 		JMenuItem jMenuItemLoad = new JMenuItem("Load");
 
 		final JFileChooser fileChooser = new JFileChooser() {
-			/**
-			 * 
-			 */
 			private static final long serialVersionUID = 1L;
 
 			{
@@ -435,10 +433,10 @@ public class MainFrame extends JFrame {
 		});
 		jMenuFile.add(jMenuItemExit);
 
-		JMenu jMenuEdit = new JMenu("Constraints");
+		JMenu jMenuEdit = new JMenu("Settings");
 		jMenuBar.add(jMenuEdit);
 		JMenuItem jMenuItemLoadDefaultConstraints = 
-			new JMenuItem("Use Default Values");
+			new JMenuItem("Use Default Constraints");
 		jMenuItemLoadDefaultConstraints.addActionListener(
 				new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -447,7 +445,7 @@ public class MainFrame extends JFrame {
 				});
 		jMenuEdit.add(jMenuItemLoadDefaultConstraints);
 		JMenuItem jMenuItemLoadRandomConstraints = 
-			new JMenuItem("Use Random Values");
+			new JMenuItem("Use Random Constraints");
 		jMenuItemLoadRandomConstraints.addActionListener(
 				new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
@@ -455,9 +453,9 @@ public class MainFrame extends JFrame {
 					}
 				});
 		jMenuEdit.add(jMenuItemLoadRandomConstraints);
-		JMenuItem jMenuItemLoadConstraints = new JMenuItem("Load Constraints");
+		JMenuItem jMenuItemLoadConstraints = new JMenuItem("Load Settings");
 		jMenuEdit.add(jMenuItemLoadConstraints);
-		JMenuItem jMenuItemSaveConstraints = new JMenuItem("Save Constraints");
+		JMenuItem jMenuItemSaveConstraints = new JMenuItem("Save Settings");
 		jMenuEdit.add(jMenuItemSaveConstraints);
 		
 		JMenuItem jMenuItemLoadRandomSet = new JMenuItem("Load Random Set");
@@ -535,7 +533,6 @@ public class MainFrame extends JFrame {
 		jCheckBoxMaxCosts = new JCheckBox("Max. Costs");
 		jCheckBoxMaxCosts.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				buildGeneticAlgorithmFitnessFunction();
 				changeConstraintCheckboxStatus("Costs");
 			}
 		});
@@ -616,7 +613,6 @@ public class MainFrame extends JFrame {
 		jCheckBoxMaxResponseTime = new JCheckBox("Max. Response Time");
 		jCheckBoxMaxResponseTime.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				buildGeneticAlgorithmFitnessFunction();
 				changeConstraintCheckboxStatus("Response Time");
 			}
 		});
@@ -710,7 +706,6 @@ public class MainFrame extends JFrame {
 		jCheckBoxMinAvailability = new JCheckBox("Min. Availability");
 		jCheckBoxMinAvailability.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				buildGeneticAlgorithmFitnessFunction();
 				changeConstraintCheckboxStatus("Availability");
 			}
 		});
@@ -1052,7 +1047,7 @@ public class MainFrame extends JFrame {
 		gblJPanelGeneticAlgorithmSettings.columnWeights = 
 			new double[]{0.3, 1.0, 1.0, 1.0};
 		gblJPanelGeneticAlgorithmSettings.rowWeights = 
-			new double[]{0.2, 0.1, 0.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+			new double[]{0.2, 0.1, 0.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 		jPanelGeneticAlgorithmSettings.setLayout(
 				gblJPanelGeneticAlgorithmSettings);
 
@@ -1120,7 +1115,7 @@ public class MainFrame extends JFrame {
 				jLabelWeightedPenalty, gbcJLabelWeightedPenalty);
 		jLabelWeightedPenalty.setFont(fontFormula);
 
-		JLabel jLabelPenaltyFactor = new JLabel("Penalty Factor:");
+		JLabel jLabelPenaltyFactor = new JLabel("Weight Penalty Factor:");
 		GridBagConstraints gbcJLabelPenaltyFactor = new GridBagConstraints();
 		gbcJLabelPenaltyFactor.anchor = GridBagConstraints.WEST;
 		gbcJLabelPenaltyFactor.insets = new Insets(5, 5, 5, 5);
@@ -1148,6 +1143,10 @@ public class MainFrame extends JFrame {
 		jTextFieldPenaltyFactor.setHorizontalAlignment(JTextField.RIGHT);
 		jTextFieldPenaltyFactor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// TODO: Dass der Penalty Factor weniger als 100% sein muss, ist 
+				//		 evtl. nicht zwingend der Fall. Müsste man noch prüfen.
+				// -> da geb ich Dir recht, die Grenzen sollten
+				//    noch explizit abgeklärt werden.
 				checkInputValue(jTextFieldPenaltyFactor, 100, 0, 
 						DEFAULT_PENALTY_FACTOR);
 			}
@@ -1217,15 +1216,15 @@ public class MainFrame extends JFrame {
 		jPanelPopulationSize.add(jTextFieldPopulationSize, 
 				gbcJTextFieldPopulationSize);
 
-		jLabelPopulationPercentage = new JLabel();
-		GridBagConstraints gbcJLabelStartPopulationPercentage = 
-			new GridBagConstraints();
-		gbcJLabelStartPopulationPercentage.insets = new Insets(5, 0, 5, 5);
-		gbcJLabelStartPopulationPercentage.anchor = GridBagConstraints.WEST;
-		gbcJLabelStartPopulationPercentage.gridx = 1;
-		gbcJLabelStartPopulationPercentage.gridy = 0;
-		jPanelPopulationSize.add(jLabelPopulationPercentage, 
-				gbcJLabelStartPopulationPercentage);
+//		jLabelPopulationPercentage = new JLabel();
+//		GridBagConstraints gbcJLabelStartPopulationPercentage = 
+//			new GridBagConstraints();
+//		gbcJLabelStartPopulationPercentage.insets = new Insets(5, 0, 5, 5);
+//		gbcJLabelStartPopulationPercentage.anchor = GridBagConstraints.WEST;
+//		gbcJLabelStartPopulationPercentage.gridx = 1;
+//		gbcJLabelStartPopulationPercentage.gridy = 0;
+//		jPanelPopulationSize.add(jLabelPopulationPercentage, 
+//				gbcJLabelStartPopulationPercentage);
 		
 		JLabel jLabelSelection = new JLabel("Selection Method:");
 		GridBagConstraints gbcJLabelSelection = new GridBagConstraints();
@@ -1251,15 +1250,9 @@ public class MainFrame extends JFrame {
 				jPanelSelection, gbcJPanelSelection);
 		
 		jComboBoxSelection = new JComboBox<String>();
-		jComboBoxSelection.addItem("Elitism Based");
 		jComboBoxSelection.addItem("Roulette Wheel Selection");
+		jComboBoxSelection.addItem("Linear Ranking Selection");
 		jComboBoxSelection.addItem("Tournament Selection");
-		jComboBoxSelection.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				isElitismInputVisible();
-			}
-		});
 		GridBagConstraints gbcJComboBoxSelection = 
 			new GridBagConstraints();
 		gbcJComboBoxSelection.insets = new Insets(5, 10, 5, 5);
@@ -1269,14 +1262,37 @@ public class MainFrame extends JFrame {
 		jPanelSelection.add(jComboBoxSelection, 
 				gbcJComboBoxSelection);
 		
-		jLabelElitismColon = new JLabel(":");
-		GridBagConstraints gbcJLabelElitismColon = new GridBagConstraints();
-		gbcJLabelElitismColon.insets = new Insets(5, 0, 5, 0);
-		gbcJLabelElitismColon.anchor = GridBagConstraints.CENTER;
-		gbcJLabelElitismColon.gridx = 1;
-		gbcJLabelElitismColon.gridy = 0;
-		jPanelSelection.add(
-				jLabelElitismColon, gbcJLabelElitismColon);
+		
+		
+		jCheckBoxElitismRate = new JCheckBox("Elitism Rate:");
+		jCheckBoxElitismRate.setSelected(true);
+		jCheckBoxElitismRate.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setElitismRateSelection();
+			}
+		});
+		GridBagConstraints gbcJCheckBoxElitismRate = new GridBagConstraints();
+		gbcJCheckBoxElitismRate.anchor = GridBagConstraints.WEST;
+		gbcJCheckBoxElitismRate.insets = new Insets(5, 0, 5, 5);
+		gbcJCheckBoxElitismRate.gridx = 0;
+		gbcJCheckBoxElitismRate.gridy = 6;
+		jPanelGeneticAlgorithmSettings.add(
+				jCheckBoxElitismRate, gbcJCheckBoxElitismRate);
+		
+		JPanel jPanelElitismRate = new JPanel();
+		GridBagLayout gblJPanelElitismRate = new GridBagLayout();
+		gblJPanelElitismRate.columnWeights = new double[] {1.0};
+		gblJPanelElitismRate.rowWeights = new double[] {1.0};
+		jPanelElitismRate.setLayout(gblJPanelElitismRate);
+		GridBagConstraints gbcJPanelElitismRate = 
+			new GridBagConstraints();
+		gbcJPanelElitismRate.anchor = GridBagConstraints.WEST;
+		gbcJPanelElitismRate.gridwidth = 2;
+		gbcJPanelElitismRate.gridx = 1;
+		gbcJPanelElitismRate.gridy = 6;
+		jPanelGeneticAlgorithmSettings.add(
+				jPanelElitismRate, gbcJPanelElitismRate);
 		
 		jTextFieldElitismRate = new JTextField(
 				String.valueOf(DEFAULT_ELITISM_RATE));
@@ -1292,11 +1308,11 @@ public class MainFrame extends JFrame {
 		});
 		GridBagConstraints gbcJTextFieldElitismRate = 
 			new GridBagConstraints();
-		gbcJTextFieldElitismRate.insets = new Insets(5, 5, 5, 0);
+		gbcJTextFieldElitismRate.insets = new Insets(5, 10, 5, 0);
 		gbcJTextFieldElitismRate.anchor = GridBagConstraints.EAST;
-		gbcJTextFieldElitismRate.gridx = 2;
+		gbcJTextFieldElitismRate.gridx = 0;
 		gbcJTextFieldElitismRate.gridy = 0;
-		jPanelSelection.add(jTextFieldElitismRate, 
+		jPanelElitismRate.add(jTextFieldElitismRate, 
 				gbcJTextFieldElitismRate);
 		
 		jLabelElitismRatePercentage = new JLabel("%");
@@ -1306,9 +1322,9 @@ public class MainFrame extends JFrame {
 			new Insets(5, 5, 5, 5);
 		gbcJLabelElitismRatePercentage.anchor = 
 			GridBagConstraints.WEST;
-		gbcJLabelElitismRatePercentage.gridx = 3;
+		gbcJLabelElitismRatePercentage.gridx = 1;
 		gbcJLabelElitismRatePercentage.gridy = 0;
-		jPanelSelection.add(jLabelElitismRatePercentage, 
+		jPanelElitismRate.add(jLabelElitismRatePercentage, 
 				gbcJLabelElitismRatePercentage);
 
 		
@@ -1318,7 +1334,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelCrossover.anchor = GridBagConstraints.WEST;
 		gbcJLabelCrossover.insets = new Insets(5, 5, 5, 5);
 		gbcJLabelCrossover.gridx = 0;
-		gbcJLabelCrossover.gridy = 6;
+		gbcJLabelCrossover.gridy = 7;
 		jPanelGeneticAlgorithmSettings.add(
 				jLabelCrossover, gbcJLabelCrossover);
 		
@@ -1332,7 +1348,7 @@ public class MainFrame extends JFrame {
 		gbcJPanelCrossover.anchor = GridBagConstraints.WEST;
 		gbcJPanelCrossover.gridwidth = 2;
 		gbcJPanelCrossover.gridx = 1;
-		gbcJPanelCrossover.gridy = 6;
+		gbcJPanelCrossover.gridy = 7;
 		jPanelGeneticAlgorithmSettings.add(
 				jPanelCrossover, gbcJPanelCrossover);
 		
@@ -1361,7 +1377,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelTerminationCriterion.anchor = GridBagConstraints.WEST;
 		gbcJLabelTerminationCriterion.insets = new Insets(5, 5, 5, 5);
 		gbcJLabelTerminationCriterion.gridx = 0;
-		gbcJLabelTerminationCriterion.gridy = 7;
+		gbcJLabelTerminationCriterion.gridy = 8;
 		jPanelGeneticAlgorithmSettings.add(
 				jLabelTerminationCriterion, gbcJLabelTerminationCriterion);
 		
@@ -1376,7 +1392,7 @@ public class MainFrame extends JFrame {
 		gbcJPanelTerminationCriterion.gridwidth = 2;
 		gbcJPanelTerminationCriterion.anchor = GridBagConstraints.WEST;
 		gbcJPanelTerminationCriterion.gridx = 1;
-		gbcJPanelTerminationCriterion.gridy = 7;
+		gbcJPanelTerminationCriterion.gridy = 8;
 		jPanelGeneticAlgorithmSettings.add(
 				jPanelTerminationCriterion, gbcJPanelTerminationCriterion);
 		
@@ -1799,9 +1815,11 @@ public class MainFrame extends JFrame {
 
 		String[][] generalResultsData = {
 				{"Runtime:", ""},
-				{"     Genetic Algorithm:", ""},
-				{"     Ant Algorithm:", ""},
-				{"     Analytic Algorithm:", ""}
+				{"     Genetic Algorithm", ""},
+				{"     Ant Algorithm", ""},
+				{"     Analytic Algorithm", ""},
+				{" \u0394 Genetic Algorithm", ""},
+				{" \u0394 Ant Algorithm", ""}
 		};
 		String[] generalResultsColumnNames = {"Variable", "Value"};
 
@@ -1816,7 +1834,7 @@ public class MainFrame extends JFrame {
 		jPanelGeneralResults.add(jScrollPaneResults, gbcJScrollPaneResults);
 		jTableGeneralResults = new JTable(
 				generalResultsData, generalResultsColumnNames);
-		setColumnWidthRelative(jTableGeneralResults, new double[] {0.8, 0.2});
+		setColumnWidthRelative(jTableGeneralResults, new double[] {0.6, 0.4});
 		setColumnTextAlignment(jTableGeneralResults, 1, 
 				DefaultTableCellRenderer.RIGHT);
 		jTableGeneralResults.setEnabled(false);
@@ -1975,6 +1993,7 @@ public class MainFrame extends JFrame {
 
 	private void useConstraintSlider(JTextField textfield, JSlider slider) {
 		textfield.setText(String.valueOf(slider.getValue()));
+		getUtilityFunction();
 	}
 
 	private void buildResultTable() {
@@ -2006,16 +2025,15 @@ public class MainFrame extends JFrame {
 		jProgressBarAnalyticAlgorithm.setValue(0);
 		
 		if (jCheckboxGeneticAlgorithm.isSelected()) {
-			String selectionMethod = 
-					(String) jComboBoxSelection.getSelectedItem();
-			if (selectionMethod.equals("Elitism Based")) {
-				selectionMethod += jTextFieldElitismRate.getText();
+			if (!jCheckBoxElitismRate.isSelected()) {
+				jTextFieldElitismRate.setText("0");
 			}
 			geneticAlgorithm = new GeneticAlgorithm(
 					serviceClassesList, constraintsMap, 
 					Integer.parseInt(jTextFieldPopulationSize.getText()), 
 					Integer.parseInt(jTextFieldTerminationCriterion.getText()),
-					selectionMethod,
+					(String) jComboBoxSelection.getSelectedItem(),
+					Integer.parseInt(jTextFieldElitismRate.getText()),
 					((String) jComboBoxCrossover.getSelectedItem()),
 					((String) jComboBoxTerminationCriterion.
 							getSelectedItem()));
@@ -2151,6 +2169,48 @@ public class MainFrame extends JFrame {
 					jTableGeneralResults.setValueAt(
 							cumulatedRuntime + " ms", 0, 1);
 				}
+				// TODO: Find out why this sleep is necessary
+				//		 (test with a small data set)
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+				}
+				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+					if (jCheckboxGeneticAlgorithm.isSelected()) {
+						double geneticDelta = analyticAlgorithm.
+								getAlgorithmSolutionTiers().
+								get(0).getServiceCompositionList().
+								get(0).getUtility() - geneticAlgorithm.
+								getAlgorithmSolutionTiers().get(0).
+								getServiceCompositionList().get(0).
+								getUtility();
+						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_FOUR.
+								format(geneticDelta) + " (" + 
+								DECIMAL_FORMAT_TWO.format(Math.abs(
+										geneticDelta / analyticAlgorithm.
+										getAlgorithmSolutionTiers().
+										get(0).getServiceCompositionList().
+										get(0).getUtility() * 100)) + 
+										"%)" , 4, 1);
+					}
+					if (jCheckBoxAntColonyOptimization.isSelected()) {
+						double antDelta = analyticAlgorithm.
+								getAlgorithmSolutionTiers().
+								get(0).getServiceCompositionList().
+								get(0).getUtility() - antAlgorithm.
+								getAlgorithmSolutionTiers().get(0).
+								getServiceCompositionList().get(0).
+								getUtility();
+						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_FOUR.
+								format(antDelta) + " (" + 
+								DECIMAL_FORMAT_TWO.format(Math.abs(
+										antDelta / analyticAlgorithm.
+										getAlgorithmSolutionTiers().
+										get(0).getServiceCompositionList().
+										get(0).getUtility() * 100)) + 
+										"%)" , 5, 1);
+					}
+				}
 				buildResultTable();
 				jButtonVisualize.setEnabled(true);
 				jButtonStart.setEnabled(true);
@@ -2164,6 +2224,7 @@ public class MainFrame extends JFrame {
 			if (!jCheckboxGeneticAlgorithm.isSelected()) {
 				jTextFieldPenaltyFactor.setEditable(false);
 				jTextFieldPopulationSize.setEditable(false);
+				jCheckBoxElitismRate.setEnabled(false);
 				jTextFieldElitismRate.setEditable(false);
 				jTextFieldTerminationCriterion.setEditable(false);
 				jComboBoxSelection.setEnabled(false);
@@ -2173,6 +2234,7 @@ public class MainFrame extends JFrame {
 			else {
 				jTextFieldPenaltyFactor.setEditable(true);
 				jTextFieldPopulationSize.setEditable(true);
+				jCheckBoxElitismRate.setEnabled(true);
 				jTextFieldElitismRate.setEditable(true);
 				jTextFieldTerminationCriterion.setEditable(true);
 				jComboBoxSelection.setEnabled(true);
@@ -2311,7 +2373,7 @@ public class MainFrame extends JFrame {
 		}
 		Constraint constraintPenaltyFactor = new Constraint(
 				Constraint.PENALTY_FACTOR, 0, Double.parseDouble(
-						jTextFieldPenaltyFactor.getText()));
+						jTextFieldPenaltyFactor.getText()) / 100.0);
 		constraintsMap.put(constraintPenaltyFactor.getTitle(), 
 				constraintPenaltyFactor);
 		return constraintsMap;
@@ -2431,30 +2493,9 @@ public class MainFrame extends JFrame {
 					jCheckBoxMinAvailability.isSelected());
 			changeWeight(txtAvailabilityWeight);
 		}
+		getUtilityFunction();
+		buildGeneticAlgorithmFitnessFunction();
 	}
-	
-//	private void setPenaltyFactor() {
-//		try {
-//			Integer.parseInt(jTextFieldPenaltyFactor.getText());
-//		} catch (NumberFormatException e) {
-//			jTextFieldPenaltyFactor.setText("0");
-//			writeErrorLogEntry("Input has to be from the type Integer");
-//		}
-//		if (Integer.parseInt(jTextFieldPenaltyFactor.getText()) < 0 || 
-//				Integer.parseInt(jTextFieldPenaltyFactor.getText()) > 100) {
-//			jTextFieldPenaltyFactor.setText("0");
-//			// TODO: Dass der Penalty Factor weniger als 100% sein muss, ist 
-//			//		 evtl. nicht zwingend der Fall. Müsste man noch prüfen.
-//			// -> da geb ich Dir recht, die Grenzen
-//			//    sollten noch explizit abgeklärt werden.
-//			writeErrorLogEntry("Penalty Factor has to be between 0 and 100%");
-//			correctPenalty = false;
-//		}
-//		else {
-//			correctPenalty = true;
-//		}
-//		checkEnableStartButton();
-//	}
 	
 	private void writeErrorLogEntry(String entry) {
 		textAreaLog.append("\n" + dateFormatLog.format(new Date()) + entry);
@@ -2489,9 +2530,9 @@ public class MainFrame extends JFrame {
 		else {
 			slider.setValue(Integer.parseInt(textField.getText()));
 		}
+		getUtilityFunction();
 	}
 	
-	// TODO: Check Spinner inputs!
 	private void loadRandomWebServices() {
 		final JSpinner spinnerNumberOfServiceClasses = new JSpinner(
 				new SpinnerNumberModel(1, 1, 1000, 1));		
@@ -2869,7 +2910,8 @@ public class MainFrame extends JFrame {
 			noConstraintsChosen = false;
 		}
 		if (noConstraintsChosen) {
-			utilityText = "";
+			jLabelUtilityText.setText("");
+			return;
 		}
 		if (utilityText.endsWith("+ ")) {
 			utilityText = utilityText.substring(0, utilityText.length() - 3);
@@ -2991,7 +3033,6 @@ public class MainFrame extends JFrame {
 		jSliderMinAvailability.setMinimum(minAvailability);
 	}
 	
-	// TODO: First attempt to visualize the computed results
 	private void showResultVisualization() {
 		int[] serviceCandidatesPerClass = 
 			new int[serviceClassesList.size()];
@@ -3012,24 +3053,11 @@ public class MainFrame extends JFrame {
 						geneticAlgorithm.getAverageUtilityPerPopulation());
 	}
 	
-	private void isElitismInputVisible() {
-		if (jComboBoxSelection.getSelectedIndex() == 0) {
-			jLabelElitismColon.setVisible(true);
-			jTextFieldElitismRate.setVisible(true);
-			jLabelElitismRatePercentage.setVisible(true);
-		}
-		else {
-			jLabelElitismColon.setVisible(false);
-			jTextFieldElitismRate.setVisible(false);
-			jLabelElitismRatePercentage.setVisible(false);
-		}
-	}
-	
 	private void checkInputValue(JTextField textField, 
 			int maxInput, int minInput, int defaultInput) {
 		if (textField.equals(jTextFieldPopulationSize) && 
 				serviceClassesList != null) {
-			int populationSize = Integer.parseInt(textField.getText());
+//			int populationSize = Integer.parseInt(textField.getText());
 			long maxPopulationSize = 1;
 			for (ServiceClass serviceClass : serviceClassesList) {
 				maxPopulationSize *= 
@@ -3042,7 +3070,7 @@ public class MainFrame extends JFrame {
 				if (Long.parseLong(
 						textField.getText()) > maxPopulationSize) {
 					textField.setText(String.valueOf(maxPopulationSize));
-					jLabelPopulationPercentage.setText("( = 100 % )");
+//					jLabelPopulationPercentage.setText("( = 100 % )");
 					writeErrorLogEntry(
 							"Input has to be between " + minInput + 
 							" and " + maxPopulationSize);
@@ -3050,9 +3078,9 @@ public class MainFrame extends JFrame {
 				}
 				else if (Long.parseLong(textField.getText()) < minInput) {
 					textField.setText(String.valueOf(minInput));
-					jLabelPopulationPercentage.setText(
-							"( = " + DECIMAL_FORMAT_FOUR.format(
-									1.0 / maxPopulationSize) + " %)");
+//					jLabelPopulationPercentage.setText(
+//							"( = " + DECIMAL_FORMAT_FOUR.format(
+//									100.0 / maxPopulationSize) + " %)");
 					writeErrorLogEntry(
 							"Input has to be between " + minInput + 
 							" and " + maxPopulationSize);
@@ -3060,16 +3088,17 @@ public class MainFrame extends JFrame {
 				}
 				else {
 					if (maxInput < Long.MAX_VALUE) {
-						jLabelPopulationPercentage.setText(
-								"( = " + DECIMAL_FORMAT_FOUR.format((double)
-										populationSize / maxPopulationSize) + 
-								" % )");
-						jLabelPopulationPercentage.setVisible(true);
+//						jLabelPopulationPercentage.setText(
+//								"( = " + DECIMAL_FORMAT_FOUR.format((double)
+//										populationSize * 100.0 / 
+//										maxPopulationSize) + 
+//								" % )");
+//						jLabelPopulationPercentage.setVisible(true);
 					}
 				}
 			}
 			else { 
-				jLabelPopulationPercentage.setVisible(false);
+//				jLabelPopulationPercentage.setVisible(false);
 				writeErrorLogEntry(
 						"Max. Population is too big to be computed");
 			}
@@ -3088,4 +3117,65 @@ public class MainFrame extends JFrame {
 			textField.setText(String.valueOf(defaultInput));
 		}
 	}
+	
+	private void setElitismRateSelection() {
+		if (jCheckBoxElitismRate.isSelected()) {
+			jTextFieldElitismRate.setEditable(true);
+		}
+		else {
+			jTextFieldElitismRate.setEditable(false);
+		}
+	}
+	
+	// TODO: Implement method which saves the results as a csv-file
+	//		 -> file should contain all service classes, 
+	//			web services, number of compositions and finally
+	//			the chosen algorithms results
+	//		 -> it has to be ensured that at least one algorithm 
+	//			has been executed before the results can be saved
+	//		 -> show a dialog where the user can see the file path 
+	//			of the saved data and where a filename can be 
+	//			chosen
+//	private void saveResults() {
+//		
+//	}
+	
+	// TODO: Implement method which saves the current constraints 
+	//		 and algorithm settings
+	//		 -> show a dialog where the user can see the file path 
+	//			of the saved data and where a filename can be 
+	//			chosen
+//	private void saveConstraints() {
+//		
+//	}
+	
+	// TODO: Implement method which loads a saved set of constraints 
+	//		 and algorithm settings
+	//		 -> take care of dynamic constraint limits!
+	// 		 -> use a file chooser!
+//	private void loadConstraints() {
+//		
+//	}
+	
+	// TODO: Implement method which shows a message dialog
+	//		 -> dialog should contain basic information for using 
+	//			the program correctly
+//	private void showHelpDialog() {
+//		
+//	}
+	
+	// TODO: Implement method which shows an input dialog
+	//		 -> input message should be sent to an admin,
+	//			in our case lars
+	//		 -> check if web access is available
+	//		 -> local solution: create txt-file, with date etc.
+//	private void showSupportDialog() {
+//		
+//	}
+	
+	// TODO: Implement method which shows a message dialog with 
+	//		 basic information about the program, e.g. version
+//	private void showAboutDialog() {
+//		
+//	}
 }
