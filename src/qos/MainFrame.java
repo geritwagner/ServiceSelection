@@ -390,7 +390,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		jMenuFile.add(jMenuItemReset);
-		JMenuItem jMenuItemLoad = new JMenuItem("Load");
+		JMenuItem jMenuItemLoad = new JMenuItem("Load DataSet");
 
 		final JFileChooser fileChooser = new JFileChooser() {
 			private static final long serialVersionUID = 1L;
@@ -424,10 +424,26 @@ public class MainFrame extends JFrame {
 				loadWebServices(file);
 			}
 		});
-
 		jMenuFile.add(jMenuItemLoad);
-		JMenuItem jMenuItemSave = new JMenuItem("Save");
-		jMenuFile.add(jMenuItemSave);
+		
+		JMenuItem jMenuItemLoadRandomSet = new JMenuItem("Load Random Set");
+		jMenuFile.add(jMenuItemLoadRandomSet);
+		jMenuItemLoadRandomSet.addActionListener(
+				new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						loadRandomWebServices();
+					}
+				});
+		
+		JMenuItem jMenuItemSaveDataSet = new JMenuItem("Export DataSet");
+		jMenuItemSaveDataSet.addActionListener(
+				new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						exportDataSet();
+					}
+				});
+		jMenuFile.add(jMenuItemSaveDataSet);
+		
 		JMenuItem jMenuItemExit = new JMenuItem("Exit");
 		jMenuItemExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -459,16 +475,7 @@ public class MainFrame extends JFrame {
 		JMenuItem jMenuItemLoadConstraints = new JMenuItem("Load Settings");
 		jMenuEdit.add(jMenuItemLoadConstraints);
 		JMenuItem jMenuItemSaveConstraints = new JMenuItem("Save Settings");
-		jMenuEdit.add(jMenuItemSaveConstraints);
-		
-		JMenuItem jMenuItemLoadRandomSet = new JMenuItem("Load Random Set");
-		jMenuEdit.add(jMenuItemLoadRandomSet);
-		jMenuItemLoadRandomSet.addActionListener(
-				new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						loadRandomWebServices();
-					}
-				});
+		jMenuEdit.add(jMenuItemSaveConstraints);		
 
 		JMenu jMenuOther = new JMenu("?");
 		jMenuBar.add(jMenuOther);
@@ -2093,6 +2100,33 @@ public class MainFrame extends JFrame {
 					((String) jComboBoxTerminationCriterion.getSelectedItem()),
 					Integer.parseInt(jTextFieldTerminationDegree.getText()));
 		}
+		if (jCheckBoxAntColonyOptimization.isSelected()) {
+			int iterations;
+			int ants;
+			double alpha;
+			double beta;
+			double dilution;
+			double piInit;
+			try {
+				iterations = Integer.parseInt(txtAntIterations.getText());
+				ants = Integer.parseInt(txtAntAnts.getText());
+				alpha = Double.parseDouble(txtAntAlpha.getText());
+				beta = Double.parseDouble(txtAntBeta.getText());
+				dilution = Double.parseDouble(txtAntDilution.getText());
+				piInit = Double.parseDouble(txtAntPi.getText());
+			} catch (Exception e) {
+				iterations = 100;
+				ants = 10;
+				alpha = 1;
+				beta = 1;
+				dilution = 0.1;
+				piInit = 10;
+			}
+			antAlgorithm = new AntAlgorithm(
+					serviceClassesList, serviceCandidatesList, constraintsMap,
+					iterations, ants, alpha, beta,
+					dilution, piInit);
+		}	
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 			analyticAlgorithm = new AnalyticAlgorithm(
 					serviceClassesList, constraintsMap, 
@@ -2101,7 +2135,8 @@ public class MainFrame extends JFrame {
 
 		// Progress Bar Thread
 		if (jCheckboxGeneticAlgorithm.isSelected() || 
-				jCheckBoxAnalyticAlgorithm.isSelected()) {
+				jCheckBoxAnalyticAlgorithm.isSelected() || 
+				jCheckBoxAntColonyOptimization.isSelected()) {
 			new Thread() {
 				@Override
 				public void run() {
@@ -2109,6 +2144,11 @@ public class MainFrame extends JFrame {
 						if (jCheckboxGeneticAlgorithm.isSelected()) {
 							jProgressBarGeneticAlgorithm.setValue(
 									geneticAlgorithm.getWorkPercentage());
+						}
+						//TODO: ProgressBars of Ant and Genetic don't work correctly
+						if (jCheckBoxAntColonyOptimization.isSelected()) {
+							jProgressBarAntAlgorithm.setValue(
+									antAlgorithm.getWorkPercentage());
 						}
 						if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 							jProgressBarAnalyticAlgorithm.setValue(
@@ -2187,6 +2227,7 @@ public class MainFrame extends JFrame {
 		 *       the results are not affected by this, and everything
 		 *       works the way it should. But nevertheless, it's not 
 		 *       very nice
+		 *       -> Maybe it's about Type Conversion from TextFields or something like that
 		 */
 		// Calculation and Results Display Thread
 		new Thread() {
@@ -2198,16 +2239,18 @@ public class MainFrame extends JFrame {
 				if (jCheckboxGeneticAlgorithm.isSelected()) {
 					doGeneticAlgorithm();
 				}
-				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-					doEnumeration(constraintsMap);
-				}
-				algorithmInProgress = false;
 				if (jCheckBoxAntColonyOptimization.isSelected()) {
-					doAntAlgorithm(constraintsMap);
-					cumulatedRuntime += antAlgorithm.getRuntime();
+					doAntAlgorithm();					
 				}
+				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+					doEnumeration();
+				}						
+				algorithmInProgress = false;
 				if (jCheckboxGeneticAlgorithm.isSelected()) {
 					jProgressBarGeneticAlgorithm.setValue(100);
+				}
+				if (jCheckBoxAntColonyOptimization.isSelected()) {
+					jProgressBarAntAlgorithm.setValue(100);
 				}
 				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 					jProgressBarAnalyticAlgorithm.setValue(100);
@@ -2232,8 +2275,10 @@ public class MainFrame extends JFrame {
 				}
 				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 					if (jCheckboxGeneticAlgorithm.isSelected()) {
+						//TODO: die IndexOutOfBoundsException wird in der folgenden Zeile verursacht
+						// -> Ursache erforschen
 						double geneticDelta = analyticAlgorithm.
-								getAlgorithmSolutionTiers().
+								getAlgorithmSolutionTiers().								
 								get(0).getServiceCompositionList().
 								get(0).getUtility() - geneticAlgorithm.
 								getAlgorithmSolutionTiers().get(0).
@@ -2363,7 +2408,7 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	private void doEnumeration(Map<String, Constraint> constraintsMap) {
+	private void doEnumeration() {
 		analyticAlgorithm.start();
 		cumulatedRuntime += analyticAlgorithm.getRuntime();
 		if (analyticAlgorithm.getRuntime() > 120000) {
@@ -2920,36 +2965,21 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	private void doAntAlgorithm(Map<String, Constraint> constraintsMap) {		
-		int iterations;
-		int ants;
-		double alpha;
-		double beta;
-		double dilution;
-		double piInit;
-		try {
-			iterations = Integer.parseInt(txtAntIterations.getText());
-			ants = Integer.parseInt(txtAntAnts.getText());
-			alpha = Double.parseDouble(txtAntAlpha.getText());
-			beta = Double.parseDouble(txtAntBeta.getText());
-			dilution = Double.parseDouble(txtAntDilution.getText());
-			piInit = Double.parseDouble(txtAntPi.getText());
-		} catch (Exception e) {
-			iterations = 100;
-			ants = 10;
-			alpha = 1;
-			beta = 1;
-			dilution = 0.1;
-			piInit = 10;
-		}
-		antAlgorithm = new AntAlgorithm(
-				serviceClassesList, serviceCandidatesList, constraintsMap,
-				iterations, ants, alpha, beta,
-				dilution, piInit);
+	private void doAntAlgorithm() {			
 		antAlgorithm.start();        
-		long runtime = antAlgorithm.getRuntime();
 		cumulatedRuntime += antAlgorithm.getRuntime();
-		jTableGeneralResults.setValueAt(runtime + " ms", 2, 1);    
+		if (antAlgorithm.getRuntime() > 120000) {
+			jTableGeneralResults.setValueAt(
+					antAlgorithm.getRuntime() / 60000.0 + " min", 2, 1);
+		}
+		else if (antAlgorithm.getRuntime() > 1000) {
+			jTableGeneralResults.setValueAt(
+					antAlgorithm.getRuntime() / 1000.0 + " s", 2, 1);
+		}
+		else {
+			jTableGeneralResults.setValueAt(
+					antAlgorithm.getRuntime() + " ms", 2, 1);
+		}		    
 	} 
 	
 	private QosVector determineQosMax() {
@@ -3228,6 +3258,10 @@ public class MainFrame extends JFrame {
 		else {
 			jTextFieldElitismRate.setEditable(false);
 		}
+	}
+	
+	private void exportDataSet() {
+		
 	}
 	
 	// TODO: Implement method which saves the results as a csv-file

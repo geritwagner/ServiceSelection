@@ -25,6 +25,7 @@ public class AntAlgorithm extends Algorithm {
 	int counter = 0;
 
 	private long runtime = 0;
+	private int workPercentage;
 
 	public AntAlgorithm(List<ServiceClass> serviceClassesList,
 			List<ServiceCandidate> serviceCandidatesList,
@@ -47,14 +48,14 @@ public class AntAlgorithm extends Algorithm {
 
 	public void start() {	
 		runtime = System.currentTimeMillis();
+		workPercentage = 0;
 		initAlgo();
 
 		// RUN ITERATIONS
 		for (int i=1; i<=iterations; i++) {	
 			doIteration();
-
-			// PROGRESSBAR
-			//progressBar.setValue((int) Math.round((double) (i + 1) / iterations));
+			// PROGRESSBAR			
+			workPercentage = (int) (100 * (i / iterations));
 		}	
 		runtime = System.currentTimeMillis() - runtime;
 		if (optimalComposition != null) {
@@ -311,6 +312,10 @@ public class AntAlgorithm extends Algorithm {
 	public void setAlgorithmSolutionTiers(
 			List<AlgorithmSolutionTier> algorithmSolutionTiers) {
 		this.algorithmSolutionTiers = algorithmSolutionTiers;
+	}
+
+	public int getWorkPercentage() {
+		return workPercentage;
 	}	
 
 }
