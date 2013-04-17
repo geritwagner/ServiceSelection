@@ -24,13 +24,16 @@ public class GeneticAlgorithm extends Algorithm {
 	
 	private int[] startPopulationVisualization;
 	private List<Integer> numberOfDifferentSolutions;
-	private List<Double> maxUtilityPerPopulation;
-	private List<Double> averageUtilityPerPopulation;
+	private List<Double> maxFitnessPerPopulation;
+	private List<Double> averageFitnessPerPopulation;
 	
 	private int workPercentage = 0;
 	private double elitismRate;
 	
+	private double dynamicPenalty = 1.0;
 	private int terminationCounter;
+	
+	private int maxDeviation;
 	
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
@@ -41,7 +44,7 @@ public class GeneticAlgorithm extends Algorithm {
 			Map<String, Constraint> constraintsMap, 
 			int populationSize, int terminationCriterion, 
 			String selectionMethod, int elitismRate, String crossoverMethod, 
-			String terminationMethod) {
+			String terminationMethod, int maxDeviation) {
 		this.serviceClassesList = serviceClassesList;
 		this.constraintsMap = constraintsMap;
 		this.populationSize = populationSize;
@@ -50,18 +53,18 @@ public class GeneticAlgorithm extends Algorithm {
 		this.elitismRate = elitismRate;
 		this.crossoverMethod = crossoverMethod;
 		this.terminationMethod = terminationMethod;
+		this.maxDeviation = maxDeviation;
 	}
 
 	@Override
 	public void start() {
 		runtime = System.currentTimeMillis();
 		List<Composition> population = generateInitialPopulation();
-		
 		setStartPopulationVisualization(population);
 
 		numberOfDifferentSolutions = new LinkedList<Integer>();
-		maxUtilityPerPopulation = new LinkedList<Double>();
-		averageUtilityPerPopulation = new LinkedList<Double>();
+		maxFitnessPerPopulation = new LinkedList<Double>();
+		averageFitnessPerPopulation = new LinkedList<Double>();
 		setVisualizationValues(population);
 		workPercentage = 0;
 		terminationCounter = terminationCriterion;
@@ -101,16 +104,57 @@ public class GeneticAlgorithm extends Algorithm {
 			// MUTATION
 			doMutation(population2, numberOfCrossovers);
 			
+			boolean hasPopulationChanged = hasPopulationChanged(
+					population, population1, population2);
+			
 			// UPDATE
 			population.removeAll(population);
 			population.addAll(population1);
 			population.addAll(population2);
 			
 			setVisualizationValues(population);
-				
-			terminationCounter--;
-			workPercentage = (int)
-				((1 - 1.0 * terminationCounter / terminationCriterion) * 100);
+			
+			// TERMINATION CRITERION
+			if (terminationMethod.contains("Iteration")) {
+				dynamicPenalty = 1 - (terminationCriterion - 
+						terminationCounter) / terminationCriterion;
+				terminationCounter--;
+				workPercentage = (int) ((1 - 1.0 * terminationCounter / 
+						terminationCriterion) * 100);
+			}
+			// TODO: Test this method later (not complete!)
+			else if (terminationMethod.contains(
+					"Consecutive Equal Generations")) {
+				if (hasPopulationChanged) {
+					terminationCounter = terminationCriterion;
+				}
+				else {
+					terminationCounter--;
+				}
+				workPercentage = Math.max((int) (100 - 100 * 
+						numberOfDifferentSolutions.get(
+								numberOfDifferentSolutions.size() - 1) / 
+								numberOfDifferentSolutions.get(0)), 
+								workPercentage);
+			}
+			// TODO: Test this method later (not complete!)
+			// TODO: Only valid fitness values?
+			else {
+				if (maxFitnessPerPopulation.get(
+						maxFitnessPerPopulation.size() - 1) <= 
+						maxFitnessPerPopulation.get(
+								maxFitnessPerPopulation.size() - 2 - 
+								terminationCriterion + terminationCounter)) {
+					terminationCounter--;
+				}
+				else {
+					terminationCounter = terminationCriterion;
+				}
+				workPercentage = Math.min(Math.max((int) (100 * 
+						terminationCriterion / numberOfDifferentSolutions.get(
+								numberOfDifferentSolutions.size() - 1)), 
+								workPercentage), 100);
+			}
 		}
 		// Sort the population according to the utility of the 
 		// compositions. Thus, the first elements are the elite elements.
@@ -130,7 +174,7 @@ public class GeneticAlgorithm extends Algorithm {
 			
 			
 			/*
-			List<Composition> oldPopulation = population;
+			
 
 			// RECOMBINATION
 			if (crossoverMethod.contains("One-Point")) {
@@ -145,30 +189,6 @@ public class GeneticAlgorithm extends Algorithm {
 			else {
 				population = doUniformCrossover(population);
 			}
-			
-			// CHECK TERMINATION CRITERION
-			if (terminationMethod.contains("Iteration")) {
-				terminationCounter--;
-				if (terminationCounter < 1) {
-					break;
-				}
-			}
-			else if (terminationMethod.contains(
-					"consecutive equal generations")) {
-				if (hasPopulationChanged(oldPopulation, population)) {
-					terminationCounter = terminationCriterion;
-				}
-				else {
-					terminationCounter--;
-					if (terminationCounter < 1) {
-						break;
-					}
-				}
-			}
-			else {
-
-			}
-		}
 		*/
 		
 	}
@@ -634,33 +654,51 @@ public class GeneticAlgorithm extends Algorithm {
 		return newPopulation;
 	}
 	
-	private boolean hasPopulationChanged(
-			List<Composition> oldPopulation, List<Composition> newPopulation) {
-		for (int count = 0; count < oldPopulation.size(); count++) {
-			if (!oldPopulation.get(count).equals(newPopulation.get(count))) {
+	private boolean hasPopulationChanged(List<Composition> population, 
+			List<Composition> population1, List<Composition> population2) {
+		int deviation = 
+				(int) Math.abs(maxDeviation / 100.0 * population.size());
+		for (int i = 0; i < population1.size(); i++) {
+			if (deviation <= 0) {
 				return true;
+			}
+			else if (population.contains(population1.get(i))) {
+				population.remove(population1.get(i));
+			}
+			else {
+				deviation--;
+			}
+		}
+		for (int i = 0; i < population2.size(); i++) {
+			if (deviation <= 0) {
+				return true;
+			}
+			else if (population.contains(population2.get(i))) {
+				population.remove(population2.get(i));
+			}
+			else {
+				deviation--;
 			}
 		}
 		return false;
 	}
-	
-	private void setVisualizationValues(
-			List<Composition> population) {
+
+	private void setVisualizationValues(List<Composition> population) {
 		List<Composition> differentSolutions = new LinkedList<Composition>();
-		double maxUtility = 0.0;
-		double averageUtility = 0.0;
+		double maxFitness = 0.0;
+		double averageFitness = 0.0;
 		for (int count = 0; count < population.size(); count++) {
 			if (!differentSolutions.contains(population.get(count))) {
 				differentSolutions.add(population.get(count));
 			}
-			if (computeFitness(population.get(count)) > maxUtility) {
-				maxUtility = computeFitness(population.get(count));
+			if (computeFitness(population.get(count)) > maxFitness) {
+				maxFitness = computeFitness(population.get(count));
 			}
-			averageUtility += computeFitness(population.get(count));
+			averageFitness += computeFitness(population.get(count));
 		}
 		numberOfDifferentSolutions.add(differentSolutions.size());
-		maxUtilityPerPopulation.add(maxUtility);
-		averageUtilityPerPopulation.add(averageUtility / population.size());
+		maxFitnessPerPopulation.add(maxFitness);
+		averageFitnessPerPopulation.add(averageFitness / population.size());
 	}
 	
 	// Compute the distance of a composition's aggregated QoS attributes to 
@@ -670,17 +708,22 @@ public class GeneticAlgorithm extends Algorithm {
 		if (constraintsMap.get(Constraint.COSTS) != null &&  
 				composition.getQosVectorAggregated().getCosts() > 
 				constraintsMap.get(Constraint.COSTS).getValue()) {
-			distance += 1.0;
+			distance += composition.getQosVectorAggregated().getCosts() - 
+					constraintsMap.get(Constraint.COSTS).getValue();
 		}
 		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null &&  
 				composition.getQosVectorAggregated().getResponseTime() > 
 				constraintsMap.get(Constraint.RESPONSE_TIME).getValue()) {
-			distance += 1.0;
+			distance += composition.getQosVectorAggregated().
+					getResponseTime() - constraintsMap.get(
+							Constraint.RESPONSE_TIME).getValue();
 		}
 		if (constraintsMap.get(Constraint.AVAILABILITY) != null &&  
 				composition.getQosVectorAggregated().getAvailability() < 
 				constraintsMap.get(Constraint.AVAILABILITY).getValue()) {
-			distance += 1.0;
+			distance += composition.getQosVectorAggregated().
+					getAvailability() - constraintsMap.get(
+							Constraint.AVAILABILITY).getValue();
 		}
 		return distance;
 	}
@@ -693,7 +736,7 @@ public class GeneticAlgorithm extends Algorithm {
 		if (!composition.isWithinConstraints(constraintsMap)) {
 			fitness -= constraintsMap.get(
 					Constraint.PENALTY_FACTOR).getWeight() * 
-					computeDistanceToConstraints(composition);	
+					computeDistanceToConstraints(composition) * dynamicPenalty;	
 		}
 		if (fitness < 0.0) {
 			return 0.0;
@@ -794,10 +837,10 @@ public class GeneticAlgorithm extends Algorithm {
 		return numberOfDifferentSolutions;
 	}
 	public List<Double> getMaxUtilityPerPopulation() {
-		return maxUtilityPerPopulation;
+		return maxFitnessPerPopulation;
 	}
 	public List<Double> getAverageUtilityPerPopulation() {
-		return averageUtilityPerPopulation;
+		return averageFitnessPerPopulation;
 	}
 	public int getWorkPercentage() {
 		return workPercentage;
