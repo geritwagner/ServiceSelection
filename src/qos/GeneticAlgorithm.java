@@ -230,7 +230,9 @@ public class GeneticAlgorithm extends Algorithm {
 		List<Composition> population1 = new LinkedList<Composition>();
 		// Sort the population according to the utility of the 
 		// compositions. Thus, the first elements are the elite elements.
-		Collections.sort(population, new Composition());
+//		Collections.sort(population, new Composition());
+		// TODO: now there are used fitness values!
+		sortPopulation(population);
 		for (int i = 0; i < numberOfElites; i++) {
 			population1.add(population.get(i));
 		}
@@ -803,6 +805,26 @@ public class GeneticAlgorithm extends Algorithm {
 			}
 		}
 	}
+	
+	// Method uses bubble sort
+	private void sortPopulation(List<Composition> population) {
+		int n = population.size();
+		do {
+			int newN = 1;
+			for (int i = 0; i < n - 1; ++i) {
+				if (computeFitness(population.get(i)) < computeFitness(
+						population.get(i + 1))) {
+					Composition tempComposition = population.get(i);
+					population.set(i, population.get(i + 1));
+					population.set(i + 1, tempComposition);
+					newN = i + 1;
+				}
+			}
+			n = newN;
+		} while (n > 1);
+	}
+
+		  
 	
 	// GETTERS AND SETTERS
 	public List<ServiceClass> getServiceClassesList() {

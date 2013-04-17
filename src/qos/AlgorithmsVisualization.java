@@ -8,31 +8,24 @@ import java.awt.GridBagConstraints;
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
 
-// TODO: This class is not very well-structured; but unless
-//		 it is the first attempt to show what is possible 
-//		 regarding to visualization, that's okay :)
 public class AlgorithmsVisualization extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	
 	private int[] chosenPopulation;
-	private int[] maxPopulation;
 	private List<Integer> numberOfDifferentSolutions;
 	private List<Double> maxUtilityPerPopulation;
 	private List<Double> averageUtilityPerPopulation;
-	private int startPopulationSize;
 
-	public AlgorithmsVisualization(int[] maxPopulation,
-			int[] chosenPopulation, List<Integer> numberOfDifferentSolutions, 
-			int startPopulationSize, List<Double> maxUtilityPerPopulation,
+	public AlgorithmsVisualization(int[] chosenPopulation, 
+			List<Integer> numberOfDifferentSolutions, 
+			List<Double> maxUtilityPerPopulation,
 			List<Double> averageUtilityPerPopulation) {
 		super("Result Visualization");
 		this.chosenPopulation = chosenPopulation;
-		this.maxPopulation = maxPopulation;
 		this.numberOfDifferentSolutions = numberOfDifferentSolutions;
 		this.maxUtilityPerPopulation = maxUtilityPerPopulation;
 		this.averageUtilityPerPopulation = averageUtilityPerPopulation;
-		this.startPopulationSize = startPopulationSize;
 		initializeFrame();
 	}
 	
@@ -57,17 +50,12 @@ public class AlgorithmsVisualization extends JFrame {
 		getContentPane().add(tabbedPane, gbcTabbedPane);
 
 		tabbedPane.addTab("Genetic Algorithm", null, 
-				new GeneticAlgorithmVisualizationPanel(maxPopulation, 
-						chosenPopulation, numberOfDifferentSolutions, 
-						startPopulationSize, maxUtilityPerPopulation, 
+				new GeneticAlgorithmVisualizationPanel(chosenPopulation, 
+						numberOfDifferentSolutions, maxUtilityPerPopulation, 
 						averageUtilityPerPopulation), null);
 		
 		JPanel jPanelAntAlgorithm = new JPanel();
 		tabbedPane.addTab("Ant Algorithm", null, jPanelAntAlgorithm, null);
-		
-//		JPanel jPanelAnalyticAlgorithm = new JPanel();
-//		tabbedPane.addTab("Analytic Algorithm", null, 
-//				jPanelAnalyticAlgorithm, null);
 	}
 	
 	public void closeWindow() {
