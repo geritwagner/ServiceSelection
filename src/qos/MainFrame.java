@@ -111,6 +111,7 @@ public class MainFrame extends JFrame {
 
 	private JButton jButtonStart;
 	private JButton jButtonVisualize;
+	private JButton jButtonSaveResults;
 
 	private JLabel lblWeightSum;
 	private JSeparator jSeparatorFormula;
@@ -153,6 +154,7 @@ public class MainFrame extends JFrame {
 		new LinkedList<ServiceClass>();
 	private List<ServiceCandidate> serviceCandidatesList = 
 		new LinkedList<ServiceCandidate>();
+	private List<String> saveResultList = new LinkedList<String>();
 	private QosVector qosMax;
 	private QosVector qosMin;
 	private JTextField txtCostsWeight;
@@ -359,11 +361,25 @@ public class MainFrame extends JFrame {
 		JLabel jLabelResults = new JLabel("Results");
 		jLabelResults.setFont(generalFont);
 		GridBagConstraints gbcJLabelResults = new GridBagConstraints();
-		gbcJLabelResults.gridwidth = 2;
+		gbcJLabelResults.gridwidth = 1;
 		gbcJLabelResults.insets = new Insets(0, 0, 5, 5);
 		gbcJLabelResults.gridx = 0;
 		gbcJLabelResults.gridy = 5;
 		contentPane.add(jLabelResults, gbcJLabelResults);
+		
+		jButtonSaveResults = new JButton("Save Results");
+		jButtonSaveResults.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveResults();
+			}
+		});
+		jButtonSaveResults.setEnabled(false);
+		GridBagConstraints gbcJButtonSaveResults = new GridBagConstraints();
+		gbcJButtonSaveResults.insets = new Insets(0, 0, 5, 0);
+		gbcJButtonSaveResults.gridx = 1;
+		gbcJButtonSaveResults.gridy = 5;
+		contentPane.add(jButtonSaveResults, gbcJButtonSaveResults);
 
 		jButtonVisualize = new JButton("Visualize");
 		jButtonVisualize.addActionListener(new ActionListener() {
@@ -2076,6 +2092,7 @@ public class MainFrame extends JFrame {
 			return;
 		}
 		// COUNTER FOR EVERY CHOSEN ALGORITHM
+		saveResultList = new LinkedList<String>();
 		for (Map.Entry<String, Algorithm> entry : algorithmsMap.entrySet()) {
 			showAlgorithmResults(entry.getValue(), entry.getKey());
 		}		
@@ -2325,8 +2342,9 @@ public class MainFrame extends JFrame {
 				}
 				buildResultTable();
 				jButtonVisualize.setEnabled(true);
+				jButtonSaveResults.setEnabled(true);
 				jButtonStart.setEnabled(true);
-				setEnabled(true);
+				setEnabled(true);				
 			}
 		}.start();
 	}
@@ -2857,6 +2875,20 @@ public class MainFrame extends JFrame {
 				jTableTier.setValueAt("<html><b>" + DECIMAL_FORMAT_FOUR.format(
 						tierServiceCompositionList.get(rowCount).
 						getUtility()) + "</b></html>", rowCount, 3);
+				// Build String for Result-Export
+				String resultLine = "";
+				resultLine += algorithmTitle;
+				resultLine += ";"+algorithm.getRuntime();
+				resultLine += ";"+tierServiceCompositionList.get(rowCount).
+						getUtility();
+				resultLine += ";"+tierServiceCompositionList.get(rowCount).
+						getQosVectorAggregated().getCosts();
+				resultLine += ";"+tierServiceCompositionList.get(rowCount).
+						getQosVectorAggregated().getResponseTime();
+				resultLine += ";"+tierServiceCompositionList.get(rowCount).
+						getQosVectorAggregated().getAvailability();				
+				saveResultList.add(resultLine);
+				
 				if (tierServiceCompositionList.get(rowCount).
 						getQosVectorAggregated().getCosts() > 
 						getChosenConstraints().get(Constraint.COSTS).
@@ -3289,8 +3321,7 @@ public class MainFrame extends JFrame {
 		} catch (IOException e1) {			
 			e1.printStackTrace();
 		}
-	}
-	
+	}	
 	
 	
 	// TODO: Implement method which saves the results as a csv-file
@@ -3302,9 +3333,49 @@ public class MainFrame extends JFrame {
 	//		 -> show a dialog where the user can see the file path 
 	//			of the saved data and where a filename can be 
 	//			chosen
-//	private void saveResults() {
-//		
-//	}
+	private void saveResults() {
+		final JFileChooser fileChooser = new JFileChooser() {
+			private static final long serialVersionUID = 1L;
+			{
+				setFileFilter(new FileFilter() {
+					@Override
+					public boolean accept(File f) {
+						return f.getName().toLowerCase().endsWith("csv") || 
+						f.isDirectory();
+					}
+					@Override
+					public String getDescription() {
+						return "CSV Datei (Comma Seperated Values)";
+					}
+				});
+				setSelectedFile( new File("Result.csv") );	
+			}
+		};
+		
+		if (!(fileChooser.showSaveDialog(MainFrame.this) == 
+				JFileChooser.APPROVE_OPTION)) {
+			return;
+		}
+		final File file = fileChooser.getSelectedFile();
+		if (file == null) {
+			return;
+		}
+		
+		BufferedWriter bufferedWriter = null;
+		try {
+			bufferedWriter = new BufferedWriter(new FileWriter(file));
+			String header = "Algorithm;Runtime;Utility;Costs;Response Time;Availability";
+			bufferedWriter.write(header);			
+			for (String line : saveResultList) {				
+				bufferedWriter.newLine();
+				bufferedWriter.write(line);
+			}
+			bufferedWriter.close();
+		} catch (IOException e1) {			
+			e1.printStackTrace();
+		}
+		
+	}
 	
 	// TODO: Implement method which saves the current constraints 
 	//		 and algorithm settings
