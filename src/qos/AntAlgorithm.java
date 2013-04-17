@@ -66,8 +66,7 @@ public class AntAlgorithm extends Algorithm {
 			optimalComposition.setServiceCandidateList(sCList);
 		}
 		else {
-			// TODO: new Composition() reicht jetzt.
-			optimalComposition = new Composition(new LinkedList<ServiceCandidate>(), new QosVector(), 0.0);
+			optimalComposition = new Composition();
 			optimalComposition.addServiceCandidate(new ServiceCandidate(0, 0, "keine Lösung", new QosVector()));	
 		}	
 		buildSolutionTiers();
@@ -108,10 +107,8 @@ public class AntAlgorithm extends Algorithm {
 		List<Composition> antCompositions = new LinkedList<Composition>();
 		for (int k=0; k<ants; k++) {
 			int currentClass = 0;
-			int currentService = 0;	
-			// TODO: new Composition() reicht jetzt.
-			antCompositions.add(new Composition(
-					new LinkedList<ServiceCandidate>(), new QosVector(), 0.0));
+			int currentService = 0;				
+			antCompositions.add(new Composition());
 			antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
 			while (currentClass != (serviceClassesList.size()-1)) {
 				// CALCULATE PROBABILITY FOR ALL POSSIBLE SERVICES

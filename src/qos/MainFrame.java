@@ -12,9 +12,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -407,6 +410,7 @@ public class MainFrame extends JFrame {
 						return "CSV Datei (Comma Seperated Values)";
 					}
 				});
+				setSelectedFile( new File("DataSet.csv") );	
 			}
 		};
 
@@ -436,12 +440,20 @@ public class MainFrame extends JFrame {
 				});
 		
 		JMenuItem jMenuItemSaveDataSet = new JMenuItem("Export DataSet");
-		jMenuItemSaveDataSet.addActionListener(
-				new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						exportDataSet();
-					}
-				});
+		jMenuItemSaveDataSet.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (!(fileChooser.showSaveDialog(MainFrame.this) == 
+					JFileChooser.APPROVE_OPTION)) {
+					return;
+				}								
+				final File file = fileChooser.getSelectedFile();				
+				if (file == null) {
+					return;
+				}
+				exportDataSet(file);
+			}
+		});
 		jMenuFile.add(jMenuItemSaveDataSet);
 		
 		JMenuItem jMenuItemExit = new JMenuItem("Exit");
@@ -3259,9 +3271,27 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	private void exportDataSet() {
-		
+	private void exportDataSet(File file) {		
+		BufferedWriter bufferedWriter = null;
+		try {
+			bufferedWriter = new BufferedWriter(new FileWriter(file));
+			String header = "serviceClassId;serviceClassName;ID;Name;Costs;Response Time;Availability";
+			bufferedWriter.write(header);			
+			for (ServiceCandidate sc : serviceCandidatesList) {
+				String line = sc.getServiceClassId()+";ServiceClass"+sc.getServiceClassId()+";"
+						+sc.getServiceCandidateId()+";"+sc.getName()+";"
+						+sc.getQosVector().getCosts()+";"+sc.getQosVector().getResponseTime()+";"
+						+sc.getQosVector().getAvailability();
+				bufferedWriter.newLine();
+				bufferedWriter.write(line);
+			}
+			bufferedWriter.close();
+		} catch (IOException e1) {			
+			e1.printStackTrace();
+		}
 	}
+	
+	
 	
 	// TODO: Implement method which saves the results as a csv-file
 	//		 -> file should contain all service classes, 
