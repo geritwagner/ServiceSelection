@@ -2373,7 +2373,22 @@ public class MainFrame extends JFrame {
 			}
 		}
 		else if (algorithm.equals("antAlg")) {
-
+			if (!jCheckBoxAntColonyOptimization.isSelected()) {
+				txtAntIterations.setEditable(false);
+				txtAntAnts.setEditable(false);
+				txtAntAlpha.setEditable(false);
+				txtAntBeta.setEditable(false);
+				txtAntDilution.setEditable(false);
+				txtAntPi.setEditable(false);
+			}
+			else {
+				txtAntIterations.setEditable(true);
+				txtAntAnts.setEditable(true);
+				txtAntAlpha.setEditable(true);
+				txtAntBeta.setEditable(true);
+				txtAntDilution.setEditable(true);
+				txtAntPi.setEditable(true);;
+			}
 		}
 		else {
 			if (!jCheckBoxAnalyticAlgorithm.isSelected()) {
