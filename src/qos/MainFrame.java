@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -361,7 +360,7 @@ public class MainFrame extends JFrame {
 		JLabel jLabelResults = new JLabel("Results");
 		jLabelResults.setFont(generalFont);
 		GridBagConstraints gbcJLabelResults = new GridBagConstraints();
-		gbcJLabelResults.gridwidth = 1;
+		gbcJLabelResults.gridwidth = 2;
 		gbcJLabelResults.insets = new Insets(0, 0, 5, 5);
 		gbcJLabelResults.gridx = 0;
 		gbcJLabelResults.gridy = 5;
@@ -377,11 +376,12 @@ public class MainFrame extends JFrame {
 		jButtonSaveResults.setEnabled(false);
 		GridBagConstraints gbcJButtonSaveResults = new GridBagConstraints();
 		gbcJButtonSaveResults.insets = new Insets(0, 0, 5, 0);
-		gbcJButtonSaveResults.gridx = 1;
+		gbcJButtonSaveResults.anchor = GridBagConstraints.WEST;
+		gbcJButtonSaveResults.gridx = 2;
 		gbcJButtonSaveResults.gridy = 5;
 		contentPane.add(jButtonSaveResults, gbcJButtonSaveResults);
 
-		jButtonVisualize = new JButton("Visualize");
+		jButtonVisualize = new JButton("Visualize Results");
 		jButtonVisualize.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -390,7 +390,8 @@ public class MainFrame extends JFrame {
 		});
 		jButtonVisualize.setEnabled(false);
 		GridBagConstraints gbcJButtonVisualize = new GridBagConstraints();
-		gbcJButtonVisualize.insets = new Insets(0, 0, 5, 0);
+		gbcJButtonVisualize.insets = new Insets(0, 0, 5, 6);
+		gbcJButtonVisualize.anchor = GridBagConstraints.EAST;
 		gbcJButtonVisualize.gridx = 2;
 		gbcJButtonVisualize.gridy = 5;
 		contentPane.add(jButtonVisualize, gbcJButtonVisualize);
@@ -3379,7 +3380,8 @@ public class MainFrame extends JFrame {
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(file));
-			String header = "Algorithm;Runtime;Utility;Costs;Response Time;Availability";
+			String header = "Algorithm;Runtime;Utility;Costs;" +
+					"Response Time;Availability";
 			bufferedWriter.write(header);			
 			for (String line : saveResultList) {				
 				bufferedWriter.newLine();
