@@ -100,7 +100,7 @@ public class AntAlgorithm extends Algorithm {
 			}
 		}
 
-		normalizeQos();
+		setUtilityArray();
 	}
 
 	private void doIteration() {
@@ -187,7 +187,7 @@ public class AntAlgorithm extends Algorithm {
 		}	
 	}
 
-	private void normalizeQos() {
+	private void setUtilityArray() {
 		// CONSIDER START AND END NODE
 		nj = new double[serviceCandidatesList.size()];
 		// SET UTILITY OF START AND END NODE TO ONE

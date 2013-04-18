@@ -132,6 +132,13 @@ public class MainFrame extends JFrame {
 	private static final int DEFAULT_DEGREE_OF_EQUALITY = 75;
 	private static final int DEFAULT_START_POPULATION_SIZE = 100;
 	private static final int MAX_START_POPULATION_SIZE = 10000;
+	
+	private static final int DEFAULT_ITERATIONS = 100;
+	private static final int DEFAULT_ANTS = 10;
+	private static final double DEFAULT_ALPHA = 1;
+	private static final double DEFAULT_BETA = 1;
+	private static final double DEFAULT_DILUTION = 0.01;
+	private static final double DEFAULT_PIINIT = 1;
 
 	private int maxCosts = 10000;
 	private int maxResponseTime = 10000;
@@ -1631,7 +1638,7 @@ public class MainFrame extends JFrame {
 		panelAntAlgorithmSettings.add(
 				jLabelAntIterations, gbcJLabelAntIterations);
 		
-		txtAntIterations = new JTextField("100");
+		txtAntIterations = new JTextField(""+DEFAULT_ITERATIONS);
 		txtAntIterations.setColumns(5);
 		txtAntIterations.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntIterations = new GridBagConstraints();
@@ -1651,7 +1658,7 @@ public class MainFrame extends JFrame {
 		panelAntAlgorithmSettings.add(
 				jLabelAntAnts, gbcJLabelAntAnts);
 		
-		txtAntAnts = new JTextField("10");
+		txtAntAnts = new JTextField(""+DEFAULT_ANTS);
 		txtAntAnts.setColumns(5);
 		txtAntAnts.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntAnts = new GridBagConstraints();
@@ -1671,7 +1678,7 @@ public class MainFrame extends JFrame {
 		panelAntAlgorithmSettings.add(
 				jLabelAntAlpha, gbcJLabelAntAlpha);
 		
-		txtAntAlpha = new JTextField("1.0");
+		txtAntAlpha = new JTextField(""+DEFAULT_ALPHA);
 		txtAntAlpha.setColumns(5);
 		txtAntAlpha.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntAlpha = new GridBagConstraints();
@@ -1691,7 +1698,7 @@ public class MainFrame extends JFrame {
 		panelAntAlgorithmSettings.add(
 				jLabelAntBeta, gbcJLabelAntBeta);
 		
-		txtAntBeta = new JTextField("1.0");
+		txtAntBeta = new JTextField(""+DEFAULT_BETA);
 		txtAntBeta.setColumns(5);
 		txtAntBeta.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntBeta = new GridBagConstraints();
@@ -1711,7 +1718,7 @@ public class MainFrame extends JFrame {
 		panelAntAlgorithmSettings.add(
 				jLabelAntDilution, gbcJLabelAntDilution);
 		
-		txtAntDilution = new JTextField("0.1");
+		txtAntDilution = new JTextField(""+DEFAULT_DILUTION);
 		txtAntDilution.setColumns(5);
 		txtAntDilution.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntDilution = new GridBagConstraints();
@@ -1731,7 +1738,7 @@ public class MainFrame extends JFrame {
 		panelAntAlgorithmSettings.add(
 				jLabelAntPi, gbcJLabelAntPi);
 		
-		txtAntPi = new JTextField("10.0");
+		txtAntPi = new JTextField(""+DEFAULT_PIINIT);
 		txtAntPi.setColumns(5);
 		txtAntPi.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntPi = new GridBagConstraints();
@@ -2161,12 +2168,12 @@ public class MainFrame extends JFrame {
 				dilution = Double.parseDouble(txtAntDilution.getText());
 				piInit = Double.parseDouble(txtAntPi.getText());
 			} catch (Exception e) {
-				iterations = 100;
-				ants = 10;
-				alpha = 1;
-				beta = 1;
-				dilution = 0.1;
-				piInit = 10;
+				iterations = DEFAULT_ITERATIONS;
+				ants = DEFAULT_ANTS;
+				alpha = DEFAULT_ALPHA;
+				beta = DEFAULT_BETA;
+				dilution = DEFAULT_DILUTION;
+				piInit = DEFAULT_PIINIT;
 			}
 			antAlgorithm = new AntAlgorithm(
 					serviceClassesList, serviceCandidatesList, constraintsMap,
