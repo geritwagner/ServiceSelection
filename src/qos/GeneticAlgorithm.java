@@ -134,7 +134,7 @@ public class GeneticAlgorithm extends Algorithm {
 				else {
 					terminationCounter--;
 				}
-				workPercentage = Math.max((int) (100 - 100 * 
+				workPercentage = Math.max((int) (100.0 - 100.0 * 
 						numberOfDifferentSolutions.get(
 								numberOfDifferentSolutions.size() - 1) / 
 								numberOfDifferentSolutions.get(0)), 
@@ -152,7 +152,7 @@ public class GeneticAlgorithm extends Algorithm {
 				else {
 					terminationCounter = terminationCriterion;
 				}
-				workPercentage = Math.min(Math.max((int) (100 * 
+				workPercentage = Math.min(Math.max((int) (100.0 * 
 						terminationCriterion / numberOfDifferentSolutions.get(
 								numberOfDifferentSolutions.size() - 1)), 
 								workPercentage), 100);
@@ -308,9 +308,11 @@ public class GeneticAlgorithm extends Algorithm {
 	private List<Composition> doSelectionElitismBased(
 			List<Composition> population, int numberOfElites) {
 		List<Composition> population1 = new LinkedList<Composition>();
-		// Sort the population according to the utility of the 
+		// Sort the population according to the fitness of the 
 		// compositions. Thus, the first elements are the elite elements.
-		// TODO: now there are used fitness values!
+		// TODO: Es sollte kein neuer Comparator geschrieben werden. Außerdem 
+		//		 sollte computeFitness() eine Methode der Klasse Composition
+		//		 sein.
 		Collections.sort(population, new Comparator<Composition>() {
 			@Override
 			public int compare(Composition o1, Composition o2) {
@@ -797,6 +799,8 @@ public class GeneticAlgorithm extends Algorithm {
 	
 	// Compute the distance of a composition's aggregated QoS attributes to 
 	// the given constraints.
+	// TODO: computeFitness() sollte eine Methode der Klasse Composition sein. 
+	//		 Dann muss eben constraintsMap als Parameter übergeben werden.
 	private double computeDistanceToConstraints(Composition composition) {
 		double distance = 0.0;
 		if (constraintsMap.get(Constraint.COSTS) != null &&  
@@ -823,6 +827,10 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	
 	// Compute the fitness of a composition.
+	// TODO: computeFitness() sollte eine Methode der Klasse Composition
+	//		 sein. Dann müssen eben constraintsMap und dynamicPenalty als 
+	//		 Parameter übergeben werden. Außerdem sollte auch computeDist...()
+	//		 eher eine Methode der Klasse Composition sein.
 	private double computeFitness(Composition composition) {
 		double fitness = composition.getUtility();
 		// Penalty factor has to be considered only if the composition 

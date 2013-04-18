@@ -42,7 +42,7 @@ public class AnalyticAlgorithm extends Algorithm {
 		for (int i = 0; i < serviceClassesList.get(0).
 				getServiceCandidateList().size(); i++) {
 			doCompleteEnumeration(new Composition(), 0, i);
-			workPercentage = (int) (100 * i / serviceClassesList.size());
+			workPercentage = (int) (100.0 * i / serviceClassesList.size());
 		}	
 		for (int count = 0; 
 				count < algorithmSolutionTiers.size(); count++) {

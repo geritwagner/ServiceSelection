@@ -1196,8 +1196,6 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: Dass der Penalty Factor weniger als 100% sein muss, ist 
 				//		 evtl. nicht zwingend der Fall. Müsste man noch prüfen.
-				// -> da geb ich Dir recht, die Grenzen sollten
-				//    noch explizit abgeklärt werden.
 				checkInputValue(jTextFieldPenaltyFactor, 100, 0, 
 						DEFAULT_PENALTY_FACTOR);
 			}

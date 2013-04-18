@@ -10,7 +10,8 @@ public class RandomSetGenerator {
 	private static final double CORRELATION_COST_AVAILABILITY = 0.8;
 	private static final double CORRELATION_TIME_AVAILABILITY = 0.2;
 	
-	//  TODO: Set realistic extreme values for qos attributes
+	// TODO: Set realistic extreme values for qos attributes. Especially
+	//		 MIN_AVAILABILITY has to be discussed.
 	private static final double MIN_COST = 0.0;
 	private static final double MAX_COST = 100.0;
 	private static final double MIN_TIME = 0.0;
@@ -28,7 +29,7 @@ public class RandomSetGenerator {
 			// GENERATE SERVICE CANDIDATES
 			for (int j = 0; j < numCandidates; j++) {				
 				int serviceID = (j + 1) + (numCandidates * i);
-				// TODO: CONSIDER CORRELATIONS AND REALISTIC VALUES
+				// TODO: Consider correlations and realistic values.
 				double cost = myRandom(MIN_COST, MAX_COST);
 				double time;
 				double availability;
@@ -45,9 +46,8 @@ public class RandomSetGenerator {
 							MIN_AVAILABILITY, MAX_AVAILABILITY, 
 							MIN_AVAILABILITY);
 				}
-				// TODO: Is there any correlation 
-				//		 between time and availability?
-				//		 If not, delete this else if!
+				// TODO: Is there any correlation between time and 
+				//		 availability? If not, delete this else if!
 				else if (Math.random() < CORRELATION_TIME_AVAILABILITY) {
 					availability = randomWithCorrelation(time / 100 * 
 							(MAX_AVAILABILITY - MIN_AVAILABILITY) + 
