@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -49,7 +48,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingWorker;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -68,6 +66,7 @@ public class MainFrame extends JFrame {
 	private JCheckBox jCheckBoxMaxCosts;
 	private JCheckBox jCheckBoxMaxResponseTime;
 	private JCheckBox jCheckBoxMinAvailability;
+	private JCheckBox jCheckBoxBenchmarkMode;
 	
 	private JTextField jTextFieldMaxCosts;
 	private JTextField jTextFieldMaxResponseTime;
@@ -123,6 +122,7 @@ public class MainFrame extends JFrame {
 	
 	private boolean webServicesLoaded = false;
 	private boolean correctWeights = true;
+	private boolean benchmarkMode = false;
 
 	private static MainFrame frame;
 	
@@ -838,6 +838,17 @@ public class MainFrame extends JFrame {
 		gbc_separatorWeights.gridy = 5;
 		jPanelQosConstraints.add(separatorWeights, gbc_separatorWeights);
 		
+		jCheckBoxBenchmarkMode = new JCheckBox("Benchmark Mode");
+		jCheckBoxBenchmarkMode.setSelected(false);
+		GridBagConstraints gbcJCheckBoxBenchmarkMode = 
+			new GridBagConstraints();
+		gbcJCheckBoxBenchmarkMode.insets = new Insets(0, 0, 5, 5);
+		gbcJCheckBoxBenchmarkMode.gridx = 0;
+		gbcJCheckBoxBenchmarkMode.gridy = 6;
+		gbcJCheckBoxBenchmarkMode.anchor = GridBagConstraints.WEST;
+		jPanelQosConstraints.add(
+				jCheckBoxBenchmarkMode, gbcJCheckBoxBenchmarkMode);
+		
 		JPanel jPanelWeightSum = new JPanel();
 		GridBagLayout gblJPanelWeightSum = new GridBagLayout();
 		gblJPanelWeightSum.columnWeights = new double[] {1.0, 1.0};
@@ -1441,7 +1452,6 @@ public class MainFrame extends JFrame {
 		jComboBoxTerminationCriterion = new JComboBox<String>();
 		jComboBoxTerminationCriterion.addItem("Number of Iterations");
 		jComboBoxTerminationCriterion.addItem("Consecutive Equal Generations");
-		// TODO: Only valid fitness values?
 		jComboBoxTerminationCriterion.addItem("Fitness Value Convergence");
 		jComboBoxTerminationCriterion.addActionListener(new ActionListener() {
 			@Override
@@ -2102,6 +2112,12 @@ public class MainFrame extends JFrame {
 	private void pressStartButton() {
 		final Map<String, Constraint> constraintsMap = getChosenConstraints();
 		printChosenConstraintsToConsole(constraintsMap);
+		if (jCheckBoxBenchmarkMode.isSelected()) {
+			benchmarkMode = true;
+		}
+		else {
+			benchmarkMode = false;
+		}
 		cumulatedRuntime = 0;
 		algorithmInProgress = true;
 		
@@ -2164,9 +2180,10 @@ public class MainFrame extends JFrame {
 		}	
 
 		// Progress Bar Thread
-		if (jCheckboxGeneticAlgorithm.isSelected() || 
+		if (!benchmarkMode && 
+				(jCheckboxGeneticAlgorithm.isSelected() || 
 				jCheckBoxAnalyticAlgorithm.isSelected() || 
-				jCheckBoxAntColonyOptimization.isSelected()) {
+				jCheckBoxAntColonyOptimization.isSelected())) {
 			new Thread() {
 				@Override
 				public void run() {
@@ -2176,6 +2193,8 @@ public class MainFrame extends JFrame {
 									geneticAlgorithm.getWorkPercentage());
 						}
 						//TODO: ProgressBars of Ant and Genetic don't work correctly
+						// 		-> progressBar for genetic works well
+						//		   (take care of the sleep below!)
 						if (jCheckBoxAntColonyOptimization.isSelected()) {
 							jProgressBarAntAlgorithm.setValue(
 									antAlgorithm.getWorkPercentage());
@@ -2185,80 +2204,14 @@ public class MainFrame extends JFrame {
 									analyticAlgorithm.getWorkPercentage());
 						}
 						try {
-							sleep(1000);
+							sleep(100);
 						} catch (InterruptedException e) {
 						}
 					}
 				}
 			}.start();
 		}
-
-		/* TODO: Thread started by the worker does not terminate - 
-				 how can this problem be handled?
-				 */
-		// Outsourcing of the calculation 
-		// in order to prevent freezing the gui
-//		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-//			@Override
-//			protected Void doInBackground() throws Exception {
-//				setEnabled(false);
-//				jButtonStart.setEnabled(false);
-//				// setCursor(new Cursor(Cursor.WAIT_CURSOR));
-//				if (jCheckboxGeneticAlgorithm.isSelected()) {
-//					doGeneticAlgorithm();
-//				}
-//				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-//					doEnumeration(constraintsMap);
-//				}
-//				if (jCheckBoxAntColonyOptimization.isSelected()) {
-//					doAntAlgorithm(constraintsMap);
-//					cumulatedRuntime += antAlgorithm.getRuntime();
-//				}
-//				algorithmInProgress = false;
-//				return null;
-//			}
-//
-//			@Override
-//			protected void done() {
-//				try {
-//					get();
-//				} catch (InterruptedException e) {
-//				} catch (ExecutionException e) {
-//				}
-//				if (jCheckboxGeneticAlgorithm.isSelected()) {
-//					jProgressBarGeneticAlgorithm.setValue(100);
-//				}
-//				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-//					jProgressBarAnalyticAlgorithm.setValue(100);
-//				}
-//				if (cumulatedRuntime > 120000) {
-//					jTableGeneralResults.setValueAt(
-//							cumulatedRuntime / 60000 + " min", 0, 1);
-//				}
-//				else if (cumulatedRuntime > 1000) {
-//					jTableGeneralResults.setValueAt(
-//							cumulatedRuntime / 1000 + " s", 0, 1);
-//				}
-//				else {
-//					jTableGeneralResults.setValueAt(
-//							cumulatedRuntime + " ms", 0, 1);
-//				}
-//				buildResultTable();
-//				jButtonVisualize.setEnabled(true);
-//				jButtonStart.setEnabled(true);
-//				setEnabled(true);
-//				//	contentPane.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-//			}
-//		};
-//		worker.execute();
 		
-		/* TODO: Sometimes, this solution throws an 
-		 *       ArrayIndexOutOfBounds-Exception; it seems like
-		 *       the results are not affected by this, and everything
-		 *       works the way it should. But nevertheless, it's not 
-		 *       very nice
-		 *       -> Maybe it's about Type Conversion from TextFields or something like that
-		 */
 		// Calculation and Results Display Thread
 		new Thread() {
 			@Override
@@ -2297,52 +2250,47 @@ public class MainFrame extends JFrame {
 					jTableGeneralResults.setValueAt(
 							cumulatedRuntime + " ms", 0, 1);
 				}
-				// TODO: Find out why this sleep is necessary
-				//		 (test with a small data set)
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-				}
+				// TODO: If ant algorithm has no solution, 
+				//		 handle output visualization!
 				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-					if (jCheckboxGeneticAlgorithm.isSelected()) {
-						//TODO: die IndexOutOfBoundsException wird in der folgenden Zeile verursacht
-						// -> Ursache erforschen
-						double geneticDelta = analyticAlgorithm.
+					double optimalUtility = 0.0;
+					if (analyticAlgorithm.getAlgorithmSolutionTiers().
+							size() > 0) {
+						optimalUtility = analyticAlgorithm.
 								getAlgorithmSolutionTiers().								
 								get(0).getServiceCompositionList().
-								get(0).getUtility() - geneticAlgorithm.
-								getAlgorithmSolutionTiers().get(0).
-								getServiceCompositionList().get(0).
+								get(0).getUtility();
+					}
+					if (jCheckboxGeneticAlgorithm.isSelected()) {
+						double geneticDelta = optimalUtility - 
+								geneticAlgorithm.getAlgorithmSolutionTiers().
+								get(0).getServiceCompositionList().get(0).
 								getUtility();
 						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_FOUR.
 								format(geneticDelta) + " (" + 
 								DECIMAL_FORMAT_TWO.format(Math.abs(
-										geneticDelta / analyticAlgorithm.
-										getAlgorithmSolutionTiers().
-										get(0).getServiceCompositionList().
-										get(0).getUtility() * 100)) + 
+										geneticDelta / optimalUtility * 100)) + 
 										"%)" , 4, 1);
 					}
 					if (jCheckBoxAntColonyOptimization.isSelected()) {
-						double antDelta = analyticAlgorithm.
-								getAlgorithmSolutionTiers().
-								get(0).getServiceCompositionList().
-								get(0).getUtility() - antAlgorithm.
+						double antDelta = optimalUtility - antAlgorithm.
 								getAlgorithmSolutionTiers().get(0).
 								getServiceCompositionList().get(0).
 								getUtility();
 						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_FOUR.
 								format(antDelta) + " (" + 
 								DECIMAL_FORMAT_TWO.format(Math.abs(
-										antDelta / analyticAlgorithm.
-										getAlgorithmSolutionTiers().
-										get(0).getServiceCompositionList().
-										get(0).getUtility() * 100)) + 
+										antDelta / optimalUtility * 100)) + 
 										"%)" , 5, 1);
 					}
 				}
 				buildResultTable();
-				jButtonVisualize.setEnabled(true);
+				if (benchmarkMode) {
+					jButtonVisualize.setEnabled(false);
+				}
+				else {
+					jButtonVisualize.setEnabled(true);
+				}
 				jButtonSaveResults.setEnabled(true);
 				jButtonStart.setEnabled(true);
 				setEnabled(true);				
@@ -3107,7 +3055,12 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void doGeneticAlgorithm() {
-		geneticAlgorithm.start();
+		if (benchmarkMode) {
+			geneticAlgorithm.startInBenchmarkMode();
+		}
+		else {
+			geneticAlgorithm.start();
+		}
 		cumulatedRuntime += geneticAlgorithm.getRuntime();
 		if (geneticAlgorithm.getRuntime() > 120000) {
 			jTableGeneralResults.setValueAt(
