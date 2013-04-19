@@ -117,8 +117,9 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 				g.drawLine(i /lineUnit * lineLength + 50, 
 						(int) Math.round(numberOfDifferentSolutions.get(i) * 
 								(390.0 / lineHeight)) + 25, (i /lineUnit + 1) * 
-								lineLength + 50, (int) Math.round(
-										numberOfDifferentSolutions.get(i + lineUnit) * 
+								lineLength + 50, 
+								(int) Math.round(numberOfDifferentSolutions.
+										get(i + lineUnit) * 
 										(390.0 / lineHeight)) + 25);
 			}
 			
@@ -181,7 +182,8 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 								10 * lineHeight + 25), 
 								(i / lineUnit + 1) * lineLength + 450, 
 								(int) Math.round(averageUtilityPerPopulation.
-										get(i + lineUnit) * 10 * lineHeight + 25));
+										get(i + lineUnit) * 10 * 
+										lineHeight + 25));
 			}
 			
 			// Legend for x-axis

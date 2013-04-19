@@ -846,6 +846,9 @@ public class MainFrame extends JFrame {
 		jPanelQosConstraints.add(separatorWeights, gbc_separatorWeights);
 		
 		jCheckBoxBenchmarkMode = new JCheckBox("Benchmark Mode");
+		jCheckBoxBenchmarkMode.setToolTipText("<html>Select this checkbox " +
+				"to disable<br>all additional features.<br>" +
+				"(better runtime determination</html>)");
 		jCheckBoxBenchmarkMode.setSelected(false);
 		GridBagConstraints gbcJCheckBoxBenchmarkMode = 
 			new GridBagConstraints();
@@ -1207,6 +1210,9 @@ public class MainFrame extends JFrame {
 						DEFAULT_PENALTY_FACTOR);
 			}
 		});
+		// TODO: Insert information!
+		jTextFieldPenaltyFactor.setToolTipText("<html>Weight of the " +
+				"Penalty Factor<br>Usually between x and y</html>");
 		GridBagConstraints gbcJTextFieldPenaltyFactor = 
 			new GridBagConstraints();
 		gbcJTextFieldPenaltyFactor.insets = new Insets(5, 10, 5, 5);
@@ -1263,6 +1269,9 @@ public class MainFrame extends JFrame {
 						DEFAULT_START_POPULATION_SIZE);
 			}
 		});
+		// TODO: Insert information!
+		jTextFieldPopulationSize.setToolTipText("<html>Size of the start " +
+				"population<br>Usually about x% of the max Population</html>");
 		GridBagConstraints gbcJTextFieldPopulationSize = 
 				new GridBagConstraints();
 		gbcJTextFieldPopulationSize.insets = new Insets(5, 10, 5, 5);
@@ -1309,6 +1318,10 @@ public class MainFrame extends JFrame {
 		jComboBoxSelection.addItem("Roulette Wheel Selection");
 		jComboBoxSelection.addItem("Linear Ranking Selection");
 		jComboBoxSelection.addItem("Tournament Selection");
+		// TODO: Insert information!
+		jComboBoxSelection.setToolTipText("<html>Roulette Wheel Selection: x" +
+				"<br>Linear Ranking Selection: y<br>" +
+				"Tournament Selection: z</html>");
 		GridBagConstraints gbcJComboBoxSelection = 
 			new GridBagConstraints();
 		gbcJComboBoxSelection.insets = new Insets(5, 10, 5, 5);
@@ -1316,9 +1329,7 @@ public class MainFrame extends JFrame {
 		gbcJComboBoxSelection.gridx = 0;
 		gbcJComboBoxSelection.gridy = 0;
 		jPanelSelection.add(jComboBoxSelection, 
-				gbcJComboBoxSelection);
-		
-		
+				gbcJComboBoxSelection);		
 		
 		
 		
@@ -1344,6 +1355,9 @@ public class MainFrame extends JFrame {
 				setElitismRateSelection();
 			}
 		});
+		// TODO: Insert information!
+		jCheckBoxElitismRate.setToolTipText("<html>" +
+				"[Description for Elitism Rate]</html>");
 		GridBagConstraints gbcJCheckBoxElitismRate = new GridBagConstraints();
 		gbcJCheckBoxElitismRate.anchor = GridBagConstraints.WEST;
 		gbcJCheckBoxElitismRate.insets = new Insets(5, 10, 5, 0);
@@ -1364,6 +1378,9 @@ public class MainFrame extends JFrame {
 						100, 1, DEFAULT_ELITISM_RATE);
 			}
 		});
+		// TODO: Insert information!
+		jTextFieldElitismRate.setToolTipText("<html>Elitism Rate<br>" +
+				"Usually about x%</html>");
 		GridBagConstraints gbcJTextFieldElitismRate = 
 			new GridBagConstraints();
 		gbcJTextFieldElitismRate.insets = new Insets(5, 5, 5, 0);
@@ -1417,6 +1434,10 @@ public class MainFrame extends JFrame {
 		jComboBoxCrossover.addItem("Half-Uniform Crossover");
 		jComboBoxCrossover.setPreferredSize(
 				jComboBoxSelection.getPreferredSize());
+		// TODO: Insert information!
+		jComboBoxCrossover.setToolTipText("<html>n-Point Crossover: x<br>" +
+				"Uniform Crossover: y<br>" +
+				"Half-Uniform Crossover: z</html>");
 		GridBagConstraints gbcJComboBoxCrossover = 
 			new GridBagConstraints();
 		gbcJComboBoxCrossover.insets = new Insets(5, 10, 5, 5);
@@ -1464,6 +1485,11 @@ public class MainFrame extends JFrame {
 				showExtendedTerminationCriterionSettings();
 			}
 		});
+		// TODO: Insert information!
+		jComboBoxTerminationCriterion.setToolTipText("<html>" +
+				"Number of Iterations: x<br>" +
+				"Consecutive Equal Generations: y<br>" +
+				"Fitness Value Convergence: z<br></html>");
 		GridBagConstraints gbcJComboBoxTerminationCriterion = 
 			new GridBagConstraints();
 		gbcJComboBoxTerminationCriterion.insets = new Insets(5, 10, 5, 5);
@@ -1494,6 +1520,9 @@ public class MainFrame extends JFrame {
 						Integer.MAX_VALUE, 1, DEFAULT_TERMINATION_CRITERION);
 			}
 		});
+		// TODO: Insert information!
+		jTextFieldTerminationCriterion.setToolTipText("<html>Number of " +
+				"Iterations<br>Usually about x &plusmn 10%</html>");
 		GridBagConstraints gbcJTextFieldTerminationCriterion = 
 			new GridBagConstraints();
 		gbcJTextFieldTerminationCriterion.insets = new Insets(5, 5, 5, 0);
@@ -1521,7 +1550,6 @@ public class MainFrame extends JFrame {
 				gbcJPanelTerminationDegree);
 		
 		jLabelTerminationDegree = new JLabel("(Degree of Equality:");
-		jLabelTerminationDegree.setVisible(false);
 		GridBagConstraints gbcJLabelTerminationDegree = 
 				new GridBagConstraints();
 		gbcJLabelTerminationDegree.insets = new Insets(5, 10, 5, 0);
@@ -1541,6 +1569,10 @@ public class MainFrame extends JFrame {
 						DEFAULT_DEGREE_OF_EQUALITY);	
 			}
 		});
+		// TODO: Insert information!
+		jTextFieldTerminationDegree.setToolTipText("<html>Degree to " +
+				"which the consecutive<br> generations have to be equal<br>" +
+				"(usually about x% &plusmn 10)</html>");
 		jTextFieldTerminationDegree.setVisible(false);
 		GridBagConstraints gbcJTextFieldTerminationDegree = 
 				new GridBagConstraints();
@@ -1855,6 +1887,9 @@ public class MainFrame extends JFrame {
 		jScrollPaneAnalyticAlgorithm.setViewportView(jTableAnalyticAlgorithm);
 		
 		JLabel jLabelResultTiers = new JLabel("Number of Result Tiers:");
+		// TODO: Insert information!
+		jLabelResultTiers.setToolTipText("<html>Number of best solutions " +
+				"<br>which are represented</html>");
 		GridBagConstraints gbcJLabelResultTiers = new GridBagConstraints();
 		gbcJLabelResultTiers.insets = new Insets(0, 5, 5, 5);
 		gbcJLabelResultTiers.anchor = GridBagConstraints.CENTER;
@@ -2608,7 +2643,7 @@ public class MainFrame extends JFrame {
 			jButtonStart.setEnabled(false);
 		}
 	}
-	
+
 	private void setConstraintValueManually(
 			JSlider slider, JTextField textField, int minValue, int maxValue) {
 		int average = (minValue + maxValue) / 2;
@@ -3088,8 +3123,25 @@ public class MainFrame extends JFrame {
 			jTextFieldTerminationDegree.setText(
 					String.valueOf(DEFAULT_DEGREE_OF_EQUALITY));
 			jTextFieldTerminationDegree.setVisible(true);
+			// TODO: Insert Information!
+			jTextFieldTerminationCriterion.setToolTipText("<html>Number of " +
+			"consecutive equal generations<br>" +
+			"Usually about x &plusmn 5</html>");
 		}
 		else {
+			if (jComboBoxTerminationCriterion.getSelectedIndex() == 0) {
+				// TODO: Insert Information!
+				jTextFieldTerminationCriterion.setToolTipText(
+						"<html>Number of Iterations<br>" +
+						"Usually about x &plusmn 10%</html>");
+			}
+			else {
+				// TODO: Insert Information!
+				jTextFieldTerminationCriterion.setToolTipText(
+						"<html>Number of consecutive equal " +
+						"max fitness values<br>" +
+						"Usually about x &plusmn 5</html>");
+			}
 			jLabelTerminationDegree.setVisible(false);
 			jLabelTerminationDegreeClose.setVisible(false);
 			jTextFieldTerminationDegree.setVisible(false);
@@ -3174,14 +3226,22 @@ public class MainFrame extends JFrame {
 		jSliderMaxCosts.setValue(
 				(int) Math.round((maxCosts + minCosts) / 2.0));
 		jSliderMaxCosts.setMinimum(minCosts);
+		jTextFieldMaxCosts.setToolTipText("<html>Max. Costs<br>" +
+				"Margin: " + minCosts + " - " + maxCosts + "</html>");
 		jSliderMaxResponseTime.setMaximum(maxResponseTime);
 		jSliderMaxResponseTime.setValue(
 				(int) Math.round((maxResponseTime + minResponseTime) / 2.0));
 		jSliderMaxResponseTime.setMinimum(minResponseTime);
+		jTextFieldMaxResponseTime.setToolTipText(
+				"<html>Max. Response Time<br>" +"Margin: " + minResponseTime + 
+				" - " + maxResponseTime + "</html>");
 		jSliderMinAvailability.setMaximum(maxAvailability);
 		jSliderMinAvailability.setValue(
 				(int) Math.round((maxAvailability + minAvailability) / 2.0));
 		jSliderMinAvailability.setMinimum(minAvailability);
+		jTextFieldMinAvailability.setToolTipText(
+				"<html>Min. Availability<br>" +"Margin: " + minAvailability + 
+				" - " + maxAvailability + "</html>");
 	}
 	
 	private void showResultVisualization() {
