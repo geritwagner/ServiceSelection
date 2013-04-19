@@ -15,16 +15,17 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private int[] chosenPopulation;
 	private List<Integer> numberOfDifferentSolutions;
 	private List<Double> maxUtilityPerPopulation;
 	private List<Double> averageUtilityPerPopulation;
+	
+	private int lineLength = 0;
+	private int lineUnit = 1;
 
-	public GeneticAlgorithmVisualizationPanel(int[] chosenPopulation, 
+	public GeneticAlgorithmVisualizationPanel(
 			List<Integer> numberOfDifferentSolutions, 
 			List<Double> maxUtilityPerPopulation,
 			List<Double> averageUtilityPerPopulation) {
-		this.chosenPopulation = chosenPopulation;
 		this.numberOfDifferentSolutions = numberOfDifferentSolutions;
 		this.maxUtilityPerPopulation = maxUtilityPerPopulation;
 		this.averageUtilityPerPopulation = averageUtilityPerPopulation;
@@ -39,7 +40,9 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 		rotated.quadrantRotate(3);
 		AffineTransform FLIP_X_COORDINATE = 
 				new AffineTransform(1, 0, 0, -1, 0, getHeight());
-		int lineLength = 300 / chosenPopulation.length;
+		// Determination of the line length
+		int maxXCoordinate = determineLineLengthProperties();
+		lineLength = 300 / lineLength;
 		int lineHeight = 0;
 		Font font = new Font("normalFont", Font.ITALIC, 9);
 		Font font2 = new Font("axisFont", Font.BOLD, 12);
@@ -82,60 +85,55 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 				g.drawLine(50, 25, 50, 415);
 		// Dynamic determination of the length for one generation
 		// (x-axis)
-		lineLength = 300 / Math.max(1, numberOfDifferentSolutions.size() - 1);
 		// Height of the y-axis
 		lineHeight = numberOfDifferentSolutions.get(0);
+		int heightUnit = determineHeightUnit(lineHeight);
 		// Legend for y-axis
-		for (int i = 0; i <= lineHeight; i++) {
-			if (i % 5 == 0) {
+		for (int i = 0; i <= lineHeight; i += heightUnit) {
+			if ((i / heightUnit) % 5 == 0) {
 				g.setTransform(FLIP_X_COORDINATE);
-				g.drawLine(53, 
-						25 + (int) Math.round((390.0 / lineHeight) * i), 
-						47, 
-						25 + (int) Math.round((390.0 / lineHeight) * i));
+				g.drawLine(53,25 + (int) Math.round(
+						(390.0 * i / lineHeight)), 
+						47, 25 + (int) Math.round((
+								390.0 * i / lineHeight)));
 				g.setTransform(normal);
-				g.drawString("" + i, 30, 
-						497 - (int) Math.round((390.0 / lineHeight) * i));
+				g.drawString("" + i, 30, 497 - (int) Math.round(
+						(390.0 / lineHeight) * i));
 			}
-			else {
-				g.setTransform(FLIP_X_COORDINATE);
-				g.drawLine(52, 
-						25 + (int) Math.round((390.0 / lineHeight) * i), 
-						50, 
-						25 + (int) Math.round((390.0 / lineHeight) * i));
-			}
+//			else {
+//				g.setTransform(FLIP_X_COORDINATE);
+//				g.drawLine(52, 25 + (int) Math.round(
+//						(390.0 / lineHeight) * i / heightUnit), 
+//						50, 25 + (int) Math.round(
+//								(390.0 / lineHeight) * i / heightUnit));
+//			}
 		}
-		// Manual insertion of the last index of the x-axis
-		g.drawString(String.valueOf(numberOfDifferentSolutions.size() - 1), 
-				(numberOfDifferentSolutions.size() - 1) * lineLength + 43, 
-				505);
 		g.setTransform(FLIP_X_COORDINATE);
 		// Drawing of the graph and the legend for x-axis
-		for (int i = 0; i < numberOfDifferentSolutions.size() - 2; i++) {
+		for (int i = 0; i <= maxXCoordinate; i += lineUnit) {
 			// Graph
-			g.setColor(Color.RED);
-			g.drawLine(i * lineLength + 50, 
-					(int) Math.round(numberOfDifferentSolutions.get(i) * 
-							(390.0 / lineHeight)) + 25, 
-							(i + 1) * lineLength + 50, 
-							(int) Math.round(numberOfDifferentSolutions.
-									get(i + 1) * (390.0 / lineHeight)) + 25);
+			if (i < numberOfDifferentSolutions.size() - 1 - lineUnit) {
+				g.setColor(Color.RED);
+				g.drawLine(i /lineUnit * lineLength + 50, 
+						(int) Math.round(numberOfDifferentSolutions.get(i) * 
+								(390.0 / lineHeight)) + 25, (i /lineUnit + 1) * 
+								lineLength + 50, (int) Math.round(
+										numberOfDifferentSolutions.get(i + lineUnit) * 
+										(390.0 / lineHeight)) + 25);
+			}
+			
 			// Legend for x-axis
 			g.setColor(Color.BLACK);
-			if ((i + 1) % 5 == 0) {
-				g.drawLine((i + 1) * lineLength + 50, 25, 
-						(i + 1) * lineLength + 50, 27);
+			if ((i /lineUnit) % 5 == 0) {
+				g.drawLine((i /lineUnit) * lineLength + 50, 25, 
+						(i /lineUnit) * lineLength + 50, 27);
 				g.setTransform(normal);
-				g.drawString(String.valueOf(i + 1), 
-						(i + 1) * lineLength + 43, 505);
+				g.drawString(String.valueOf((i)), 
+						(i /lineUnit) * lineLength + 43, 505);
 				g.setTransform(FLIP_X_COORDINATE);
 			}
 		}
 		g.setColor(Color.BLACK);
-		// Manual insertion of the last scale line of the x-axis
-		g.drawLine((numberOfDifferentSolutions.size() - 1) * lineLength + 50, 
-				25, (numberOfDifferentSolutions.size() - 1) * lineLength + 50, 
-				27);
 		
 
 
@@ -146,60 +144,160 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 		// Drawing of the coordinate system
 		g.drawLine(450, 25, 750, 25);
 		g.drawLine(450, 25, 450, 415);
-		g.setTransform(normal);
-		
+
 		lineHeight = 39;
 		// Legend for y-axis
 		for (int i = 0; i < 10; i++) {
-			g.drawLine(450, 494 - lineHeight * i, 445, 494 - lineHeight * i);
-			g.drawString("0." + i, 430, 497 - lineHeight * i);
-
+			g.setTransform(FLIP_X_COORDINATE);
+			g.drawLine(452, 25 + lineHeight * i, 448, 25 + lineHeight * i);
+			g.setTransform(normal);
+			g.drawString("0." + i, 425, 497 - lineHeight * i);
 		}
 		// Manual insertion of the last index of the y-axis
-		g.drawLine(450, 494 - lineHeight * 10, 
-				445, 494 - lineHeight * 10);
-		g.drawString("1.0", 430, 
-				497 - lineHeight * 10);
+		g.setTransform(FLIP_X_COORDINATE);
+		g.drawLine(452, 25 + lineHeight * 10, 448, 25 + lineHeight * 10);
+		g.setTransform(normal);
+		g.drawString("1.0", 425, 497 - lineHeight * 10);
 
 		// // Manual insertion of the last index of the x-axis
-		g.drawString(String.valueOf(maxUtilityPerPopulation.size() - 1), 
-				(maxUtilityPerPopulation.size() - 1) * lineLength + 445, 505);
 		g.setTransform(FLIP_X_COORDINATE);
 		
 		// Drawing of the graphs and the legend for x-axis
-		for (int i = 0; i < maxUtilityPerPopulation.size() - 2; i++) {
+		for (int i = 0; i <= maxXCoordinate; i += lineUnit) {
 			// Max. fitness graph
-			g.setColor(Color.YELLOW);
-			g.drawLine(i * lineLength + 450, 
-					(int) Math.round(maxUtilityPerPopulation.get(i) * 10 * 
-							lineHeight + 25), 
-							(i + 1) * lineLength + 450, 
-							(int) Math.round(maxUtilityPerPopulation.
-									get(i + 1) * 10 * 
-									lineHeight + 25));
-			// Average fitness graph
-			g.setColor(Color.GREEN);
-			g.drawLine(i * lineLength + 450, 
-					(int) Math.round(averageUtilityPerPopulation.get(i) * 10 * 
-							lineHeight + 25), 
-							(i + 1) * lineLength + 450, 
-							(int) Math.round(averageUtilityPerPopulation.
-									get(i + 1) * 10 * 
-									lineHeight + 25));
+			if (i < maxUtilityPerPopulation.size() - 1 - lineUnit) {
+				g.setColor(Color.YELLOW);
+				g.drawLine(i / lineUnit * lineLength + 450, 
+						(int) Math.round(maxUtilityPerPopulation.get(i) * 10 * 
+								lineHeight + 25), 
+								(i / lineUnit + 1) * lineLength + 450, 
+								(int) Math.round(maxUtilityPerPopulation.
+										get(i + lineUnit) * 10 * 
+										lineHeight + 25));
+				// Average fitness graph
+				g.setColor(Color.GREEN);
+				g.drawLine(i / lineUnit * lineLength + 450, 
+						(int) Math.round(averageUtilityPerPopulation.get(i) * 
+								10 * lineHeight + 25), 
+								(i / lineUnit + 1) * lineLength + 450, 
+								(int) Math.round(averageUtilityPerPopulation.
+										get(i + lineUnit) * 10 * lineHeight + 25));
+			}
+			
 			// Legend for x-axis
-			if ((i + 1) % 5 == 0) {
+			if ((i /lineUnit) % 5 == 0) {
 				g.setColor(Color.BLACK);
-				g.drawLine((i + 1) * lineLength + 450, 25, 
-						(i + 1) * lineLength + 450, 27);
+				g.drawLine((i /lineUnit) * lineLength + 450, 25, 
+						(i /lineUnit) * lineLength + 450, 27);
 				g.setTransform(normal);
-				g.drawString(String.valueOf(i + 1), 
-						(i + 1) * lineLength + 445, 505);
+				g.drawString(String.valueOf((i)), 
+						(i /lineUnit) * lineLength + 445, 505);
 				g.setTransform(FLIP_X_COORDINATE);
 			}
 		}
 		g.setColor(Color.BLACK);
-		// Manual insertion of the last scale line of the x-axis
-		g.drawLine((maxUtilityPerPopulation.size() - 1) * lineLength + 450, 25, 
-				(maxUtilityPerPopulation.size() - 1) * lineLength + 450, 27);
-	}	
+	}
+	
+	private int determineLineLengthProperties() {
+		if ((numberOfDifferentSolutions.size() - 1) <= 10) {
+			lineLength = 10;
+			lineUnit = 1;
+			return 10;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 20) {
+			lineLength = 20;
+			lineUnit = 1;
+			return 20;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 30) {
+			lineLength = 30;
+			lineUnit = 1;
+			return 30;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 50) {
+			lineLength = 50;
+			lineUnit = 1;
+			return 50;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 75) {
+			lineLength = 75;
+			lineUnit = 1;
+			return 75;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 100) {
+			lineLength = 100;
+			lineUnit = 1;
+			return 100;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 150) {
+			lineLength = 30;
+			lineUnit = 5;
+			return 150;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 250) {
+			lineLength = 50;
+			lineUnit = 5;
+			return 250;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 500) {
+			lineLength = 50;
+			lineUnit = 10;
+			return 500;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 750) {
+			lineLength = 75;
+			lineUnit = 10;
+			return 750;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 1000) {
+			lineLength = 100;
+			lineUnit = 10;
+			return 1000;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 1500) {
+			lineLength = 150;
+			lineUnit = 10;
+			return 1500;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 3000) {
+			lineLength = 30;
+			lineUnit = 100;
+			return 3000;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 5000) {
+			lineLength = 50;
+			lineUnit = 100;
+			return 5000;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 7500) {
+			lineLength = 75;
+			lineUnit = 100;
+			return 7500;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 10000) {
+			lineLength = 100;
+			lineUnit = 100;
+			return 10000;
+		}
+		else if ((numberOfDifferentSolutions.size() - 1) <= 15000) {
+			lineLength = 150;
+			lineUnit = 10;
+			return 15000;
+		}
+		else {
+			return 0;
+		}
+	}
+	
+	private int determineHeightUnit(int lineHeight) {
+		if (lineHeight <= 100) {
+			return 1;
+		}
+		else if (lineHeight <= 1000) {
+			return 10;
+		}
+		else {
+			return 100;
+		}
+	}
 }

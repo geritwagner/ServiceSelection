@@ -3196,8 +3196,7 @@ public class MainFrame extends JFrame {
 			algorithmVisualization.closeWindow();
 		}
 		algorithmVisualization = 
-				new AlgorithmsVisualization(geneticAlgorithm.
-						getStartPopulationVisualization(), 
+				new AlgorithmsVisualization( 
 						geneticAlgorithm.getNumberOfDifferentSolutions(),
 						geneticAlgorithm.getMaxUtilityPerPopulation(),
 						geneticAlgorithm.getAverageUtilityPerPopulation());

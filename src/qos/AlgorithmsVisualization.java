@@ -12,17 +12,15 @@ public class AlgorithmsVisualization extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	
-	private int[] chosenPopulation;
 	private List<Integer> numberOfDifferentSolutions;
 	private List<Double> maxUtilityPerPopulation;
 	private List<Double> averageUtilityPerPopulation;
 
-	public AlgorithmsVisualization(int[] chosenPopulation, 
+	public AlgorithmsVisualization(
 			List<Integer> numberOfDifferentSolutions, 
 			List<Double> maxUtilityPerPopulation,
 			List<Double> averageUtilityPerPopulation) {
 		super("Result Visualization");
-		this.chosenPopulation = chosenPopulation;
 		this.numberOfDifferentSolutions = numberOfDifferentSolutions;
 		this.maxUtilityPerPopulation = maxUtilityPerPopulation;
 		this.averageUtilityPerPopulation = averageUtilityPerPopulation;
@@ -50,7 +48,7 @@ public class AlgorithmsVisualization extends JFrame {
 		getContentPane().add(tabbedPane, gbcTabbedPane);
 
 		tabbedPane.addTab("Genetic Algorithm", null, 
-				new GeneticAlgorithmVisualizationPanel(chosenPopulation, 
+				new GeneticAlgorithmVisualizationPanel(
 						numberOfDifferentSolutions, maxUtilityPerPopulation, 
 						averageUtilityPerPopulation), null);
 		
