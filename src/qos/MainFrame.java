@@ -56,118 +56,46 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 public class MainFrame extends JFrame {
-
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
-
-	private JPanel contentPane;
-	private JCheckBox jCheckBoxMaxCosts;
-	private JCheckBox jCheckBoxMaxResponseTime;
-	private JCheckBox jCheckBoxMinAvailability;
-	private JCheckBox jCheckBoxBenchmarkMode;
 	
-	private JTextField jTextFieldMaxCosts;
-	private JTextField jTextFieldMaxResponseTime;
-	private JTextField jTextFieldMinAvailability;
-
-	private JSpinner jSpinnerNumberResultTiers;
-	private JSlider jSliderMaxCosts;
-	private JSlider jSliderMaxResponseTime;
-	private JSlider jSliderMinAvailability;
 	
-	private JTable jTableServiceClasses;
-	private JTable jTableWebServices;
-
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				   		 GUI VARIABLES				 	  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
+	
+	// Labels
+	private JLabel lblWeightSumSigma;
+	private JLabel lblWeightSum;
+	private JLabel jLabelUtilityText;
 	private JLabel jLabelGeneticAlgorithmNumerator;
 	private JLabel jLabelGeneticAlgorithmDenominator;
 	private JLabel jLabelWeightedPenalty;
-	private JLabel jLabelUtilityText;
-
-	private JLabel jLabelTerminationColon;
+//	private JLabel jLabelPopulationPercentage;
 	private JLabel jLabelElitismRatePercentage;
-	private JTextField jTextFieldTerminationCriterion;
-	private JTextField jTextFieldElitismRate;
+	private JLabel jLabelTerminationColon;
+	private JLabel jLabelTerminationDegree;
+	private JLabel jLabelTerminationDegreeClose;
 	
-	private JCheckBox jCheckBoxElitismRate;
 	
-	private JCheckBox jCheckboxGeneticAlgorithm;
-	private JCheckBox jCheckBoxAntColonyOptimization;
-	private JCheckBox jCheckBoxAnalyticAlgorithm;
-	private JTable jTableAnalyticAlgorithm;
-
-	private JProgressBar jProgressBarGeneticAlgorithm;
-	private JProgressBar jProgressBarAntAlgorithm;
-	private JProgressBar jProgressBarAnalyticAlgorithm;
-
-	private JTable jTableGeneralResults;
-
-	private JTabbedPane jTabbedPane;
-	
-	private boolean algorithmInProgress;
-
-	private JButton jButtonStart;
-	private JButton jButtonVisualize;
-	private JButton jButtonSaveResults;
-
-	private JLabel lblWeightSum;
-	private JSeparator jSeparatorFormula;
-	
-	private JTextArea textAreaLog;
-	
-	private GeneticAlgorithm geneticAlgorithm;
-	private AntAlgorithm antAlgorithm;
-	private AnalyticAlgorithm analyticAlgorithm;
-	
-	private boolean webServicesLoaded = false;
-	private boolean correctWeights = true;
-	private boolean benchmarkMode = false;
-
-	private static MainFrame frame;
-	
-	private static final int DEFAULT_PENALTY_FACTOR = 10;
-	private static final int DEFAULT_ELITISM_RATE = 25;
-	private static final int DEFAULT_TERMINATION_CRITERION = 100;
-	private static final int DEFAULT_DEGREE_OF_EQUALITY = 75;
-	private static final int DEFAULT_START_POPULATION_SIZE = 100;
-	private static final int MAX_START_POPULATION_SIZE = 10000;
-	
-	private static final int DEFAULT_ITERATIONS = 100;
-	private static final int DEFAULT_ANTS = 10;
-	private static final double DEFAULT_ALPHA = 1;
-	private static final double DEFAULT_BETA = 1;
-	private static final double DEFAULT_DILUTION = 0.01;
-	private static final double DEFAULT_PIINIT = 1;
-
-	private int maxCosts = 10000;
-	private int maxResponseTime = 10000;
-	private int maxAvailability = 100;
-	
-	private int minCosts = 0;
-	private int minResponseTime = 0;
-	private int minAvailability = 0;
-	
-	private double cumulatedRuntime;	
-	
-	private static final DecimalFormat DECIMAL_FORMAT_TWO = 
-		new DecimalFormat("###.##");
-	private static final DecimalFormat DECIMAL_FORMAT_FOUR = 
-		new DecimalFormat("###.####");
-
-
-	private List<ServiceClass> serviceClassesList = 
-		new LinkedList<ServiceClass>();
-	private List<ServiceCandidate> serviceCandidatesList = 
-		new LinkedList<ServiceCandidate>();
-	private List<String> saveResultList = new LinkedList<String>();
-	private QosVector qosMax;
-	private QosVector qosMin;
-	private JTextField txtCostsWeight;
-	private JTextField txtResponseTimeWeight;
-	private JTextField txtAvailabilityWeight;
+	// Textfields
+	private JTextField jTextFieldMaxCosts;
+	private JTextField jTextFieldMaxResponseTime;
+	private JTextField jTextFieldMinAvailability;
+	private JTextField jTextFieldCostsWeight;
+	private JTextField jTextFieldResponseTimeWeight;
+	private JTextField jTextFieldAvailabilityWeight;
 	private JTextField jTextFieldPenaltyFactor;
 	private JTextField jTextFieldPopulationSize;
+	private JTextField jTextFieldElitismRate;
+	private JTextField jTextFieldTerminationCriterion;
+	private JTextField jTextFieldTerminationDegree;
 	private JTextField txtAntIterations;
 	private JTextField txtAntAnts;
 	private JTextField txtAntAlpha;
@@ -175,30 +103,128 @@ public class MainFrame extends JFrame {
 	private JTextField txtAntDilution;
 	private JTextField txtAntPi;
 	
+	// Checkboxes
+	private JCheckBox jCheckBoxMaxCosts;
+	private JCheckBox jCheckBoxMaxResponseTime;
+	private JCheckBox jCheckBoxMinAvailability;
+	private JCheckBox jCheckBoxBenchmarkMode;
+	private JCheckBox jCheckboxGeneticAlgorithm;
+	private JCheckBox jCheckBoxAntColonyOptimization;
+	private JCheckBox jCheckBoxAnalyticAlgorithm;
+	private JCheckBox jCheckBoxElitismRate;
+	
+	// Sliders, Comboboxes & Spinner
+	private JSlider jSliderMaxCosts;
+	private JSlider jSliderMaxResponseTime;
+	private JSlider jSliderMinAvailability;
 	private JComboBox<String> jComboBoxCrossover;
 	private JComboBox<String> jComboBoxSelection;
 	private JComboBox<String> jComboBoxTerminationCriterion;
-//	private JLabel jLabelPopulationPercentage;
-	private JLabel jLabelTerminationDegree;
-	private JLabel jLabelTerminationDegreeClose;
-	private JTextField jTextFieldTerminationDegree;
+	private JSpinner jSpinnerNumberResultTiers;
 	
-	private JLabel lblWeightSumSigma;
+	// Tables
+	private JTable jTableServiceClasses;
+	private JTable jTableWebServices;
+	private JTable jTableAnalyticAlgorithm;
+	private JTable jTableGeneralResults;
 	
-	private SimpleDateFormat dateFormatLog = 
-			new SimpleDateFormat("HH:mm:ss: ");
+	// Progress Bars
+	private JProgressBar jProgressBarGeneticAlgorithm;
+	private JProgressBar jProgressBarAntAlgorithm;
+	private JProgressBar jProgressBarAnalyticAlgorithm;
 	
-	private AlgorithmsVisualization algorithmVisualization;
+	// Buttons
+	private JButton jButtonStart;
+	private JButton jButtonSaveResults;
+	private JButton jButtonVisualize;
+	
+	// Panels
+	private JPanel contentPane;
+	private JTabbedPane jTabbedPane;
+	
+	// Other
+	private JSeparator jSeparatorFormula;
+	private JTextArea textAreaLog;
 
-	/**
-	 * Launch the application.
+	
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				   		  VARIABLES				 		  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
 	 */
+
+	// Class Objects
+	private QosVector qosMax;
+	private QosVector qosMin;
+	private GeneticAlgorithm geneticAlgorithm;
+	private AntAlgorithm antAlgorithm;
+	private AnalyticAlgorithm analyticAlgorithm;
+	private AlgorithmsVisualization algorithmVisualization;
+	
+	// Constants
+	private static final int DEFAULT_PENALTY_FACTOR = 10;
+	private static final int DEFAULT_START_POPULATION_SIZE = 100;
+	private static final int MAX_START_POPULATION_SIZE = 10000;
+	private static final int DEFAULT_ELITISM_RATE = 25;
+	private static final int DEFAULT_TERMINATION_CRITERION = 100;
+	private static final int DEFAULT_DEGREE_OF_EQUALITY = 75;
+	private static final int DEFAULT_ITERATIONS = 100;
+	private static final int DEFAULT_ANTS = 10;
+	private static final double DEFAULT_ALPHA = 1;
+	private static final double DEFAULT_BETA = 1;
+	private static final double DEFAULT_DILUTION = 0.01;
+	private static final double DEFAULT_PIINIT = 1;
+	
+	// Formats
+	private static final DecimalFormat DECIMAL_FORMAT_TWO = 
+		new DecimalFormat("###.##");
+	private static final DecimalFormat DECIMAL_FORMAT_FOUR = 
+		new DecimalFormat("###.####");
+	private SimpleDateFormat dateFormatLog = 
+		new SimpleDateFormat("HH:mm:ss: ");
+	
+	// Lists
+	private List<ServiceClass> serviceClassesList = 
+		new LinkedList<ServiceClass>();
+	private List<ServiceCandidate> serviceCandidatesList = 
+		new LinkedList<ServiceCandidate>();
+	private List<String> saveResultList = new LinkedList<String>();
+	
+	// Boolean
+	private boolean webServicesLoaded = false;
+	private boolean correctWeights = true;
+	private boolean benchmarkMode = false;
+	private boolean algorithmInProgress;
+	
+	// Integer & Double
+	private int maxCosts = 10000;
+	private int maxResponseTime = 10000;
+	private int maxAvailability = 100;
+	private int minCosts = 0;
+	private int minResponseTime = 0;
+	private int minAvailability = 0;
+	private double cumulatedRuntime;	
+
+	
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				   		  MAIN METHOD					  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					frame = new MainFrame();
-					frame.setVisible(true);
+					new MainFrame().setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -206,14 +232,21 @@ public class MainFrame extends JFrame {
 		});
 	}
 
-	/**
-	 * Create the frame.
+	
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				   GUI INITIALIZATION AREA				  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
 	 */
 	public MainFrame() {
+		// Initialization logging
 		System.out.println(dateFormatLog.format(new Date()) + 
 				"Initialize Main Content Panel - Started");
 		boolean correctInitialization = true;
-
 		try {
 			initializeMainContentPanel();
 			System.out.println(dateFormatLog.format(new Date()) + 
@@ -421,7 +454,6 @@ public class MainFrame extends JFrame {
 
 		final JFileChooser fileChooser = new JFileChooser() {
 			private static final long serialVersionUID = 1L;
-
 			{
 				setFileFilter(new FileFilter() {
 					@Override
@@ -434,10 +466,9 @@ public class MainFrame extends JFrame {
 						return "CSV Datei (Comma Seperated Values)";
 					}
 				});
-				setSelectedFile( new File("DataSet.csv") );	
+				setSelectedFile(new File("DataSet.csv"));	
 			}
 		};
-
 		jMenuItemLoad.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -631,11 +662,11 @@ public class MainFrame extends JFrame {
 		gbcJLabelMaxCosts.gridy = 2;
 		jPanelQosConstraints.add(jLabelMaxCosts, gbcJLabelMaxCosts);
 
-		txtCostsWeight = new JTextField("34");
-		txtCostsWeight.setHorizontalAlignment(JTextField.RIGHT);
-		txtCostsWeight.addActionListener(new ActionListener() {
+		jTextFieldCostsWeight = new JTextField("34");
+		jTextFieldCostsWeight.setHorizontalAlignment(JTextField.RIGHT);
+		jTextFieldCostsWeight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				changeWeight(txtCostsWeight);
+				changeWeight(jTextFieldCostsWeight);
 			}
 		});
 		GridBagConstraints gbc_txtCostsWeight = new GridBagConstraints();
@@ -643,7 +674,7 @@ public class MainFrame extends JFrame {
 		gbc_txtCostsWeight.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtCostsWeight.gridx = 4;
 		gbc_txtCostsWeight.gridy = 2;
-		jPanelQosConstraints.add(txtCostsWeight, gbc_txtCostsWeight);
+		jPanelQosConstraints.add(jTextFieldCostsWeight, gbc_txtCostsWeight);
 
 		JLabel lblPercentageCostsWeight = new JLabel("%");
 		GridBagConstraints gbc_lblPercentageCostsWeight = 
@@ -721,11 +752,11 @@ public class MainFrame extends JFrame {
 		jPanelQosConstraints.add(
 				jLabelMaxResponseTime, gbcJLabelMaxResponseTime);
 
-		txtResponseTimeWeight = new JTextField("33");
-		txtResponseTimeWeight.setHorizontalAlignment(JTextField.RIGHT);
-		txtResponseTimeWeight.addActionListener(new ActionListener() {
+		jTextFieldResponseTimeWeight = new JTextField("33");
+		jTextFieldResponseTimeWeight.setHorizontalAlignment(JTextField.RIGHT);
+		jTextFieldResponseTimeWeight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				changeWeight(txtResponseTimeWeight);
+				changeWeight(jTextFieldResponseTimeWeight);
 			}
 		});
 		GridBagConstraints gbc_txtResponseTimeWeight = 
@@ -735,7 +766,7 @@ public class MainFrame extends JFrame {
 		gbc_txtResponseTimeWeight.gridx = 4;
 		gbc_txtResponseTimeWeight.gridy = 3;
 		jPanelQosConstraints.add(
-				txtResponseTimeWeight, gbc_txtResponseTimeWeight);
+				jTextFieldResponseTimeWeight, gbc_txtResponseTimeWeight);
 
 		JLabel lblPercentageResponseTimeWeight = new JLabel("%");
 		GridBagConstraints gbc_lblPercentageResponseTimeWeight = 
@@ -810,11 +841,11 @@ public class MainFrame extends JFrame {
 		jPanelQosConstraints.add(
 				jLabelMinAvailability, gbcJLabelMinAvailability);
 
-		txtAvailabilityWeight = new JTextField("33");
-		txtAvailabilityWeight.setHorizontalAlignment(JTextField.RIGHT);
-		txtAvailabilityWeight.addActionListener(new ActionListener() {
+		jTextFieldAvailabilityWeight = new JTextField("33");
+		jTextFieldAvailabilityWeight.setHorizontalAlignment(JTextField.RIGHT);
+		jTextFieldAvailabilityWeight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				changeWeight(txtAvailabilityWeight);
+				changeWeight(jTextFieldAvailabilityWeight);
 			}
 		});
 		GridBagConstraints gbc_txtAvailabilityWeight = 
@@ -824,7 +855,7 @@ public class MainFrame extends JFrame {
 		gbc_txtAvailabilityWeight.gridx = 4;
 		gbc_txtAvailabilityWeight.gridy = 4;
 		jPanelQosConstraints.add(
-				txtAvailabilityWeight, gbc_txtAvailabilityWeight);
+				jTextFieldAvailabilityWeight, gbc_txtAvailabilityWeight);
 
 		JLabel lblPercentageAvailabilityWeight = new JLabel("%");
 		GridBagConstraints gbc_lblPercentageAvailabilityWeight = 
@@ -1997,6 +2028,21 @@ public class MainFrame extends JFrame {
 	}
 	
 	
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				   		MENU BAR METHODS				  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
+	
+	private void resetProgram() {
+		this.dispose();
+		new MainFrame().setVisible(true);
+	}
+	
 	// Load web services from a CSV file.
 	private void loadWebServices(File file) {
 		// Delete previously loaded web services.
@@ -2128,26 +2174,358 @@ public class MainFrame extends JFrame {
 			}
 		}
 	}
+	
+	private void loadRandomWebServices() {
+		final JSpinner spinnerNumberOfServiceClasses = new JSpinner(
+				new SpinnerNumberModel(1, 1, 1000, 1));		
+		((JSpinner.DefaultEditor) spinnerNumberOfServiceClasses.getEditor()).
+		getTextField().setHorizontalAlignment(JTextField.CENTER);
+		JSpinner spinnerNumberOfWebServices = new JSpinner(
+				new SpinnerNumberModel(1, 1, 1000, 1));
+		((JSpinner.DefaultEditor) spinnerNumberOfWebServices.getEditor()).
+		getTextField().setEditable(true);
+		((JSpinner.DefaultEditor) spinnerNumberOfWebServices.getEditor()).
+		getTextField().setHorizontalAlignment(JTextField.CENTER);
+		JComponent[] dialogComponents = new JComponent[] {
+				new JLabel("Number of Service Classes:"),
+				spinnerNumberOfServiceClasses,
+				new JLabel("Number of Web Services " +
+						"(per Class):"),
+						spinnerNumberOfWebServices
+		};
+		if (JOptionPane.showConfirmDialog(null, dialogComponents, 
+				"Random Set Properties", 
+				JOptionPane.OK_CANCEL_OPTION, 
+				JOptionPane.QUESTION_MESSAGE) != JOptionPane.YES_OPTION) {
+			return;
+		}
+		int numberOfServiceClasses = 
+			(Integer) spinnerNumberOfServiceClasses.getValue();
+		int numberOfWebServices = 
+			(Integer) spinnerNumberOfWebServices.getValue();
+		
+		// Delete previously loaded web services.
+		serviceCandidatesList.removeAll(serviceCandidatesList);
+		serviceClassesList.removeAll(serviceClassesList);
+		
+		// Use RandomSetGenerator to create web services data.
+		List<ServiceClass> servicesList = RandomSetGenerator.generateSet(
+				numberOfServiceClasses, numberOfWebServices);
+		serviceClassesList = servicesList;
+		
+		// Write service classes headers.
+		jTableServiceClasses.setModel(new BasicTableModel(
+				serviceClassesList.size(), 2, false));
+		setColumnWidthRelative(jTableServiceClasses, 
+				new double[] {0.3, 0.7});
+		TableColumnModel serviceClassesColumnModel = 
+			jTableServiceClasses.getColumnModel();
+		serviceClassesColumnModel.getColumn(0).setHeaderValue("ID");
+		serviceClassesColumnModel.getColumn(1).setHeaderValue("Name");
+		setColumnTextAlignment(
+				jTableServiceClasses, 0, DefaultTableCellRenderer.CENTER);
 
+		// Write service classes data. Load service candidates into list.
+		for (int k = 0; k < serviceClassesList.size(); k++) {
+			ServiceClass serviceClass = serviceClassesList.get(k);
+			jTableServiceClasses.setValueAt(
+					serviceClass.getServiceClassId(), k, 0);
+			jTableServiceClasses.setValueAt(serviceClass.getName(), k, 1);
+			
+			for (ServiceCandidate serviceCandidate : 
+				serviceClass.getServiceCandidateList()) {
+				serviceCandidatesList.add(serviceCandidate);
+			}
+		}
+
+		// Write service candidates headers.
+		jTableWebServices.setModel(new BasicTableModel(
+				serviceCandidatesList.size(), 6, false));
+		TableColumnModel webServicesColumnModel = 
+			jTableWebServices.getColumnModel();
+		String[] headerArray = new String[] {"Service Class ", "ID", 
+			"Name", "Costs", "ResponseTime", "Availability"};
+		for (int k = 0; k < 6; k++) {
+			webServicesColumnModel.getColumn(k).setHeaderValue(
+					headerArray[k]);
+		}
+		setColumnTextAlignment(
+				jTableWebServices, 0, DefaultTableCellRenderer.CENTER);
+		setColumnTextAlignment(
+				jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
+		for (int count = 4; count < 6; count++) {
+			setColumnTextAlignment(jTableWebServices, count, 
+					DefaultTableCellRenderer.RIGHT);
+		}
+		// Write service candidates data.
+		for (int k = 0; k < serviceCandidatesList.size(); k++) {
+			ServiceCandidate serviceCandidate = 
+				serviceCandidatesList.get(k);
+			QosVector qosVector = serviceCandidate.getQosVector();
+			jTableWebServices.setValueAt(
+					serviceCandidate.getServiceClassId(), k, 0);
+			jTableWebServices.setValueAt(
+					serviceCandidate.getServiceCandidateId(), k, 1);
+			jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
+			jTableWebServices.setValueAt(qosVector.getCosts(), k, 3);
+			jTableWebServices.setValueAt(
+					qosVector.getResponseTime(), k, 4);
+			jTableWebServices.setValueAt(qosVector.getAvailability(), k, 5);
+		}
+		webServicesLoaded = true;
+		checkEnableStartButton();
+		setSliderExtremeValues();
+		checkInputValue(jTextFieldPopulationSize, 
+				MAX_START_POPULATION_SIZE, 1, 
+				DEFAULT_START_POPULATION_SIZE);
+	}
+	
+	private void exportDataSet(File file) {		
+		BufferedWriter bufferedWriter = null;
+		try {
+			bufferedWriter = new BufferedWriter(new FileWriter(file));
+			String header = "serviceClassId;serviceClassName;ID;Name;" +
+					"Costs;Response Time;Availability";
+			bufferedWriter.write(header);			
+			for (ServiceCandidate sc : serviceCandidatesList) {
+				String line = sc.getServiceClassId() + ";ServiceClass" + 
+					sc.getServiceClassId() + ";" + sc.getServiceCandidateId() + 
+					";" + sc.getName() + ";" + sc.getQosVector().getCosts() + 
+					";" + sc.getQosVector().getResponseTime() + ";" + 
+					sc.getQosVector().getAvailability();
+				bufferedWriter.newLine();
+				bufferedWriter.write(line);
+			}
+			bufferedWriter.close();
+		} catch (IOException e1) {			
+			e1.printStackTrace();
+		}
+	}
+	
+	private void setDefaultConstraints() {
+		jSliderMaxCosts.setValue((maxCosts + minCosts) / 2);
+		jSliderMaxResponseTime.setValue(
+				(maxResponseTime + minResponseTime) / 2);
+		jSliderMinAvailability.setValue(
+				(maxAvailability + minAvailability) / 2);
+	}
+	
+	private void setRandomConstraints() {
+		jSliderMaxCosts.setValue(minCosts + 
+				(int)(Math.random() * (maxCosts - minCosts)));
+		jSliderMaxResponseTime.setValue(minResponseTime + 
+				(int) (Math.random() * (maxResponseTime - minResponseTime)));
+		jSliderMinAvailability.setValue(minAvailability + 
+				(int) (Math.random() * (maxAvailability - minAvailability)));
+	}
+	
+	// TODO: Implement method which saves the current constraints 
+	//		 and algorithm settings
+	//		 -> show a dialog where the user can see the file path 
+	//			of the saved data and where a filename can be 
+	//			chosen
+//	private void saveConstraints() {
+//		
+//	}
+	
+	// TODO: Implement method which loads a saved set of constraints 
+	//		 and algorithm settings
+	//		 -> take care of dynamic constraint limits!
+	// 		 -> use a file chooser!
+//	private void loadConstraints() {
+//		
+//	}
+	
+	// TODO: Implement method which shows a message dialog
+	//		 -> dialog should contain basic information for using 
+	//			the program correctly
+//	private void showHelpDialog() {
+//		
+//	}
+	
+	// TODO: Implement method which shows an input dialog
+	//		 -> input message should be sent to an admin,
+	//			in our case lars
+	//		 -> check if web access is available
+	//		 -> local solution: create txt-file, with date etc.
+//	private void showSupportDialog() {
+//		
+//	}
+	
+	// TODO: Implement method which shows a message dialog with 
+	//		 basic information about the program, e.g. version
+//	private void showAboutDialog() {
+//		
+//	}
+	
+	
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				     CONSTRAINT METHODS					  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
+
+	private void changeConstraintCheckboxStatus(String constraint) {
+		int lblWeights;
+		if (constraint.equals("Costs")) {
+			jSliderMaxCosts.setEnabled(jCheckBoxMaxCosts.isSelected());
+			jTextFieldMaxCosts.setEditable(jCheckBoxMaxCosts.isSelected());
+			lblWeights = 
+				Integer.parseInt(lblWeightSum.getText());
+			lblWeights -= Integer.parseInt(jTextFieldCostsWeight.getText());
+			lblWeightSum.setText(String.valueOf(lblWeights));
+			jTextFieldCostsWeight.setText("0");
+			jTextFieldCostsWeight.setEditable(jCheckBoxMaxCosts.isSelected());
+			changeWeight(jTextFieldCostsWeight);
+		}
+		else if (constraint.equals("Response Time")) {
+			jSliderMaxResponseTime.setEnabled(
+					jCheckBoxMaxResponseTime.isSelected());
+			jTextFieldMaxResponseTime.setEditable(
+					jCheckBoxMaxResponseTime.isSelected());
+			lblWeights = 
+				Integer.parseInt(lblWeightSum.getText());
+			lblWeights -= Integer.parseInt(jTextFieldResponseTimeWeight.getText());
+			lblWeightSum.setText(String.valueOf(lblWeights));
+			jTextFieldResponseTimeWeight.setText("0");
+			jTextFieldResponseTimeWeight.setEditable(
+					jCheckBoxMaxResponseTime.isSelected());
+			changeWeight(jTextFieldResponseTimeWeight);
+		}
+		else if (constraint.equals("Availability")) {
+			jSliderMinAvailability.setEnabled(
+					jCheckBoxMinAvailability.isSelected());
+			jTextFieldMinAvailability.setEditable(
+					jCheckBoxMinAvailability.isSelected());
+			lblWeights = 
+				Integer.parseInt(lblWeightSum.getText());
+			lblWeights -= Integer.parseInt(jTextFieldAvailabilityWeight.getText());
+			lblWeightSum.setText(String.valueOf(lblWeights));
+			jTextFieldAvailabilityWeight.setText("0");
+			jTextFieldAvailabilityWeight.setEditable(
+					jCheckBoxMinAvailability.isSelected());
+			changeWeight(jTextFieldAvailabilityWeight);
+		}
+		getUtilityFunction();
+		buildGeneticAlgorithmFitnessFunction();
+	}
+	
+	private void setConstraintValueManually(
+			JSlider slider, JTextField textField, int minValue, int maxValue) {
+		int average = (minValue + maxValue) / 2;
+		try {
+			Integer.parseInt(textField.getText());
+		} catch (NumberFormatException e) {
+			textField.setText(String.valueOf(average));
+			slider.setValue(average);
+			writeErrorLogEntry("Value has to be from the type Integer!");
+		}
+		if (Integer.parseInt(textField.getText()) < minValue || 
+				Integer.parseInt(textField.getText()) > maxValue) {
+			textField.setText(String.valueOf(average));
+			slider.setValue(average);
+			writeErrorLogEntry("Value has to be between " + 
+					minValue + " and " + maxValue);
+		}
+		else {
+			slider.setValue(Integer.parseInt(textField.getText()));
+		}
+		getUtilityFunction();
+	}
+	
 	private void useConstraintSlider(JTextField textfield, JSlider slider) {
 		textfield.setText(String.valueOf(slider.getValue()));
 		getUtilityFunction();
 	}
+	
+	private void setSliderExtremeValues() {
+		qosMax = determineQosMax();
+		qosMin = determineQosMin();
+		maxCosts = (int) Math.ceil(
+				qosMax.getCosts() * serviceClassesList.size());
+		minCosts = (int) Math.floor(
+				qosMin.getCosts() * serviceClassesList.size());
+		maxResponseTime = (int) Math.ceil(
+				qosMax.getResponseTime() * serviceClassesList.size());
+		minResponseTime = (int) Math.floor(
+				qosMin.getResponseTime() * serviceClassesList.size());
+		maxAvailability = (int) Math.ceil(Math.pow(
+				qosMax.getAvailability(), serviceClassesList.size()) * 100);
+		minAvailability = (int) Math.floor(Math.pow(
+				qosMin.getAvailability(), serviceClassesList.size()) * 100);
 
-	private void buildResultTable() {
-		if (jTabbedPane.getTabCount() > 0) {
-			jTabbedPane.removeAll();
-		}
-		Map<String, Algorithm> algorithmsMap = getChosenAlgorithms();
-		if (algorithmsMap == null) {
-			return;
-		}
-		// COUNTER FOR EVERY CHOSEN ALGORITHM
-		saveResultList = new LinkedList<String>();
-		for (Map.Entry<String, Algorithm> entry : algorithmsMap.entrySet()) {
-			showAlgorithmResults(entry.getValue(), entry.getKey());
-		}		
+		jSliderMaxCosts.setMaximum(maxCosts);
+		jSliderMaxCosts.setValue(
+				(int) Math.round((maxCosts + minCosts) / 2.0));
+		jSliderMaxCosts.setMinimum(minCosts);
+		jTextFieldMaxCosts.setToolTipText("<html>Max. Costs<br>" +
+				"Margin: " + minCosts + " - " + maxCosts + "</html>");
+		jSliderMaxResponseTime.setMaximum(maxResponseTime);
+		jSliderMaxResponseTime.setValue(
+				(int) Math.round((maxResponseTime + minResponseTime) / 2.0));
+		jSliderMaxResponseTime.setMinimum(minResponseTime);
+		jTextFieldMaxResponseTime.setToolTipText(
+				"<html>Max. Response Time<br>" +"Margin: " + minResponseTime + 
+				" - " + maxResponseTime + "</html>");
+		jSliderMinAvailability.setMaximum(maxAvailability);
+		jSliderMinAvailability.setValue(
+				(int) Math.round((maxAvailability + minAvailability) / 2.0));
+		jSliderMinAvailability.setMinimum(minAvailability);
+		jTextFieldMinAvailability.setToolTipText(
+				"<html>Min. Availability<br>" +"Margin: " + minAvailability + 
+				" - " + maxAvailability + "</html>");
 	}
+	
+	private void changeWeight(JTextField textField) {
+		try {
+			Integer.parseInt(textField.getText());
+		} catch (NumberFormatException e) {
+			textField.setText("0");
+		}
+		int cumulatedPercentage = 0;
+		if (jCheckBoxMaxCosts.isSelected()) {
+			cumulatedPercentage += Integer.parseInt(jTextFieldCostsWeight.getText());
+		}
+		if (jCheckBoxMaxResponseTime.isSelected()) {
+			cumulatedPercentage += Integer.parseInt(
+					jTextFieldResponseTimeWeight.getText());
+		}
+		if (jCheckBoxMinAvailability.isSelected()) {
+			cumulatedPercentage += Integer.parseInt(
+					jTextFieldAvailabilityWeight.getText());
+		}
+		
+		lblWeightSum.setText(String.valueOf(cumulatedPercentage));
+		if (cumulatedPercentage != 100) {
+			lblWeightSum.setForeground(Color.RED);
+			lblWeightSumSigma.setForeground(Color.RED);
+			correctWeights = false;
+			writeErrorLogEntry(
+					"Sum of active constraint weights has to be 100%");
+		}
+		else {
+			lblWeightSumSigma.setForeground(Color.GREEN);
+			lblWeightSum.setForeground(Color.GREEN);
+			correctWeights = true;
+			getUtilityFunction();
+		}		
+		checkEnableStartButton();
+	}
+
+	
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				 EXECUTING ALGORITHM METHODS			  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
 	
 	private void pressStartButton() {
 		final Map<String, Constraint> constraintsMap = getChosenConstraints();
@@ -2337,58 +2715,63 @@ public class MainFrame extends JFrame {
 			}
 		}.start();
 	}
-
-	private void chooseAlgorithm(String algorithm) {
-		if (algorithm.equals("genAlg")) {
-			if (!jCheckboxGeneticAlgorithm.isSelected()) {
-				jTextFieldPenaltyFactor.setEditable(false);
-				jTextFieldPopulationSize.setEditable(false);
-				jCheckBoxElitismRate.setEnabled(false);
-				jTextFieldElitismRate.setEditable(false);
-				jTextFieldTerminationCriterion.setEditable(false);
-				jComboBoxSelection.setEnabled(false);
-				jComboBoxCrossover.setEnabled(false);
-				jComboBoxTerminationCriterion.setEnabled(false);
-			}
-			else {
-				jTextFieldPenaltyFactor.setEditable(true);
-				jTextFieldPopulationSize.setEditable(true);
-				jCheckBoxElitismRate.setEnabled(true);
-				jTextFieldElitismRate.setEditable(true);
-				jTextFieldTerminationCriterion.setEditable(true);
-				jComboBoxSelection.setEnabled(true);
-				jComboBoxCrossover.setEnabled(true);
-				jComboBoxTerminationCriterion.setEnabled(true);
-			}
-		}
-		else if (algorithm.equals("antAlg")) {
-			if (!jCheckBoxAntColonyOptimization.isSelected()) {
-				txtAntIterations.setEditable(false);
-				txtAntAnts.setEditable(false);
-				txtAntAlpha.setEditable(false);
-				txtAntBeta.setEditable(false);
-				txtAntDilution.setEditable(false);
-				txtAntPi.setEditable(false);
-			}
-			else {
-				txtAntIterations.setEditable(true);
-				txtAntAnts.setEditable(true);
-				txtAntAlpha.setEditable(true);
-				txtAntBeta.setEditable(true);
-				txtAntDilution.setEditable(true);
-				txtAntPi.setEditable(true);;
-			}
+	
+	private void doGeneticAlgorithm() {
+		if (benchmarkMode) {
+			geneticAlgorithm.startInBenchmarkMode();
 		}
 		else {
-			if (!jCheckBoxAnalyticAlgorithm.isSelected()) {
-				jTableAnalyticAlgorithm.setEnabled(false);
-			}
-			else {
-				jTableAnalyticAlgorithm.setEnabled(true);
-			}
+			geneticAlgorithm.start();
+		}
+		cumulatedRuntime += geneticAlgorithm.getRuntime();
+		if (geneticAlgorithm.getRuntime() > 120000) {
+			jTableGeneralResults.setValueAt(
+					geneticAlgorithm.getRuntime() / 60000.0 + " min", 1, 1);
+		}
+		else if (geneticAlgorithm.getRuntime() > 1000) {
+			jTableGeneralResults.setValueAt(
+					geneticAlgorithm.getRuntime() / 1000.0 + " s", 1, 1);
+		}
+		else {
+			jTableGeneralResults.setValueAt(
+					geneticAlgorithm.getRuntime() + " ms", 1, 1);
 		}
 	}
-
+	
+	private void doAntAlgorithm() {			
+		antAlgorithm.start();        
+		cumulatedRuntime += antAlgorithm.getRuntime();
+		if (antAlgorithm.getRuntime() > 120000) {
+			jTableGeneralResults.setValueAt(
+					antAlgorithm.getRuntime() / 60000.0 + " min", 2, 1);
+		}
+		else if (antAlgorithm.getRuntime() > 1000) {
+			jTableGeneralResults.setValueAt(
+					antAlgorithm.getRuntime() / 1000.0 + " s", 2, 1);
+		}
+		else {
+			jTableGeneralResults.setValueAt(
+					antAlgorithm.getRuntime() + " ms", 2, 1);
+		}		    
+	}
+	
+	private void doEnumeration() {
+		analyticAlgorithm.start();
+		cumulatedRuntime += analyticAlgorithm.getRuntime();
+		if (analyticAlgorithm.getRuntime() > 120000) {
+			jTableGeneralResults.setValueAt(
+					analyticAlgorithm.getRuntime() / 60000.0 + " min", 3, 1);
+		}
+		else if (analyticAlgorithm.getRuntime() > 1000) {
+			jTableGeneralResults.setValueAt(
+					analyticAlgorithm.getRuntime() / 1000.0 + " s", 3, 1);
+		}
+		else {
+			jTableGeneralResults.setValueAt(
+					analyticAlgorithm.getRuntime() + " ms", 3, 1);
+		}
+	}
+	
 	private void buildGeneticAlgorithmFitnessFunction() {
 		int weightCount = 1;
 		String numerator = "<html>";
@@ -2442,356 +2825,75 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	private void doEnumeration() {
-		analyticAlgorithm.start();
-		cumulatedRuntime += analyticAlgorithm.getRuntime();
-		if (analyticAlgorithm.getRuntime() > 120000) {
-			jTableGeneralResults.setValueAt(
-					analyticAlgorithm.getRuntime() / 60000.0 + " min", 3, 1);
-		}
-		else if (analyticAlgorithm.getRuntime() > 1000) {
-			jTableGeneralResults.setValueAt(
-					analyticAlgorithm.getRuntime() / 1000.0 + " s", 3, 1);
+	private void setElitismRateSelection() {
+		if (jCheckBoxElitismRate.isSelected()) {
+			jTextFieldElitismRate.setEditable(true);
 		}
 		else {
-			jTableGeneralResults.setValueAt(
-					analyticAlgorithm.getRuntime() + " ms", 3, 1);
+			jTextFieldElitismRate.setEditable(false);
 		}
 	}
 
-	// Sum of elements of double[] columnWidthPercentages has to be 1.
-	private void setColumnWidthRelative(
-			JTable table, double[] columnWidthPercentages) {
-		double tableWidth = table.getPreferredSize().getWidth();
-		for (int count = 0; count < columnWidthPercentages.length; count++) {
-			table.getColumnModel().getColumn(count).setPreferredWidth(
-					(int)((columnWidthPercentages[count] * tableWidth) + 0.5));
-		}
-	}
-
-	private void setColumnTextAlignment(
-			JTable table, int column, int columnAlignment) {
-		DefaultTableCellRenderer defaultRenderer = 
-			new DefaultTableCellRenderer();
-		defaultRenderer.setHorizontalAlignment(columnAlignment);
-		table.getColumnModel().getColumn(column).setCellRenderer(
-				defaultRenderer);
-	}
-
-	private Map<String, Constraint> getChosenConstraints() {
-		Map<String, Constraint> constraintsMap = 
-			new HashMap<String, Constraint>();
-		if (jCheckBoxMaxCosts.isSelected()) {
-			Constraint constraintCosts = new Constraint(Constraint.COSTS, 
-					Double.valueOf(jTextFieldMaxCosts.getText()), 
-					Double.parseDouble(txtCostsWeight.getText()));
-			constraintsMap.put(constraintCosts.getTitle(), constraintCosts);
-		}
-		if (jCheckBoxMaxResponseTime.isSelected()) {
-			Constraint constraintResponseTime = new Constraint(
-					Constraint.RESPONSE_TIME, Double.valueOf(
-							jTextFieldMaxResponseTime.getText()), 
-							Double.parseDouble(
-									txtResponseTimeWeight.getText()));
-			constraintsMap.put(constraintResponseTime.getTitle(), 
-					constraintResponseTime);
-		}
-		if (jCheckBoxMinAvailability.isSelected()) {
-			Constraint constraintAvailability = new Constraint(
-					Constraint.AVAILABILITY, (Double.valueOf(
-							jTextFieldMinAvailability.getText())) / 100.0, 
-							Double.parseDouble(
-									txtAvailabilityWeight.getText()));
-			constraintsMap.put(constraintAvailability.getTitle(), 
-					constraintAvailability);
-		}
-		Constraint constraintPenaltyFactor = new Constraint(
-				Constraint.PENALTY_FACTOR, 0, Double.parseDouble(
-						jTextFieldPenaltyFactor.getText()) / 100.0);
-		constraintsMap.put(constraintPenaltyFactor.getTitle(), 
-				constraintPenaltyFactor);
-		return constraintsMap;
-	}
-
-	private void printChosenConstraintsToConsole(
-			Map<String, Constraint> constraintsMap) {
-		System.out.println("CHOSEN CONSTRAINTS:\n--------------");
-		if (constraintsMap.get(Constraint.COSTS) != null) {
-			System.out.println(constraintsMap.get(Constraint.COSTS));
-		}
-		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null) {
-			System.out.println(constraintsMap.get(Constraint.RESPONSE_TIME));
-		}
-		if (constraintsMap.get(Constraint.AVAILABILITY) != null) {
-			System.out.println(constraintsMap.get(Constraint.AVAILABILITY));
-		}
-	}
-	
-	private void setRandomConstraints() {
-		jSliderMaxCosts.setValue(minCosts + 
-				(int)(Math.random() * (maxCosts - minCosts)));
-		jSliderMaxResponseTime.setValue(minResponseTime + 
-				(int) (Math.random() * (maxResponseTime - minResponseTime)));
-		jSliderMinAvailability.setValue(minAvailability + 
-				(int) (Math.random() * (maxAvailability - minAvailability)));
-	}
-	
-	private void setDefaultConstraints() {
-		jSliderMaxCosts.setValue((maxCosts + minCosts) / 2);
-		jSliderMaxResponseTime.setValue(
-				(maxResponseTime + minResponseTime) / 2);
-		jSliderMinAvailability.setValue(
-				(maxAvailability + minAvailability) / 2);
-	}
-
-	private void resetProgram() {
-		frame.dispose();
-		frame = new MainFrame();
-		frame.setVisible(true);
-	}
-
-	private void changeWeight(JTextField textField) {
-		try {
-			Integer.parseInt(textField.getText());
-		} catch (NumberFormatException e) {
-			textField.setText("0");
-		}
-		int cumulatedPercentage = 0;
-		if (jCheckBoxMaxCosts.isSelected()) {
-			cumulatedPercentage += Integer.parseInt(txtCostsWeight.getText());
-		}
-		if (jCheckBoxMaxResponseTime.isSelected()) {
-			cumulatedPercentage += Integer.parseInt(
-					txtResponseTimeWeight.getText());
-		}
-		if (jCheckBoxMinAvailability.isSelected()) {
-			cumulatedPercentage += Integer.parseInt(
-					txtAvailabilityWeight.getText());
-		}
-		
-		lblWeightSum.setText(String.valueOf(cumulatedPercentage));
-		if (cumulatedPercentage != 100) {
-			lblWeightSum.setForeground(Color.RED);
-			lblWeightSumSigma.setForeground(Color.RED);
-			correctWeights = false;
-			writeErrorLogEntry(
-					"Sum of active constraint weights has to be 100%");
+	private void showExtendedTerminationCriterionSettings() {
+		if (jComboBoxTerminationCriterion.getSelectedIndex() == 1) {
+			jLabelTerminationDegree.setVisible(true);
+			jLabelTerminationDegreeClose.setVisible(true);
+			jTextFieldTerminationDegree.setText(
+					String.valueOf(DEFAULT_DEGREE_OF_EQUALITY));
+			jTextFieldTerminationDegree.setVisible(true);
+			// TODO: Insert Information!
+			jTextFieldTerminationCriterion.setToolTipText("<html>Number of " +
+			"consecutive equal generations<br>" +
+			"Usually about x &plusmn 5</html>");
 		}
 		else {
-			lblWeightSumSigma.setForeground(Color.GREEN);
-			lblWeightSum.setForeground(Color.GREEN);
-			correctWeights = true;
-			getUtilityFunction();
-		}		
-		checkEnableStartButton();
-	}
-
-	private void changeConstraintCheckboxStatus(String constraint) {
-		int lblWeights;
-		if (constraint.equals("Costs")) {
-			jSliderMaxCosts.setEnabled(jCheckBoxMaxCosts.isSelected());
-			jTextFieldMaxCosts.setEditable(jCheckBoxMaxCosts.isSelected());
-			lblWeights = 
-				Integer.parseInt(lblWeightSum.getText());
-			lblWeights -= Integer.parseInt(txtCostsWeight.getText());
-			lblWeightSum.setText(String.valueOf(lblWeights));
-			txtCostsWeight.setText("0");
-			txtCostsWeight.setEditable(jCheckBoxMaxCosts.isSelected());
-			changeWeight(txtCostsWeight);
-		}
-		else if (constraint.equals("Response Time")) {
-			jSliderMaxResponseTime.setEnabled(
-					jCheckBoxMaxResponseTime.isSelected());
-			jTextFieldMaxResponseTime.setEditable(
-					jCheckBoxMaxResponseTime.isSelected());
-			lblWeights = 
-				Integer.parseInt(lblWeightSum.getText());
-			lblWeights -= Integer.parseInt(txtResponseTimeWeight.getText());
-			lblWeightSum.setText(String.valueOf(lblWeights));
-			txtResponseTimeWeight.setText("0");
-			txtResponseTimeWeight.setEditable(
-					jCheckBoxMaxResponseTime.isSelected());
-			changeWeight(txtResponseTimeWeight);
-		}
-		else if (constraint.equals("Availability")) {
-			jSliderMinAvailability.setEnabled(
-					jCheckBoxMinAvailability.isSelected());
-			jTextFieldMinAvailability.setEditable(
-					jCheckBoxMinAvailability.isSelected());
-			lblWeights = 
-				Integer.parseInt(lblWeightSum.getText());
-			lblWeights -= Integer.parseInt(txtAvailabilityWeight.getText());
-			lblWeightSum.setText(String.valueOf(lblWeights));
-			txtAvailabilityWeight.setText("0");
-			txtAvailabilityWeight.setEditable(
-					jCheckBoxMinAvailability.isSelected());
-			changeWeight(txtAvailabilityWeight);
-		}
-		getUtilityFunction();
-		buildGeneticAlgorithmFitnessFunction();
-	}
-	
-	private void writeErrorLogEntry(String entry) {
-		textAreaLog.append("\n" + dateFormatLog.format(new Date()) + entry);
-	}
-	
-	private void checkEnableStartButton() {
-		if (webServicesLoaded && correctWeights) {
-			jButtonStart.setEnabled(true);
-		}
-		else {
-			jButtonStart.setEnabled(false);
+			if (jComboBoxTerminationCriterion.getSelectedIndex() == 0) {
+				// TODO: Insert Information!
+				jTextFieldTerminationCriterion.setToolTipText(
+						"<html>Number of Iterations<br>" +
+						"Usually about x &plusmn 10%</html>");
+			}
+			else {
+				// TODO: Insert Information!
+				jTextFieldTerminationCriterion.setToolTipText(
+						"<html>Number of consecutive equal " +
+						"max fitness values<br>" +
+						"Usually about x &plusmn 5</html>");
+			}
+			jLabelTerminationDegree.setVisible(false);
+			jLabelTerminationDegreeClose.setVisible(false);
+			jTextFieldTerminationDegree.setVisible(false);
 		}
 	}
 
-	private void setConstraintValueManually(
-			JSlider slider, JTextField textField, int minValue, int maxValue) {
-		int average = (minValue + maxValue) / 2;
-		try {
-			Integer.parseInt(textField.getText());
-		} catch (NumberFormatException e) {
-			textField.setText(String.valueOf(average));
-			slider.setValue(average);
-			writeErrorLogEntry("Value has to be from the type Integer!");
-		}
-		if (Integer.parseInt(textField.getText()) < minValue || 
-				Integer.parseInt(textField.getText()) > maxValue) {
-			textField.setText(String.valueOf(average));
-			slider.setValue(average);
-			writeErrorLogEntry("Value has to be between " + 
-					minValue + " and " + maxValue);
-		}
-		else {
-			slider.setValue(Integer.parseInt(textField.getText()));
-		}
-		getUtilityFunction();
-	}
+
 	
-	private void loadRandomWebServices() {
-		final JSpinner spinnerNumberOfServiceClasses = new JSpinner(
-				new SpinnerNumberModel(1, 1, 1000, 1));		
-		((JSpinner.DefaultEditor) spinnerNumberOfServiceClasses.getEditor()).
-		getTextField().setHorizontalAlignment(JTextField.CENTER);
-		JSpinner spinnerNumberOfWebServices = new JSpinner(
-				new SpinnerNumberModel(1, 1, 1000, 1));
-		((JSpinner.DefaultEditor) spinnerNumberOfWebServices.getEditor()).
-		getTextField().setEditable(true);
-		((JSpinner.DefaultEditor) spinnerNumberOfWebServices.getEditor()).
-		getTextField().setHorizontalAlignment(JTextField.CENTER);
-		JComponent[] dialogComponents = new JComponent[] {
-				new JLabel("Number of Service Classes:"),
-				spinnerNumberOfServiceClasses,
-				new JLabel("Number of Web Services " +
-						"(per Class):"),
-						spinnerNumberOfWebServices
-		};
-		if (JOptionPane.showConfirmDialog(null, dialogComponents, 
-				"Random Set Properties", 
-				JOptionPane.OK_CANCEL_OPTION, 
-				JOptionPane.QUESTION_MESSAGE) != JOptionPane.YES_OPTION) {
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |		 			   RESULTS METHODS			 		  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
+	
+	private void buildResultTable() {
+		if (jTabbedPane.getTabCount() > 0) {
+			jTabbedPane.removeAll();
+		}
+		Map<String, Algorithm> algorithmsMap = getChosenAlgorithms();
+		if (algorithmsMap == null) {
 			return;
 		}
-		int numberOfServiceClasses = 
-			(Integer) spinnerNumberOfServiceClasses.getValue();
-		int numberOfWebServices = 
-			(Integer) spinnerNumberOfWebServices.getValue();
-		
-		// Delete previously loaded web services.
-		serviceCandidatesList.removeAll(serviceCandidatesList);
-		serviceClassesList.removeAll(serviceClassesList);
-		
-		// Use RandomSetGenerator to create web services data.
-		List<ServiceClass> servicesList = RandomSetGenerator.generateSet(
-				numberOfServiceClasses, numberOfWebServices);
-		serviceClassesList = servicesList;
-		
-		// Write service classes headers.
-		jTableServiceClasses.setModel(new BasicTableModel(
-				serviceClassesList.size(), 2, false));
-		setColumnWidthRelative(jTableServiceClasses, 
-				new double[] {0.3, 0.7});
-		TableColumnModel serviceClassesColumnModel = 
-			jTableServiceClasses.getColumnModel();
-		serviceClassesColumnModel.getColumn(0).setHeaderValue("ID");
-		serviceClassesColumnModel.getColumn(1).setHeaderValue("Name");
-		setColumnTextAlignment(
-				jTableServiceClasses, 0, DefaultTableCellRenderer.CENTER);
-
-		// Write service classes data. Load service candidates into list.
-		for (int k = 0; k < serviceClassesList.size(); k++) {
-			ServiceClass serviceClass = serviceClassesList.get(k);
-			jTableServiceClasses.setValueAt(
-					serviceClass.getServiceClassId(), k, 0);
-			jTableServiceClasses.setValueAt(serviceClass.getName(), k, 1);
-			
-			for (ServiceCandidate serviceCandidate : 
-				serviceClass.getServiceCandidateList()) {
-				serviceCandidatesList.add(serviceCandidate);
-			}
-		}
-
-		// Write service candidates headers.
-		jTableWebServices.setModel(new BasicTableModel(
-				serviceCandidatesList.size(), 6, false));
-		TableColumnModel webServicesColumnModel = 
-			jTableWebServices.getColumnModel();
-		String[] headerArray = new String[] {"Service Class ", "ID", 
-			"Name", "Costs", "ResponseTime", "Availability"};
-		for (int k = 0; k < 6; k++) {
-			webServicesColumnModel.getColumn(k).setHeaderValue(
-					headerArray[k]);
-		}
-		setColumnTextAlignment(
-				jTableWebServices, 0, DefaultTableCellRenderer.CENTER);
-		setColumnTextAlignment(
-				jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
-		for (int count = 4; count < 6; count++) {
-			setColumnTextAlignment(jTableWebServices, count, 
-					DefaultTableCellRenderer.RIGHT);
-		}
-		// Write service candidates data.
-		for (int k = 0; k < serviceCandidatesList.size(); k++) {
-			ServiceCandidate serviceCandidate = 
-				serviceCandidatesList.get(k);
-			QosVector qosVector = serviceCandidate.getQosVector();
-			jTableWebServices.setValueAt(
-					serviceCandidate.getServiceClassId(), k, 0);
-			jTableWebServices.setValueAt(
-					serviceCandidate.getServiceCandidateId(), k, 1);
-			jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
-			jTableWebServices.setValueAt(qosVector.getCosts(), k, 3);
-			jTableWebServices.setValueAt(
-					qosVector.getResponseTime(), k, 4);
-			jTableWebServices.setValueAt(qosVector.getAvailability(), k, 5);
-		}
-		webServicesLoaded = true;
-		checkEnableStartButton();
-		setSliderExtremeValues();
-		checkInputValue(jTextFieldPopulationSize, 
-				MAX_START_POPULATION_SIZE, 1, 
-				DEFAULT_START_POPULATION_SIZE);
-	}
-	
-	private Map<String, Algorithm> getChosenAlgorithms() {
-		Map<String, Algorithm> algorithmMap = new HashMap<String, Algorithm>();
-		if (jCheckboxGeneticAlgorithm.isSelected()) {
-			algorithmMap.put("Genetic Algorithm", geneticAlgorithm);
-		}
-		if (jCheckBoxAntColonyOptimization.isSelected()) {
-			algorithmMap.put("Ant Colony Algorithm", antAlgorithm);
-		}
-		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-			algorithmMap.put("Analytic Algorithm", analyticAlgorithm);
-		}
-		if (algorithmMap.size() == 0) {
-			return null;
-		}
-		return algorithmMap;
+		// COUNTER FOR EVERY CHOSEN ALGORITHM
+		saveResultList = new LinkedList<String>();
+		for (Map.Entry<String, Algorithm> entry : algorithmsMap.entrySet()) {
+			showAlgorithmResults(entry.getValue(), entry.getKey());
+		}		
 	}
 	
 	private void showAlgorithmResults(Algorithm algorithm, 
 			String algorithmTitle) {
-		
 		JScrollPane jScrollPane = new JScrollPane();
 		this.jTabbedPane.addTab(algorithmTitle, jScrollPane);
 
@@ -2818,7 +2920,6 @@ public class MainFrame extends JFrame {
 		gblJPanelAlgorithmResult.rowWeights = rows;
 		jPanelAlgorithmResult.setLayout(gblJPanelAlgorithmResult);
 		jScrollPane.setViewportView(jPanelAlgorithmResult);
-
 
 		// COUNTER FOR ALL TIER TABLES
 		for (int count = 1; 
@@ -3013,235 +3114,55 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	private void doAntAlgorithm() {			
-		antAlgorithm.start();        
-		cumulatedRuntime += antAlgorithm.getRuntime();
-		if (antAlgorithm.getRuntime() > 120000) {
-			jTableGeneralResults.setValueAt(
-					antAlgorithm.getRuntime() / 60000.0 + " min", 2, 1);
-		}
-		else if (antAlgorithm.getRuntime() > 1000) {
-			jTableGeneralResults.setValueAt(
-					antAlgorithm.getRuntime() / 1000.0 + " s", 2, 1);
-		}
-		else {
-			jTableGeneralResults.setValueAt(
-					antAlgorithm.getRuntime() + " ms", 2, 1);
-		}		    
-	} 
-	
-	private QosVector determineQosMax() {
-		QosVector max = new QosVector(0.0, 0.0, 0.0);
-		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
-			QosVector qos = serviceCandidate.getQosVector();
-			if (qos.getCosts() > max.getCosts()) {
-				max.setCosts(qos.getCosts());
+	// TODO: Implement method which saves the results as a csv-file
+	//		 -> file should contain all service classes, 
+	//			web services, number of compositions and finally
+	//			the chosen algorithms results
+	//		 -> it has to be ensured that at least one algorithm 
+	//			has been executed before the results can be saved
+	//		 -> show a dialog where the user can see the file path 
+	//			of the saved data and where a filename can be 
+	//			chosen
+	private void saveResults() {
+		final JFileChooser fileChooser = new JFileChooser() {
+			private static final long serialVersionUID = 1L;
+			{
+				setFileFilter(new FileFilter() {
+					@Override
+					public boolean accept(File f) {
+						return f.getName().toLowerCase().endsWith("csv") || 
+						f.isDirectory();
+					}
+					@Override
+					public String getDescription() {
+						return "CSV Datei (Comma Seperated Values)";
+					}
+				});
+				setSelectedFile( new File("Result.csv") );	
 			}
-			if (qos.getResponseTime() > max.getResponseTime()) {
-				max.setResponseTime(qos.getResponseTime());
-			}
-			if (qos.getAvailability() > max.getAvailability()) {
-				max.setAvailability(qos.getAvailability());
-			}
-		}
-		return max;
-	}
-	
-	private QosVector determineQosMin() {
-		QosVector min = new QosVector(100000.0, 100000.0, 1.0);
-		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
-			QosVector qos = serviceCandidate.getQosVector();
-			if (qos.getCosts() < min.getCosts()) {
-				min.setCosts(qos.getCosts());
-			}
-			if (qos.getResponseTime() < min.getResponseTime()) {
-				min.setResponseTime(qos.getResponseTime());
-			}
-			if (qos.getAvailability() < min.getAvailability()) {
-				min.setAvailability(qos.getAvailability());
-			}
-		}
-		return min;
-	}
-	
-	private void getUtilityFunction() {
-		String utilityText = "<html>Utility Value(Composition)  =  ";
-		boolean noConstraintsChosen = true;
-		if (jCheckBoxMaxCosts.isSelected()) {
-			utilityText += "(Costs<sub><small>norm</small></sub> * " + 
-			(Double.parseDouble(txtCostsWeight.getText()) / 100.0) + ") + ";
-			noConstraintsChosen = false;
-		}
-		if (jCheckBoxMaxResponseTime.isSelected()) {
-			utilityText += "(Response Time<sub><small>norm</small></sub> * " + 
-			(Double.parseDouble(
-					txtResponseTimeWeight.getText()) / 100.0) + ") + ";
-			noConstraintsChosen = false;
-		}
-		if (jCheckBoxMinAvailability.isSelected()) {
-			utilityText += "(Availability<sub><small>norm</small></sub> * " + 
-			(Double.parseDouble(
-					txtAvailabilityWeight.getText()) / 100.0) + ")";
-			noConstraintsChosen = false;
-		}
-		if (noConstraintsChosen) {
-			jLabelUtilityText.setText("");
+		};
+		if (!(fileChooser.showSaveDialog(MainFrame.this) == 
+				JFileChooser.APPROVE_OPTION)) {
 			return;
 		}
-		if (utilityText.endsWith("+ ")) {
-			utilityText = utilityText.substring(0, utilityText.length() - 3);
+		final File file = fileChooser.getSelectedFile();
+		if (file == null) {
+			return;
 		}
-		jLabelUtilityText.setText(utilityText + "</html>");
-	}
-	
-	private void doGeneticAlgorithm() {
-		if (benchmarkMode) {
-			geneticAlgorithm.startInBenchmarkMode();
-		}
-		else {
-			geneticAlgorithm.start();
-		}
-		cumulatedRuntime += geneticAlgorithm.getRuntime();
-		if (geneticAlgorithm.getRuntime() > 120000) {
-			jTableGeneralResults.setValueAt(
-					geneticAlgorithm.getRuntime() / 60000.0 + " min", 1, 1);
-		}
-		else if (geneticAlgorithm.getRuntime() > 1000) {
-			jTableGeneralResults.setValueAt(
-					geneticAlgorithm.getRuntime() / 1000.0 + " s", 1, 1);
-		}
-		else {
-			jTableGeneralResults.setValueAt(
-					geneticAlgorithm.getRuntime() + " ms", 1, 1);
-		}
-	}
-	
-	private void showExtendedTerminationCriterionSettings() {
-		if (jComboBoxTerminationCriterion.getSelectedIndex() == 1) {
-			jLabelTerminationDegree.setVisible(true);
-			jLabelTerminationDegreeClose.setVisible(true);
-			jTextFieldTerminationDegree.setText(
-					String.valueOf(DEFAULT_DEGREE_OF_EQUALITY));
-			jTextFieldTerminationDegree.setVisible(true);
-			// TODO: Insert Information!
-			jTextFieldTerminationCriterion.setToolTipText("<html>Number of " +
-			"consecutive equal generations<br>" +
-			"Usually about x &plusmn 5</html>");
-		}
-		else {
-			if (jComboBoxTerminationCriterion.getSelectedIndex() == 0) {
-				// TODO: Insert Information!
-				jTextFieldTerminationCriterion.setToolTipText(
-						"<html>Number of Iterations<br>" +
-						"Usually about x &plusmn 10%</html>");
+		BufferedWriter bufferedWriter = null;
+		try {
+			bufferedWriter = new BufferedWriter(new FileWriter(file));
+			String header = "Algorithm;Runtime;Utility;Costs;" +
+					"Response Time;Availability";
+			bufferedWriter.write(header);			
+			for (String line : saveResultList) {				
+				bufferedWriter.newLine();
+				bufferedWriter.write(line);
 			}
-			else {
-				// TODO: Insert Information!
-				jTextFieldTerminationCriterion.setToolTipText(
-						"<html>Number of consecutive equal " +
-						"max fitness values<br>" +
-						"Usually about x &plusmn 5</html>");
-			}
-			jLabelTerminationDegree.setVisible(false);
-			jLabelTerminationDegreeClose.setVisible(false);
-			jTextFieldTerminationDegree.setVisible(false);
+			bufferedWriter.close();
+		} catch (IOException e1) {			
+			e1.printStackTrace();
 		}
-	}
-	
-	private void setSliderExtremeValues() {
-//		double maxCosts = 0.0;
-//		double minCosts = 0.0;
-//		double maxResponseTime = 0.0;
-//		double minResponseTime = 0.0;
-//		double maxAvailability = 1.0;
-//		double minAvailability = 1.0;
-//		for (int i = 0; i < serviceClassesList.size(); i++) {
-//			double[] extremeUtilityValues = {
-//				0.0,
-//				Double.MAX_VALUE,
-//				0.0,
-//				Double.MAX_VALUE,
-//				0.0,
-//				Double.MAX_VALUE
-//			};
-//			for (ServiceCandidate candidate : 
-//				serviceClassesList.get(i).getServiceCandidateList()) {
-//				if (extremeUtilityValues[0] < 
-//						candidate.getQosVector().getCosts()) {
-//					extremeUtilityValues[0] = 
-//							candidate.getQosVector().getCosts();
-//				}
-//				if (extremeUtilityValues[1] > 
-//				candidate.getQosVector().getCosts()) {
-//					extremeUtilityValues[1] = 
-//							candidate.getQosVector().getCosts();
-//				}
-//				if (extremeUtilityValues[2] < 
-//						candidate.getQosVector().getResponseTime()) {
-//					extremeUtilityValues[2] = 
-//							candidate.getQosVector().getResponseTime();
-//				}
-//				if (extremeUtilityValues[3] > 
-//				candidate.getQosVector().getResponseTime()) {
-//					extremeUtilityValues[3] = 
-//							candidate.getQosVector().getResponseTime();
-//				}
-//				if (extremeUtilityValues[4] < 
-//						candidate.getQosVector().getAvailability()) {
-//					extremeUtilityValues[4] = 
-//							candidate.getQosVector().getAvailability();
-//				}
-//				if (extremeUtilityValues[5] > 
-//				candidate.getQosVector().getAvailability()) {
-//					extremeUtilityValues[5] = 
-//							candidate.getQosVector().getAvailability();
-//				}
-//			}
-//			maxCosts += extremeUtilityValues[0];
-//			minCosts += extremeUtilityValues[1];
-//			maxResponseTime += extremeUtilityValues[2];
-//			minResponseTime += extremeUtilityValues[3];
-//			maxAvailability *= extremeUtilityValues[4];
-//			minAvailability *= extremeUtilityValues[5];
-//		}
-//		maxAvailability *= 100;
-//		minAvailability *= 100;
-
-		qosMax = determineQosMax();
-		qosMin = determineQosMin();
-		maxCosts = (int) Math.ceil(
-				qosMax.getCosts() * serviceClassesList.size());
-		minCosts = (int) Math.floor(
-				qosMin.getCosts() * serviceClassesList.size());
-		maxResponseTime = (int) Math.ceil(
-				qosMax.getResponseTime() * serviceClassesList.size());
-		minResponseTime = (int) Math.floor(
-				qosMin.getResponseTime() * serviceClassesList.size());
-		maxAvailability = (int) Math.ceil(Math.pow(
-				qosMax.getAvailability(), serviceClassesList.size()) * 100);
-		minAvailability = (int) Math.floor(Math.pow(
-				qosMin.getAvailability(), serviceClassesList.size()) * 100);
-
-		jSliderMaxCosts.setMaximum(maxCosts);
-		jSliderMaxCosts.setValue(
-				(int) Math.round((maxCosts + minCosts) / 2.0));
-		jSliderMaxCosts.setMinimum(minCosts);
-		jTextFieldMaxCosts.setToolTipText("<html>Max. Costs<br>" +
-				"Margin: " + minCosts + " - " + maxCosts + "</html>");
-		jSliderMaxResponseTime.setMaximum(maxResponseTime);
-		jSliderMaxResponseTime.setValue(
-				(int) Math.round((maxResponseTime + minResponseTime) / 2.0));
-		jSliderMaxResponseTime.setMinimum(minResponseTime);
-		jTextFieldMaxResponseTime.setToolTipText(
-				"<html>Max. Response Time<br>" +"Margin: " + minResponseTime + 
-				" - " + maxResponseTime + "</html>");
-		jSliderMinAvailability.setMaximum(maxAvailability);
-		jSliderMinAvailability.setValue(
-				(int) Math.round((maxAvailability + minAvailability) / 2.0));
-		jSliderMinAvailability.setMinimum(minAvailability);
-		jTextFieldMinAvailability.setToolTipText(
-				"<html>Min. Availability<br>" +"Margin: " + minAvailability + 
-				" - " + maxAvailability + "</html>");
 	}
 	
 	private void showResultVisualization() {
@@ -3260,6 +3181,51 @@ public class MainFrame extends JFrame {
 						geneticAlgorithm.getNumberOfDifferentSolutions(),
 						geneticAlgorithm.getMaxUtilityPerPopulation(),
 						geneticAlgorithm.getAverageUtilityPerPopulation());
+	}
+	
+	
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				   	  OTHER GUI METHODS					  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
+	
+	private void getUtilityFunction() {
+		String utilityText = "<html>Utility Value(Composition)  =  ";
+		boolean noConstraintsChosen = true;
+		if (jCheckBoxMaxCosts.isSelected()) {
+			utilityText += "(Costs<sub><small>norm</small></sub> * " + 
+			(Double.parseDouble(jTextFieldCostsWeight.getText()) / 100.0) + ") + ";
+			noConstraintsChosen = false;
+		}
+		if (jCheckBoxMaxResponseTime.isSelected()) {
+			utilityText += "(Response Time<sub><small>norm</small></sub> * " + 
+			(Double.parseDouble(
+					jTextFieldResponseTimeWeight.getText()) / 100.0) + ") + ";
+			noConstraintsChosen = false;
+		}
+		if (jCheckBoxMinAvailability.isSelected()) {
+			utilityText += "(Availability<sub><small>norm</small></sub> * " + 
+			(Double.parseDouble(
+					jTextFieldAvailabilityWeight.getText()) / 100.0) + ")";
+			noConstraintsChosen = false;
+		}
+		if (noConstraintsChosen) {
+			jLabelUtilityText.setText("");
+			return;
+		}
+		if (utilityText.endsWith("+ ")) {
+			utilityText = utilityText.substring(0, utilityText.length() - 3);
+		}
+		jLabelUtilityText.setText(utilityText + "</html>");
+	}
+	
+	private void writeErrorLogEntry(String entry) {
+		textAreaLog.append("\n" + dateFormatLog.format(new Date()) + entry);
 	}
 	
 	private void checkInputValue(JTextField textField, 
@@ -3327,126 +3293,193 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	private void setElitismRateSelection() {
-		if (jCheckBoxElitismRate.isSelected()) {
-			jTextFieldElitismRate.setEditable(true);
+	private void checkEnableStartButton() {
+		if (webServicesLoaded && correctWeights) {
+			jButtonStart.setEnabled(true);
 		}
 		else {
-			jTextFieldElitismRate.setEditable(false);
+			jButtonStart.setEnabled(false);
 		}
 	}
 	
-	private void exportDataSet(File file) {		
-		BufferedWriter bufferedWriter = null;
-		try {
-			bufferedWriter = new BufferedWriter(new FileWriter(file));
-			String header = "serviceClassId;serviceClassName;ID;Name;Costs;Response Time;Availability";
-			bufferedWriter.write(header);			
-			for (ServiceCandidate sc : serviceCandidatesList) {
-				String line = sc.getServiceClassId()+";ServiceClass"+sc.getServiceClassId()+";"
-						+sc.getServiceCandidateId()+";"+sc.getName()+";"
-						+sc.getQosVector().getCosts()+";"+sc.getQosVector().getResponseTime()+";"
-						+sc.getQosVector().getAvailability();
-				bufferedWriter.newLine();
-				bufferedWriter.write(line);
+	private void chooseAlgorithm(String algorithm) {
+		if (algorithm.equals("genAlg")) {
+			if (!jCheckboxGeneticAlgorithm.isSelected()) {
+				jTextFieldPenaltyFactor.setEditable(false);
+				jTextFieldPopulationSize.setEditable(false);
+				jCheckBoxElitismRate.setEnabled(false);
+				jTextFieldElitismRate.setEditable(false);
+				jTextFieldTerminationCriterion.setEditable(false);
+				jComboBoxSelection.setEnabled(false);
+				jComboBoxCrossover.setEnabled(false);
+				jComboBoxTerminationCriterion.setEnabled(false);
 			}
-			bufferedWriter.close();
-		} catch (IOException e1) {			
-			e1.printStackTrace();
-		}
-	}	
-	
-	
-	// TODO: Implement method which saves the results as a csv-file
-	//		 -> file should contain all service classes, 
-	//			web services, number of compositions and finally
-	//			the chosen algorithms results
-	//		 -> it has to be ensured that at least one algorithm 
-	//			has been executed before the results can be saved
-	//		 -> show a dialog where the user can see the file path 
-	//			of the saved data and where a filename can be 
-	//			chosen
-	private void saveResults() {
-		final JFileChooser fileChooser = new JFileChooser() {
-			private static final long serialVersionUID = 1L;
-			{
-				setFileFilter(new FileFilter() {
-					@Override
-					public boolean accept(File f) {
-						return f.getName().toLowerCase().endsWith("csv") || 
-						f.isDirectory();
-					}
-					@Override
-					public String getDescription() {
-						return "CSV Datei (Comma Seperated Values)";
-					}
-				});
-				setSelectedFile( new File("Result.csv") );	
+			else {
+				jTextFieldPenaltyFactor.setEditable(true);
+				jTextFieldPopulationSize.setEditable(true);
+				jCheckBoxElitismRate.setEnabled(true);
+				jTextFieldElitismRate.setEditable(true);
+				jTextFieldTerminationCriterion.setEditable(true);
+				jComboBoxSelection.setEnabled(true);
+				jComboBoxCrossover.setEnabled(true);
+				jComboBoxTerminationCriterion.setEnabled(true);
 			}
-		};
-		
-		if (!(fileChooser.showSaveDialog(MainFrame.this) == 
-				JFileChooser.APPROVE_OPTION)) {
-			return;
 		}
-		final File file = fileChooser.getSelectedFile();
-		if (file == null) {
-			return;
-		}
-		
-		BufferedWriter bufferedWriter = null;
-		try {
-			bufferedWriter = new BufferedWriter(new FileWriter(file));
-			String header = "Algorithm;Runtime;Utility;Costs;" +
-					"Response Time;Availability";
-			bufferedWriter.write(header);			
-			for (String line : saveResultList) {				
-				bufferedWriter.newLine();
-				bufferedWriter.write(line);
+		else if (algorithm.equals("antAlg")) {
+			if (!jCheckBoxAntColonyOptimization.isSelected()) {
+				txtAntIterations.setEditable(false);
+				txtAntAnts.setEditable(false);
+				txtAntAlpha.setEditable(false);
+				txtAntBeta.setEditable(false);
+				txtAntDilution.setEditable(false);
+				txtAntPi.setEditable(false);
 			}
-			bufferedWriter.close();
-		} catch (IOException e1) {			
-			e1.printStackTrace();
+			else {
+				txtAntIterations.setEditable(true);
+				txtAntAnts.setEditable(true);
+				txtAntAlpha.setEditable(true);
+				txtAntBeta.setEditable(true);
+				txtAntDilution.setEditable(true);
+				txtAntPi.setEditable(true);;
+			}
 		}
-		
+		else {
+			if (!jCheckBoxAnalyticAlgorithm.isSelected()) {
+				jTableAnalyticAlgorithm.setEnabled(false);
+			}
+			else {
+				jTableAnalyticAlgorithm.setEnabled(true);
+			}
+		}
 	}
 	
-	// TODO: Implement method which saves the current constraints 
-	//		 and algorithm settings
-	//		 -> show a dialog where the user can see the file path 
-	//			of the saved data and where a filename can be 
-	//			chosen
-//	private void saveConstraints() {
-//		
-//	}
 	
-	// TODO: Implement method which loads a saved set of constraints 
-	//		 and algorithm settings
-	//		 -> take care of dynamic constraint limits!
-	// 		 -> use a file chooser!
-//	private void loadConstraints() {
-//		
-//	}
 	
-	// TODO: Implement method which shows a message dialog
-	//		 -> dialog should contain basic information for using 
-	//			the program correctly
-//	private void showHelpDialog() {
-//		
-//	}
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				   		 HELPER METHODS					  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
+
+	private Map<String, Constraint> getChosenConstraints() {
+		Map<String, Constraint> constraintsMap = 
+			new HashMap<String, Constraint>();
+		if (jCheckBoxMaxCosts.isSelected()) {
+			Constraint constraintCosts = new Constraint(Constraint.COSTS, 
+					Double.valueOf(jTextFieldMaxCosts.getText()), 
+					Double.parseDouble(jTextFieldCostsWeight.getText()));
+			constraintsMap.put(constraintCosts.getTitle(), constraintCosts);
+		}
+		if (jCheckBoxMaxResponseTime.isSelected()) {
+			Constraint constraintResponseTime = new Constraint(
+					Constraint.RESPONSE_TIME, Double.valueOf(
+							jTextFieldMaxResponseTime.getText()), 
+							Double.parseDouble(
+									jTextFieldResponseTimeWeight.getText()));
+			constraintsMap.put(constraintResponseTime.getTitle(), 
+					constraintResponseTime);
+		}
+		if (jCheckBoxMinAvailability.isSelected()) {
+			Constraint constraintAvailability = new Constraint(
+					Constraint.AVAILABILITY, (Double.valueOf(
+							jTextFieldMinAvailability.getText())) / 100.0, 
+							Double.parseDouble(
+									jTextFieldAvailabilityWeight.getText()));
+			constraintsMap.put(constraintAvailability.getTitle(), 
+					constraintAvailability);
+		}
+		Constraint constraintPenaltyFactor = new Constraint(
+				Constraint.PENALTY_FACTOR, 0, Double.parseDouble(
+						jTextFieldPenaltyFactor.getText()) / 100.0);
+		constraintsMap.put(constraintPenaltyFactor.getTitle(), 
+				constraintPenaltyFactor);
+		return constraintsMap;
+	}
+
+	private Map<String, Algorithm> getChosenAlgorithms() {
+		Map<String, Algorithm> algorithmMap = new HashMap<String, Algorithm>();
+		if (jCheckboxGeneticAlgorithm.isSelected()) {
+			algorithmMap.put("Genetic Algorithm", geneticAlgorithm);
+		}
+		if (jCheckBoxAntColonyOptimization.isSelected()) {
+			algorithmMap.put("Ant Colony Algorithm", antAlgorithm);
+		}
+		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+			algorithmMap.put("Analytic Algorithm", analyticAlgorithm);
+		}
+		if (algorithmMap.size() == 0) {
+			return null;
+		}
+		return algorithmMap;
+	}
 	
-	// TODO: Implement method which shows an input dialog
-	//		 -> input message should be sent to an admin,
-	//			in our case lars
-	//		 -> check if web access is available
-	//		 -> local solution: create txt-file, with date etc.
-//	private void showSupportDialog() {
-//		
-//	}
+	private QosVector determineQosMax() {
+		QosVector max = new QosVector(0.0, 0.0, 0.0);
+		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+			QosVector qos = serviceCandidate.getQosVector();
+			if (qos.getCosts() > max.getCosts()) {
+				max.setCosts(qos.getCosts());
+			}
+			if (qos.getResponseTime() > max.getResponseTime()) {
+				max.setResponseTime(qos.getResponseTime());
+			}
+			if (qos.getAvailability() > max.getAvailability()) {
+				max.setAvailability(qos.getAvailability());
+			}
+		}
+		return max;
+	}
 	
-	// TODO: Implement method which shows a message dialog with 
-	//		 basic information about the program, e.g. version
-//	private void showAboutDialog() {
-//		
-//	}
+	private QosVector determineQosMin() {
+		QosVector min = new QosVector(100000.0, 100000.0, 1.0);
+		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+			QosVector qos = serviceCandidate.getQosVector();
+			if (qos.getCosts() < min.getCosts()) {
+				min.setCosts(qos.getCosts());
+			}
+			if (qos.getResponseTime() < min.getResponseTime()) {
+				min.setResponseTime(qos.getResponseTime());
+			}
+			if (qos.getAvailability() < min.getAvailability()) {
+				min.setAvailability(qos.getAvailability());
+			}
+		}
+		return min;
+	}
+	
+	// Sum of elements of double[] columnWidthPercentages has to be 1.
+	private void setColumnWidthRelative(
+			JTable table, double[] columnWidthPercentages) {
+		double tableWidth = table.getPreferredSize().getWidth();
+		for (int count = 0; count < columnWidthPercentages.length; count++) {
+			table.getColumnModel().getColumn(count).setPreferredWidth(
+					(int)((columnWidthPercentages[count] * tableWidth) + 0.5));
+		}
+	}
+
+	private void setColumnTextAlignment(
+			JTable table, int column, int columnAlignment) {
+		DefaultTableCellRenderer defaultRenderer = 
+			new DefaultTableCellRenderer();
+		defaultRenderer.setHorizontalAlignment(columnAlignment);
+		table.getColumnModel().getColumn(column).setCellRenderer(
+				defaultRenderer);
+	}
+	
+	private void printChosenConstraintsToConsole(
+			Map<String, Constraint> constraintsMap) {
+		System.out.println("CHOSEN CONSTRAINTS:\n--------------");
+		if (constraintsMap.get(Constraint.COSTS) != null) {
+			System.out.println(constraintsMap.get(Constraint.COSTS));
+		}
+		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null) {
+			System.out.println(constraintsMap.get(Constraint.RESPONSE_TIME));
+		}
+		if (constraintsMap.get(Constraint.AVAILABILITY) != null) {
+			System.out.println(constraintsMap.get(Constraint.AVAILABILITY));
+		}
+	}
 }
