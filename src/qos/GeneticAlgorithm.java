@@ -73,36 +73,40 @@ public class GeneticAlgorithm extends Algorithm {
 		terminationCounter = terminationCriterion;
 		elitismRate /= 100.0;
 		while (terminationCounter > 0) {
-			// SELECTION (Elitism Based)
+			
+			// SELECTION
+			// Elitism Based
 			int numberOfElites = (int) Math.round(
 					populationSize * elitismRate);
 			List<Composition> population1 = doSelectionElitismBased(
 					population, numberOfElites);
+			
 			List<Composition> population2;
+			
+			// Roulette Wheel
 			if (selectionMethod.contains("Roulette Wheel")) {
-				population2 = 
-						doSelectionRouletteWheel(population, 
-								populationSize - numberOfElites);
-			}
-			else if (selectionMethod.contains("Linear Ranking")) {
-				population2 = 
-				doSelectionLinearRanking(population, 
-						populationSize - numberOfElites);
-			}
-			else {
-				population2 = 
-				new LinkedList<Composition>(population.subList(
-						numberOfElites, population.size() - 1));
-			population2 = 
-				doSelectionBinaryTournament(population2);
+				population2 = doSelectionRouletteWheel(
+						population, populationSize - numberOfElites);
 			}
 			
+			// Linear Ranking
+			else if (selectionMethod.contains("Linear Ranking")) {
+				population2 = doSelectionLinearRanking(
+						population, populationSize - numberOfElites);
+			}
+			
+			// Binary Tournament
+			else {
+				population2 = new LinkedList<Composition>(population.subList(
+						numberOfElites, population.size() - 1));
+				population2 = doSelectionBinaryTournament(population2);
+			}
+
 			// RECOMBINATION
 			// CROSSOVER (One-Point Crossover)
 			int numberOfCrossovers = (int) Math.round((
 					(populationSize - numberOfElites) / 2.0));
-			population2 = doCrossoverOnePoint(
-					population, numberOfCrossovers);
+			population2 = doCrossoverOnePoint(population, numberOfCrossovers);
 			
 			// MUTATION
 			doMutation(population2, numberOfCrossovers);
@@ -158,8 +162,10 @@ public class GeneticAlgorithm extends Algorithm {
 								workPercentage), 100);
 			}
 		}
+		
 		// Sort the population according to the utility of the 
 		// compositions. Thus, the first elements are the elite elements.
+		// TODO: Sortierung muss nach Fitness erfolgen!!!
 		Collections.sort(population, new Composition());
 		
 		// Print the best solution.
@@ -258,7 +264,20 @@ public class GeneticAlgorithm extends Algorithm {
 		}
 		// Sort the population according to the utility of the 
 		// compositions. Thus, the first elements are the elite elements.
-		Collections.sort(population, new Composition());
+		Collections.sort(population, new Comparator<Composition>() {
+			@Override
+			public int compare(Composition o1, Composition o2) {
+				if (computeFitness(o1) < computeFitness(o2)) {
+					return 1;
+				}
+				else if (computeFitness(o1) > computeFitness(o2)) {
+					return -1;
+				}
+				else {
+					return 0;
+				}
+			}
+		});
 		
 		// Print the best solution.
 		System.out.println("--------------");
@@ -310,9 +329,6 @@ public class GeneticAlgorithm extends Algorithm {
 		List<Composition> population1 = new LinkedList<Composition>();
 		// Sort the population according to the fitness of the 
 		// compositions. Thus, the first elements are the elite elements.
-		// TODO: Es sollte kein neuer Comparator geschrieben werden. Außerdem 
-		//		 sollte computeFitness() eine Methode der Klasse Composition
-		//		 sein.
 		Collections.sort(population, new Comparator<Composition>() {
 			@Override
 			public int compare(Composition o1, Composition o2) {
@@ -799,8 +815,6 @@ public class GeneticAlgorithm extends Algorithm {
 	
 	// Compute the distance of a composition's aggregated QoS attributes to 
 	// the given constraints.
-	// TODO: computeFitness() sollte eine Methode der Klasse Composition sein. 
-	//		 Dann muss eben constraintsMap als Parameter übergeben werden.
 	private double computeDistanceToConstraints(Composition composition) {
 		double distance = 0.0;
 		if (constraintsMap.get(Constraint.COSTS) != null &&  
@@ -827,10 +841,6 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	
 	// Compute the fitness of a composition.
-	// TODO: computeFitness() sollte eine Methode der Klasse Composition
-	//		 sein. Dann müssen eben constraintsMap und dynamicPenalty als 
-	//		 Parameter übergeben werden. Außerdem sollte auch computeDist...()
-	//		 eher eine Methode der Klasse Composition sein.
 	private double computeFitness(Composition composition) {
 		double fitness = composition.getUtility();
 		// Penalty factor has to be considered only if the composition 
