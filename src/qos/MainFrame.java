@@ -1580,9 +1580,8 @@ public class MainFrame extends JFrame {
 		jPanelGeneticAlgorithmSettings.add(jPanelTerminationDegree, 
 				gbcJPanelTerminationDegree);
 		
-		// TODO: Muss am Anfang ausgeblendet sein, da "Number of Iterations" 
-		//		 an oberster Stelle steht!
 		jLabelTerminationDegree = new JLabel("(Degree of Equality:");
+		jLabelTerminationDegree.setVisible(false);
 		GridBagConstraints gbcJLabelTerminationDegree = 
 				new GridBagConstraints();
 		gbcJLabelTerminationDegree.insets = new Insets(5, 10, 5, 0);

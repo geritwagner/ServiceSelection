@@ -74,50 +74,59 @@ public class GeneticAlgorithm extends Algorithm {
 		elitismRate /= 100.0;
 		while (terminationCounter > 0) {
 			
-			// SELECTION
-			// Elitism Based
+			// Temporarily save the elite compositions.
 			int numberOfElites = (int) Math.round(
 					populationSize * elitismRate);
-			List<Composition> population1 = doSelectionElitismBased(
+			List<Composition> elites = doSelectionElitismBased(
 					population, numberOfElites);
 			
-			List<Composition> population2;
-			
+			// SELECTION
+			List<Composition> matingPool;
 			// Roulette Wheel
 			if (selectionMethod.contains("Roulette Wheel")) {
-				population2 = doSelectionRouletteWheel(
+				matingPool = doSelectionRouletteWheel(
 						population, populationSize - numberOfElites);
 			}
 			
 			// Linear Ranking
+			// TODO: Linear Ranking liefert sehr schlechte Ergebnisse!
 			else if (selectionMethod.contains("Linear Ranking")) {
-				population2 = doSelectionLinearRanking(
+				matingPool = doSelectionLinearRanking(
 						population, populationSize - numberOfElites);
 			}
 			
 			// Binary Tournament
+			// TODO: Tournament funktioniert nicht (mehr)!
 			else {
-				population2 = new LinkedList<Composition>(population.subList(
+				// TODO: Das mit der subList braucht man jetzt nicht mehr oder? 
+				//		 Außerdem glaube ich, dass das " - 1" falsch ist. Der 
+				//		 end index ist nämlich exclusive.
+				matingPool = new LinkedList<Composition>(population.subList(
 						numberOfElites, population.size() - 1));
-				population2 = doSelectionBinaryTournament(population2);
+				matingPool = doSelectionBinaryTournament(matingPool);
 			}
 
-			// RECOMBINATION
-			// CROSSOVER (One-Point Crossover)
-			int numberOfCrossovers = (int) Math.round((
-					(populationSize - numberOfElites) / 2.0));
-			population2 = doCrossoverOnePoint(population, numberOfCrossovers);
+			// CROSSOVER
+			// One-Point Crossover
+			// TODO: jTextField für crossoverRate in MainFrame!
+			double crossoverRate = 0.7;
+			// matingPool is used for crossover. The result is saved directly
+			// into population and therefore updates it.
+			population = doCrossoverOnePoint(matingPool, crossoverRate);
 			
 			// MUTATION
-			doMutation(population2, numberOfCrossovers);
+			// TODO: Möglichkeit anbieten, mutationRate selbst festzulegen.
+			//		 Dazu jTextField für mutationRate in MainFrame!
+			double mutationRate = 1.0 / serviceClassesList.size();
+			// Mutation is performed directly on the new population.
+			doMutation(population, mutationRate);
 			
+			// Replace the worst compositions with the elites.
+			doElitePreservation(population, elites);
+			
+			// TODO: hasPopulationChanged muss man überarbeiten.
 			boolean hasPopulationChanged = hasPopulationChanged(
-					population, population1, population2);
-			
-			// UPDATE
-			population.removeAll(population);
-			population.addAll(population1);
-			population.addAll(population2);
+					population, elites, matingPool);
 			
 			setVisualizationValues(population);
 			
@@ -343,7 +352,7 @@ public class GeneticAlgorithm extends Algorithm {
 	
 	private List<Composition> doSelectionElitismBased(
 			List<Composition> population, int numberOfElites) {
-		List<Composition> population1 = new LinkedList<Composition>();
+		List<Composition> elites = new LinkedList<Composition>();
 		// Sort the population according to the fitness of the 
 		// compositions. Thus, the first elements are the elite elements.
 		Collections.sort(population, new Comparator<Composition>() {
@@ -361,79 +370,86 @@ public class GeneticAlgorithm extends Algorithm {
 			}
 		});
 		for (int i = 0; i < numberOfElites; i++) {
-			population1.add(population.get(i));
+			elites.add(population.get(i));
 		}
-		return population1;
+		return elites;
 	}
 	
 	private List<Composition> doCrossoverOnePoint(
-			List<Composition> population, int numberOfCrossovers) {
-		List<Composition> population2 = new LinkedList<Composition>();
-		for (int i = 0; i < numberOfCrossovers; i++) {
+			List<Composition> matingPool, double crossoverRate) {
+		List<Composition> populationNew = new LinkedList<Composition>();
+		for (int i = 0; i < matingPool.size(); i++) {
 			// Randomly select two compositions for crossover.
-			int a = (int) (Math.random() * population.size());
-			int b = (int) (Math.random() * population.size());
+			int a = (int) (Math.random() * matingPool.size());
+			int b = (int) (Math.random() * matingPool.size());
 			while (b == a) {
-				b = (int) (Math.random() * population.size());
+				b = (int) (Math.random() * matingPool.size());
 			}
-			Composition compositionA = population.get(a);
-			Composition compositionB = population.get(b);
+			Composition compositionA = matingPool.get(a);
+			Composition compositionB = matingPool.get(b);
 
-			// Randomly select the crossover point. 0 is excluded from the 
-			// different possibilities because the resulting composition 
-			// would be exactly the same as the first input composition. The
-			// last crossover point that is possible is included, however, 
-			// because then, at least the last service candidate is changed.
-			// This is because of the definition of List.subList().
-			int crossoverPoint = (int) (Math.random() * 
-					(serviceClassesList.size() - 1) + 1);
+			if (Math.random() < crossoverRate) {
+				// Randomly select the crossover point. 0 is excluded from the 
+				// different possibilities because the resulting composition 
+				// would be exactly the same as the first input composition. 
+				// The last crossover point that is possible is included, 
+				// however, because then, at least the last service candidate 
+				// is changed. This is because of the definition of 
+				// List.subList().
+				int crossoverPoint = (int) (Math.random() * 
+						(serviceClassesList.size() - 1) + 1);
 
-			// Do the crossover.
-			Composition compositionC = new Composition();
-			for (ServiceCandidate serviceCandidate : compositionA.
-					getServiceCandidatesList().subList(0, crossoverPoint)) {
-				compositionC.addServiceCandidate(serviceCandidate);
-			}
-			for (ServiceCandidate serviceCandidate : compositionB.
-					getServiceCandidatesList().subList(
-							crossoverPoint, serviceClassesList.size())) {
-				compositionC.addServiceCandidate(serviceCandidate);
-			}
-			compositionC.computeUtilityValue();
+				// Do the crossover.
+				Composition compositionC = new Composition();
+				for (ServiceCandidate serviceCandidate : compositionA.
+						getServiceCandidatesList().subList(0, crossoverPoint)) {
+					compositionC.addServiceCandidate(serviceCandidate);
+				}
+				for (ServiceCandidate serviceCandidate : compositionB.
+						getServiceCandidatesList().subList(
+								crossoverPoint, serviceClassesList.size())) {
+					compositionC.addServiceCandidate(serviceCandidate);
+				}
+				compositionC.computeUtilityValue();
 
-			Composition compositionD = new Composition();
-			for (ServiceCandidate serviceCandidate : compositionB.
-					getServiceCandidatesList().subList(0, crossoverPoint)) {
-				compositionD.addServiceCandidate(serviceCandidate);
-			}
-			for (ServiceCandidate serviceCandidate : compositionA.
-					getServiceCandidatesList().subList(
-							crossoverPoint, serviceClassesList.size())) {
-				compositionD.addServiceCandidate(serviceCandidate);
-			}
-			compositionD.computeUtilityValue();
+				Composition compositionD = new Composition();
+				for (ServiceCandidate serviceCandidate : compositionB.
+						getServiceCandidatesList().subList(0, crossoverPoint)) {
+					compositionD.addServiceCandidate(serviceCandidate);
+				}
+				for (ServiceCandidate serviceCandidate : compositionA.
+						getServiceCandidatesList().subList(
+								crossoverPoint, serviceClassesList.size())) {
+					compositionD.addServiceCandidate(serviceCandidate);
+				}
+				compositionD.computeUtilityValue();
 
-			population2.add(compositionC);
-			population2.add(compositionD);
+				populationNew.add(compositionC);
+				populationNew.add(compositionD);
+			}
+			else {
+				populationNew.add(compositionA);
+				populationNew.add(compositionB);
+			}
 		}
-		return population2;
+		return populationNew;
 	}
 	
-	private void doMutation(List<Composition> population2, 
-			int numberOfCrossovers) {
-		// TODO: By temporary defining some variables, the code is easier to
-		//		 understand, but maybe has a worse performance. What is 
-		//		 the best trade-off?
-		double mutationRate = 1.0 / serviceClassesList.size();
-		// TODO: Why does the author use numberOfCrossovers for this loop?
-		for (int i = 0; i < numberOfCrossovers; i++) {
-			Composition composition = population2.get(
-					(int) (Math.random() * population2.size()));
+	private void doMutation(List<Composition> population, double mutationRate) {
+		for (int i = 0; i < population.size(); i++) {
+			
+			// TODO: Evtl. sollte man die Composition gar nicht zufällig 
+			// auswählen?! Dann hätte man folgendes...
+//			List<ServiceCandidate> serviceCandidates = 
+//					population.get(i).getServiceCandidatesList();
+			
+			Composition composition = population.get(
+					(int) (Math.random() * population.size()));
 			List<ServiceCandidate> serviceCandidates = 
 					composition.getServiceCandidatesList();
+			
 			for (int j = 0; j < serviceCandidates.size(); j++) {
-				double random = Math.random();
-				if (random < mutationRate) {
+				if (Math.random() < mutationRate) {
 					ServiceCandidate oldServiceCandidate = 
 							serviceCandidates.get(j);
 					// Get the service candidates from the service class 
@@ -443,13 +459,38 @@ public class GeneticAlgorithm extends Algorithm {
 							serviceClassesList.get(oldServiceCandidate.
 									getServiceClassId() - 1).
 									getServiceCandidateList();
-					serviceCandidates.set(j, newServiceCandidates.get(
-							(int) (random * newServiceCandidates.size())));
+					serviceCandidates.set(j, newServiceCandidates.get((int) 
+							(Math.random() * newServiceCandidates.size())));
 					composition.buildAggregatedQosVector();
 					composition.computeUtilityValue();
 				}
 			}
 		}
+	}
+	
+	private void doElitePreservation(
+			List<Composition> population, List<Composition> elites) {
+		Collections.sort(population, new Comparator<Composition>() {
+			@Override
+			public int compare(Composition o1, Composition o2) {
+				if (computeFitness(o1) < computeFitness(o2)) {
+					return 1;
+				}
+				else if (computeFitness(o1) > computeFitness(o2)) {
+					return -1;
+				}
+				else {
+					return 0;
+				}
+			}
+		});
+		// Remove the worst compositions by using the other part of the 
+		// population.
+		population = population.subList(0, population.size() - elites.size());
+		// Add the elite compositions to the beginning of the list. Note that 
+		// they are not necessarily the elite compositions in the new 
+		// population. So they might also be added at the end.
+		population.addAll(0, elites);
 	}
 	
 	private List<Composition> doSelectionRouletteWheel(
@@ -481,6 +522,7 @@ public class GeneticAlgorithm extends Algorithm {
 		return newPopulation;
 	}
 	
+	// TODO: Linear Ranking liefert sehr schlechte Ergebnisse!
 	private List<Composition> doSelectionLinearRanking(
 			List<Composition> oldPopulation, int numberOfSpins) {
 		double[] fitnessRanks = new double[oldPopulation.size()];
@@ -513,7 +555,8 @@ public class GeneticAlgorithm extends Algorithm {
 		}
 		return newPopulation;
 	}
-	
+
+	// TODO: Tournament funktioniert nicht (mehr)!
 	private List<Composition> doSelectionBinaryTournament(
 			List<Composition> oldPopulation) {
 		List<Composition> newPopulation = 
@@ -529,67 +572,6 @@ public class GeneticAlgorithm extends Algorithm {
 				newPopulation.set(i, oldPopulation.get(
 						permutationIndices[i]));
 			}
-		}
-		return newPopulation;
-	}
-	
-	// Use the mutation operator.
-	private List<Composition> mutate(List<Composition> initialPopulation) {
-		for (int count = 0; count < initialPopulation.size(); count++) {
-			for (int innerCount = 0; innerCount < 
-			serviceClassesList.size(); innerCount++) {
-				// PROBABILITY = (1 / NUMBER OF ALL SERVICE CLASSES)
-				if (Math.random() < (1.0 / serviceClassesList.size())) {
-					// INSERT NEW RANDOMLY SELECTED SERVICE CANDIDATE
-					// AND REMOVE OLD SERVICE CANDIDATE
-					initialPopulation.get(count).getServiceCandidatesList().
-					set(innerCount,getRandomComposition(initialPopulation).
-							getServiceCandidatesList().get(innerCount));
-				}
-			}
-		}
-		return initialPopulation;
-	}
-	
-	private List<Composition> doOnePointCrossover(
-			List<Composition> population) {
-		List<Composition> newPopulation = new LinkedList<Composition>();
-		while (population.size() > 0) {
-			if (population.size() == 1) {
-				newPopulation.add(population.get(0));
-				break;
-			}	
-			Composition composition_1 = population.get(0);
-			population.remove(composition_1);
-			// SELECT 2ND COMPOSITION RANDOMLY
-			Composition composition_2 = getRandomComposition(population);
-			population.remove(composition_2);
-			List<ServiceCandidate> newServiceCandidateList_1 = 
-				new LinkedList<ServiceCandidate>();
-			List<ServiceCandidate> newServiceCandidateList_2 = 
-				new LinkedList<ServiceCandidate>();
-			
-			// SELECT CROSSOVER POINT RANDOMLY
-			int crossoverPoint = 
-				(int) (Math.random() * serviceClassesList.size());
-			// CROSS OVER THE CHOSEN COMPOSITIONS
-			for (int count = 0; count < crossoverPoint; count++) {
-				newServiceCandidateList_1.add(composition_1.
-						getServiceCandidatesList().get(count));
-				newServiceCandidateList_2.add(composition_2.
-						getServiceCandidatesList().get(count));
-			}
-			for (int count = crossoverPoint; 
-			count < serviceClassesList.size(); count++) {
-				newServiceCandidateList_1.add(composition_2.
-						getServiceCandidatesList().get(count));
-				newServiceCandidateList_2.add(composition_1.
-						getServiceCandidatesList().get(count));
-			}
-			composition_1.setServiceCandidateList(newServiceCandidateList_1);
-			composition_2.setServiceCandidateList(newServiceCandidateList_2);
-			newPopulation.add(composition_1);
-			newPopulation.add(composition_2);
 		}
 		return newPopulation;
 	}
@@ -783,6 +765,7 @@ public class GeneticAlgorithm extends Algorithm {
 		return newPopulation;
 	}
 	
+	// TODO: hasPopulationChanged() Überarbeiten!
 	private boolean hasPopulationChanged(List<Composition> population, 
 			List<Composition> population1, List<Composition> population2) {
 		int deviation = 
