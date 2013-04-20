@@ -122,6 +122,7 @@ public class GeneticAlgorithm extends Algorithm {
 			setVisualizationValues(population);
 			
 			// TERMINATION CRITERION
+			// Number of Iterations
 			if (terminationMethod.contains("Iteration")) {
 				dynamicPenalty = 1 - (terminationCriterion - 
 						terminationCounter) / terminationCriterion;
@@ -129,6 +130,8 @@ public class GeneticAlgorithm extends Algorithm {
 				workPercentage = (int) ((1 - 1.0 * terminationCounter / 
 						terminationCriterion) * 100);
 			}
+
+			// Consecutive Equal Generations
 			// TODO: Test this method later (not complete!)
 			else if (terminationMethod.contains(
 					"Consecutive Equal Generations")) {
@@ -144,6 +147,8 @@ public class GeneticAlgorithm extends Algorithm {
 								numberOfDifferentSolutions.get(0)), 
 								workPercentage);
 			}
+			
+			// Fitness Value Convergence
 			// TODO: Test this method later (not complete!)
 			else {
 				if (maxFitnessPerPopulation.get(
@@ -163,10 +168,22 @@ public class GeneticAlgorithm extends Algorithm {
 			}
 		}
 		
-		// Sort the population according to the utility of the 
+		// Sort the population according to the fitness of the 
 		// compositions. Thus, the first elements are the elite elements.
-		// TODO: Sortierung muss nach Fitness erfolgen!!!
-		Collections.sort(population, new Composition());
+		Collections.sort(population, new Comparator<Composition>() {
+			@Override
+			public int compare(Composition o1, Composition o2) {
+				if (computeFitness(o1) < computeFitness(o2)) {
+					return 1;
+				}
+				else if (computeFitness(o1) > computeFitness(o2)) {
+					return -1;
+				}
+				else {
+					return 0;
+				}
+			}
+		});
 		
 		// Print the best solution.
 		System.out.println("--------------");
@@ -262,7 +279,7 @@ public class GeneticAlgorithm extends Algorithm {
 				}
 			}
 		}
-		// Sort the population according to the utility of the 
+		// Sort the population according to the fitness of the 
 		// compositions. Thus, the first elements are the elite elements.
 		Collections.sort(population, new Comparator<Composition>() {
 			@Override
