@@ -130,8 +130,6 @@ public class GeneticAlgorithm extends Algorithm {
 			
 			setVisualizationValues(population);
 			
-			System.out.println();
-			
 			// TERMINATION CRITERION
 			// Number of Iterations
 			if (terminationMethod.contains("Iteration")) {
@@ -509,7 +507,8 @@ public class GeneticAlgorithm extends Algorithm {
 		// compositions
 		for (int i = 0; i < numberOfSpins; i++) {
 			double random = Math.random() * fitnessAreaSum;
-			for (int j = 0; j < oldPopulation.size(); j++) {
+			int j = 0;
+			for (j = 0; j < oldPopulation.size(); j++) {
 				if (random < fitnessAreas[j]) {
 					newPopulation.add(oldPopulation.get(j));
 					break;
@@ -797,6 +796,7 @@ public class GeneticAlgorithm extends Algorithm {
 		averageFitnessPerPopulation.add(averageFitness / population.size());
 	}
 	
+	// TODO: Normalisierung einbauen!
 	// Compute the distance of a composition's aggregated QoS attributes to 
 	// the given constraints.
 	private double computeDistanceToConstraints(Composition composition) {

@@ -2079,7 +2079,7 @@ public class MainFrame extends JFrame {
 		jTableAnalyticAlgorithm.getColumnModel().getColumn(0).setHeaderValue(
 		"Selection");
 		jTableAnalyticAlgorithm.getColumnModel().getColumn(1).setHeaderValue(
-		"Service Title");
+		"Method");
 		jTableAnalyticAlgorithm.setValueAt(true, 0, 0);
 		jTableAnalyticAlgorithm.setValueAt(" Enumeration", 0, 1);
 //		jTableAnalyticAlgorithm.setValueAt(false, 1, 0);
@@ -2478,12 +2478,17 @@ public class MainFrame extends JFrame {
 			
 			Map<String, Constraint> constraintsMap = getChosenConstraints();
 			Constraint costs = constraintsMap.get(Constraint.COSTS);
-			Constraint responseTime = constraintsMap.get(Constraint.RESPONSE_TIME);
-			Constraint availability = constraintsMap.get(Constraint.AVAILABILITY);			
-			String constraintsHeader = ""+Constraint.COSTS+";"+Constraint.RESPONSE_TIME+
-					";"+Constraint.AVAILABILITY;			
-			String values = ""+costs.getValue()+";"+responseTime.getValue()+";"+availability.getValue();
-			String weights = ""+costs.getWeight()+";"+responseTime.getWeight()+";"+availability.getWeight();
+			Constraint responseTime = constraintsMap.get(
+					Constraint.RESPONSE_TIME);
+			Constraint availability = constraintsMap.get(
+					Constraint.AVAILABILITY);			
+			String constraintsHeader = "" + Constraint.COSTS + 
+					";" + Constraint.RESPONSE_TIME + 
+					";" + Constraint.AVAILABILITY;			
+			String values = "" + costs.getValue() + ";" + 
+					responseTime.getValue() + ";" + availability.getValue();
+			String weights = "" + costs.getWeight() + ";" + 
+					responseTime.getWeight() + ";" + availability.getWeight();
 			bufferedWriter.write(constraintsHeader);
 			bufferedWriter.newLine();
 			bufferedWriter.write(values);
@@ -2546,10 +2551,15 @@ public class MainFrame extends JFrame {
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(file));				
 			
-			String header = "txtAntIterations;txtAntAnts;txtAntAlpha;txtAntBeta;txtAntDilution;txtAntPi";
-			header += ";jTextFieldPopulationSize;jTextFieldTerminationCriterion;jComboBoxSelection";
-			header += ";jTextFieldElitismRate;jComboBoxCrossover;jTextFieldCrossoverRate";
-			header += ";jTextFieldMutationRate;jComboBoxTerminationCriterion;jTextFieldTerminationDegree";			
+			String header = "txtAntIterations;txtAntAnts;txtAntAlpha;" +
+					"txtAntBeta;txtAntDilution;txtAntPi";
+			header += ";jTextFieldPopulationSize;" +
+					"jTextFieldTerminationCriterion;jComboBoxSelection";
+			header += ";jTextFieldElitismRate;jComboBoxCrossover;" +
+					"jTextFieldCrossoverRate";
+			header += ";jTextFieldMutationRate;" +
+					"jComboBoxTerminationCriterion;" +
+					"jTextFieldTerminationDegree";			
 			String values = ""+txtAntIterations.getText();
 			values += ";"+txtAntAnts.getText();
 			values += ";"+txtAntAlpha.getText();
@@ -3256,7 +3266,8 @@ public class MainFrame extends JFrame {
 						getQosVectorAggregated().getAvailability();				
 				saveResultList.add(resultLine);
 				
-				if (tierServiceCompositionList.get(rowCount).
+				if (getChosenConstraints().get(Constraint.COSTS) != null && 
+						tierServiceCompositionList.get(rowCount).
 						getQosVectorAggregated().getCosts() > 
 						getChosenConstraints().get(Constraint.COSTS).
 						getValue()) {
@@ -3273,7 +3284,8 @@ public class MainFrame extends JFrame {
 									getQosVectorAggregated().getCosts()) + 
 									"</b></html>", rowCount + x, 4);
 				}
-				if (tierServiceCompositionList.get(rowCount).
+				if (getChosenConstraints().get(Constraint.RESPONSE_TIME) != 
+						null && tierServiceCompositionList.get(rowCount).
 						getQosVectorAggregated().getResponseTime() > 
 						getChosenConstraints().get(Constraint.RESPONSE_TIME).
 						getValue()) {
@@ -3292,7 +3304,8 @@ public class MainFrame extends JFrame {
 									getResponseTime()) + 
 									"</b></html>", rowCount + x, 5);
 				}
-				if (tierServiceCompositionList.get(rowCount).
+				if (getChosenConstraints().get(Constraint.AVAILABILITY) != 
+						null && tierServiceCompositionList.get(rowCount).
 						getQosVectorAggregated().getAvailability() < 
 						getChosenConstraints().get(Constraint.AVAILABILITY).
 						getValue()) {
