@@ -170,6 +170,7 @@ public class AntAlgorithm extends Algorithm {
 		}
 		for (int k=0; k<ants; k++) {
 			Composition composition = antCompositions.get(k);
+			//TODO: CONSIDER COMPOSITIONS WHICH ARE OUT OF CONSTRAINTS
 			if (composition.isWithinConstraints(constraintsMap)) {
 				double ratio = composition.getUtility() / optimalComposition.getUtility();
 				for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {

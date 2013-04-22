@@ -450,8 +450,10 @@ public class MainFrame extends JFrame {
 			}
 		});
 		jMenuFile.add(jMenuItemReset);
-		JMenuItem jMenuItemLoad = new JMenuItem("Load DataSet");
-
+		
+		jMenuFile.addSeparator();
+		
+		JMenuItem jMenuItemLoad = new JMenuItem("Load Model Setup");
 		final JFileChooser fileChooser = new JFileChooser() {
 			private static final long serialVersionUID = 1L;
 			{
@@ -480,21 +482,12 @@ public class MainFrame extends JFrame {
 				if (file == null) {
 					return;
 				}
-				loadWebServices(file);
+				loadModelSetup(file);
 			}
 		});
-		jMenuFile.add(jMenuItemLoad);
+		jMenuFile.add(jMenuItemLoad);		
 		
-		JMenuItem jMenuItemLoadRandomSet = new JMenuItem("Load Random Set");
-		jMenuFile.add(jMenuItemLoadRandomSet);
-		jMenuItemLoadRandomSet.addActionListener(
-				new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						loadRandomWebServices();
-					}
-				});
-		
-		JMenuItem jMenuItemSaveDataSet = new JMenuItem("Export DataSet");
+		JMenuItem jMenuItemSaveDataSet = new JMenuItem("Save Model Setup");
 		jMenuItemSaveDataSet.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -506,10 +499,21 @@ public class MainFrame extends JFrame {
 				if (file == null) {
 					return;
 				}
-				exportDataSet(file);
+				saveModelSetup(file);
 			}
 		});
 		jMenuFile.add(jMenuItemSaveDataSet);
+		
+		JMenuItem jMenuItemLoadRandomSet = new JMenuItem("Generate Model Setup");
+		jMenuFile.add(jMenuItemLoadRandomSet);
+		jMenuItemLoadRandomSet.addActionListener(
+				new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						generateModelSetup();
+					}
+				});
+		
+		jMenuFile.addSeparator();
 		
 		JMenuItem jMenuItemExit = new JMenuItem("Exit");
 		jMenuItemExit.addActionListener(new ActionListener() {
@@ -519,8 +523,60 @@ public class MainFrame extends JFrame {
 		});
 		jMenuFile.add(jMenuItemExit);
 
-		JMenu jMenuEdit = new JMenu("Settings");
+		JMenu jMenuEdit = new JMenu("Algorithm");
 		jMenuBar.add(jMenuEdit);
+		
+		JMenuItem jMenuItemLoadSettings = new JMenuItem("Load Settings");
+		final JFileChooser fileChooserSettings = new JFileChooser() {
+			private static final long serialVersionUID = 1L;
+			{
+				setFileFilter(new FileFilter() {
+					@Override
+					public boolean accept(File f) {
+						return f.getName().toLowerCase().endsWith("csv") || 
+						f.isDirectory();
+					}
+					@Override
+					public String getDescription() {
+						return "CSV Datei (Comma Seperated Values)";
+					}
+				});
+				setSelectedFile(new File("AlgorithmSettings.csv"));	
+			}
+		};
+		jMenuItemLoadSettings.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (!(fileChooserSettings.showOpenDialog(MainFrame.this) == 
+					JFileChooser.APPROVE_OPTION)) {
+					return;
+				}
+				final File file = fileChooserSettings.getSelectedFile();
+				if (file == null) {
+					return;
+				}
+				loadAlgorithmSettings(file);
+			}
+		});
+		jMenuEdit.add(jMenuItemLoadSettings);
+		JMenuItem jMenuItemSaveSettings = new JMenuItem("Save Settings");
+		jMenuItemSaveSettings.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (!(fileChooserSettings.showSaveDialog(MainFrame.this) == 
+					JFileChooser.APPROVE_OPTION)) {
+					return;
+				}								
+				final File file = fileChooser.getSelectedFile();				
+				if (file == null) {
+					return;
+				}
+				saveAlgorithmSettings(file);
+			}
+		});
+		jMenuEdit.add(jMenuItemSaveSettings);
+		
+		/*
 		JMenuItem jMenuItemLoadDefaultConstraints = 
 			new JMenuItem("Use Default Constraints");
 		jMenuItemLoadDefaultConstraints.addActionListener(
@@ -543,13 +599,15 @@ public class MainFrame extends JFrame {
 		jMenuEdit.add(jMenuItemLoadConstraints);
 		JMenuItem jMenuItemSaveConstraints = new JMenuItem("Save Settings");
 		jMenuEdit.add(jMenuItemSaveConstraints);		
+		*/
 
 		JMenu jMenuOther = new JMenu("?");
 		jMenuBar.add(jMenuOther);
-		JMenuItem jMenuItemHelp = new JMenuItem("Help");
-		jMenuOther.add(jMenuItemHelp);
-		JMenuItem jMenuItemSupport = new JMenuItem("Support");
-		jMenuOther.add(jMenuItemSupport);
+		// POTENTIAL EXTENSIONS
+		//JMenuItem jMenuItemHelp = new JMenuItem("Help");
+		//jMenuOther.add(jMenuItemHelp);
+		//JMenuItem jMenuItemSupport = new JMenuItem("Support");
+		//jMenuOther.add(jMenuItemSupport);
 		JMenuItem jMenuItemAbout = new JMenuItem("About");
 		jMenuOther.add(jMenuItemAbout);
 	}
@@ -2045,7 +2103,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	// Load web services from a CSV file.
-	private void loadWebServices(File file) {
+	private void loadModelSetup(File file) {
 		// Delete previously loaded web services.
 		serviceCandidatesList.removeAll(serviceCandidatesList);
 		serviceClassesList.removeAll(serviceClassesList);
@@ -2176,7 +2234,7 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	private void loadRandomWebServices() {
+	private void generateModelSetup() {
 		final JSpinner spinnerNumberOfServiceClasses = new JSpinner(
 				new SpinnerNumberModel(1, 1, 1000, 1));		
 		((JSpinner.DefaultEditor) spinnerNumberOfServiceClasses.getEditor()).
@@ -2281,7 +2339,7 @@ public class MainFrame extends JFrame {
 				DEFAULT_START_POPULATION_SIZE);
 	}
 	
-	private void exportDataSet(File file) {		
+	private void saveModelSetup(File file) {		
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(file));
@@ -2318,6 +2376,14 @@ public class MainFrame extends JFrame {
 				(int) (Math.random() * (maxResponseTime - minResponseTime)));
 		jSliderMinAvailability.setValue(minAvailability + 
 				(int) (Math.random() * (maxAvailability - minAvailability)));
+	}
+	
+	private void loadAlgorithmSettings(File file) {
+		
+	}
+	
+	private void saveAlgorithmSettings(File file) {
+		
 	}
 	
 	// TODO: Implement method which saves the current constraints 
