@@ -572,7 +572,7 @@ public class MainFrame extends JFrame {
 						JFileChooser.APPROVE_OPTION)) {
 					return;
 				}                
-				final File file = fileChooser.getSelectedFile();        
+				final File file = fileChooserSettings.getSelectedFile();        
 				if (file == null) {
 					return;
 				}
@@ -2348,9 +2348,9 @@ public class MainFrame extends JFrame {
 			jTextFieldMaxCosts.setText(constraintsValues[0]);
 			jTextFieldMaxResponseTime.setText(constraintsValues[1]);
 			jTextFieldMinAvailability.setText(""+Double.parseDouble(constraintsValues[2])*100);
-			jTextFieldCostsWeight.setText(""+Integer.parseInt(constraintsWeights[0]));
-			jTextFieldResponseTimeWeight.setText(""+Integer.parseInt(constraintsWeights[1]));
-			jTextFieldAvailabilityWeight.setText(""+Integer.parseInt(constraintsWeights[2]));			
+			jTextFieldCostsWeight.setText(""+(int) Math.ceil(Double.parseDouble(constraintsWeights[0])));
+			jTextFieldResponseTimeWeight.setText(""+(int) Math.ceil(Double.parseDouble(constraintsWeights[1])));
+			jTextFieldAvailabilityWeight.setText(""+(int) Math.ceil(Double.parseDouble(constraintsWeights[2])));			
 			
 			checkInputValue(jTextFieldPopulationSize, 
 					MAX_START_POPULATION_SIZE, 1, 
@@ -2511,11 +2511,68 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void loadAlgorithmSettings(File file) {
-		
+		BufferedReader bufferedReader = null;
+		try {
+			bufferedReader = new BufferedReader(new FileReader(file));			
+			
+			// skip headers
+			bufferedReader.readLine().split(";");
+			String[] values = bufferedReader.readLine().split(";");
+			
+			txtAntIterations.setText(values[0]);
+			txtAntAnts.setText(values[1]);
+			txtAntAlpha.setText(values[2]);
+			txtAntBeta.setText(values[3]);
+			txtAntDilution.setText(values[4]);
+			txtAntPi.setText(values[5]);
+			jTextFieldPopulationSize.setText(values[6]);
+			jTextFieldTerminationCriterion.setText(values[7]);
+			jComboBoxSelection.setSelectedItem(values[8]);
+			jTextFieldElitismRate.setText(values[9]);
+			jComboBoxCrossover.setSelectedItem(values[10]);
+			jTextFieldCrossoverRate.setText(values[11]);
+			jTextFieldMutationRate.setText(values[12]);
+			jComboBoxTerminationCriterion.setSelectedItem(values[13]);
+			jTextFieldTerminationDegree.setText(values[14]);
+			
+			bufferedReader.close();
+		} catch (IOException e1) {			
+			e1.printStackTrace();
+		}		
 	}
 	
 	private void saveAlgorithmSettings(File file) {
-		
+		BufferedWriter bufferedWriter = null;
+		try {
+			bufferedWriter = new BufferedWriter(new FileWriter(file));				
+			
+			String header = "txtAntIterations;txtAntAnts;txtAntAlpha;txtAntBeta;txtAntDilution;txtAntPi";
+			header += ";jTextFieldPopulationSize;jTextFieldTerminationCriterion;jComboBoxSelection";
+			header += ";jTextFieldElitismRate;jComboBoxCrossover;jTextFieldCrossoverRate";
+			header += ";jTextFieldMutationRate;jComboBoxTerminationCriterion;jTextFieldTerminationDegree";			
+			String values = ""+txtAntIterations.getText();
+			values += ";"+txtAntAnts.getText();
+			values += ";"+txtAntAlpha.getText();
+			values += ";"+txtAntBeta.getText();
+			values += ";"+txtAntDilution.getText();
+			values += ";"+txtAntPi.getText();
+			values += ";"+jTextFieldPopulationSize.getText();
+			values += ";"+jTextFieldTerminationCriterion.getText();
+			values += ";"+jComboBoxSelection.getSelectedItem();
+			values += ";"+jTextFieldElitismRate.getText();
+			values += ";"+jComboBoxCrossover.getSelectedItem();
+			values += ";"+jTextFieldCrossoverRate.getText();
+			values += ";"+jTextFieldMutationRate.getText();
+			values += ";"+jComboBoxTerminationCriterion.getSelectedItem();
+			values += ";"+jTextFieldTerminationDegree.getText();
+			bufferedWriter.write(header);
+			bufferedWriter.newLine();			
+			bufferedWriter.write(values);			
+			
+			bufferedWriter.close();
+		} catch (IOException e1) {			
+			e1.printStackTrace();
+		}
 	}
 	
 //	private void setDefaultConstraints() {
@@ -2534,23 +2591,7 @@ public class MainFrame extends JFrame {
 //		jSliderMinAvailability.setValue(minAvailability + 
 //				(int) (Math.random() * (maxAvailability - minAvailability)));
 //	}
-	
-	// TODO: Implement method which saves the current constraints 
-	//		 and algorithm settings
-	//		 -> show a dialog where the user can see the file path 
-	//			of the saved data and where a filename can be 
-	//			chosen
-//	private void saveConstraints() {
-//		
-//	}
-	
-	// TODO: Implement method which loads a saved set of constraints 
-	//		 and algorithm settings
-	//		 -> take care of dynamic constraint limits!
-	// 		 -> use a file chooser!
-//	private void loadConstraints() {
-//		
-//	}
+
 	
 	// TODO: Implement method which shows a message dialog
 	//		 -> dialog should contain basic information for using 
