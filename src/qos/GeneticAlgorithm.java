@@ -507,8 +507,7 @@ public class GeneticAlgorithm extends Algorithm {
 		// compositions
 		for (int i = 0; i < numberOfSpins; i++) {
 			double random = Math.random() * fitnessAreaSum;
-			int j = 0;
-			for (j = 0; j < oldPopulation.size(); j++) {
+			for (int j = 0; j < oldPopulation.size(); j++) {
 				if (random < fitnessAreas[j]) {
 					newPopulation.add(oldPopulation.get(j));
 					break;
@@ -796,7 +795,7 @@ public class GeneticAlgorithm extends Algorithm {
 		averageFitnessPerPopulation.add(averageFitness / population.size());
 	}
 	
-	// TODO: Normalisierung einbauen!
+	// TODO: Literatur nach anderen Alternativen durchsuchen.
 	// Compute the distance of a composition's aggregated QoS attributes to 
 	// the given constraints.
 	private double computeDistanceToConstraints(Composition composition) {
@@ -804,22 +803,30 @@ public class GeneticAlgorithm extends Algorithm {
 		if (constraintsMap.get(Constraint.COSTS) != null &&  
 				composition.getQosVectorAggregated().getCosts() > 
 				constraintsMap.get(Constraint.COSTS).getValue()) {
-			distance += composition.getQosVectorAggregated().getCosts() - 
-					constraintsMap.get(Constraint.COSTS).getValue();
+//			distance += ((composition.getQosVectorAggregated().getCosts() - 
+//					constraintsMap.get(Constraint.COSTS).getValue()) / 
+//					constraintsMap.get(Constraint.COSTS).getValue());
+			distance += 1.0;
 		}
 		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null &&  
 				composition.getQosVectorAggregated().getResponseTime() > 
 				constraintsMap.get(Constraint.RESPONSE_TIME).getValue()) {
-			distance += composition.getQosVectorAggregated().
-					getResponseTime() - constraintsMap.get(
-							Constraint.RESPONSE_TIME).getValue();
+//			distance += ((composition.getQosVectorAggregated().
+//					getResponseTime() - constraintsMap.get(
+//							Constraint.RESPONSE_TIME).getValue()) /
+//							constraintsMap.get(
+//									Constraint.RESPONSE_TIME).getValue());
+			distance += 1.0;
 		}
 		if (constraintsMap.get(Constraint.AVAILABILITY) != null &&  
 				composition.getQosVectorAggregated().getAvailability() < 
 				constraintsMap.get(Constraint.AVAILABILITY).getValue()) {
-			distance += composition.getQosVectorAggregated().
-					getAvailability() - constraintsMap.get(
-							Constraint.AVAILABILITY).getValue();
+//			distance += ((constraintsMap.get(
+//					Constraint.AVAILABILITY).getValue() - 
+//					composition.getQosVectorAggregated().
+//					getAvailability()) / constraintsMap.get(
+//							Constraint.AVAILABILITY).getValue());
+			distance += 1.0;
 		}
 		return distance;
 	}
