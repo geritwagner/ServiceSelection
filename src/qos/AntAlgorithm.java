@@ -23,6 +23,9 @@ public class AntAlgorithm extends Algorithm {
 	private double[] nj;
 	private double[][] pi;
 	int counter = 0;
+	// variant: original = 1, Qiqing = 2, Convergent = 3, Ant Colony System = 4
+	int variant = 4;
+	boolean convergent = false;
 
 	private long runtime = 0;
 	private int workPercentage;
@@ -50,13 +53,30 @@ public class AntAlgorithm extends Algorithm {
 		runtime = System.currentTimeMillis();
 		workPercentage = 0;
 		initAlgo();
-
-		// RUN ITERATIONS
-		for (int i=1; i<=iterations; i++) {	
-			doIteration();
-			// PROGRESSBAR			
-			workPercentage = (int) (100 * (i / iterations));
-		}	
+		
+		if (variant == 3) {
+			int it = 1;
+			while (!convergent && (it < 2000)) {
+				doIterationV3();
+				it++;
+			}
+			System.out.println(it);
+		} else {
+			// RUN ITERATIONS
+			for (int i=1; i<=iterations; i++) {
+				if (variant == 1) {
+					doIteration();
+				} else if (variant == 2) {
+					doIterationV2();
+				} else if (variant == 4) {					
+					doIterationV4();
+				}
+				
+				// PROGRESSBAR			
+				workPercentage = (int) (100 * (i / iterations));
+			}	
+		}
+		
 		runtime = System.currentTimeMillis() - runtime;
 		if (optimalComposition != null) {
 			List<ServiceCandidate> sCList = new LinkedList<ServiceCandidate>();
@@ -91,7 +111,12 @@ public class AntAlgorithm extends Algorithm {
 				"EndServiceClass", tempServiceCandidateList);
 		serviceCandidatesList.add(tempServiceCandidate);
 		serviceClassesList.add(tempServiceClass);	
-
+		
+		initPheromoneMatrix();
+		setUtilityArray();
+	}
+	
+	private void initPheromoneMatrix() {
 		// INITIALIZE PHEROMONE-MATRIX
 		pi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
 		for (int i=0; i<pi.length; i++) {
@@ -99,8 +124,27 @@ public class AntAlgorithm extends Algorithm {
 				pi[i][j] = piInit;
 			}
 		}
+	}
+	
+	private void setUtilityArray() {
+		// CONSIDER START AND END NODE
+		nj = new double[serviceCandidatesList.size()];
+		// SET UTILITY OF START AND END NODE TO ONE
+		nj[0] = 1;
+		nj[serviceCandidatesList.size()-1] = 1;
 
-		setUtilityArray();
+		for (int i=1; i<serviceCandidatesList.size()-1; i++) {	
+			nj[i] = serviceCandidatesList.get(i).getUtility();	
+		}
+	}	
+
+	private void buildSolutionTiers() {
+		List<Composition> requestedCompositions =
+				new LinkedList<Composition>();
+		requestedCompositions.add(optimalComposition);
+		algorithmSolutionTiers.add(new AlgorithmSolutionTier(
+				(LinkedList<Composition>)
+				requestedCompositions, 1));
 	}
 
 	private void doIteration() {
@@ -155,9 +199,9 @@ public class AntAlgorithm extends Algorithm {
 
 				if ((optimalComposition == null)||
 						(composition.getUtility() > optimalComposition.getUtility())) {
-					optimalComposition = composition;
-					System.out.println(optimalComposition.getServiceCandidatesAsString() +
-							": "+optimalComposition.getUtility());
+					optimalComposition = composition;					
+					//System.out.println(optimalComposition.getServiceCandidatesAsString() +
+					//		": "+optimalComposition.getUtility());
 				}
 			}
 		}
@@ -171,6 +215,14 @@ public class AntAlgorithm extends Algorithm {
 		for (int k=0; k<ants; k++) {
 			Composition composition = antCompositions.get(k);
 			//TODO: CONSIDER COMPOSITIONS WHICH ARE OUT OF CONSTRAINTS
+			/*
+			double ratio;
+			if (composition.isWithinConstraints(constraintsMap)) {
+				ratio = composition.getUtility() / optimalComposition.getUtility();
+			} else {
+				ratio = 0.5;
+			}
+			*/
 			if (composition.isWithinConstraints(constraintsMap)) {
 				double ratio = composition.getUtility() / optimalComposition.getUtility();
 				for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
@@ -178,35 +230,310 @@ public class AntAlgorithm extends Algorithm {
 					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
 					deltaPi[currentID][nextID] += ratio;
 				}
-
 			}
 		}
 		for (int a=0; a<pi.length; a++) {
 			for (int b=0; b<pi[a].length; b++) {
 				pi[a][b] = (1-dilution)*pi[a][b] + deltaPi[a][b];
 			}
-		}	
+		}		
+	}
+	
+//////////////////////////////////	
+	
+	private void doIterationV2() {
+		List<Composition> antCompositions = new LinkedList<Composition>();
+		for (int k=0; k<ants; k++) {
+			int currentClass = 0;
+			int currentService = 0;				
+			antCompositions.add(new Composition());
+			antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
+			while (currentClass != (serviceClassesList.size()-1)) {
+				// CALCULATE PROBABILITY FOR ALL POSSIBLE SERVICES
+				List<ServiceCandidate> nextServiceCandidatesList =
+						serviceClassesList.get(currentClass+1).getServiceCandidateList();
+				double[] p = new double[nextServiceCandidatesList.size()];
+				double nenner = 0;
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					nenner += Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta);
+				}
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					p[x] = (Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta))
+							/ nenner;
+					//System.out.println("Iteration:"+i+",ant:"+k+",p["+currentService+"]["+nextID+"]:"+p[x]);
+				}
+				double randomNumber = Math.random();
+				double temp = 0;
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					temp += p[x];
+					if (randomNumber <= temp) {
+						currentService = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						break;
+					}
+				}
+				antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
+				currentClass++;
+			}
+		}
+		
+		// LOOK FOR BEST COMPOSITION
+		boolean newSolution = false;
+		for (int k=0; k<ants; k++) {
+			Composition composition = antCompositions.get(k);
+			if (composition.isWithinConstraints(constraintsMap)) {
+				counter++;
+
+				double utility = 0;
+				for (int a=1; a < composition.getServiceCandidatesList().size()-1; a++) {	
+					utility += composition.getServiceCandidatesList().get(a).getUtility();	
+				}
+				utility = utility / (composition.getServiceCandidatesList().size()-2);
+				composition.setUtility(utility);
+
+				if ((optimalComposition == null)||
+						(composition.getUtility() > optimalComposition.getUtility())) {
+					optimalComposition = composition;
+					newSolution = true;					
+				}
+			}
+		}
+		if (newSolution) {
+			// RESET PHEROMONE-MATRIX
+			initPheromoneMatrix();			
+		}
+		else {
+			// PHEROMONE UPDATE FUNCTION
+			double[][] deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
+			for (int a=0; a<deltaPi.length; a++) {
+				for (int b=0; b<deltaPi[a].length; b++) {
+					deltaPi[a][b] = 0;
+				}
+			}
+			for (int k=0; k<ants; k++) {
+				Composition composition = antCompositions.get(k);			
+				if (composition.isWithinConstraints(constraintsMap)) {
+					double ratio = composition.getUtility();
+					for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
+						int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
+						int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
+						deltaPi[currentID][nextID] += ratio;
+					}
+				}
+			}
+			for (int a=0; a<pi.length; a++) {
+				for (int b=0; b<pi[a].length; b++) {
+					pi[a][b] = (1-dilution)*pi[a][b] + deltaPi[a][b]*dilution;
+				}
+			}
+		}		
 	}
 
-	private void setUtilityArray() {
-		// CONSIDER START AND END NODE
-		nj = new double[serviceCandidatesList.size()];
-		// SET UTILITY OF START AND END NODE TO ONE
-		nj[0] = 1;
-		nj[serviceCandidatesList.size()-1] = 1;
-
-		for (int i=1; i<serviceCandidatesList.size()-1; i++) {	
-			nj[i] = serviceCandidatesList.get(i).getUtility();	
+//////////////////////////////////////////
+	
+	private void doIterationV3() {
+		List<Composition> antCompositions = new LinkedList<Composition>();
+		for (int k=0; k<ants; k++) {
+			int currentClass = 0;
+			int currentService = 0;				
+			antCompositions.add(new Composition());
+			antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
+			while (currentClass != (serviceClassesList.size()-1)) {
+				// CALCULATE PROBABILITY FOR ALL POSSIBLE SERVICES
+				List<ServiceCandidate> nextServiceCandidatesList =
+						serviceClassesList.get(currentClass+1).getServiceCandidateList();
+				double[] p = new double[nextServiceCandidatesList.size()];
+				double nenner = 0;
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					nenner += Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta);
+				}
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					p[x] = (Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta))
+							/ nenner;
+					//System.out.println("Iteration:"+i+",ant:"+k+",p["+currentService+"]["+nextID+"]:"+p[x]);
+				}
+				double randomNumber = Math.random();
+				double temp = 0;
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					temp += p[x];
+					if (randomNumber <= temp) {
+						currentService = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						break;
+					}
+				}
+				antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
+				currentClass++;
+			}
 		}
-	}	
 
-	private void buildSolutionTiers() {
-		List<Composition> requestedCompositions =
-				new LinkedList<Composition>();
-		requestedCompositions.add(optimalComposition);
-		algorithmSolutionTiers.add(new AlgorithmSolutionTier(
-				(LinkedList<Composition>)
-				requestedCompositions, 1));
+		// LOOK FOR BEST COMPOSITION
+		convergent = true;
+		double commonUtility = 0;
+		for (int k=0; k<ants; k++) {
+			Composition composition = antCompositions.get(k);
+			double utility = 0;
+			for (int a=1; a < composition.getServiceCandidatesList().size()-1; a++) {	
+				utility += composition.getServiceCandidatesList().get(a).getUtility();	
+			}
+			utility = utility / (composition.getServiceCandidatesList().size()-2);
+			composition.setUtility(utility);
+			
+			if (commonUtility < 0.01) {
+				commonUtility = composition.getUtility();
+			}
+			if ((commonUtility != composition.getUtility()) || 
+					(!composition.isWithinConstraints(constraintsMap))) {
+				convergent = false;
+			}
+			if (composition.isWithinConstraints(constraintsMap)) {
+				counter++;	
+
+				if ((optimalComposition == null)||
+						(composition.getUtility() > optimalComposition.getUtility())) {
+					optimalComposition = composition;					
+					//System.out.println(optimalComposition.getServiceCandidatesAsString() +
+					//		": "+optimalComposition.getUtility());
+				}
+			}
+		}		
+		// PHEROMONE UPDATE FUNCTION
+		double[][] deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
+		for (int a=0; a<deltaPi.length; a++) {
+			for (int b=0; b<deltaPi[a].length; b++) {
+				deltaPi[a][b] = 0;
+			}
+		}
+		for (int k=0; k<ants; k++) {
+			Composition composition = antCompositions.get(k);			
+			if (composition.isWithinConstraints(constraintsMap)) {
+				double ratio = composition.getUtility() / optimalComposition.getUtility();
+				for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
+					int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
+					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
+					deltaPi[currentID][nextID] += ratio;
+				}
+			}
+		}
+		for (int a=0; a<pi.length; a++) {
+			for (int b=0; b<pi[a].length; b++) {
+				pi[a][b] = (1-dilution)*pi[a][b] + deltaPi[a][b];
+			}
+		}		
+	}
+
+/////////////////////////////////
+	
+	private void doIterationV4() {
+		List<Composition> antCompositions = new LinkedList<Composition>();
+		double q0 = 0.5;
+		for (int k=0; k<ants; k++) {
+			int currentClass = 0;
+			int currentService = 0;				
+			antCompositions.add(new Composition());
+			antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
+			while (currentClass != (serviceClassesList.size()-1)) {
+				// CALCULATE PROBABILITY FOR ALL POSSIBLE SERVICES
+				int actualService = currentService;
+				List<ServiceCandidate> nextServiceCandidatesList =
+						serviceClassesList.get(currentClass+1).getServiceCandidateList();
+				double[] value = new double[nextServiceCandidatesList.size()];
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					value[x] = pi[currentService][nextID] * Math.pow(nj[nextID], beta);
+				}
+				double q = Math.random();
+				if (q <= q0) {
+					// CHOOSE HIGHEST UTILITY
+					int y = 0;
+					double use = 0;
+					for (int x=0; x<value.length; x++) {
+						if (value[x] > use) {
+							use = value[x];
+							y = x;
+						}
+					}
+					currentService = nextServiceCandidatesList.get(y).getServiceCandidateId();
+				} else {
+					double[] p = new double[nextServiceCandidatesList.size()];
+					double nenner = 0;
+					for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+						int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						nenner += pi[currentService][nextID] * Math.pow(nj[nextID], beta);
+					}
+					for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+						int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						p[x] = pi[currentService][nextID] * Math.pow(nj[nextID], beta)
+								/ nenner;						
+					}
+					double randomNumber = Math.random();
+					double temp = 0;
+					for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+						temp += p[x];
+						if (randomNumber <= temp) {
+							currentService = nextServiceCandidatesList.get(x).getServiceCandidateId();
+							break;
+						}
+					}
+				}				
+				
+				antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
+				currentClass++;
+				//TODO: TEST SOLUTION
+				pi[actualService][currentService] = (1-dilution)*pi[actualService][currentService] + piInit*dilution;
+			}
+		}
+
+		// LOOK FOR BEST COMPOSITION
+		for (int k=0; k<ants; k++) {
+			Composition composition = antCompositions.get(k);
+			if (composition.isWithinConstraints(constraintsMap)) {
+				counter++;
+
+				double utility = 0;
+				for (int a=1; a < composition.getServiceCandidatesList().size()-1; a++) {	
+					utility += composition.getServiceCandidatesList().get(a).getUtility();	
+				}
+				utility = utility / (composition.getServiceCandidatesList().size()-2);
+				composition.setUtility(utility);
+
+				if ((optimalComposition == null)||
+						(composition.getUtility() > optimalComposition.getUtility())) {
+					optimalComposition = composition;					
+					//System.out.println(optimalComposition.getServiceCandidatesAsString() +
+					//		": "+optimalComposition.getUtility());
+				}
+			}
+		}
+		// PHEROMONE UPDATE FUNCTION
+		double[][] deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
+		for (int a=0; a<deltaPi.length; a++) {
+			for (int b=0; b<deltaPi[a].length; b++) {
+				deltaPi[a][b] = 0;
+			}
+		}
+		// TODO: TEST WHETHER TRADITIONAL WAY OR ACTUAL SOLUTION IS BETTER
+		for (int k=0; k<ants; k++) {
+			Composition composition = antCompositions.get(k);
+			boolean pheromomeAlreadySet = false;
+			if (composition.isWithinConstraints(constraintsMap) && 
+					composition.getUtility() == optimalComposition.getUtility() && !pheromomeAlreadySet) {
+				double ratio = composition.getUtility();
+				for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
+					int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
+					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
+					deltaPi[currentID][nextID] += ratio;
+				}
+				pheromomeAlreadySet = true;
+			}
+		}
+		for (int a=0; a<pi.length; a++) {
+			for (int b=0; b<pi[a].length; b++) {
+				pi[a][b] = (1-dilution)*pi[a][b] + deltaPi[a][b]*dilution;
+			}
+		}		
 	}
 
 	// GETTER AND SETTER
