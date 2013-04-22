@@ -2223,6 +2223,15 @@ public class MainFrame extends JFrame {
 		BufferedReader bufferedReader = null;
 		try {
 			bufferedReader = new BufferedReader(new FileReader(file));
+			
+			// Load Constraints
+			// Constraints-Header will never be used
+			bufferedReader.readLine().split(";");
+			String[] constraintsValues = bufferedReader.readLine().split(";");
+			String[] constraintsWeights = bufferedReader.readLine().split(";");
+			
+			// skip empty line
+			bufferedReader.readLine();
 
 			// Load service candidates headers.
 			String[] headerArray = bufferedReader.readLine().split(";");
@@ -2332,6 +2341,17 @@ public class MainFrame extends JFrame {
 			webServicesLoaded = true;
 			checkEnableStartButton();
 			setSliderExtremeValues();
+			// NOW SET LOADED CONSTRAINTS
+			jSliderMaxCosts.setValue((int) Math.ceil(Double.parseDouble(constraintsValues[0])));
+			jSliderMaxResponseTime.setValue((int) Math.ceil(Double.parseDouble(constraintsValues[1])));
+			jSliderMinAvailability.setValue((int) Math.ceil(Double.parseDouble(constraintsValues[2])*100));
+			jTextFieldMaxCosts.setText(constraintsValues[0]);
+			jTextFieldMaxResponseTime.setText(constraintsValues[1]);
+			jTextFieldMinAvailability.setText(""+Double.parseDouble(constraintsValues[2])*100);
+			jTextFieldCostsWeight.setText(""+Integer.parseInt(constraintsWeights[0]));
+			jTextFieldResponseTimeWeight.setText(""+Integer.parseInt(constraintsWeights[1]));
+			jTextFieldAvailabilityWeight.setText(""+Integer.parseInt(constraintsWeights[2]));			
+			
 			checkInputValue(jTextFieldPopulationSize, 
 					MAX_START_POPULATION_SIZE, 1, 
 					DEFAULT_START_POPULATION_SIZE);
@@ -2455,6 +2475,23 @@ public class MainFrame extends JFrame {
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(file));
+			
+			Map<String, Constraint> constraintsMap = getChosenConstraints();
+			Constraint costs = constraintsMap.get(Constraint.COSTS);
+			Constraint responseTime = constraintsMap.get(Constraint.RESPONSE_TIME);
+			Constraint availability = constraintsMap.get(Constraint.AVAILABILITY);			
+			String constraintsHeader = ""+Constraint.COSTS+";"+Constraint.RESPONSE_TIME+
+					";"+Constraint.AVAILABILITY;			
+			String values = ""+costs.getValue()+";"+responseTime.getValue()+";"+availability.getValue();
+			String weights = ""+costs.getWeight()+";"+responseTime.getWeight()+";"+availability.getWeight();
+			bufferedWriter.write(constraintsHeader);
+			bufferedWriter.newLine();
+			bufferedWriter.write(values);
+			bufferedWriter.newLine();
+			bufferedWriter.write(weights);
+			bufferedWriter.newLine();
+			bufferedWriter.newLine();
+			
 			String header = "serviceClassId;serviceClassName;ID;Name;" +
 					"Costs;Response Time;Availability";
 			bufferedWriter.write(header);			
