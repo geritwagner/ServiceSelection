@@ -94,6 +94,8 @@ public class MainFrame extends JFrame {
 	private JTextField jTextFieldPenaltyFactor;
 	private JTextField jTextFieldPopulationSize;
 	private JTextField jTextFieldElitismRate;
+	private JTextField jTextFieldCrossoverRate;
+	private JTextField jTextFieldMutationRate;
 	private JTextField jTextFieldTerminationCriterion;
 	private JTextField jTextFieldTerminationDegree;
 	private JTextField txtAntIterations;
@@ -170,6 +172,8 @@ public class MainFrame extends JFrame {
 	private static final int DEFAULT_START_POPULATION_SIZE = 100;
 	private static final int MAX_START_POPULATION_SIZE = 10000;
 	private static final int DEFAULT_ELITISM_RATE = 25;
+	private static final int DEFAULT_CROSSOVER_RATE = 70;
+	private static final int DEFAULT_MUTATION_RATE = 1;
 	private static final int DEFAULT_TERMINATION_CRITERION = 100;
 	private static final int DEFAULT_DEGREE_OF_EQUALITY = 75;
 	private static final int DEFAULT_ITERATIONS = 100;
@@ -452,8 +456,8 @@ public class MainFrame extends JFrame {
 		jMenuFile.add(jMenuItemReset);
 		
 		jMenuFile.addSeparator();
-		
-		JMenuItem jMenuItemLoad = new JMenuItem("Load Model Setup");
+		JMenuItem jMenuItemLoad = new JMenuItem("Load Model Setup"); 
+
 		final JFileChooser fileChooser = new JFileChooser() {
 			private static final long serialVersionUID = 1L;
 			{
@@ -485,7 +489,7 @@ public class MainFrame extends JFrame {
 				loadModelSetup(file);
 			}
 		});
-		jMenuFile.add(jMenuItemLoad);		
+		jMenuFile.add(jMenuItemLoad);
 		
 		JMenuItem jMenuItemSaveDataSet = new JMenuItem("Save Model Setup");
 		jMenuItemSaveDataSet.addActionListener(new ActionListener() {
@@ -504,7 +508,8 @@ public class MainFrame extends JFrame {
 		});
 		jMenuFile.add(jMenuItemSaveDataSet);
 		
-		JMenuItem jMenuItemLoadRandomSet = new JMenuItem("Generate Model Setup");
+		JMenuItem jMenuItemLoadRandomSet = 
+				new JMenuItem("Generate Model Setup");
 		jMenuFile.add(jMenuItemLoadRandomSet);
 		jMenuItemLoadRandomSet.addActionListener(
 				new ActionListener() {
@@ -534,21 +539,21 @@ public class MainFrame extends JFrame {
 					@Override
 					public boolean accept(File f) {
 						return f.getName().toLowerCase().endsWith("csv") || 
-						f.isDirectory();
+								f.isDirectory();
 					}
 					@Override
 					public String getDescription() {
 						return "CSV Datei (Comma Seperated Values)";
 					}
 				});
-				setSelectedFile(new File("AlgorithmSettings.csv"));	
+				setSelectedFile(new File("AlgorithmSettings.csv"));  
 			}
 		};
 		jMenuItemLoadSettings.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (!(fileChooserSettings.showOpenDialog(MainFrame.this) == 
-					JFileChooser.APPROVE_OPTION)) {
+						JFileChooser.APPROVE_OPTION)) {
 					return;
 				}
 				final File file = fileChooserSettings.getSelectedFile();
@@ -564,10 +569,10 @@ public class MainFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (!(fileChooserSettings.showSaveDialog(MainFrame.this) == 
-					JFileChooser.APPROVE_OPTION)) {
+						JFileChooser.APPROVE_OPTION)) {
 					return;
-				}								
-				final File file = fileChooser.getSelectedFile();				
+				}                
+				final File file = fileChooser.getSelectedFile();        
 				if (file == null) {
 					return;
 				}
@@ -575,9 +580,8 @@ public class MainFrame extends JFrame {
 			}
 		});
 		jMenuEdit.add(jMenuItemSaveSettings);
-		
-		/*
-		JMenuItem jMenuItemLoadDefaultConstraints = 
+
+		/*JMenuItem jMenuItemLoadDefaultConstraints = 
 			new JMenuItem("Use Default Constraints");
 		jMenuItemLoadDefaultConstraints.addActionListener(
 				new ActionListener() {
@@ -598,16 +602,15 @@ public class MainFrame extends JFrame {
 		JMenuItem jMenuItemLoadConstraints = new JMenuItem("Load Settings");
 		jMenuEdit.add(jMenuItemLoadConstraints);
 		JMenuItem jMenuItemSaveConstraints = new JMenuItem("Save Settings");
-		jMenuEdit.add(jMenuItemSaveConstraints);		
-		*/
+		jMenuEdit.add(jMenuItemSaveConstraints);*/		
 
 		JMenu jMenuOther = new JMenu("?");
 		jMenuBar.add(jMenuOther);
-		// POTENTIAL EXTENSIONS
-		//JMenuItem jMenuItemHelp = new JMenuItem("Help");
-		//jMenuOther.add(jMenuItemHelp);
-		//JMenuItem jMenuItemSupport = new JMenuItem("Support");
-		//jMenuOther.add(jMenuItemSupport);
+		// POTENTIAL EXTENSIONS 
+//		JMenuItem jMenuItemHelp = new JMenuItem("Help");
+//		jMenuOther.add(jMenuItemHelp);
+//		JMenuItem jMenuItemSupport = new JMenuItem("Support");
+//		jMenuOther.add(jMenuItemSupport);
 		JMenuItem jMenuItemAbout = new JMenuItem("About");
 		jMenuOther.add(jMenuItemAbout);
 	}
@@ -1196,7 +1199,7 @@ public class MainFrame extends JFrame {
 		gblJPanelGeneticAlgorithmSettings.columnWeights = 
 			new double[]{0.3, 1.0, 1.0};
 		gblJPanelGeneticAlgorithmSettings.rowWeights = 
-			new double[]{0.2, 0.1, 0.2, 1.0, 1.0, 
+			new double[]{0.2, 0.1, 0.2, 1.0, 1.0, 1.0,
 						 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 		jPanelGeneticAlgorithmSettings.setLayout(
 				gblJPanelGeneticAlgorithmSettings);
@@ -1383,7 +1386,7 @@ public class MainFrame extends JFrame {
 		JLabel jLabelSelection = new JLabel("Selection Method:");
 		GridBagConstraints gbcJLabelSelection = new GridBagConstraints();
 		gbcJLabelSelection.anchor = GridBagConstraints.WEST;
-		gbcJLabelSelection.insets = new Insets(5, 5, 5, 5);
+		gbcJLabelSelection.insets = new Insets(10, 5, 5, 5);
 		gbcJLabelSelection.gridx = 0;
 		gbcJLabelSelection.gridy = 5;
 		jPanelGeneticAlgorithmSettings.add(
@@ -1482,10 +1485,8 @@ public class MainFrame extends JFrame {
 		jLabelElitismRatePercentage = new JLabel("%");
 		GridBagConstraints gbcJLabelElitismRatePercentage = 
 			new GridBagConstraints();
-		gbcJLabelElitismRatePercentage.insets = 
-			new Insets(5, 5, 5, 5);
-		gbcJLabelElitismRatePercentage.anchor = 
-			GridBagConstraints.WEST;
+		gbcJLabelElitismRatePercentage.insets = new Insets(5, 5, 5, 5);
+		gbcJLabelElitismRatePercentage.anchor = GridBagConstraints.WEST;
 		gbcJLabelElitismRatePercentage.gridx = 2;
 		gbcJLabelElitismRatePercentage.gridy = 0;
 		jPanelElitismRate.add(jLabelElitismRatePercentage, 
@@ -1495,8 +1496,8 @@ public class MainFrame extends JFrame {
 		
 		JLabel jLabelCrossover = new JLabel("Crossover Method:");
 		GridBagConstraints gbcJLabelCrossover = new GridBagConstraints();
-		gbcJLabelCrossover.anchor = GridBagConstraints.WEST;
-		gbcJLabelCrossover.insets = new Insets(5, 5, 5, 5);
+		gbcJLabelCrossover.anchor = GridBagConstraints.NORTHWEST;
+		gbcJLabelCrossover.insets = new Insets(10, 5, 5, 5);
 		gbcJLabelCrossover.gridx = 0;
 		gbcJLabelCrossover.gridy = 7;
 		jPanelGeneticAlgorithmSettings.add(
@@ -1504,8 +1505,8 @@ public class MainFrame extends JFrame {
 		
 		JPanel jPanelCrossover = new JPanel();
 		GridBagLayout gblJPanelCrossover = new GridBagLayout();
-		gblJPanelCrossover.columnWeights = new double[] {1.0};
-		gblJPanelCrossover.rowWeights = new double[] {1.0};
+//		gblJPanelCrossover.columnWeights = new double[] {};
+//		gblJPanelCrossover.rowWeights = new double[] {};
 		jPanelCrossover.setLayout(gblJPanelCrossover);
 		GridBagConstraints gbcJPanelCrossover = 
 			new GridBagConstraints();
@@ -1530,11 +1531,118 @@ public class MainFrame extends JFrame {
 		GridBagConstraints gbcJComboBoxCrossover = 
 			new GridBagConstraints();
 		gbcJComboBoxCrossover.insets = new Insets(5, 10, 5, 5);
-		gbcJComboBoxCrossover.anchor = GridBagConstraints.EAST;
+		gbcJComboBoxCrossover.anchor = GridBagConstraints.WEST;
+		gbcJComboBoxCrossover.gridwidth = 3;
 		gbcJComboBoxCrossover.gridx = 0;
 		gbcJComboBoxCrossover.gridy = 0;
 		jPanelCrossover.add(jComboBoxCrossover, 
 				gbcJComboBoxCrossover);
+		
+		JLabel jLabelCrossoverRate = new JLabel("Crossover Rate:");
+		GridBagConstraints gbcJLabelCrossoverRate = 
+				new GridBagConstraints();
+		gbcJLabelCrossoverRate.anchor = GridBagConstraints.WEST;
+		gbcJLabelCrossoverRate.insets = new Insets(5, 10, 5, 5);
+		gbcJLabelCrossoverRate.gridx = 0;
+		gbcJLabelCrossoverRate.gridy = 1;
+		jPanelCrossover.add(
+				jLabelCrossoverRate, gbcJLabelCrossoverRate);
+		
+		jTextFieldCrossoverRate = new JTextField(
+				String.valueOf(DEFAULT_CROSSOVER_RATE));
+		jTextFieldCrossoverRate.setColumns(2);
+		jTextFieldCrossoverRate.setHorizontalAlignment(
+				JTextField.RIGHT);
+		jTextFieldCrossoverRate.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				checkInputValue(jTextFieldCrossoverRate, 
+						100, 0, DEFAULT_CROSSOVER_RATE);
+			}
+		});
+		// TODO: Insert information!
+		jTextFieldCrossoverRate.setToolTipText("<html>Crossover Rate " +
+				"<br>Usually about x &plusmn 10%</html>");
+		GridBagConstraints gbcJTextFieldCrossoverRate = 
+			new GridBagConstraints();
+		gbcJTextFieldCrossoverRate.insets = new Insets(5, 5, 5, 5);
+		gbcJTextFieldCrossoverRate.anchor = GridBagConstraints.WEST;
+		gbcJTextFieldCrossoverRate.gridx = 1;
+		gbcJTextFieldCrossoverRate.gridy = 1;
+		jPanelCrossover.add(jTextFieldCrossoverRate, 
+				gbcJTextFieldCrossoverRate);
+		
+		JLabel jLabelCrossoverPercentage = new JLabel("%");
+		GridBagConstraints gbcJLabelCrossoverPercentage = 
+				new GridBagConstraints();
+		gbcJLabelCrossoverPercentage.anchor = GridBagConstraints.WEST;
+		gbcJLabelCrossoverPercentage.insets = new Insets(5, 0, 5, 5);
+		gbcJLabelCrossoverPercentage.gridx = 2;
+		gbcJLabelCrossoverPercentage.gridy = 1;
+		jPanelCrossover.add(
+				jLabelCrossoverPercentage, gbcJLabelCrossoverPercentage);
+		
+		
+		
+		
+		JLabel jLabelMutationRate = new JLabel(
+				"Mutation Rate:");
+		GridBagConstraints gbcJLabelMutationRate = 
+				new GridBagConstraints();
+		gbcJLabelMutationRate.anchor = GridBagConstraints.WEST;
+		gbcJLabelMutationRate.insets = new Insets(5, 5, 5, 5);
+		gbcJLabelMutationRate.gridx = 0;
+		gbcJLabelMutationRate.gridy = 8;
+		jPanelGeneticAlgorithmSettings.add(
+				jLabelMutationRate, gbcJLabelMutationRate);
+		
+		JPanel jPanelMutation = new JPanel();
+		GridBagLayout gblJPanelMutation = new GridBagLayout();
+		gblJPanelMutation.columnWeights = new double[] {1.0, 1.0};
+		gblJPanelMutation.rowWeights = new double[] {1.0};
+		jPanelMutation.setLayout(gblJPanelMutation);
+		GridBagConstraints gbcJPanelMutation = 
+			new GridBagConstraints();
+		gbcJPanelMutation.anchor = GridBagConstraints.WEST;
+		gbcJPanelMutation.gridwidth = 2;
+		gbcJPanelMutation.gridx = 1;
+		gbcJPanelMutation.gridy = 8;
+		jPanelGeneticAlgorithmSettings.add(
+				jPanelMutation, gbcJPanelMutation);
+		
+		jTextFieldMutationRate = new JTextField(
+				String.valueOf(DEFAULT_MUTATION_RATE));
+		jTextFieldMutationRate.setColumns(2);
+		jTextFieldMutationRate.setHorizontalAlignment(
+				JTextField.RIGHT);
+		jTextFieldMutationRate.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				checkInputValue(jTextFieldMutationRate, 
+						1000, 0, DEFAULT_MUTATION_RATE);
+			}
+		});
+		// TODO: Insert information!
+		jTextFieldMutationRate.setToolTipText("<html>Mutation Rate " +
+				"<br>Usually about x &plusmn 10%</html>");
+		GridBagConstraints gbcJTextFieldMutationRate = 
+			new GridBagConstraints();
+		gbcJTextFieldMutationRate.insets = new Insets(5, 10, 5, 0);
+		gbcJTextFieldMutationRate.anchor = GridBagConstraints.WEST;
+		gbcJTextFieldMutationRate.gridx = 0;
+		gbcJTextFieldMutationRate.gridy = 0;
+		jPanelMutation.add(jTextFieldMutationRate, 
+				gbcJTextFieldMutationRate);
+		
+		JLabel jLabelMutationPromille = new JLabel("\u2030");
+		GridBagConstraints gbcJLabelMutationPromille = 
+				new GridBagConstraints();
+		gbcJLabelMutationPromille.insets = new Insets(5, 5, 5, 5);
+		gbcJLabelMutationPromille.anchor = GridBagConstraints.EAST;
+		gbcJLabelMutationPromille.gridx = 1;
+		gbcJLabelMutationPromille.gridy = 0;
+		jPanelMutation.add(jLabelMutationPromille, gbcJLabelMutationPromille);
+		
 		
 		
 		
@@ -1545,7 +1653,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelTerminationCriterion.anchor = GridBagConstraints.WEST;
 		gbcJLabelTerminationCriterion.insets = new Insets(5, 5, 5, 5);
 		gbcJLabelTerminationCriterion.gridx = 0;
-		gbcJLabelTerminationCriterion.gridy = 8;
+		gbcJLabelTerminationCriterion.gridy = 9;
 		jPanelGeneticAlgorithmSettings.add(
 				jLabelTerminationCriterion, gbcJLabelTerminationCriterion);
 		
@@ -1560,7 +1668,7 @@ public class MainFrame extends JFrame {
 		gbcJPanelTerminationCriterion.gridwidth = 2;
 		gbcJPanelTerminationCriterion.anchor = GridBagConstraints.WEST;
 		gbcJPanelTerminationCriterion.gridx = 1;
-		gbcJPanelTerminationCriterion.gridy = 8;
+		gbcJPanelTerminationCriterion.gridy = 9;
 		jPanelGeneticAlgorithmSettings.add(
 				jPanelTerminationCriterion, gbcJPanelTerminationCriterion);
 		
@@ -1589,7 +1697,8 @@ public class MainFrame extends JFrame {
 				gbcJComboBoxTerminationCriterion);
 		
 		jLabelTerminationColon = new JLabel(":");
-		GridBagConstraints gbcJLabelTerminationColon = new GridBagConstraints();
+		GridBagConstraints gbcJLabelTerminationColon = 
+				new GridBagConstraints();
 		gbcJLabelTerminationColon.insets = new Insets(5, 0, 5, 0);
 		gbcJLabelTerminationColon.anchor = GridBagConstraints.CENTER;
 		gbcJLabelTerminationColon.gridx = 1;
@@ -1634,7 +1743,7 @@ public class MainFrame extends JFrame {
 		gbcJPanelTerminationDegree.gridwidth = 2;
 		gbcJPanelTerminationDegree.anchor = GridBagConstraints.WEST;
 		gbcJPanelTerminationDegree.gridx = 1;
-		gbcJPanelTerminationDegree.gridy = 9;
+		gbcJPanelTerminationDegree.gridy = 10;
 		jPanelGeneticAlgorithmSettings.add(jPanelTerminationDegree, 
 				gbcJPanelTerminationDegree);
 		
@@ -1649,7 +1758,8 @@ public class MainFrame extends JFrame {
 		jPanelTerminationDegree.add(jLabelTerminationDegree, 
 					gbcJLabelTerminationDegree);
 		
-		jTextFieldTerminationDegree = new JTextField("75");
+		jTextFieldTerminationDegree = new JTextField(
+				String.valueOf(DEFAULT_DEGREE_OF_EQUALITY));
 		jTextFieldTerminationDegree.setColumns(2);
 		jTextFieldTerminationDegree.setHorizontalAlignment(JTextField.RIGHT);
 		jTextFieldTerminationDegree.addActionListener(new ActionListener() {
@@ -1965,15 +2075,17 @@ public class MainFrame extends JFrame {
 				}
 			}
 		});
-		jTableAnalyticAlgorithm.setModel(new BasicTableModel(2, 2, true));
+		jTableAnalyticAlgorithm.setModel(new BasicTableModel(1, 2, true));
 		jTableAnalyticAlgorithm.getColumnModel().getColumn(0).setHeaderValue(
 		"Selection");
 		jTableAnalyticAlgorithm.getColumnModel().getColumn(1).setHeaderValue(
 		"Service Title");
 		jTableAnalyticAlgorithm.setValueAt(true, 0, 0);
-		jTableAnalyticAlgorithm.setValueAt(false, 1, 0);
-		jTableAnalyticAlgorithm.setValueAt("Enumeration", 0, 1);
-		jTableAnalyticAlgorithm.setValueAt("Branch and Bound", 1, 1);
+		jTableAnalyticAlgorithm.setValueAt(" Enumeration", 0, 1);
+//		jTableAnalyticAlgorithm.setValueAt(false, 1, 0);
+//		jTableAnalyticAlgorithm.setValueAt("Branch and Bound", 1, 1);
+		setColumnWidthRelative(
+				jTableAnalyticAlgorithm, new double[] {0.2, 0.8});
 		jScrollPaneAnalyticAlgorithm.setViewportView(jTableAnalyticAlgorithm);
 		
 		JLabel jLabelResultTiers = new JLabel("Number of Result Tiers:");
@@ -2361,23 +2473,6 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	private void setDefaultConstraints() {
-		jSliderMaxCosts.setValue((maxCosts + minCosts) / 2);
-		jSliderMaxResponseTime.setValue(
-				(maxResponseTime + minResponseTime) / 2);
-		jSliderMinAvailability.setValue(
-				(maxAvailability + minAvailability) / 2);
-	}
-	
-	private void setRandomConstraints() {
-		jSliderMaxCosts.setValue(minCosts + 
-				(int)(Math.random() * (maxCosts - minCosts)));
-		jSliderMaxResponseTime.setValue(minResponseTime + 
-				(int) (Math.random() * (maxResponseTime - minResponseTime)));
-		jSliderMinAvailability.setValue(minAvailability + 
-				(int) (Math.random() * (maxAvailability - minAvailability)));
-	}
-	
 	private void loadAlgorithmSettings(File file) {
 		
 	}
@@ -2385,6 +2480,23 @@ public class MainFrame extends JFrame {
 	private void saveAlgorithmSettings(File file) {
 		
 	}
+	
+//	private void setDefaultConstraints() {
+//		jSliderMaxCosts.setValue((maxCosts + minCosts) / 2);
+//		jSliderMaxResponseTime.setValue(
+//				(maxResponseTime + minResponseTime) / 2);
+//		jSliderMinAvailability.setValue(
+//				(maxAvailability + minAvailability) / 2);
+//	}
+//	
+//	private void setRandomConstraints() {
+//		jSliderMaxCosts.setValue(minCosts + 
+//				(int)(Math.random() * (maxCosts - minCosts)));
+//		jSliderMaxResponseTime.setValue(minResponseTime + 
+//				(int) (Math.random() * (maxResponseTime - minResponseTime)));
+//		jSliderMinAvailability.setValue(minAvailability + 
+//				(int) (Math.random() * (maxAvailability - minAvailability)));
+//	}
 	
 	// TODO: Implement method which saves the current constraints 
 	//		 and algorithm settings
@@ -2456,7 +2568,8 @@ public class MainFrame extends JFrame {
 					jCheckBoxMaxResponseTime.isSelected());
 			lblWeights = 
 				Integer.parseInt(lblWeightSum.getText());
-			lblWeights -= Integer.parseInt(jTextFieldResponseTimeWeight.getText());
+			lblWeights -= Integer.parseInt(
+					jTextFieldResponseTimeWeight.getText());
 			lblWeightSum.setText(String.valueOf(lblWeights));
 			jTextFieldResponseTimeWeight.setText("0");
 			jTextFieldResponseTimeWeight.setEditable(
@@ -2470,7 +2583,8 @@ public class MainFrame extends JFrame {
 					jCheckBoxMinAvailability.isSelected());
 			lblWeights = 
 				Integer.parseInt(lblWeightSum.getText());
-			lblWeights -= Integer.parseInt(jTextFieldAvailabilityWeight.getText());
+			lblWeights -= Integer.parseInt(
+					jTextFieldAvailabilityWeight.getText());
 			lblWeightSum.setText(String.valueOf(lblWeights));
 			jTextFieldAvailabilityWeight.setText("0");
 			jTextFieldAvailabilityWeight.setEditable(
@@ -2555,7 +2669,8 @@ public class MainFrame extends JFrame {
 		}
 		int cumulatedPercentage = 0;
 		if (jCheckBoxMaxCosts.isSelected()) {
-			cumulatedPercentage += Integer.parseInt(jTextFieldCostsWeight.getText());
+			cumulatedPercentage += Integer.parseInt(
+					jTextFieldCostsWeight.getText());
 		}
 		if (jCheckBoxMaxResponseTime.isSelected()) {
 			cumulatedPercentage += Integer.parseInt(
@@ -2628,6 +2743,8 @@ public class MainFrame extends JFrame {
 					(String) jComboBoxSelection.getSelectedItem(),
 					Integer.parseInt(jTextFieldElitismRate.getText()),
 					((String) jComboBoxCrossover.getSelectedItem()),
+					Integer.parseInt(jTextFieldCrossoverRate.getText()),
+					Integer.parseInt(jTextFieldMutationRate.getText()),
 					((String) jComboBoxTerminationCriterion.getSelectedItem()),
 					Integer.parseInt(jTextFieldTerminationDegree.getText()));
 		}
@@ -3266,7 +3383,8 @@ public class MainFrame extends JFrame {
 		boolean noConstraintsChosen = true;
 		if (jCheckBoxMaxCosts.isSelected()) {
 			utilityText += "(Costs<sub><small>norm</small></sub> * " + 
-			(Double.parseDouble(jTextFieldCostsWeight.getText()) / 100.0) + ") + ";
+			(Double.parseDouble(jTextFieldCostsWeight.getText()) / 100.0) + 
+			") + ";
 			noConstraintsChosen = false;
 		}
 		if (jCheckBoxMaxResponseTime.isSelected()) {
