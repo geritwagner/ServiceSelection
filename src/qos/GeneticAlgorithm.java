@@ -92,23 +92,18 @@ public class GeneticAlgorithm extends Algorithm {
 			List<Composition> matingPool;
 			// Roulette Wheel
 			if (selectionMethod.contains("Roulette Wheel")) {
-				matingPool = doSelectionRouletteWheel(
-						population, populationSize);
+				matingPool = doSelectionRouletteWheel(population);
 			}
 			
 			// Linear Ranking
 			// TODO: Linear Ranking liefert sehr schlechte Ergebnisse!
 			else if (selectionMethod.contains("Linear Ranking")) {
-				matingPool = doSelectionLinearRanking(
-						population, populationSize);
+				matingPool = doSelectionLinearRanking(population);
 			}
 			
 			// Binary Tournament
 			else {
-				// TODO: Warum wird nicht einfach gleich population 
-				//		 übergeben?
-				matingPool = new LinkedList<Composition>(population);
-				matingPool = doSelectionBinaryTournament(matingPool);
+				matingPool = doSelectionBinaryTournament(population);
 			}
 
 			// CROSSOVER
@@ -226,13 +221,11 @@ public class GeneticAlgorithm extends Algorithm {
 			List<Composition> population2;
 			if (selectionMethod.contains("Roulette Wheel")) {
 				population2 = 
-						doSelectionRouletteWheel(population, 
-								populationSize - numberOfElites);
+						doSelectionRouletteWheel(population);
 			}
 			else if (selectionMethod.contains("Linear Ranking")) {
 				population2 = 
-				doSelectionLinearRanking(population, 
-						populationSize - numberOfElites);
+				doSelectionLinearRanking(population);
 			}
 			else {
 				population2 = 
@@ -490,9 +483,8 @@ public class GeneticAlgorithm extends Algorithm {
 		return matingPool;
 	}
 	
-	// TODO: numberOfSpins zu übergeben ist eigentlich überflüssig oder?
 	private List<Composition> doSelectionRouletteWheel(
-			List<Composition> oldPopulation, int numberOfSpins) {
+			List<Composition> oldPopulation) {
 		double[] fitnessAreas = new double[oldPopulation.size()];
 		List<Composition> newPopulation = new LinkedList<Composition>();
 		// Compute cumulated fitness areas of 
@@ -508,7 +500,7 @@ public class GeneticAlgorithm extends Algorithm {
 		// Choose every member of the new population by random
 		// with respect to the fitness values of the different
 		// compositions
-		for (int i = 0; i < numberOfSpins; i++) {
+		for (int i = 0; i < oldPopulation.size(); i++) {
 			double random = Math.random() * fitnessAreaSum;
 			for (int j = 0; j < oldPopulation.size(); j++) {
 				if (random < fitnessAreas[j]) {
@@ -520,10 +512,9 @@ public class GeneticAlgorithm extends Algorithm {
 		return newPopulation;
 	}
 
-	// TODO: numberOfSpins zu übergeben ist eigentlich überflüssig oder?
 	// TODO: Linear Ranking liefert sehr schlechte Ergebnisse!
 	private List<Composition> doSelectionLinearRanking(
-			List<Composition> oldPopulation, int numberOfSpins) {
+			List<Composition> oldPopulation) {
 		double[] fitnessRanks = new double[oldPopulation.size()];
 		double selectionPressure = 2.0;
 		Collections.sort(oldPopulation, new Composition());
@@ -543,7 +534,7 @@ public class GeneticAlgorithm extends Algorithm {
 		// Choose every member of the new population by random
 		// with respect to the ranks of the different
 		// compositions (like roulette wheel)
-		for (int i = 0; i < numberOfSpins; i++) {
+		for (int i = 0; i < oldPopulation.size(); i++) {
 			double random = Math.random() * fitnessRankSum;
 			for (int j = 0; j < oldPopulation.size(); j++) {
 				if (random < fitnessRanks[j]) {
