@@ -3513,7 +3513,8 @@ public class MainFrame extends JFrame {
 			for (ServiceClass serviceClass : serviceClassesList) {
 				maxPopulationSize *= 
 						serviceClass.getServiceCandidateList().size();
-				if (maxPopulationSize >= Long.MAX_VALUE) {
+				if (maxPopulationSize < 0) {
+					maxPopulationSize = Long.MAX_VALUE;
 					break;
 				}
 			}
@@ -3523,7 +3524,7 @@ public class MainFrame extends JFrame {
 					textField.setText(String.valueOf(maxPopulationSize));
 //					jLabelPopulationPercentage.setText("( = 100 % )");
 					writeErrorLogEntry(
-							"Input has to be between " + minInput + 
+							"Value has to be between " + minInput + 
 							" and " + maxPopulationSize);
 					return;
 				}
@@ -3533,7 +3534,7 @@ public class MainFrame extends JFrame {
 //							"( = " + DECIMAL_FORMAT_FOUR.format(
 //									100.0 / maxPopulationSize) + " %)");
 					writeErrorLogEntry(
-							"Input has to be between " + minInput + 
+							"Value has to be between " + minInput + 
 							" and " + maxPopulationSize);
 					return;
 				}
