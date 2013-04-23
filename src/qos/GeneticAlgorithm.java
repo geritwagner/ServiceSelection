@@ -105,6 +105,8 @@ public class GeneticAlgorithm extends Algorithm {
 			
 			// Binary Tournament
 			else {
+				// TODO: Warum wird nicht einfach gleich population 
+				//		 übergeben?
 				matingPool = new LinkedList<Composition>(population);
 				matingPool = doSelectionBinaryTournament(matingPool);
 			}
@@ -488,6 +490,7 @@ public class GeneticAlgorithm extends Algorithm {
 		return matingPool;
 	}
 	
+	// TODO: numberOfSpins zu übergeben ist eigentlich überflüssig oder?
 	private List<Composition> doSelectionRouletteWheel(
 			List<Composition> oldPopulation, int numberOfSpins) {
 		double[] fitnessAreas = new double[oldPopulation.size()];
@@ -516,7 +519,8 @@ public class GeneticAlgorithm extends Algorithm {
 		}
 		return newPopulation;
 	}
-	
+
+	// TODO: numberOfSpins zu übergeben ist eigentlich überflüssig oder?
 	// TODO: Linear Ranking liefert sehr schlechte Ergebnisse!
 	private List<Composition> doSelectionLinearRanking(
 			List<Composition> oldPopulation, int numberOfSpins) {
@@ -665,90 +669,6 @@ public class GeneticAlgorithm extends Algorithm {
 					newServiceCandidateList_2.add(
 							composition_1.getServiceCandidatesList().
 							get(count));
-				}
-			}
-			composition_1.setServiceCandidateList(newServiceCandidateList_1);
-			composition_2.setServiceCandidateList(newServiceCandidateList_2);
-			newPopulation.add(composition_1);
-			newPopulation.add(composition_2);
-		}
-		return newPopulation;
-	}
-	
-	private List<Composition> doHalfUniformCrossover(
-			List<Composition> population) {
-		List<Composition> newPopulation = new LinkedList<Composition>();
-		while (population.size() > 0) {
-			if (population.size() == 1) {
-				newPopulation.add(population.get(0));
-				break;
-			}
-			Composition composition_1 = population.get(0);
-			population.remove(composition_1);
-			// SELECT 2ND COMPOSITION RANDOMLY
-			Composition composition_2 = getRandomComposition(population);
-			population.remove(composition_2);
-			int numberOfNonMatchingCandidates = 0;
-			for (int count = 0; 
-					count < composition_1.getServiceCandidatesList().size(); 
-					count++) {
-				if (!composition_1.getServiceCandidatesList().get(count).
-						equals(composition_2.getServiceCandidatesList().
-								get(count))) {
-					numberOfNonMatchingCandidates++;
-				}
-			}
-			int numberOfChangedCandidates = 0;
-			int numberOfCandidatesWhichHaveToBeChanged = 
-					(int) Math.round(numberOfNonMatchingCandidates / 2.0);
-			List<ServiceCandidate> newServiceCandidateList_1 = 
-					new LinkedList<ServiceCandidate>();
-			List<ServiceCandidate> newServiceCandidateList_2 = 
-					new LinkedList<ServiceCandidate>();
-			for (int count = 0; 
-					count < composition_1.getServiceCandidatesList().size(); 
-					count++) {
-				if (composition_1.getServiceCandidatesList().get(count).
-						equals(composition_2.getServiceCandidatesList().
-								get(count))) {
-					newServiceCandidateList_1.add(
-							composition_1.getServiceCandidatesList().
-							get(count));
-					newServiceCandidateList_2.add(
-							composition_2.getServiceCandidatesList().
-							get(count));
-				}
-				else {
-					if (numberOfNonMatchingCandidates - 
-							numberOfChangedCandidates <= 
-							numberOfCandidatesWhichHaveToBeChanged) {
-						newServiceCandidateList_1.add(
-								composition_2.getServiceCandidatesList().
-								get(count));
-						newServiceCandidateList_2.add(
-								composition_1.getServiceCandidatesList().
-								get(count));
-					}
-					else {
-						if (Math.random() > 0.5) {
-							newServiceCandidateList_1.add(
-									composition_2.getServiceCandidatesList().
-									get(count));
-							newServiceCandidateList_2.add(
-									composition_1.getServiceCandidatesList().
-									get(count));
-							numberOfChangedCandidates++;
-						}
-						else {
-							newServiceCandidateList_1.add(
-									composition_1.getServiceCandidatesList().
-									get(count));
-							newServiceCandidateList_2.add(
-									composition_2.getServiceCandidatesList().
-									get(count));
-						}
-					}
-					numberOfNonMatchingCandidates--;
 				}
 			}
 			composition_1.setServiceCandidateList(newServiceCandidateList_1);
