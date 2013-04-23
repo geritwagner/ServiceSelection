@@ -1521,13 +1521,11 @@ public class MainFrame extends JFrame {
 		jComboBoxCrossover.addItem("One-Point Crossover");
 		jComboBoxCrossover.addItem("Two-Point Crossover");
 		jComboBoxCrossover.addItem("Uniform Crossover");
-		jComboBoxCrossover.addItem("Half-Uniform Crossover");
 		jComboBoxCrossover.setPreferredSize(
 				jComboBoxSelection.getPreferredSize());
 		// TODO: Insert information!
 		jComboBoxCrossover.setToolTipText("<html>n-Point Crossover: x<br>" +
-				"Uniform Crossover: y<br>" +
-				"Half-Uniform Crossover: z</html>");
+				"Uniform Crossover: y</html>");
 		GridBagConstraints gbcJComboBoxCrossover = 
 			new GridBagConstraints();
 		gbcJComboBoxCrossover.insets = new Insets(5, 10, 5, 5);
