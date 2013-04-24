@@ -51,20 +51,24 @@ public class Composition implements Comparator<Composition> {
 		this.utility = utility / serviceCandidatesList.size();
 	}
 
-	// 
+	// Add a service candidate to the list. Automatically update the QoS 
+	// vector and the utility value.
 	public void addServiceCandidate(ServiceCandidate serviceCandidate) {
 		serviceCandidatesList.add(serviceCandidate);
-		// TODO: Umstellung auf buildAggregatedQosVector() vornehmen?
 		qosVectorAggregated.add(serviceCandidate.getQosVector());
+		utility = (utility * (serviceCandidatesList.size() - 1) + 
+				serviceCandidate.getUtility()) / serviceCandidatesList.size();
 	}
 	
-	// Remove the last service candidate from the list.
+	// Remove the last service candidate from the list. Automatically update 
+	// the QoS vector and the utility value.
 	public void removeServiceCandidate() {
-		ServiceCandidate serviceCandidateRemoved = 
+		ServiceCandidate serviceCandidate = 
 				serviceCandidatesList.remove(serviceCandidatesList.size() - 1);
-		// TODO: Umstellung auf buildAggregatedQosVector() vornehmen?
 		qosVectorAggregated.subtract(
-				serviceCandidateRemoved.getQosVector());
+				serviceCandidate.getQosVector());
+		utility = (utility * (serviceCandidatesList.size() + 1) - 
+				serviceCandidate.getUtility()) / serviceCandidatesList.size();
 	}
 	
 	// Returns the IDs of the compositions's service candidates.
