@@ -125,10 +125,10 @@ public class MainFrame extends JFrame {
 	private JSpinner jSpinnerNumberResultTiers;
 	
 	// Tables
-	private JTable jTableServiceClasses;
-	private JTable jTableWebServices;
-	private JTable jTableAnalyticAlgorithm;
-	private JTable jTableGeneralResults;
+	private ServiceSelectionTable jTableServiceClasses;
+	private ServiceSelectionTable jTableWebServices;
+	private ServiceSelectionTable jTableAnalyticAlgorithm;
+	private ServiceSelectionTable jTableGeneralResults;
 	
 	// Progress Bars
 	private JProgressBar jProgressBarGeneticAlgorithm;
@@ -612,6 +612,12 @@ public class MainFrame extends JFrame {
 //		JMenuItem jMenuItemSupport = new JMenuItem("Support");
 //		jMenuOther.add(jMenuItemSupport);
 		JMenuItem jMenuItemAbout = new JMenuItem("About");
+		jMenuItemAbout.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showAboutDialog();
+			}
+		});
 		jMenuOther.add(jMenuItemAbout);
 	}
 
@@ -1024,9 +1030,8 @@ public class MainFrame extends JFrame {
 		jPanelServiceClasses.add(
 				jScrollPaneServiceClasses, gbcJScrollPaneServiceClasses);
 
-		jTableServiceClasses = new JTable();
-		jTableServiceClasses.setEnabled(false);
-		jTableServiceClasses.setModel(new BasicTableModel(0, 2, false));		
+		jTableServiceClasses = new ServiceSelectionTable(0, 2, false);
+		jTableServiceClasses.setEnabled(false);		
 		jTableServiceClasses.getColumnModel().getColumn(0).setHeaderValue(
 		"ID");
 		jTableServiceClasses.getColumnModel().getColumn(1).setHeaderValue(
@@ -1067,9 +1072,8 @@ public class MainFrame extends JFrame {
 		jPanelWebServices.add(
 				jScrollPaneWebServices, gbcJScrollPaneWebServices);
 
-		jTableWebServices = new JTable();
+		jTableWebServices = new ServiceSelectionTable(0, 6, false);
 		jTableWebServices.setEnabled(false);
-		jTableWebServices.setModel(new BasicTableModel(0, 6, false));
 		jTableWebServices.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		jTableWebServices.getColumnModel().getColumn(0).setHeaderValue(
 				"ServiceClass");
@@ -2044,7 +2048,7 @@ public class MainFrame extends JFrame {
 		panelAnalyticBody.add(
 				jScrollPaneAnalyticAlgorithm, gbcJScrollPaneAnalyticAlgorithm);
 
-		jTableAnalyticAlgorithm = new JTable();
+		jTableAnalyticAlgorithm = new ServiceSelectionTable(1, 2, true);
 		jTableAnalyticAlgorithm.setEnabled(false);
 		// TODO: Look for a better solution for this listener.
 		//		 But not important as long as only one 
@@ -2073,7 +2077,6 @@ public class MainFrame extends JFrame {
 				}
 			}
 		});
-		jTableAnalyticAlgorithm.setModel(new BasicTableModel(1, 2, true));
 		jTableAnalyticAlgorithm.getColumnModel().getColumn(0).setHeaderValue(
 		"Selection");
 		jTableAnalyticAlgorithm.getColumnModel().getColumn(1).setHeaderValue(
@@ -2082,8 +2085,8 @@ public class MainFrame extends JFrame {
 		jTableAnalyticAlgorithm.setValueAt(" Enumeration", 0, 1);
 //		jTableAnalyticAlgorithm.setValueAt(false, 1, 0);
 //		jTableAnalyticAlgorithm.setValueAt("Integer Programming", 1, 1);
-		setColumnWidthRelative(
-				jTableAnalyticAlgorithm, new double[] {0.2, 0.8});
+		jTableAnalyticAlgorithm.setColumnWidthRelative(
+				new double[] {0.2, 0.8});
 		jScrollPaneAnalyticAlgorithm.setViewportView(jTableAnalyticAlgorithm);
 		
 		JLabel jLabelResultTiers = new JLabel("Number of Result Tiers:");
@@ -2151,16 +2154,10 @@ public class MainFrame extends JFrame {
 		gblJPanelGeneralResults.rowWeights = new double[]{1.0};
 		jPanelGeneralResults.setLayout(gblJPanelGeneralResults);
 
-		String[][] generalResultsData = {
-				{"Runtime:", ""},
-				{"     Genetic Algorithm", ""},
-				{"     Ant Algorithm", ""},
-				{"     Analytic Algorithm", ""},
-				{" \u0394 Genetic Algorithm", ""},
-				{" \u0394 Ant Algorithm", ""}
+		String[] generalResultsData = {"Runtime:", "     Genetic Algorithm",
+				"     Ant Algorithm", "     Analytic Algorithm",
+				" \u0394 Genetic Algorithm", " \u0394 Ant Algorithm"
 		};
-		String[] generalResultsColumnNames = {"Variable", "Value"};
-
 		JScrollPane jScrollPaneResults = new JScrollPane();
 		jScrollPaneResults.setVerticalScrollBarPolicy(
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -2170,11 +2167,17 @@ public class MainFrame extends JFrame {
 		gbcJScrollPaneResults.gridx = 0;
 		gbcJScrollPaneResults.gridy = 0;
 		jPanelGeneralResults.add(jScrollPaneResults, gbcJScrollPaneResults);
-		jTableGeneralResults = new JTable(
-				generalResultsData, generalResultsColumnNames);
-		setColumnWidthRelative(jTableGeneralResults, new double[] {0.6, 0.4});
-		setColumnTextAlignment(jTableGeneralResults, 1, 
-				DefaultTableCellRenderer.RIGHT);
+		jTableGeneralResults = new ServiceSelectionTable(6,2,false);
+		jTableGeneralResults.getColumnModel().getColumn(0).
+		setHeaderValue("Variable");
+		jTableGeneralResults.getColumnModel().getColumn(1).
+		setHeaderValue("Value");
+		for (int i = 0; i < generalResultsData.length; i++) {
+			jTableGeneralResults.setValueAt(generalResultsData[i], i, 0);
+		}
+		jTableGeneralResults.setColumnWidthRelative(new double[] {0.6, 0.4});
+		jTableGeneralResults.setColumnTextAlignment(
+				1, DefaultTableCellRenderer.RIGHT);
 		jTableGeneralResults.setEnabled(false);
 		jScrollPaneResults.setViewportView(jTableGeneralResults);
 	}
@@ -2280,16 +2283,18 @@ public class MainFrame extends JFrame {
 			}
 
 			// Write service classes headers.
-			jTableServiceClasses.setModel(new BasicTableModel(
-					serviceClassesList.size(), 2, false));
-			setColumnWidthRelative(jTableServiceClasses, 
+			jTableServiceClasses.setModel(
+					new BasicTableModel(serviceClassesList.size(), 2, 
+							false));
+			jTableServiceClasses.setColumnWidthRelative(
 					new double[] {0.3, 0.7});
 			TableColumnModel serviceClassesColumnModel = 
 				jTableServiceClasses.getColumnModel();
 			serviceClassesColumnModel.getColumn(0).setHeaderValue("ID");
 			serviceClassesColumnModel.getColumn(1).setHeaderValue("Name");
-			setColumnTextAlignment(
-					jTableServiceClasses, 0, DefaultTableCellRenderer.CENTER);
+			
+			jTableServiceClasses.setColumnTextAlignment(
+					0, DefaultTableCellRenderer.CENTER);
 
 			// Write service classes data.
 			for (int k = 0 ; k < serviceClassesList.size() ; k++) {
@@ -2312,13 +2317,13 @@ public class MainFrame extends JFrame {
 						headerArray[innerCount]);
 				innerCount++;
 			}
-			setColumnTextAlignment(
-					jTableWebServices, 0, DefaultTableCellRenderer.CENTER);
-			setColumnTextAlignment(
-					jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
+			jTableWebServices.setColumnTextAlignment(
+					0, DefaultTableCellRenderer.CENTER);
+			jTableWebServices.setColumnTextAlignment(
+					1, DefaultTableCellRenderer.CENTER);
 			for (int count = 3; count < 6; count++) {
-				setColumnTextAlignment(jTableWebServices, count, 
-						DefaultTableCellRenderer.RIGHT);
+				jTableWebServices.setColumnTextAlignment(
+						count, DefaultTableCellRenderer.RIGHT);
 			}
 			// Write service candidates data.
 			for (int k = 0 ; k < serviceCandidatesList.size() ; k++) {
@@ -2340,15 +2345,25 @@ public class MainFrame extends JFrame {
 			checkEnableStartButton();
 			setSliderExtremeValues();
 			// NOW SET LOADED CONSTRAINTS
-			jSliderMaxCosts.setValue((int) Math.ceil(Double.parseDouble(constraintsValues[0])));
-			jSliderMaxResponseTime.setValue((int) Math.ceil(Double.parseDouble(constraintsValues[1])));
-			jSliderMinAvailability.setValue((int) Math.ceil(Double.parseDouble(constraintsValues[2])*100));
+			jSliderMaxCosts.setValue((int) Math.ceil(
+					Double.parseDouble(constraintsValues[0])));
+			jSliderMaxResponseTime.setValue((int) Math.ceil(
+					Double.parseDouble(constraintsValues[1])));
+			jSliderMinAvailability.setValue((int) Math.ceil(
+					Double.parseDouble(constraintsValues[2])*100));
 			jTextFieldMaxCosts.setText(constraintsValues[0]);
 			jTextFieldMaxResponseTime.setText(constraintsValues[1]);
-			jTextFieldMinAvailability.setText(""+Double.parseDouble(constraintsValues[2])*100);
-			jTextFieldCostsWeight.setText(""+(int) Math.ceil(Double.parseDouble(constraintsWeights[0])));
-			jTextFieldResponseTimeWeight.setText(""+(int) Math.ceil(Double.parseDouble(constraintsWeights[1])));
-			jTextFieldAvailabilityWeight.setText(""+(int) Math.ceil(Double.parseDouble(constraintsWeights[2])));			
+			jTextFieldMinAvailability.setText(String.valueOf(
+					Double.parseDouble(constraintsValues[2]) * 100));
+			jTextFieldCostsWeight.setText(String.valueOf(
+					(int) Math.ceil(
+							Double.parseDouble(constraintsWeights[0]))));
+			jTextFieldResponseTimeWeight.setText(String.valueOf(
+					(int) Math.ceil(
+							Double.parseDouble(constraintsWeights[1]))));
+			jTextFieldAvailabilityWeight.setText(String.valueOf(
+					(int) Math.ceil(
+							Double.parseDouble(constraintsWeights[2]))));			
 			
 			checkInputValue(jTextFieldPopulationSize, 
 					MAX_START_POPULATION_SIZE, 1, 
@@ -2365,7 +2380,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void generateModelSetup() {
-		final JSpinner spinnerNumberOfServiceClasses = new JSpinner(
+		JSpinner spinnerNumberOfServiceClasses = new JSpinner(
 				new SpinnerNumberModel(1, 1, 1000, 1));		
 		((JSpinner.DefaultEditor) spinnerNumberOfServiceClasses.getEditor()).
 		getTextField().setHorizontalAlignment(JTextField.CENTER);
@@ -2405,14 +2420,13 @@ public class MainFrame extends JFrame {
 		// Write service classes headers.
 		jTableServiceClasses.setModel(new BasicTableModel(
 				serviceClassesList.size(), 2, false));
-		setColumnWidthRelative(jTableServiceClasses, 
-				new double[] {0.3, 0.7});
+		jTableServiceClasses.setColumnWidthRelative(new double[] {0.3, 0.7});
 		TableColumnModel serviceClassesColumnModel = 
 			jTableServiceClasses.getColumnModel();
 		serviceClassesColumnModel.getColumn(0).setHeaderValue("ID");
 		serviceClassesColumnModel.getColumn(1).setHeaderValue("Name");
-		setColumnTextAlignment(
-				jTableServiceClasses, 0, DefaultTableCellRenderer.CENTER);
+		jTableServiceClasses.setColumnTextAlignment(
+				0, DefaultTableCellRenderer.CENTER);
 
 		// Write service classes data. Load service candidates into list.
 		for (int k = 0; k < serviceClassesList.size(); k++) {
@@ -2438,13 +2452,13 @@ public class MainFrame extends JFrame {
 			webServicesColumnModel.getColumn(k).setHeaderValue(
 					headerArray[k]);
 		}
-		setColumnTextAlignment(
-				jTableWebServices, 0, DefaultTableCellRenderer.CENTER);
-		setColumnTextAlignment(
-				jTableWebServices, 1, DefaultTableCellRenderer.CENTER);
+		jTableWebServices.setColumnTextAlignment(
+				0, DefaultTableCellRenderer.CENTER);
+		jTableWebServices.setColumnTextAlignment(
+				1, DefaultTableCellRenderer.CENTER);
 		for (int count = 4; count < 6; count++) {
-			setColumnTextAlignment(jTableWebServices, count, 
-					DefaultTableCellRenderer.RIGHT);
+			jTableWebServices.setColumnTextAlignment(
+					count, DefaultTableCellRenderer.RIGHT);
 		}
 		// Write service candidates data.
 		for (int k = 0; k < serviceCandidatesList.size(); k++) {
@@ -2617,11 +2631,20 @@ public class MainFrame extends JFrame {
 //		
 //	}
 	
-	// TODO: Implement method which shows a message dialog with 
-	//		 basic information about the program, e.g. version
-//	private void showAboutDialog() {
-//		
-//	}
+	// TODO: Adjust Dialog (if necessary)
+	private void showAboutDialog() {
+		JOptionPane.showMessageDialog(null, 
+				"<html><h1>Service Selection Tool</h1><br>" +
+				"<h2><i>Version 1.0 (24.04.13)</i></h2><br><br>" +
+				"<h3>Developed by:</h3>" +
+				"<ul style=\"list-style-type: none;\">" +
+				"<li>Christian Richthammer</li>" +
+				"<li>Christian Deml</li>" +
+				"<li>Michael Mayer</li>" +
+				"<li>Gerit Wagner</li></ul></html>", 
+				"About", JOptionPane.INFORMATION_MESSAGE);
+		
+	}
 	
 	
 	
@@ -3210,9 +3233,9 @@ public class MainFrame extends JFrame {
 			String[] tierTablesColumnNames = {"# Service", 
 					"Service Title", "Service Class", "Utility Value", "Costs", 
 					"Response Time", "Availability"};
-			JTable jTableTier = new JTable(new BasicTableModel(numberOfRows + 
-					tierServiceCompositionList.size(), 
-					tierTablesColumnNames.length, false));
+			ServiceSelectionTable jTableTier = new ServiceSelectionTable(
+					numberOfRows + tierServiceCompositionList.size(), 
+					tierTablesColumnNames.length, false);
 			GridBagConstraints gbcJTableTier = new GridBagConstraints();
 			gbcJTableTier.gridx = 0;
 			gbcJTableTier.gridy = count;
@@ -3220,12 +3243,12 @@ public class MainFrame extends JFrame {
 			gbcJTableTier.anchor = GridBagConstraints.NORTH;
 			jPanelAlgorithmResult.add(jTableTier, gbcJTableTier);
 			
-			setColumnTextAlignment(
-					jTableTier, 0, DefaultTableCellRenderer.CENTER);
-			setColumnTextAlignment(
-					jTableTier, 2, DefaultTableCellRenderer.CENTER);
-			setColumnTextAlignment(
-					jTableTier, 3, DefaultTableCellRenderer.CENTER);
+			jTableTier.setColumnTextAlignment(
+					0, DefaultTableCellRenderer.CENTER);
+			jTableTier.setColumnTextAlignment(
+					2, DefaultTableCellRenderer.CENTER);
+			jTableTier.setColumnTextAlignment(
+					3, DefaultTableCellRenderer.CENTER);
 			
 			// COUNTER FOR CONSTRUCTION OF TABLE HEADERS
 			for (int columnCount = 0; columnCount < 
@@ -3723,25 +3746,6 @@ public class MainFrame extends JFrame {
 			}
 		}
 		return min;
-	}
-	
-	// Sum of elements of double[] columnWidthPercentages has to be 1.
-	private void setColumnWidthRelative(
-			JTable table, double[] columnWidthPercentages) {
-		double tableWidth = table.getPreferredSize().getWidth();
-		for (int count = 0; count < columnWidthPercentages.length; count++) {
-			table.getColumnModel().getColumn(count).setPreferredWidth(
-					(int)((columnWidthPercentages[count] * tableWidth) + 0.5));
-		}
-	}
-
-	private void setColumnTextAlignment(
-			JTable table, int column, int columnAlignment) {
-		DefaultTableCellRenderer defaultRenderer = 
-			new DefaultTableCellRenderer();
-		defaultRenderer.setHorizontalAlignment(columnAlignment);
-		table.getColumnModel().getColumn(column).setCellRenderer(
-				defaultRenderer);
 	}
 	
 	private void printChosenConstraintsToConsole(
