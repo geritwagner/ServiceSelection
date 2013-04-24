@@ -2081,7 +2081,7 @@ public class MainFrame extends JFrame {
 		jTableAnalyticAlgorithm.setValueAt(true, 0, 0);
 		jTableAnalyticAlgorithm.setValueAt(" Enumeration", 0, 1);
 //		jTableAnalyticAlgorithm.setValueAt(false, 1, 0);
-//		jTableAnalyticAlgorithm.setValueAt("Branch and Bound", 1, 1);
+//		jTableAnalyticAlgorithm.setValueAt("Integer Programming", 1, 1);
 		setColumnWidthRelative(
 				jTableAnalyticAlgorithm, new double[] {0.2, 0.8});
 		jScrollPaneAnalyticAlgorithm.setViewportView(jTableAnalyticAlgorithm);

@@ -101,9 +101,6 @@ public class AnalyticAlgorithm extends Algorithm {
 	}
 	
 	private void changeAlgorithmSolutionTiers(Composition composition) {
-		// TODO: Durch den geänderten Default-Konstruktor kann man das 
-		//		 jetzt vielleicht wieder schöner gestalten. Also ohne lauter 
-		//		 neue Objekte erzeugen zu müssen.
 		List<ServiceCandidate> serviceCandidates = 
 			new LinkedList<ServiceCandidate>(
 					composition.getServiceCandidatesList());						
@@ -111,10 +108,7 @@ public class AnalyticAlgorithm extends Algorithm {
 				composition.getServiceCandidatesList());
 		Composition newComposition = new Composition();
 		newComposition.setServiceCandidateList(serviceCandidates);
-		newComposition.setQosVectorAggregated(new QosVector(
-				composition.getQosVectorAggregated().getCosts(),
-				composition.getQosVectorAggregated().getResponseTime(),
-				composition.getQosVectorAggregated().getAvailability()));
+		newComposition.buildAggregatedQosVector();
 		newComposition.computeUtilityValue();
 		
 		// Loop is needed when two compositions have the same utility value.

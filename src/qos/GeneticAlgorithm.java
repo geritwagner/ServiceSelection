@@ -6,11 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-// TODO: TEST DIFFERENT SELECTION METHODS
-// TODO: TEST RECOMBINATION METHODS
-// TODO: IMPLEMENT DYNAMIC PENALTY
-// TODO: IMPLEMENT DIFFERENT TERMINATION CRITERIA
-
 public class GeneticAlgorithm extends Algorithm {
 	
 	private List<ServiceClass> serviceClassesList;
@@ -216,82 +211,77 @@ public class GeneticAlgorithm extends Algorithm {
 	// TODO: Pretty much copy/paste; so if changes are made to 
 	//		 the start()-method, this method has to be updated!
 	public void startInBenchmarkMode() {
-		runtime = System.currentTimeMillis();
+		crossoverRate /= 100.0;
+		elitismRate /= 100.0;
+		mutationRate /= 1000.0;
+		
+		terminationCounter = terminationCriterion;
+		
+		runtime = System.currentTimeMillis();	
+
 		List<Composition> population = generateInitialPopulation();
 
-		terminationCounter = terminationCriterion;
-		elitismRate /= 100.0;
 		while (terminationCounter > 0) {
-			// SELECTION (Elitism Based)
+			// Temporarily save the elite compositions.
 			int numberOfElites = (int) Math.round(
 					populationSize * elitismRate);
-			List<Composition> population1 = doSelectionElitismBased(
+			List<Composition> elites = doSelectionElitismBased(
 					population, numberOfElites);
-			List<Composition> population2;
-			if (selectionMethod.contains("Roulette Wheel")) {
-				population2 = 
-						doSelectionRouletteWheel(population);
-			}
-			else if (selectionMethod.contains("Linear Ranking")) {
-				population2 = 
-				doSelectionLinearRanking(population);
-			}
-			else {
-				population2 = 
-				new LinkedList<Composition>(population.subList(
-						numberOfElites, population.size() - 1));
-			population2 = 
-				doSelectionBinaryTournament(population2);
-			}
-			
-			// RECOMBINATION
-			// CROSSOVER (One-Point Crossover)
-			int numberOfCrossovers = (int) Math.round((
-					(populationSize - numberOfElites) / 2.0));
-			population2 = doCrossoverOnePoint(
-					population, numberOfCrossovers);
-			
+		
+			// SELECTION
+			List<Composition> matingPool;
+			// Roulette Wheel
+			matingPool = doSelectionRouletteWheel(population);
+			// Linear Ranking
+//			matingPool = doSelectionLinearRanking(population);
+			// Binary Tournament
+//			matingPool = doSelectionBinaryTournament(population);
+
+			// CROSSOVER
+			// One-Point Crossover
+			matingPool = doCrossoverOnePoint(matingPool, crossoverRate);
+			// Two-Point Crossover
+//			matingPool = doCrossoverTwoPoint(matingPool, crossoverRate);
+			// Uniform Crossover
+//			matingPool = doCrossoverUniform(matingPool, crossoverRate);
+
 			// MUTATION
-			doMutation(population2, numberOfCrossovers);
+			doMutation(matingPool, mutationRate);
 			
-			boolean hasPopulationChanged = hasPopulationChanged(
-					population, population1);
+			// Replace the worst compositions with the elites.
+			matingPool = doElitePreservation(matingPool, elites);
 			
-			// UPDATE
+//			boolean hasPopulationChanged = true;
+//			hasPopulationChanged(population, matingPool);
+			
 			population.removeAll(population);
-			population.addAll(population1);
-			population.addAll(population2);
+			population.addAll(matingPool);
 			
 			// TERMINATION CRITERION
-			if (terminationMethod.contains("Iteration")) {
-				dynamicPenalty = 1 - (terminationCriterion - 
-						terminationCounter) / terminationCriterion;
-				terminationCounter--;
-			}
-			// TODO: Test this method later (not complete!)
-			else if (terminationMethod.contains(
-					"Consecutive Equal Generations")) {
-				if (hasPopulationChanged) {
-					terminationCounter = terminationCriterion;
-				}
-				else {
-					terminationCounter--;
-				}
-			}
-			// TODO: Test this method later (not complete!)
-			else {
-				if (maxFitnessPerPopulation.get(
-						maxFitnessPerPopulation.size() - 1) <= 
-						maxFitnessPerPopulation.get(
-								maxFitnessPerPopulation.size() - 2 - 
-								terminationCriterion + terminationCounter)) {
-					terminationCounter--;
-				}
-				else {
-					terminationCounter = terminationCriterion;
-				}
-			}
+			// Number of Iterations
+			dynamicPenalty = 1 - (terminationCriterion - 
+					terminationCounter) / terminationCriterion;
+			terminationCounter--;
+			// Consecutive Equal Generations
+//			if (hasPopulationChanged) {
+//				terminationCounter = terminationCriterion;
+//			}
+//			else {
+//				terminationCounter--;
+//			}
+			// Fitness Value Convergence
+//			if (maxFitnessPerPopulation.get(
+//					maxFitnessPerPopulation.size() - 1) <= 
+//					maxFitnessPerPopulation.get(
+//							maxFitnessPerPopulation.size() - 2 - 
+//							terminationCriterion + terminationCounter)) {
+//				terminationCounter--;
+//			}
+//			else {
+//				terminationCounter = terminationCriterion;
+//			}
 		}
+		
 		// Sort the population according to the fitness of the 
 		// compositions. Thus, the first elements are the elite elements.
 		Collections.sort(population, new Comparator<Composition>() {
@@ -310,11 +300,6 @@ public class GeneticAlgorithm extends Algorithm {
 		});
 		
 		// Print the best solution.
-		System.out.println("--------------");
-		System.out.println("BEST COMPOSITION:");
-		System.out.println(population.get(0).getServiceCandidatesAsString());
-		System.out.println(population.get(0).getUtility());
-		System.out.println("--------------");
 		List<Composition> optimalComposition = new LinkedList<Composition>();
 		optimalComposition.add(population.get(0));
 		algorithmSolutionTiers.add(
