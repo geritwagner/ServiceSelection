@@ -108,8 +108,6 @@ public class AnalyticAlgorithm extends Algorithm {
 				composition.getServiceCandidatesList());
 		Composition newComposition = new Composition();
 		newComposition.setServiceCandidateList(serviceCandidates);
-		newComposition.buildAggregatedQosVector();
-		newComposition.computeUtilityValue();
 		
 		// Loop is needed when two compositions have the same utility value.
 		for (AlgorithmSolutionTier tier : algorithmSolutionTiers) {

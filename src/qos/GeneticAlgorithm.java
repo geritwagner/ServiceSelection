@@ -332,7 +332,6 @@ public class GeneticAlgorithm extends Algorithm {
 				i--;
 			}
 			else {
-				composition.computeUtilityValue();
 				population.add(composition);
 			}
 		}
@@ -507,19 +506,11 @@ public class GeneticAlgorithm extends Algorithm {
 				populationNew.add(matingPool.get(0));
 				break;
 			}
-			// Randomly select two compositions for crossover.
-			Composition compositionA = matingPool.get(0);
-			matingPool.remove(0);
-			int randomCompositionIndex = 
-					(int) (Math.random() * matingPool.size());
-			Composition compositionB = new Composition(
-					matingPool.get(randomCompositionIndex).
-					getServiceCandidatesList(), 
-					matingPool.get(randomCompositionIndex).
-					getQosVectorAggregated(), 
-					matingPool.get(randomCompositionIndex).
-					getUtility());
-			matingPool.remove(randomCompositionIndex);
+			// Pick the first composition for crossover.
+			Composition compositionA = matingPool.remove(0);
+			// Randomly select the second composition for crossover.
+			Composition compositionB = matingPool.remove(
+					(int) (Math.random() * matingPool.size()));
 
 			if (Math.random() < crossoverRate) {
 				// Randomly select the crossover point. 0 is excluded from the 
@@ -543,8 +534,6 @@ public class GeneticAlgorithm extends Algorithm {
 								crossoverPoint, serviceClassesList.size())) {
 					compositionC.addServiceCandidate(serviceCandidate);
 				}
-				compositionC.buildAggregatedQosVector();
-				compositionC.computeUtilityValue();
 
 				Composition compositionD = new Composition();
 				for (ServiceCandidate serviceCandidate : compositionB.
@@ -556,8 +545,6 @@ public class GeneticAlgorithm extends Algorithm {
 								crossoverPoint, serviceClassesList.size())) {
 					compositionD.addServiceCandidate(serviceCandidate);
 				}
-				compositionD.buildAggregatedQosVector();
-				compositionD.computeUtilityValue();
 				
 				populationNew.add(compositionC);
 				populationNew.add(compositionD);
@@ -620,8 +607,6 @@ public class GeneticAlgorithm extends Algorithm {
 								serviceClassesList.size())) {
 					composition_3.addServiceCandidate(serviceCandidate);
 				} 
-				composition_3.buildAggregatedQosVector();
-				composition_3.computeUtilityValue();
 
 				Composition composition_4 = new Composition();
 				for (ServiceCandidate serviceCandidate : composition_2.
@@ -638,8 +623,6 @@ public class GeneticAlgorithm extends Algorithm {
 								serviceClassesList.size())) {
 					composition_4.addServiceCandidate(serviceCandidate);
 				} 
-				composition_4.buildAggregatedQosVector();
-				composition_4.computeUtilityValue();
 
 				newPopulation.add(composition_3);
 				newPopulation.add(composition_4);
@@ -690,10 +673,6 @@ public class GeneticAlgorithm extends Algorithm {
 								get(count));
 					}
 				}
-				composition_3.buildAggregatedQosVector();
-				composition_3.computeUtilityValue();
-				composition_4.buildAggregatedQosVector();
-				composition_4.computeUtilityValue();
 				
 				newPopulation.add(composition_3);
 				newPopulation.add(composition_4);
