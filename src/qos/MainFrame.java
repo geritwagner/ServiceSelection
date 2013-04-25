@@ -9,8 +9,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+//import java.awt.event.MouseAdapter;
+//import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -2016,6 +2016,11 @@ public class MainFrame extends JFrame {
 			}
 		});
 		jCheckBoxAnalyticAlgorithm.setSelected(true);
+		jCheckBoxAnalyticAlgorithm.setToolTipText("<html>Please note:<br>" +
+				"Datasets with size <b>10x10</b> or bigger<br>" +
+				"require a lot of time!<br>" +
+				"It is strongly recommended to <i>deselect</i><br>" +
+				"the analytic algorithm in such cases.</html>");
 		GridBagConstraints gbcJCheckBoxAnalyticAlgorithm = 
 			new GridBagConstraints();
 		gbcJCheckBoxAnalyticAlgorithm.anchor = GridBagConstraints.NORTH;
@@ -2050,33 +2055,32 @@ public class MainFrame extends JFrame {
 
 		jTableAnalyticAlgorithm = new ServiceSelectionTable(1, 2, true);
 		jTableAnalyticAlgorithm.setEnabled(false);
-		// TODO: Look for a better solution for this listener.
-		//		 But not important as long as only one 
-		//		 analytic algorithm can be selected.
-		jTableAnalyticAlgorithm.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				if (jTableAnalyticAlgorithm.getSelectedRow() == 0 && 
-						jTableAnalyticAlgorithm.getSelectedColumn() == 0) {
-					if (jTableAnalyticAlgorithm.getValueAt(
-							0, 0).equals(true)) {
-						jTableAnalyticAlgorithm.setValueAt(false, 1, 0);
-					}
-					else {
-						jTableAnalyticAlgorithm.setValueAt(true, 1, 0);
-					}
-				}
-				else if (jTableAnalyticAlgorithm.getSelectedRow() == 1 && 
-						jTableAnalyticAlgorithm.getSelectedColumn() == 0) {
-					if (jTableAnalyticAlgorithm.getValueAt(
-							1, 0).equals(true)) {
-						jTableAnalyticAlgorithm.setValueAt(false, 0, 0);
-					}
-					else {
-						jTableAnalyticAlgorithm.setValueAt(true, 0, 0);
-					}
-				}
-			}
-		});
+		// Look for a better solution for this listener if 
+		// more analytic methods
+//		jTableAnalyticAlgorithm.addMouseListener(new MouseAdapter() {
+//			public void mouseClicked(MouseEvent e) {
+//				if (jTableAnalyticAlgorithm.getSelectedRow() == 0 && 
+//						jTableAnalyticAlgorithm.getSelectedColumn() == 0) {
+//					if (jTableAnalyticAlgorithm.getValueAt(
+//							0, 0).equals(true)) {
+//						jTableAnalyticAlgorithm.setValueAt(false, 1, 0);
+//					}
+//					else {
+//						jTableAnalyticAlgorithm.setValueAt(true, 1, 0);
+//					}
+//				}
+//				else if (jTableAnalyticAlgorithm.getSelectedRow() == 1 && 
+//						jTableAnalyticAlgorithm.getSelectedColumn() == 0) {
+//					if (jTableAnalyticAlgorithm.getValueAt(
+//							1, 0).equals(true)) {
+//						jTableAnalyticAlgorithm.setValueAt(false, 0, 0);
+//					}
+//					else {
+//						jTableAnalyticAlgorithm.setValueAt(true, 0, 0);
+//					}
+//				}
+//			}
+//		});
 		jTableAnalyticAlgorithm.getColumnModel().getColumn(0).setHeaderValue(
 		"Selection");
 		jTableAnalyticAlgorithm.getColumnModel().getColumn(1).setHeaderValue(
@@ -2903,9 +2907,7 @@ public class MainFrame extends JFrame {
 							jProgressBarGeneticAlgorithm.setValue(
 									geneticAlgorithm.getWorkPercentage());
 						}
-						//TODO: ProgressBars of Ant and Genetic don't work correctly
-						// 		-> progressBar for genetic works well
-						//		   (take care of the sleep below!)
+						//TODO: ProgressBar of Ant doesn't work correctly
 						if (jCheckBoxAntColonyOptimization.isSelected()) {
 							jProgressBarAntAlgorithm.setValue(
 									antAlgorithm.getWorkPercentage());
