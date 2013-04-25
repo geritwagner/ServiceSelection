@@ -23,9 +23,11 @@ public class AntAlgorithm extends Algorithm {
 	private double[] nj;
 	private double[][] pi;
 	int counter = 0;
-	// variant: original = 1, Qiqing = 2, Convergent = 3, Ant Colony System = 4
-	int variant = 4;
+	// variant: original = 1, Qiqing = 2, Convergent = 3, Ant Colony System = 4, Wang/He = 5
+	int variant = 3;
 	boolean convergent = false;
+	double lambda = 0.4;
+	double chaosFactor = 4;
 
 	private long runtime = 0;
 	private int workPercentage;
@@ -60,7 +62,14 @@ public class AntAlgorithm extends Algorithm {
 				doIterationV3();
 				it++;
 			}
-			System.out.println(it);
+			System.out.println(it);			
+		} else if (variant == 5) {
+			int it = 1;			
+			while (!convergent && (it < 2000)) {
+				doIterationV5();
+				it++;
+			}
+			System.out.println(it);	
 		} else {
 			// RUN ITERATIONS
 			for (int i=1; i<=iterations; i++) {
@@ -239,7 +248,9 @@ public class AntAlgorithm extends Algorithm {
 		}		
 	}
 	
-//////////////////////////////////	
+/*
+ *  QIQING
+ */
 	
 	private void doIterationV2() {
 		List<Composition> antCompositions = new LinkedList<Composition>();
@@ -330,7 +341,9 @@ public class AntAlgorithm extends Algorithm {
 		}		
 	}
 
-//////////////////////////////////////////
+	/*
+	 *  CONVERGENT
+	 */
 	
 	private void doIterationV3() {
 		List<Composition> antCompositions = new LinkedList<Composition>();
@@ -424,7 +437,9 @@ public class AntAlgorithm extends Algorithm {
 		}		
 	}
 
-/////////////////////////////////
+	/*
+	 *  ANT COLONY SYSTEM
+	 */
 	
 	private void doIterationV4() {
 		List<Composition> antCompositions = new LinkedList<Composition>();
@@ -534,6 +549,101 @@ public class AntAlgorithm extends Algorithm {
 				pi[a][b] = (1-dilution)*pi[a][b] + deltaPi[a][b]*dilution;
 			}
 		}		
+	}
+	
+	/*
+	 *  WANG/HE
+	 */
+	
+	private void doIterationV5() {
+		List<Composition> antCompositions = new LinkedList<Composition>();
+		for (int k=0; k<ants; k++) {
+			int currentClass = 0;
+			int currentService = 0;				
+			antCompositions.add(new Composition());
+			antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
+			while (currentClass != (serviceClassesList.size()-1)) {
+				// CALCULATE PROBABILITY FOR ALL POSSIBLE SERVICES
+				List<ServiceCandidate> nextServiceCandidatesList =
+						serviceClassesList.get(currentClass+1).getServiceCandidateList();
+				double[] p = new double[nextServiceCandidatesList.size()];
+				double nenner = 0;
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					nenner += Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta);
+				}
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					p[x] = (Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta))
+							/ nenner;					
+				}
+				double randomNumber = Math.random();
+				double temp = 0;
+				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
+					temp += p[x];
+					if (randomNumber <= temp) {
+						currentService = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						break;
+					}
+				}
+				antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
+				currentClass++;
+			}
+		}
+
+		// LOOK FOR BEST COMPOSITION
+		convergent = true;
+		double commonUtility = 0;
+		for (int k=0; k<ants; k++) {
+			Composition composition = antCompositions.get(k);
+			double utility = 0;
+			for (int a=1; a < composition.getServiceCandidatesList().size()-1; a++) {	
+				utility += composition.getServiceCandidatesList().get(a).getUtility();	
+			}
+			utility = utility / (composition.getServiceCandidatesList().size()-2);
+			composition.setUtility(utility);
+			
+			if (commonUtility < 0.01) {
+				commonUtility = composition.getUtility();
+			}
+			if ((commonUtility != composition.getUtility()) || 
+					(!composition.isWithinConstraints(constraintsMap))) {
+				convergent = false;
+			}
+			if (composition.isWithinConstraints(constraintsMap)) {
+				counter++;	
+
+				if ((optimalComposition == null)||
+						(composition.getUtility() > optimalComposition.getUtility())) {
+					optimalComposition = composition;								
+				}
+			}
+		}		
+		// PHEROMONE UPDATE FUNCTION
+		double[][] deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
+		for (int a=0; a<deltaPi.length; a++) {
+			for (int b=0; b<deltaPi[a].length; b++) {
+				deltaPi[a][b] = 0;
+			}
+		}
+		for (int k=0; k<ants; k++) {
+			Composition composition = antCompositions.get(k);			
+			if (composition.isWithinConstraints(constraintsMap)) {
+				double ratio = composition.getUtility() / optimalComposition.getUtility();
+				for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
+					int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
+					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
+					deltaPi[currentID][nextID] += ratio;
+				}
+			}
+		}		
+		for (int a=0; a<pi.length; a++) {
+			for (int b=0; b<pi[a].length; b++) {
+				lambda = chaosFactor * lambda * (1 - lambda);
+				pi[a][b] = (1-dilution)*pi[a][b] + deltaPi[a][b] + lambda;
+			}
+		}
+		System.out.println(lambda);
 	}
 
 	// GETTER AND SETTER
