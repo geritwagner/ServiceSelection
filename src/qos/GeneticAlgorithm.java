@@ -91,7 +91,6 @@ public class GeneticAlgorithm extends Algorithm {
 			}
 			
 			// Linear Ranking
-			// TODO: Linear Ranking liefert sehr schlechte Ergebnisse!
 			else if (selectionMethod.contains("Linear Ranking")) {
 				matingPool = doSelectionLinearRanking(population);
 			}
@@ -122,7 +121,8 @@ public class GeneticAlgorithm extends Algorithm {
 			
 			boolean hasPopulationChanged = true;
 			if (terminationMethod.contains("Consecutive Equal Generations")) {
-				hasPopulationChanged(population, matingPool);
+				hasPopulationChanged = 
+						hasPopulationChanged(population, matingPool);
 			}
 			
 			
@@ -142,7 +142,6 @@ public class GeneticAlgorithm extends Algorithm {
 			}
 
 			// Consecutive Equal Generations
-			// TODO: Test this method later (not complete!)
 			else if (terminationMethod.contains(
 					"Consecutive Equal Generations")) {
 				if (hasPopulationChanged) {
@@ -159,7 +158,6 @@ public class GeneticAlgorithm extends Algorithm {
 			}
 			
 			// Fitness Value Convergence
-			// TODO: Test this method later (not complete!)
 			else {
 				if (maxFitnessPerPopulation.get(
 						maxFitnessPerPopulation.size() - 1) <= 
@@ -256,6 +254,9 @@ public class GeneticAlgorithm extends Algorithm {
 			
 			population.removeAll(population);
 			population.addAll(matingPool);
+			
+			// Needed for Fitness Value Convergence
+//			setVisualizationValues(population);
 			
 			// TERMINATION CRITERION
 			// Number of Iterations
@@ -444,13 +445,16 @@ public class GeneticAlgorithm extends Algorithm {
 		return matingPool;
 	}
 
-	// TODO: Linear Ranking liefert sehr schlechte Ergebnisse!
 	private List<Composition> doSelectionLinearRanking(
 			List<Composition> populationOld) {
 		double[] fitnessRankAreas = new double[populationOld.size()];
-		// TODO: Kurze Erklärung für Selection Pressure einfügen. Die kurze 
-		//		 Variablenbezeichnung macht die Formel unten übersichtlicher.
-		// sp is short for Selection Pressure.
+		// sp is short for Selection Pressure; it modifies the size
+		// of each rank area and can be chosen between 1.1 and 2.0.
+		// The expected sampling rate of the best individual is sp,
+		// the expected sampling rate of the worst individual is 2-sp
+		// and the selective pressure of all other population members
+		// can be interpreted by linear interpolation of the
+		// selective pressure according to rank.
 		double sp = 2.0;
 		Collections.sort(populationOld, new Comparator<Composition>() {
 			@Override
@@ -466,9 +470,10 @@ public class GeneticAlgorithm extends Algorithm {
 				}
 			}
 		});
-		// Compute the cumulated fitness rank areas of every composition of 
-		// the population.
+		// Compute the accumulated fitness rank areas  
+		// of every composition of the population.
 		for (int i = 0; i < populationOld.size(); i++) {
+			// rank(pos) = 2 - sp + (2 * (sp - 1) * (pos - 1) / (n - 1))
 			fitnessRankAreas[i] = 2.0 - sp + 
 					(2.0 * (sp - 1.0) * (i / (populationOld.size() - 1.0)));
 			if (i != 0) {
@@ -478,8 +483,8 @@ public class GeneticAlgorithm extends Algorithm {
 		// Save the fitnessRankAreaSum.
 		double fitnessRankAreaSum = fitnessRankAreas[populationOld.size() - 1];
 		List<Composition> matingPool = new LinkedList<Composition>();
-		// Randomly select the compositions of the new population with 
-		// respect to their ranks (like Roulette Wheel).
+		// Randomly select the compositions of the new population 
+		// with respect to their ranks (like Roulette Wheel).
 		for (int i = 0; i < populationOld.size(); i++) {
 			double random = Math.random() * fitnessRankAreaSum;
 			for (int j = 0; j < populationOld.size(); j++) {
@@ -587,31 +592,17 @@ public class GeneticAlgorithm extends Algorithm {
 					(int) (Math.random() * matingPool.size()));
 			if (Math.random() < crossoverRate) {
 				// Randomly select the crossover points.
-				// TODO: Leicht anpassen? Siehe meine Anmerkungen zur 
-				//		 Bestimmung des crossoverPoint bei OnePointCrossover.
 				int crossoverPoint1 = 
-						(int) (Math.random() * serviceClassesList.size());
-				int crossoverPoint2 = 
-						(int) (Math.random() * serviceClassesList.size());
-				if (crossoverPoint1 == crossoverPoint2) {
-					if (crossoverPoint1 < serviceClassesList.size() - 1) {
-						crossoverPoint2++;
-					}
-					else {
-						crossoverPoint1--;
-					}
-				}
-				// Ensure that crossoverPoint1 really is the first crossover 
-				// point.
-				else if (crossoverPoint1 > crossoverPoint2) {
-					int temp = crossoverPoint1;
-					crossoverPoint1 = crossoverPoint2;
-					crossoverPoint2 = temp;
-				}
+						(int) ((Math.random() * 
+								(serviceClassesList.size() - 2)) + 1);
+				int crossoverPoint2 = (int) ((Math.random() * 
+						(serviceClassesList.size() - crossoverPoint1 - 1)) + 
+						(crossoverPoint1 + 1));				
 				// Do the crossover.
 				Composition compositionC = new Composition();
 				for (ServiceCandidate serviceCandidate : compositionA.
-						getServiceCandidatesList().subList(0, crossoverPoint1)) {
+						getServiceCandidatesList().subList(
+								0, crossoverPoint1)) {
 					compositionC.addServiceCandidate(serviceCandidate);
 				}
 				for (ServiceCandidate serviceCandidate : compositionB.
@@ -627,7 +618,8 @@ public class GeneticAlgorithm extends Algorithm {
 
 				Composition compositionD = new Composition();
 				for (ServiceCandidate serviceCandidate : compositionB.
-						getServiceCandidatesList().subList(0, crossoverPoint1)) {
+						getServiceCandidatesList().subList(
+								0, crossoverPoint1)) {
 					compositionD.addServiceCandidate(serviceCandidate);
 				}
 				for (ServiceCandidate serviceCandidate : compositionA.
@@ -702,7 +694,7 @@ public class GeneticAlgorithm extends Algorithm {
 			List<Composition> matingPool) {
 		int deviation = population.size() - 
 				(int) Math.round(population.size() * maxDeviation / 100.0 );
-		for (int i = 0; i < population.size(); i++) {
+		for (int i = 0; i < matingPool.size(); i++) {
 			if (deviation <= 0) {
 				return true;
 			}
@@ -710,8 +702,11 @@ public class GeneticAlgorithm extends Algorithm {
 				population.remove(matingPool.get(i));
 			}
 			else {
-				deviation--;
+				deviation--;	
 			}
+		}
+		if (deviation <= 0) {
+			return true;
 		}
 		return false;
 	}
