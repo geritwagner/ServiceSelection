@@ -470,7 +470,7 @@ public class GeneticAlgorithm extends Algorithm {
 		// the population.
 		for (int i = 0; i < populationOld.size(); i++) {
 			fitnessRankAreas[i] = 2.0 - sp + 
-					(2.0 * (sp - 1.0) * (i / (populationOld.size() - 1)));
+					(2.0 * (sp - 1.0) * (i / (populationOld.size() - 1.0)));
 			if (i != 0) {
 				fitnessRankAreas[i] += fitnessRankAreas[i - 1];
 			}
