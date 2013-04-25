@@ -417,85 +417,96 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	
 	private List<Composition> doSelectionRouletteWheel(
-			List<Composition> oldPopulation) {
-		double[] fitnessAreas = new double[oldPopulation.size()];
-		List<Composition> newPopulation = new LinkedList<Composition>();
-		// Compute cumulated fitness areas of 
-		// every composition of population
-		for (int i = 0; i < oldPopulation.size(); i++) {
-			fitnessAreas[i] = computeFitness(oldPopulation.get(i));
+			List<Composition> populationOld) {
+		double[] fitnessAreas = new double[populationOld.size()];
+		List<Composition> matingPool = new LinkedList<Composition>();
+		// Compute the cumulated fitness areas of every composition of the 
+		// population.
+		for (int i = 0; i < populationOld.size(); i++) {
+			fitnessAreas[i] = computeFitness(populationOld.get(i));
 			if (i != 0) {
 				fitnessAreas[i] += fitnessAreas[i - 1];
 			}
 		}
-		// Save the fitnessAreaSum
-		double fitnessAreaSum = fitnessAreas[oldPopulation.size() - 1];
-		// Choose every member of the new population by random
-		// with respect to the fitness values of the different
-		// compositions
-		for (int i = 0; i < oldPopulation.size(); i++) {
+		// Save the fitnessAreaSum.
+		double fitnessAreaSum = fitnessAreas[populationOld.size() - 1];
+		// Randomly select the compositions of the new population with 
+		// respect to their fitness values.
+		for (int i = 0; i < populationOld.size(); i++) {
 			double random = Math.random() * fitnessAreaSum;
-			for (int j = 0; j < oldPopulation.size(); j++) {
+			for (int j = 0; j < populationOld.size(); j++) {
 				if (random < fitnessAreas[j]) {
-					newPopulation.add(oldPopulation.get(j));
+					matingPool.add(populationOld.get(j));
 					break;
 				}
 			}
 		}
-		return newPopulation;
+		return matingPool;
 	}
 
 	// TODO: Linear Ranking liefert sehr schlechte Ergebnisse!
 	private List<Composition> doSelectionLinearRanking(
-			List<Composition> oldPopulation) {
-		double[] fitnessRanks = new double[oldPopulation.size()];
-		double selectionPressure = 2.0;
-		Collections.sort(oldPopulation, new Composition());
-		// Compute cumulated fitness rank areas of 
-		// every composition of population
-		for (int i = 0; i < oldPopulation.size(); i++) {
-			fitnessRanks[i] = 2 - selectionPressure + (2 * 
-				(selectionPressure - 1) * 
-				(i / (oldPopulation.size() - 1)));
+			List<Composition> populationOld) {
+		double[] fitnessRankAreas = new double[populationOld.size()];
+		// TODO: Kurze Erklärung für Selection Pressure einfügen. Die kurze 
+		//		 Variablenbezeichnung macht die Formel unten übersichtlicher.
+		// sp is short for Selection Pressure.
+		double sp = 2.0;
+		Collections.sort(populationOld, new Comparator<Composition>() {
+			@Override
+			public int compare(Composition o1, Composition o2) {
+				if (computeFitness(o1) < computeFitness(o2)) {
+					return 1;
+				}
+				else if (computeFitness(o1) > computeFitness(o2)) {
+					return -1;
+				}
+				else {
+					return 0;
+				}
+			}
+		});
+		// Compute the cumulated fitness rank areas of every composition of 
+		// the population.
+		for (int i = 0; i < populationOld.size(); i++) {
+			fitnessRankAreas[i] = 2.0 - sp + 
+					(2.0 * (sp - 1.0) * (i / (populationOld.size() - 1)));
 			if (i != 0) {
-				fitnessRanks[i] += fitnessRanks[i - 1];
+				fitnessRankAreas[i] += fitnessRankAreas[i - 1];
 			}
 		}
-		// Save the fitnessRankSum
-		double fitnessRankSum = fitnessRanks[oldPopulation.size() - 1];
-		List<Composition> newPopulation = new LinkedList<Composition>();
-		// Choose every member of the new population by random
-		// with respect to the ranks of the different
-		// compositions (like roulette wheel)
-		for (int i = 0; i < oldPopulation.size(); i++) {
-			double random = Math.random() * fitnessRankSum;
-			for (int j = 0; j < oldPopulation.size(); j++) {
-				if (random < fitnessRanks[j]) {
-					newPopulation.add(oldPopulation.get(j));
+		// Save the fitnessRankAreaSum.
+		double fitnessRankAreaSum = fitnessRankAreas[populationOld.size() - 1];
+		List<Composition> matingPool = new LinkedList<Composition>();
+		// Randomly select the compositions of the new population with 
+		// respect to their ranks (like Roulette Wheel).
+		for (int i = 0; i < populationOld.size(); i++) {
+			double random = Math.random() * fitnessRankAreaSum;
+			for (int j = 0; j < populationOld.size(); j++) {
+				if (random < fitnessRankAreas[j]) {
+					matingPool.add(populationOld.get(j));
 					break;
 				}
 			}
 		}
-		return newPopulation;
+		return matingPool;
 	}
 
 	private List<Composition> doSelectionBinaryTournament(
-			List<Composition> oldPopulation) {
-		List<Composition> newPopulation = 
-			new LinkedList<Composition>(oldPopulation);
-		// Permutation
-		int[] permutationIndices = permuteIndices(oldPopulation.size());
-		// Binary Tournament between two compositions, 
-		// determined by the permutation above
-		for (int i = 0; i < oldPopulation.size(); i++) {
-			if (computeFitness(oldPopulation.get(i)) < 
-					computeFitness(oldPopulation.get(
-							permutationIndices[i]))) {
-				newPopulation.set(i, oldPopulation.get(
-						permutationIndices[i]));
+			List<Composition> populationOld) {
+		List<Composition> matingPool = 
+			new LinkedList<Composition>(populationOld);
+		// Permute the indices of the population.
+		int[] permutationIndices = permuteIndices(populationOld.size());
+		// Pairwise comparison between two compositions. The opponents are 
+		// determined by the permutation created above.
+		for (int i = 0; i < populationOld.size(); i++) {
+			if (computeFitness(populationOld.get(i)) < 
+					computeFitness(populationOld.get(permutationIndices[i]))) {
+				matingPool.set(i, populationOld.get(permutationIndices[i]));
 			}
 		}
-		return newPopulation;
+		return matingPool;
 	}
 	
 	private List<Composition> doCrossoverOnePoint(
@@ -689,8 +700,8 @@ public class GeneticAlgorithm extends Algorithm {
 	
 	private boolean hasPopulationChanged(List<Composition> population, 
 			List<Composition> matingPool) {
-		int deviation = 
-				(int) Math.abs(maxDeviation / 100.0 * population.size());
+		int deviation = population.size() - 
+				(int) Math.round(population.size() * maxDeviation / 100.0 );
 		for (int i = 0; i < population.size(); i++) {
 			if (deviation <= 0) {
 				return true;
