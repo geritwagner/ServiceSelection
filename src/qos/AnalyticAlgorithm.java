@@ -44,9 +44,8 @@ public class AnalyticAlgorithm extends Algorithm {
 			doCompleteEnumeration(new Composition(), 0, i);
 			workPercentage = (int) (100.0 * i / serviceClassesList.size());
 		}	
-		for (int count = 0; 
-				count < algorithmSolutionTiers.size(); count++) {
-			algorithmSolutionTiers.get(count).setTierTitle(count + 1);
+		for (int i = 0; i < algorithmSolutionTiers.size(); i++) {
+			algorithmSolutionTiers.get(i).setTierTitle(i + 1);
 		} 
 		runtime = System.currentTimeMillis() - runtime;
 	}
@@ -120,15 +119,14 @@ public class AnalyticAlgorithm extends Algorithm {
 		
 		if (numberOfRequestedResultTiers <= 
 			algorithmSolutionTiers.size()) {
-			for (int count = 0; 
-			count < algorithmSolutionTiers.size(); count++) {
+			for (int i = 0; i < algorithmSolutionTiers.size(); i++) {
 				if (newComposition.getUtility() > algorithmSolutionTiers.
-						get(count).getServiceCompositionList().get(0).
+						get(i).getServiceCompositionList().get(0).
 						getUtility()) {
 					List<Composition> newTier = new LinkedList<Composition>();
 					newTier.add(newComposition);
-					algorithmSolutionTiers.add(count, 
-							new AlgorithmSolutionTier(newTier, count + 1));
+					algorithmSolutionTiers.add(
+							i, new AlgorithmSolutionTier(newTier, i + 1));
 					algorithmSolutionTiers.remove(
 							algorithmSolutionTiers.size() - 1);
 					break;

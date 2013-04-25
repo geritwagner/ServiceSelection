@@ -2297,33 +2297,33 @@ public class MainFrame extends JFrame {
 					0, DefaultTableCellRenderer.CENTER);
 
 			// Write service classes data.
-			for (int k = 0 ; k < serviceClassesList.size() ; k++) {
-				ServiceClass serviceClass = serviceClassesList.get(k);
+			for (int i = 0 ; i < serviceClassesList.size() ; i++) {
+				ServiceClass serviceClass = serviceClassesList.get(i);
 				jTableServiceClasses.setValueAt(
-						serviceClass.getServiceClassId(), k, 0);
-				jTableServiceClasses.setValueAt(serviceClass.getName(), k, 1);
+						serviceClass.getServiceClassId(), i, 0);
+				jTableServiceClasses.setValueAt(serviceClass.getName(), i, 1);
 			}
 
 			jTableWebServices.setModel(new BasicTableModel(
 					serviceCandidatesList.size(), 6, false));
 			TableColumnModel webServicesColumnModel = 
 				jTableWebServices.getColumnModel();
-			int innerCount = 0;
-			for (int k = 0 ; k < 6 ; k++) {
-				if (k == 1) { 
-					innerCount++;
+			int j = 0;
+			for (int i = 0 ; i < 6 ; i++) {
+				if (i == 1) { 
+					j++;
 				}
-				webServicesColumnModel.getColumn(k).setHeaderValue(
-						headerArray[innerCount]);
-				innerCount++;
+				webServicesColumnModel.getColumn(i).setHeaderValue(
+						headerArray[j]);
+				j++;
 			}
 			jTableWebServices.setColumnTextAlignment(
 					0, DefaultTableCellRenderer.CENTER);
 			jTableWebServices.setColumnTextAlignment(
 					1, DefaultTableCellRenderer.CENTER);
-			for (int count = 3; count < 6; count++) {
+			for (int i = 3; i < 6; i++) {
 				jTableWebServices.setColumnTextAlignment(
-						count, DefaultTableCellRenderer.RIGHT);
+						i, DefaultTableCellRenderer.RIGHT);
 			}
 			// Write service candidates data.
 			for (int k = 0 ; k < serviceCandidatesList.size() ; k++) {
@@ -2456,24 +2456,24 @@ public class MainFrame extends JFrame {
 				0, DefaultTableCellRenderer.CENTER);
 		jTableWebServices.setColumnTextAlignment(
 				1, DefaultTableCellRenderer.CENTER);
-		for (int count = 4; count < 6; count++) {
+		for (int i = 4; i < 6; i++) {
 			jTableWebServices.setColumnTextAlignment(
-					count, DefaultTableCellRenderer.RIGHT);
+					i, DefaultTableCellRenderer.RIGHT);
 		}
 		// Write service candidates data.
-		for (int k = 0; k < serviceCandidatesList.size(); k++) {
+		for (int i = 0; i < serviceCandidatesList.size(); i++) {
 			ServiceCandidate serviceCandidate = 
-				serviceCandidatesList.get(k);
+				serviceCandidatesList.get(i);
 			QosVector qosVector = serviceCandidate.getQosVector();
 			jTableWebServices.setValueAt(
-					serviceCandidate.getServiceClassId(), k, 0);
+					serviceCandidate.getServiceClassId(), i, 0);
 			jTableWebServices.setValueAt(
-					serviceCandidate.getServiceCandidateId(), k, 1);
-			jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
-			jTableWebServices.setValueAt(qosVector.getCosts(), k, 3);
+					serviceCandidate.getServiceCandidateId(), i, 1);
+			jTableWebServices.setValueAt(serviceCandidate.getName(), i, 2);
+			jTableWebServices.setValueAt(qosVector.getCosts(), i, 3);
 			jTableWebServices.setValueAt(
-					qosVector.getResponseTime(), k, 4);
-			jTableWebServices.setValueAt(qosVector.getAvailability(), k, 5);
+					qosVector.getResponseTime(), i, 4);
+			jTableWebServices.setValueAt(qosVector.getAvailability(), i, 5);
 		}
 		webServicesLoaded = true;
 		checkEnableStartButton();
@@ -3066,26 +3066,25 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void buildGeneticAlgorithmFitnessFunction() {
-		int weightCount = 1;
+		int i = 1;
 		String numerator = "<html>";
 		String denominator = "<html>";
 		if (jCheckBoxMaxCosts.isSelected()) {
-			numerator += "w<sub>" + weightCount + "</sub> * Costs";
-			weightCount++;
+			numerator += "w<sub>" + i + "</sub> * Costs";
+			i++;
 		}
 		if (jCheckBoxMaxResponseTime.isSelected()) {
 			if (numerator.equals("<html>")) {
-				numerator += "w<sub>" + weightCount + "</sub> * Response Time";
+				numerator += "w<sub>" + i + "</sub> * Response Time";
 			}
 			else {
-				numerator += " + w<sub>" + weightCount + 
-						"</sub> * Response Time";
+				numerator += " + w<sub>" + i + "</sub> * Response Time";
 			}
-			weightCount++;
+			i++;
 		}
 		if (jCheckBoxMinAvailability.isSelected()) {
-			denominator += "w<sub>" + weightCount + "</sub> * Availability ";
-			weightCount++;
+			denominator += "w<sub>" + i + "</sub> * Availability ";
+			i++;
 		}
 		if (numerator.equals("<html>")) {
 			numerator = "1";
@@ -3106,14 +3105,14 @@ public class MainFrame extends JFrame {
 			jLabelGeneticAlgorithmNumerator.setVisible(false);
 			jSeparatorFormula.setVisible(false);
 			jLabelGeneticAlgorithmDenominator.setVisible(false);
-			jLabelWeightedPenalty.setText("<html>w<sub>" + weightCount + 
+			jLabelWeightedPenalty.setText("<html>w<sub>" + i + 
 					"</sub> * Penalty Factor</html>");
 		}
 		else {
 			jLabelGeneticAlgorithmNumerator.setVisible(true);
 			jSeparatorFormula.setVisible(true);
 			jLabelGeneticAlgorithmDenominator.setVisible(true);
-			jLabelWeightedPenalty.setText("<html> + w<sub>" + weightCount + 
+			jLabelWeightedPenalty.setText("<html> + w<sub>" + i + 
 					"</sub> * Penalty Factor</html>");
 		}
 	}
@@ -3215,12 +3214,11 @@ public class MainFrame extends JFrame {
 		jScrollPane.setViewportView(jPanelAlgorithmResult);
 
 		// COUNTER FOR ALL TIER TABLES
-		for (int count = 1; 
-		count < rows.length; count = count + 2) {
+		for (int i = 1; i < rows.length; i = i + 2) {
 			List<Composition> tierServiceCompositionList = 
 				new LinkedList<Composition>(
 						algorithm.getAlgorithmSolutionTiers().get(
-								count / 2).getServiceCompositionList());
+								i / 2).getServiceCompositionList());
 			int numberOfRows = 0;
 			// COUNTER FOR COMPUTING THE NUMBER OF COMPOSITIONS PER TIER
 			for (int rowCount = 0; rowCount < 
@@ -3238,7 +3236,7 @@ public class MainFrame extends JFrame {
 					tierTablesColumnNames.length, false);
 			GridBagConstraints gbcJTableTier = new GridBagConstraints();
 			gbcJTableTier.gridx = 0;
-			gbcJTableTier.gridy = count;
+			gbcJTableTier.gridy = i;
 			gbcJTableTier.fill = GridBagConstraints.HORIZONTAL;
 			gbcJTableTier.anchor = GridBagConstraints.NORTH;
 			jPanelAlgorithmResult.add(jTableTier, gbcJTableTier);
@@ -3257,7 +3255,7 @@ public class MainFrame extends JFrame {
 						columnCount).setHeaderValue(
 								tierTablesColumnNames[columnCount]);
 			}
-			if (count == 1) {
+			if (i == 1) {
 				GridBagConstraints gbc_tableHeader = new GridBagConstraints();
 				gbc_tableHeader.gridx = 0;
 				gbc_tableHeader.gridy = 0;
@@ -3395,12 +3393,12 @@ public class MainFrame extends JFrame {
 			}
 			jTableTier.setEnabled(false);
 			
-			if (count + 1 < rows.length) {
+			if (i + 1 < rows.length) {
 				JSeparator jSeparatorTierTables = new JSeparator();
 				GridBagConstraints gbcJSeparatorTierTables = 
 					new GridBagConstraints();
 				gbcJSeparatorTierTables.gridx = 0;
-				gbcJSeparatorTierTables.gridy = count + 1;
+				gbcJSeparatorTierTables.gridy = i + 1;
 				gbcJSeparatorTierTables.fill = GridBagConstraints.HORIZONTAL;
 				gbcJSeparatorTierTables.anchor = GridBagConstraints.NORTH;
 				gbcJSeparatorTierTables.insets = new Insets(10, 5, 10, 5);
