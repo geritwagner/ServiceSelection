@@ -51,7 +51,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
@@ -371,7 +370,7 @@ public class MainFrame extends JFrame {
 		setBounds(100, 0, 1000, 850);
 
 		contentPane = new JPanel();
-		contentPane.setBorder(new LineBorder(new Color(0, 0, 0)));
+		contentPane.setBorder(new LineBorder(Color.BLACK));
 		setContentPane(contentPane);
 		GridBagLayout gblContentPane = new GridBagLayout();
 		gblContentPane.columnWeights = new double[]{0.7, 0.15, 0.15};
@@ -456,37 +455,12 @@ public class MainFrame extends JFrame {
 		jMenuFile.add(jMenuItemReset);
 		
 		jMenuFile.addSeparator();
+		
 		JMenuItem jMenuItemLoad = new JMenuItem("Load Model Setup"); 
-
-		final JFileChooser fileChooser = new JFileChooser() {
-			private static final long serialVersionUID = 1L;
-			{
-				setFileFilter(new FileFilter() {
-					@Override
-					public boolean accept(File f) {
-						return f.getName().toLowerCase().endsWith("csv") || 
-						f.isDirectory();
-					}
-					@Override
-					public String getDescription() {
-						return "CSV Datei (Comma Seperated Values)";
-					}
-				});
-				setSelectedFile(new File("DataSet.csv"));	
-			}
-		};
 		jMenuItemLoad.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (!(fileChooser.showOpenDialog(MainFrame.this) == 
-					JFileChooser.APPROVE_OPTION)) {
-					return;
-				}
-				final File file = fileChooser.getSelectedFile();
-				if (file == null) {
-					return;
-				}
-				loadModelSetup(file);
+				loadModelSetup();
 			}
 		});
 		jMenuFile.add(jMenuItemLoad);
@@ -495,15 +469,7 @@ public class MainFrame extends JFrame {
 		jMenuItemSaveDataSet.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (!(fileChooser.showSaveDialog(MainFrame.this) == 
-					JFileChooser.APPROVE_OPTION)) {
-					return;
-				}								
-				final File file = fileChooser.getSelectedFile();				
-				if (file == null) {
-					return;
-				}
-				saveModelSetup(file);
+				saveModelSetup();
 			}
 		});
 		jMenuFile.add(jMenuItemSaveDataSet);
@@ -517,7 +483,7 @@ public class MainFrame extends JFrame {
 						generateModelSetup();
 					}
 				});
-		
+
 		jMenuFile.addSeparator();
 		
 		JMenuItem jMenuItemExit = new JMenuItem("Exit");
@@ -528,55 +494,26 @@ public class MainFrame extends JFrame {
 		});
 		jMenuFile.add(jMenuItemExit);
 
+		
+		
+		
 		JMenu jMenuEdit = new JMenu("Algorithm");
 		jMenuBar.add(jMenuEdit);
 		
 		JMenuItem jMenuItemLoadSettings = new JMenuItem("Load Settings");
-		final JFileChooser fileChooserSettings = new JFileChooser() {
-			private static final long serialVersionUID = 1L;
-			{
-				setFileFilter(new FileFilter() {
-					@Override
-					public boolean accept(File f) {
-						return f.getName().toLowerCase().endsWith("csv") || 
-								f.isDirectory();
-					}
-					@Override
-					public String getDescription() {
-						return "CSV Datei (Comma Seperated Values)";
-					}
-				});
-				setSelectedFile(new File("AlgorithmSettings.csv"));  
-			}
-		};
 		jMenuItemLoadSettings.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (!(fileChooserSettings.showOpenDialog(MainFrame.this) == 
-						JFileChooser.APPROVE_OPTION)) {
-					return;
-				}
-				final File file = fileChooserSettings.getSelectedFile();
-				if (file == null) {
-					return;
-				}
-				loadAlgorithmSettings(file);
+				loadAlgorithmSettings();
 			}
 		});
 		jMenuEdit.add(jMenuItemLoadSettings);
+		
 		JMenuItem jMenuItemSaveSettings = new JMenuItem("Save Settings");
 		jMenuItemSaveSettings.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (!(fileChooserSettings.showSaveDialog(MainFrame.this) == 
-						JFileChooser.APPROVE_OPTION)) {
-					return;
-				}                
-				final File file = fileChooserSettings.getSelectedFile();        
-				if (file == null) {
-					return;
-				}
-				saveAlgorithmSettings(file);
+				saveAlgorithmSettings();
 			}
 		});
 		jMenuEdit.add(jMenuItemSaveSettings);
@@ -604,6 +541,8 @@ public class MainFrame extends JFrame {
 		JMenuItem jMenuItemSaveConstraints = new JMenuItem("Save Settings");
 		jMenuEdit.add(jMenuItemSaveConstraints);*/		
 
+		
+		
 		JMenu jMenuOther = new JMenu("?");
 		jMenuBar.add(jMenuOther);
 		// POTENTIAL EXTENSIONS 
@@ -2158,9 +2097,13 @@ public class MainFrame extends JFrame {
 		gblJPanelGeneralResults.rowWeights = new double[]{1.0};
 		jPanelGeneralResults.setLayout(gblJPanelGeneralResults);
 
-		String[] generalResultsData = {"Runtime:", "     Genetic Algorithm",
-				"     Ant Algorithm", "     Analytic Algorithm",
-				" \u0394 Genetic Algorithm", " \u0394 Ant Algorithm"
+		String[] generalResultsData = {
+				"Runtime:", 
+				"     Genetic Algorithm",
+				"     Ant Algorithm", 
+				"     Analytic Algorithm",
+				" \u0394 Genetic Algorithm", 
+				" \u0394 Ant Algorithm"
 		};
 		JScrollPane jScrollPaneResults = new JScrollPane();
 		jScrollPaneResults.setVerticalScrollBarPolicy(
@@ -2220,10 +2163,21 @@ public class MainFrame extends JFrame {
 	}
 	
 	// Load web services from a CSV file.
-	private void loadModelSetup(File file) {
+	private void loadModelSetup() {
 		// Delete previously loaded web services.
 		serviceCandidatesList.removeAll(serviceCandidatesList);
 		serviceClassesList.removeAll(serviceClassesList);
+		
+		ServiceSelectionFileChooser fileChooser = 
+				new ServiceSelectionFileChooser("DataSet");
+		if (!(fileChooser.showOpenDialog(MainFrame.this) == 
+				JFileChooser.APPROVE_OPTION)) {
+			return;
+		}
+		final File file = fileChooser.getSelectedFile();
+		if (file == null) {
+			return;
+		}
 
 		BufferedReader bufferedReader = null;
 		try {
@@ -2397,9 +2351,8 @@ public class MainFrame extends JFrame {
 		JComponent[] dialogComponents = new JComponent[] {
 				new JLabel("Number of Service Classes:"),
 				spinnerNumberOfServiceClasses,
-				new JLabel("Number of Web Services " +
-						"(per Class):"),
-						spinnerNumberOfWebServices
+				new JLabel("Number of Web Services (per Class):"),
+				spinnerNumberOfWebServices
 		};
 		if (JOptionPane.showConfirmDialog(null, dialogComponents, 
 				"Random Set Properties", 
@@ -2487,7 +2440,17 @@ public class MainFrame extends JFrame {
 				DEFAULT_START_POPULATION_SIZE);
 	}
 	
-	private void saveModelSetup(File file) {		
+	private void saveModelSetup() {
+		ServiceSelectionFileChooser fileChooser = 
+				new ServiceSelectionFileChooser("DataSet");
+		if (!(fileChooser.showSaveDialog(MainFrame.this) == 
+				JFileChooser.APPROVE_OPTION)) {
+			return;
+		}								
+		final File file = fileChooser.getSelectedFile();				
+		if (file == null) {
+			return;
+		}
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(file));
@@ -2531,15 +2494,23 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	private void loadAlgorithmSettings(File file) {
+	private void loadAlgorithmSettings() {
+		ServiceSelectionFileChooser fileChooserSettings =
+				new ServiceSelectionFileChooser("AlgorithmSettings");
+		if (!(fileChooserSettings.showOpenDialog(MainFrame.this) == 
+				JFileChooser.APPROVE_OPTION)) {
+			return;
+		}
+		final File file = fileChooserSettings.getSelectedFile();
+		if (file == null) {
+			return;
+		}
 		BufferedReader bufferedReader = null;
 		try {
 			bufferedReader = new BufferedReader(new FileReader(file));			
-			
 			// skip headers
 			bufferedReader.readLine().split(";");
 			String[] values = bufferedReader.readLine().split(";");
-			
 			txtAntIterations.setText(values[0]);
 			txtAntAnts.setText(values[1]);
 			txtAntAlpha.setText(values[2]);
@@ -2555,18 +2526,26 @@ public class MainFrame extends JFrame {
 			jTextFieldMutationRate.setText(values[12]);
 			jComboBoxTerminationCriterion.setSelectedItem(values[13]);
 			jTextFieldTerminationDegree.setText(values[14]);
-			
 			bufferedReader.close();
 		} catch (IOException e1) {			
 			e1.printStackTrace();
 		}		
 	}
 	
-	private void saveAlgorithmSettings(File file) {
+	private void saveAlgorithmSettings() {
+		ServiceSelectionFileChooser fileChooserSettings =
+				new ServiceSelectionFileChooser("AlgorithmSettings");
+		if (!(fileChooserSettings.showSaveDialog(MainFrame.this) == 
+				JFileChooser.APPROVE_OPTION)) {
+			return;
+		}                
+		final File file = fileChooserSettings.getSelectedFile();        
+		if (file == null) {
+			return;
+		}
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(file));				
-			
 			String header = "txtAntIterations;txtAntAnts;txtAntAlpha;" +
 					"txtAntBeta;txtAntDilution;txtAntPi";
 			header += ";jTextFieldPopulationSize;" +
@@ -2577,24 +2556,23 @@ public class MainFrame extends JFrame {
 					"jComboBoxTerminationCriterion;" +
 					"jTextFieldTerminationDegree";			
 			String values = ""+txtAntIterations.getText();
-			values += ";"+txtAntAnts.getText();
-			values += ";"+txtAntAlpha.getText();
-			values += ";"+txtAntBeta.getText();
-			values += ";"+txtAntDilution.getText();
-			values += ";"+txtAntPi.getText();
-			values += ";"+jTextFieldPopulationSize.getText();
-			values += ";"+jTextFieldTerminationCriterion.getText();
-			values += ";"+jComboBoxSelection.getSelectedItem();
-			values += ";"+jTextFieldElitismRate.getText();
-			values += ";"+jComboBoxCrossover.getSelectedItem();
-			values += ";"+jTextFieldCrossoverRate.getText();
-			values += ";"+jTextFieldMutationRate.getText();
-			values += ";"+jComboBoxTerminationCriterion.getSelectedItem();
-			values += ";"+jTextFieldTerminationDegree.getText();
+			values += ";" + txtAntAnts.getText();
+			values += ";" + txtAntAlpha.getText();
+			values += ";" + txtAntBeta.getText();
+			values += ";" + txtAntDilution.getText();
+			values += ";" + txtAntPi.getText();
+			values += ";" + jTextFieldPopulationSize.getText();
+			values += ";" + jTextFieldTerminationCriterion.getText();
+			values += ";" + jComboBoxSelection.getSelectedItem();
+			values += ";" + jTextFieldElitismRate.getText();
+			values += ";" + jComboBoxCrossover.getSelectedItem();
+			values += ";" + jTextFieldCrossoverRate.getText();
+			values += ";" + jTextFieldMutationRate.getText();
+			values += ";" + jComboBoxTerminationCriterion.getSelectedItem();
+			values += ";" + jTextFieldTerminationDegree.getText();
 			bufferedWriter.write(header);
 			bufferedWriter.newLine();			
 			bufferedWriter.write(values);			
-			
 			bufferedWriter.close();
 		} catch (IOException e1) {			
 			e1.printStackTrace();
@@ -2619,16 +2597,15 @@ public class MainFrame extends JFrame {
 //	}
 
 	
-	// TODO: Implement method which shows a message dialog
+	// Implement method which shows a message dialog
 	//		 -> dialog should contain basic information for using 
 	//			the program correctly
 //	private void showHelpDialog() {
 //		
 //	}
 	
-	// TODO: Implement method which shows an input dialog
-	//		 -> input message should be sent to an admin,
-	//			in our case lars
+	// Implement method which shows an input dialog
+	//		 -> input message should be sent to an admin
 	//		 -> check if web access is available
 	//		 -> local solution: create txt-file, with date etc.
 //	private void showSupportDialog() {
@@ -3408,6 +3385,10 @@ public class MainFrame extends JFrame {
 						jSeparatorTierTables, gbcJSeparatorTierTables);
 			}
 		}
+		if (jPanelAlgorithmResult.getComponents().length == 0) {
+			jPanelAlgorithmResult.add(new JLabel("<html><h1 color=red>" +
+					"No Solution!</h1></html>"));
+		}
 	}
 	
 	// TODO: Implement method which saves the results as a csv-file
@@ -3420,23 +3401,8 @@ public class MainFrame extends JFrame {
 	//			of the saved data and where a filename can be 
 	//			chosen
 	private void saveResults() {
-		final JFileChooser fileChooser = new JFileChooser() {
-			private static final long serialVersionUID = 1L;
-			{
-				setFileFilter(new FileFilter() {
-					@Override
-					public boolean accept(File f) {
-						return f.getName().toLowerCase().endsWith("csv") || 
-						f.isDirectory();
-					}
-					@Override
-					public String getDescription() {
-						return "CSV Datei (Comma Seperated Values)";
-					}
-				});
-				setSelectedFile( new File("Result.csv") );	
-			}
-		};
+		final ServiceSelectionFileChooser fileChooser = 
+				new ServiceSelectionFileChooser("Result");
 		if (!(fileChooser.showSaveDialog(MainFrame.this) == 
 				JFileChooser.APPROVE_OPTION)) {
 			return;
