@@ -518,31 +518,18 @@ public class MainFrame extends JFrame {
 		});
 		jMenuEdit.add(jMenuItemSaveSettings);
 
-		/*JMenuItem jMenuItemLoadDefaultConstraints = 
-			new JMenuItem("Use Default Constraints");
-		jMenuItemLoadDefaultConstraints.addActionListener(
-				new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						setDefaultConstraints();
-					}
-				});
-		jMenuEdit.add(jMenuItemLoadDefaultConstraints);
-		JMenuItem jMenuItemLoadRandomConstraints = 
-			new JMenuItem("Use Random Constraints");
-		jMenuItemLoadRandomConstraints.addActionListener(
-				new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						setRandomConstraints();
-					}
-				});
-		jMenuEdit.add(jMenuItemLoadRandomConstraints);
-		JMenuItem jMenuItemLoadConstraints = new JMenuItem("Load Settings");
-		jMenuEdit.add(jMenuItemLoadConstraints);
-		JMenuItem jMenuItemSaveConstraints = new JMenuItem("Save Settings");
-		jMenuEdit.add(jMenuItemSaveConstraints);*/		
+//		JMenuItem jMenuItemLoadDefaultConstraints = 
+//			new JMenuItem("Use Default Constraints");
+//		jMenuItemLoadDefaultConstraints.addActionListener(
+//				new ActionListener() {
+//					public void actionPerformed(ActionEvent e) {
+//						setDefaultConstraints();
+//					}
+//				});
+//		jMenuEdit.add(jMenuItemLoadDefaultConstraints);
+		
 
-		
-		
+			
 		JMenu jMenuOther = new JMenu("?");
 		jMenuBar.add(jMenuOther);
 		// POTENTIAL EXTENSIONS 
@@ -2169,16 +2156,21 @@ public class MainFrame extends JFrame {
 		serviceClassesList.removeAll(serviceClassesList);
 		
 		ServiceSelectionFileChooser fileChooser = 
-				new ServiceSelectionFileChooser("DataSet");
-		if (!(fileChooser.showOpenDialog(MainFrame.this) == 
-				JFileChooser.APPROVE_OPTION)) {
+				new ServiceSelectionFileChooser("");
+		if (fileChooser.showOpenDialog(MainFrame.this) != 
+				JFileChooser.APPROVE_OPTION) {
 			return;
 		}
-		final File file = fileChooser.getSelectedFile();
-		if (file == null) {
+		File file = fileChooser.getSelectedFile();
+		if (file == null || !file.canExecute()) {
+			writeErrorLogEntry("File does not exist");
 			return;
 		}
-
+		else if (!file.getName().endsWith(".csv")) {
+			writeErrorLogEntry("Chosen file has the wrong format");
+			return;
+		}
+		
 		BufferedReader bufferedReader = null;
 		try {
 			bufferedReader = new BufferedReader(new FileReader(file));
@@ -2189,41 +2181,31 @@ public class MainFrame extends JFrame {
 			String[] constraintsValues = bufferedReader.readLine().split(";");
 			String[] constraintsWeights = bufferedReader.readLine().split(";");
 			
-			// skip empty line
+			// skip header and empty line
 			bufferedReader.readLine();
-
-			// Load service candidates headers.
-			String[] headerArray = bufferedReader.readLine().split(";");
+			bufferedReader.readLine();
 
 			// Load web services data.
 			String[] serviceCandidateArray;
 			while (bufferedReader.ready()) {
 				serviceCandidateArray = bufferedReader.readLine().split(";");
-				int serviceClassId = Integer.parseInt(
-						serviceCandidateArray[0]);
-				String serviceClassName = serviceCandidateArray[1];
-				int serviceCandidateId = Integer.parseInt(
-						serviceCandidateArray[2]);
-				String name = serviceCandidateArray[3];
-				double costs = Double.parseDouble(serviceCandidateArray[4]);
-				double responseTime = Double.parseDouble(
-						serviceCandidateArray[5]);
-				double availability = Double.parseDouble(
-						serviceCandidateArray[6]);
-
 				// Create and save service candidates.
-				QosVector qosVector = new QosVector(costs, responseTime, 
-						availability);
 				ServiceCandidate serviceCandidate = new ServiceCandidate(
-						serviceClassId, serviceCandidateId, 
-						name, qosVector);
+						Integer.parseInt(serviceCandidateArray[0]), 
+						Integer.parseInt(serviceCandidateArray[2]), 
+						serviceCandidateArray[3], 
+						new QosVector(
+								Double.parseDouble(serviceCandidateArray[4]), 
+								Double.parseDouble(serviceCandidateArray[5]), 
+								Double.parseDouble(serviceCandidateArray[6])));
 				serviceCandidatesList.add(serviceCandidate);
 
 				// Create and save service classes. Assign service candidates 
 				// to service classes.
 				boolean serviceClassAlreadyCreated = false;
 				for (ServiceClass serviceClass : serviceClassesList) {
-					if (serviceClass.getServiceClassId() == serviceClassId) {
+					if (serviceClass.getServiceClassId() == Integer.parseInt(
+							serviceCandidateArray[0])) {
 						serviceClassAlreadyCreated = true;
 						serviceClass.getServiceCandidateList().add(
 								serviceCandidate);
@@ -2232,76 +2214,17 @@ public class MainFrame extends JFrame {
 				}
 				if (! serviceClassAlreadyCreated) {
 					ServiceClass serviceClass = new ServiceClass(
-							serviceClassId, serviceClassName, 
+							Integer.parseInt(serviceCandidateArray[0]), 
+							serviceCandidateArray[1], 
 							new LinkedList<ServiceCandidate>());
 					serviceClassesList.add(serviceClass);
 					serviceClass.getServiceCandidateList().add(
 							serviceCandidate);
 				}
 			}
-
-			// Write service classes headers.
-			jTableServiceClasses.setModel(
-					new BasicTableModel(serviceClassesList.size(), 2, 
-							false));
-			jTableServiceClasses.setColumnWidthRelative(
-					new double[] {0.3, 0.7});
-			TableColumnModel serviceClassesColumnModel = 
-				jTableServiceClasses.getColumnModel();
-			serviceClassesColumnModel.getColumn(0).setHeaderValue("ID");
-			serviceClassesColumnModel.getColumn(1).setHeaderValue("Name");
 			
-			jTableServiceClasses.setColumnTextAlignment(
-					0, DefaultTableCellRenderer.CENTER);
-
-			// Write service classes data.
-			for (int i = 0 ; i < serviceClassesList.size() ; i++) {
-				ServiceClass serviceClass = serviceClassesList.get(i);
-				jTableServiceClasses.setValueAt(
-						serviceClass.getServiceClassId(), i, 0);
-				jTableServiceClasses.setValueAt(serviceClass.getName(), i, 1);
-			}
-
-			jTableWebServices.setModel(new BasicTableModel(
-					serviceCandidatesList.size(), 6, false));
-			TableColumnModel webServicesColumnModel = 
-				jTableWebServices.getColumnModel();
-			int j = 0;
-			for (int i = 0 ; i < 6 ; i++) {
-				if (i == 1) { 
-					j++;
-				}
-				webServicesColumnModel.getColumn(i).setHeaderValue(
-						headerArray[j]);
-				j++;
-			}
-			jTableWebServices.setColumnTextAlignment(
-					0, DefaultTableCellRenderer.CENTER);
-			jTableWebServices.setColumnTextAlignment(
-					1, DefaultTableCellRenderer.CENTER);
-			for (int i = 3; i < 6; i++) {
-				jTableWebServices.setColumnTextAlignment(
-						i, DefaultTableCellRenderer.RIGHT);
-			}
-			// Write service candidates data.
-			for (int k = 0 ; k < serviceCandidatesList.size() ; k++) {
-				ServiceCandidate serviceCandidate = 
-					serviceCandidatesList.get(k);
-				QosVector qosVector = serviceCandidate.getQosVector();
-				jTableWebServices.setValueAt(
-						serviceCandidate.getServiceClassId(), k, 0);
-				jTableWebServices.setValueAt(
-						serviceCandidate.getServiceCandidateId(), k, 1);
-				jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
-				jTableWebServices.setValueAt(qosVector.getCosts(), k, 3);
-				jTableWebServices.setValueAt(
-						qosVector.getResponseTime(), k, 4);
-				jTableWebServices.setValueAt
-				(qosVector.getAvailability(), k, 5);
-			}
-			webServicesLoaded = true;
-			checkEnableStartButton();
-			setSliderExtremeValues();
+			loadServiceData(false);
+			
 			// NOW SET LOADED CONSTRAINTS
 			jSliderMaxCosts.setValue((int) Math.ceil(
 					Double.parseDouble(constraintsValues[0])));
@@ -2322,13 +2245,12 @@ public class MainFrame extends JFrame {
 			jTextFieldAvailabilityWeight.setText(String.valueOf(
 					(int) Math.ceil(
 							Double.parseDouble(constraintsWeights[2]))));			
-			
-			checkInputValue(jTextFieldPopulationSize, 
-					MAX_START_POPULATION_SIZE, 1, 
-					DEFAULT_START_POPULATION_SIZE);
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
+		} catch (NullPointerException e) {
+			writeErrorLogEntry("Chosen file has the wrong (internal) format");
+		}
+		finally {
 			try {
 				bufferedReader.close();
 			} catch (IOException e) {
@@ -2374,82 +2296,25 @@ public class MainFrame extends JFrame {
 				numberOfServiceClasses, numberOfWebServices);
 		serviceClassesList = servicesList;
 		
-		// Write service classes headers.
-		jTableServiceClasses.setModel(new BasicTableModel(
-				serviceClassesList.size(), 2, false));
-		jTableServiceClasses.setColumnWidthRelative(new double[] {0.3, 0.7});
-		TableColumnModel serviceClassesColumnModel = 
-			jTableServiceClasses.getColumnModel();
-		serviceClassesColumnModel.getColumn(0).setHeaderValue("ID");
-		serviceClassesColumnModel.getColumn(1).setHeaderValue("Name");
-		jTableServiceClasses.setColumnTextAlignment(
-				0, DefaultTableCellRenderer.CENTER);
-
-		// Write service classes data. Load service candidates into list.
-		for (int k = 0; k < serviceClassesList.size(); k++) {
-			ServiceClass serviceClass = serviceClassesList.get(k);
-			jTableServiceClasses.setValueAt(
-					serviceClass.getServiceClassId(), k, 0);
-			jTableServiceClasses.setValueAt(serviceClass.getName(), k, 1);
-			
-			for (ServiceCandidate serviceCandidate : 
-				serviceClass.getServiceCandidateList()) {
-				serviceCandidatesList.add(serviceCandidate);
-			}
-		}
-
-		// Write service candidates headers.
-		jTableWebServices.setModel(new BasicTableModel(
-				serviceCandidatesList.size(), 6, false));
-		TableColumnModel webServicesColumnModel = 
-			jTableWebServices.getColumnModel();
-		String[] headerArray = new String[] {"Service Class ", "ID", 
-			"Name", "Costs", "ResponseTime", "Availability"};
-		for (int k = 0; k < 6; k++) {
-			webServicesColumnModel.getColumn(k).setHeaderValue(
-					headerArray[k]);
-		}
-		jTableWebServices.setColumnTextAlignment(
-				0, DefaultTableCellRenderer.CENTER);
-		jTableWebServices.setColumnTextAlignment(
-				1, DefaultTableCellRenderer.CENTER);
-		for (int i = 4; i < 6; i++) {
-			jTableWebServices.setColumnTextAlignment(
-					i, DefaultTableCellRenderer.RIGHT);
-		}
-		// Write service candidates data.
-		for (int i = 0; i < serviceCandidatesList.size(); i++) {
-			ServiceCandidate serviceCandidate = 
-				serviceCandidatesList.get(i);
-			QosVector qosVector = serviceCandidate.getQosVector();
-			jTableWebServices.setValueAt(
-					serviceCandidate.getServiceClassId(), i, 0);
-			jTableWebServices.setValueAt(
-					serviceCandidate.getServiceCandidateId(), i, 1);
-			jTableWebServices.setValueAt(serviceCandidate.getName(), i, 2);
-			jTableWebServices.setValueAt(qosVector.getCosts(), i, 3);
-			jTableWebServices.setValueAt(
-					qosVector.getResponseTime(), i, 4);
-			jTableWebServices.setValueAt(qosVector.getAvailability(), i, 5);
-		}
-		webServicesLoaded = true;
-		checkEnableStartButton();
-		setSliderExtremeValues();
-		checkInputValue(jTextFieldPopulationSize, 
-				MAX_START_POPULATION_SIZE, 1, 
-				DEFAULT_START_POPULATION_SIZE);
+		loadServiceData(true);
 	}
 	
 	private void saveModelSetup() {
 		ServiceSelectionFileChooser fileChooser = 
-				new ServiceSelectionFileChooser("DataSet");
-		if (!(fileChooser.showSaveDialog(MainFrame.this) == 
-				JFileChooser.APPROVE_OPTION)) {
+				new ServiceSelectionFileChooser("DataSet.csv");
+		if (fileChooser.showSaveDialog(MainFrame.this) != 
+				JFileChooser.APPROVE_OPTION) {
 			return;
 		}								
-		final File file = fileChooser.getSelectedFile();				
-		if (file == null) {
-			return;
+		File file = fileChooser.getSelectedFile();
+		if (!file.getName().endsWith(".csv")) {
+			if (file.getName().contains(".")) {
+				file = new File(file.getPath().substring(
+						0, file.getPath().lastIndexOf(".")) + ".csv");
+			}
+			else {
+				file = new File(file.getPath() + ".csv");
+			}
 		}
 		BufferedWriter bufferedWriter = null;
 		try {
@@ -2489,20 +2354,25 @@ public class MainFrame extends JFrame {
 				bufferedWriter.write(line);
 			}
 			bufferedWriter.close();
-		} catch (IOException e1) {			
+		} catch (IOException e1) {	
 			e1.printStackTrace();
 		}
 	}
 	
 	private void loadAlgorithmSettings() {
-		ServiceSelectionFileChooser fileChooserSettings =
-				new ServiceSelectionFileChooser("AlgorithmSettings");
-		if (!(fileChooserSettings.showOpenDialog(MainFrame.this) == 
-				JFileChooser.APPROVE_OPTION)) {
+		ServiceSelectionFileChooser fileChooser =
+				new ServiceSelectionFileChooser("");
+		if (fileChooser.showOpenDialog(MainFrame.this) != 
+				JFileChooser.APPROVE_OPTION) {
 			return;
 		}
-		final File file = fileChooserSettings.getSelectedFile();
-		if (file == null) {
+		File file = fileChooser.getSelectedFile();
+		if (file == null || !file.canExecute()) {
+			writeErrorLogEntry("File does not exist");
+			return;
+		}
+		else if (!file.getName().endsWith(".csv")) {
+			writeErrorLogEntry("Chosen file has the wrong format");
 			return;
 		}
 		BufferedReader bufferedReader = null;
@@ -2529,19 +2399,27 @@ public class MainFrame extends JFrame {
 			bufferedReader.close();
 		} catch (IOException e1) {			
 			e1.printStackTrace();
-		}		
+		} catch (NullPointerException e) {
+			writeErrorLogEntry("Chosen file has the wrong (internal) format");
+		}	
 	}
 	
 	private void saveAlgorithmSettings() {
-		ServiceSelectionFileChooser fileChooserSettings =
-				new ServiceSelectionFileChooser("AlgorithmSettings");
-		if (!(fileChooserSettings.showSaveDialog(MainFrame.this) == 
-				JFileChooser.APPROVE_OPTION)) {
+		ServiceSelectionFileChooser fileChooser =
+				new ServiceSelectionFileChooser("AlgorithmSettings.csv");
+		if (fileChooser.showSaveDialog(MainFrame.this) != 
+				JFileChooser.APPROVE_OPTION) {
 			return;
 		}                
-		final File file = fileChooserSettings.getSelectedFile();        
-		if (file == null) {
-			return;
+		File file = fileChooser.getSelectedFile();
+		if (!file.getName().endsWith(".csv")) {
+			if (file.getName().contains(".")) {
+				file = new File(file.getPath().substring(
+						0, file.getPath().lastIndexOf(".")) + ".csv");
+			}
+			else {
+				file = new File(file.getPath() + ".csv");
+			}
 		}
 		BufferedWriter bufferedWriter = null;
 		try {
@@ -2586,16 +2464,6 @@ public class MainFrame extends JFrame {
 //		jSliderMinAvailability.setValue(
 //				(maxAvailability + minAvailability) / 2);
 //	}
-//	
-//	private void setRandomConstraints() {
-//		jSliderMaxCosts.setValue(minCosts + 
-//				(int)(Math.random() * (maxCosts - minCosts)));
-//		jSliderMaxResponseTime.setValue(minResponseTime + 
-//				(int) (Math.random() * (maxResponseTime - minResponseTime)));
-//		jSliderMinAvailability.setValue(minAvailability + 
-//				(int) (Math.random() * (maxAvailability - minAvailability)));
-//	}
-
 	
 	// Implement method which shows a message dialog
 	//		 -> dialog should contain basic information for using 
@@ -2625,6 +2493,76 @@ public class MainFrame extends JFrame {
 				"<li>Gerit Wagner</li></ul></html>", 
 				"About", JOptionPane.INFORMATION_MESSAGE);
 		
+	}
+	
+	
+	private void loadServiceData(boolean generationMode) {
+		// Write service classes headers.
+		jTableServiceClasses.setModel(new BasicTableModel(
+			serviceClassesList.size(), 2, false));
+		jTableServiceClasses.setColumnWidthRelative(
+				new double[] {0.3, 0.7});
+		TableColumnModel serviceClassesColumnModel = 
+			jTableServiceClasses.getColumnModel();
+		serviceClassesColumnModel.getColumn(0).setHeaderValue("ID");
+		serviceClassesColumnModel.getColumn(1).setHeaderValue("Name");
+		jTableServiceClasses.setColumnTextAlignment(
+				0, DefaultTableCellRenderer.CENTER);
+
+		// Write service classes data.
+		for (int i = 0 ; i < serviceClassesList.size() ; i++) {
+			ServiceClass serviceClass = serviceClassesList.get(i);
+			jTableServiceClasses.setValueAt(
+					serviceClass.getServiceClassId(), i, 0);
+			jTableServiceClasses.setValueAt(serviceClass.getName(), i, 1);
+			
+			if (generationMode) {
+				for (ServiceCandidate serviceCandidate : 
+					serviceClass.getServiceCandidateList()) {
+					serviceCandidatesList.add(serviceCandidate);
+				}
+			}
+		}
+		// Write service candidates headers.
+		jTableWebServices.setModel(new BasicTableModel(
+				serviceCandidatesList.size(), 6, false));
+		TableColumnModel webServicesColumnModel = 
+			jTableWebServices.getColumnModel();
+		String[] headerArray = new String[] {"Service Class ", "ID", 
+			"Name", "Costs", "ResponseTime", "Availability"};
+		for (int k = 0; k < 6; k++) {
+			webServicesColumnModel.getColumn(k).setHeaderValue(
+					headerArray[k]);
+		}
+		jTableWebServices.setColumnTextAlignment(
+				0, DefaultTableCellRenderer.CENTER);
+		jTableWebServices.setColumnTextAlignment(
+				1, DefaultTableCellRenderer.CENTER);
+		for (int i = 3; i < 6; i++) {
+			jTableWebServices.setColumnTextAlignment(
+					i, DefaultTableCellRenderer.RIGHT);
+		}
+		// Write service candidates data.
+		for (int k = 0 ; k < serviceCandidatesList.size() ; k++) {
+			ServiceCandidate serviceCandidate = 
+				serviceCandidatesList.get(k);
+			QosVector qosVector = serviceCandidate.getQosVector();
+			jTableWebServices.setValueAt(
+					serviceCandidate.getServiceClassId(), k, 0);
+			jTableWebServices.setValueAt(
+					serviceCandidate.getServiceCandidateId(), k, 1);
+			jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
+			jTableWebServices.setValueAt(qosVector.getCosts(), k, 3);
+			jTableWebServices.setValueAt(
+					qosVector.getResponseTime(), k, 4);
+			jTableWebServices.setValueAt(qosVector.getAvailability(), k, 5);
+		}
+		webServicesLoaded = true;
+		checkEnableStartButton();
+		setSliderExtremeValues();
+		checkInputValue(jTextFieldPopulationSize, 
+				MAX_START_POPULATION_SIZE, 1, 
+				DEFAULT_START_POPULATION_SIZE);
 	}
 	
 	
@@ -3391,15 +3329,6 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	// TODO: Implement method which saves the results as a csv-file
-	//		 -> file should contain all service classes, 
-	//			web services, number of compositions and finally
-	//			the chosen algorithms results
-	//		 -> it has to be ensured that at least one algorithm 
-	//			has been executed before the results can be saved
-	//		 -> show a dialog where the user can see the file path 
-	//			of the saved data and where a filename can be 
-	//			chosen
 	private void saveResults() {
 		final ServiceSelectionFileChooser fileChooser = 
 				new ServiceSelectionFileChooser("Result");
@@ -3407,9 +3336,15 @@ public class MainFrame extends JFrame {
 				JFileChooser.APPROVE_OPTION)) {
 			return;
 		}
-		final File file = fileChooser.getSelectedFile();
-		if (file == null) {
-			return;
+		File file = fileChooser.getSelectedFile();
+		if (!file.getName().endsWith(".csv")) {
+			if (file.getName().contains(".")) {
+				file = new File(file.getPath().substring(
+						0, file.getPath().lastIndexOf(".")) + ".csv");
+			}
+			else {
+				file = new File(file.getPath() + ".csv");
+			}
 		}
 		BufferedWriter bufferedWriter = null;
 		try {

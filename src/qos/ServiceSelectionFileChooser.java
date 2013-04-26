@@ -21,7 +21,7 @@ public class ServiceSelectionFileChooser extends JFileChooser {
 				return "CSV Datei (Comma Seperated Values)";
 			}
 		});
-		setSelectedFile(new File(fileName + ".csv"));	
+		setSelectedFile(new File(fileName));	
 	}
 	
 }
