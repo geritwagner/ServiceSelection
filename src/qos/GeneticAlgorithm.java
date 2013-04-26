@@ -178,20 +178,7 @@ public class GeneticAlgorithm extends Algorithm {
 		
 		// Sort the population according to the fitness of the 
 		// compositions. Thus, the first elements are the elite elements.
-		Collections.sort(population, new Comparator<Composition>() {
-			@Override
-			public int compare(Composition o1, Composition o2) {
-				if (computeFitness(o1) < computeFitness(o2)) {
-					return 1;
-				}
-				else if (computeFitness(o1) > computeFitness(o2)) {
-					return -1;
-				}
-				else {
-					return 0;
-				}
-			}
-		});
+		Collections.sort(population, new FitnessComparator());
 		
 		// Print the best solution.
 		System.out.println("--------------");
@@ -285,20 +272,7 @@ public class GeneticAlgorithm extends Algorithm {
 		
 		// Sort the population according to the fitness of the 
 		// compositions. Thus, the first elements are the elite elements.
-		Collections.sort(population, new Comparator<Composition>() {
-			@Override
-			public int compare(Composition o1, Composition o2) {
-				if (computeFitness(o1) < computeFitness(o2)) {
-					return 1;
-				}
-				else if (computeFitness(o1) > computeFitness(o2)) {
-					return -1;
-				}
-				else {
-					return 0;
-				}
-			}
-		});
+		Collections.sort(population, new FitnessComparator());
 		
 		// Print the best solution.
 		List<Composition> optimalComposition = new LinkedList<Composition>();
@@ -344,20 +318,7 @@ public class GeneticAlgorithm extends Algorithm {
 		List<Composition> elites = new LinkedList<Composition>();
 		// Sort the population according to the fitness of the 
 		// compositions. Thus, the first elements are the elite elements.
-		Collections.sort(population, new Comparator<Composition>() {
-			@Override
-			public int compare(Composition o1, Composition o2) {
-				if (computeFitness(o1) < computeFitness(o2)) {
-					return 1;
-				}
-				else if (computeFitness(o1) > computeFitness(o2)) {
-					return -1;
-				}
-				else {
-					return 0;
-				}
-			}
-		});
+		Collections.sort(population, new FitnessComparator());
 		for (int i = 0; i < numberOfElites; i++) {
 			elites.add(population.get(i));
 		}
@@ -392,20 +353,7 @@ public class GeneticAlgorithm extends Algorithm {
 	
 	private List<Composition> doElitePreservation(
 			List<Composition> matingPool, List<Composition> elites) {
-		Collections.sort(matingPool, new Comparator<Composition>() {
-			@Override
-			public int compare(Composition o1, Composition o2) {
-				if (computeFitness(o1) < computeFitness(o2)) {
-					return 1;
-				}
-				else if (computeFitness(o1) > computeFitness(o2)) {
-					return -1;
-				}
-				else {
-					return 0;
-				}
-			}
-		});
+		Collections.sort(matingPool, new FitnessComparator());
 		// Remove the worst compositions by using the other part of the 
 		// population.
 		matingPool = matingPool.subList(0, matingPool.size() - elites.size());
@@ -456,20 +404,7 @@ public class GeneticAlgorithm extends Algorithm {
 		// can be interpreted by linear interpolation of the
 		// selective pressure according to rank.
 		double sp = 2.0;
-		Collections.sort(populationOld, new Comparator<Composition>() {
-			@Override
-			public int compare(Composition o1, Composition o2) {
-				if (computeFitness(o1) < computeFitness(o2)) {
-					return 1;
-				}
-				else if (computeFitness(o1) > computeFitness(o2)) {
-					return -1;
-				}
-				else {
-					return 0;
-				}
-			}
-		});
+		Collections.sort(populationOld, new FitnessComparator());
 		// Compute the accumulated fitness rank areas  
 		// of every composition of the population.
 		for (int i = 0; i < populationOld.size(); i++) {
@@ -850,5 +785,23 @@ public class GeneticAlgorithm extends Algorithm {
 	}
 	public int getWorkPercentage() {
 		return workPercentage;
+	}
+	
+	
+	
+	// Nested comparator class
+	private class FitnessComparator implements Comparator<Composition> {
+		@Override
+		public int compare(Composition o1, Composition o2) {
+			if (computeFitness(o1) < computeFitness(o2)) {
+				return 1;
+			}
+			else if (computeFitness(o1) > computeFitness(o2)) {
+				return -1;
+			}
+			else {
+				return 0;
+			}
+		}
 	}
 }
