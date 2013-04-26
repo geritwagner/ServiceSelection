@@ -8,9 +8,7 @@ public class Constraint {
 	
 	public static final String COSTS = "Max. Costs";
 	public static final String RESPONSE_TIME = "Max. Response Time";
-	public static final String AVAILABILITY = "Min. Availability";
-	public static final String PENALTY_FACTOR = "Penalty Factor";
-	
+	public static final String AVAILABILITY = "Min. Availability";	
 	
 	public Constraint(String title, double value, double weight) {
 		this.constraintTitle = title;

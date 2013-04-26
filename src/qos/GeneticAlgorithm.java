@@ -7,62 +7,55 @@ import java.util.List;
 import java.util.Map;
 
 public class GeneticAlgorithm extends Algorithm {
-	
 	private List<ServiceClass> serviceClassesList;
 	private Map<String, Constraint> constraintsMap;
-	
+	private double penaltyFactor;
 	private int populationSize;
 	private int terminationCriterion;
-	
 	private String selectionMethod;
+	private double elitismRate;
 	private String crossoverMethod;
+	private double crossoverRate;
+	private double mutationRate;
 	private String terminationMethod;
+	private double minEquality;
 	
 	private List<Integer> numberOfDifferentSolutions;
 	private List<Double> maxFitnessPerPopulation;
 	private List<Double> averageFitnessPerPopulation;
-	
-	private int workPercentage = 0;
-	private double elitismRate;
-	private double crossoverRate;
-	private double mutationRate;
-	
-	private double dynamicPenalty = 1.0;
-	private int terminationCounter;
-	
-	private int maxDeviation;
-	
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
 	
+	private double dynamicPenalty = 1.0;
+	private int terminationCounter;
+	private int workPercentage = 0;
 	private long runtime = 0;
 	
 	public GeneticAlgorithm(List<ServiceClass> serviceClassesList, 
-			Map<String, Constraint> constraintsMap, int populationSize, 
+			Map<String, Constraint> constraintsMap, 
+			int penaltyFactor, int populationSize, 
 			int terminationCriterion, String selectionMethod, 
 			int elitismRate, String crossoverMethod,
 			int crossoverRate, int mutationRate,
-			String terminationMethod, int maxDeviation) {
+			String terminationMethod, int minEquality) {
 		this.serviceClassesList = serviceClassesList;
 		this.constraintsMap = constraintsMap;
+		this.penaltyFactor = penaltyFactor / 100.0;
 		this.populationSize = populationSize;
 		this.terminationCriterion = terminationCriterion;
 		this.selectionMethod = selectionMethod;
-		this.elitismRate = elitismRate;
+		this.elitismRate = elitismRate / 100.0;
 		this.crossoverMethod = crossoverMethod;
-		this.crossoverRate = crossoverRate;
-		this.mutationRate = mutationRate;
+		this.crossoverRate = crossoverRate / 100.0;
+		this.mutationRate = mutationRate / 1000.0;
 		this.terminationMethod = terminationMethod;
-		this.maxDeviation = maxDeviation;
+		this.minEquality = minEquality / 100.0;
 	}
 
 	// TODO: if changes are made to this method, 
 	//		 startInBenchmarkMode() has to be updated!
 	@Override
 	public void start() {
-		crossoverRate /= 100.0;
-		elitismRate /= 100.0;
-		mutationRate /= 1000.0;
 		workPercentage = 0;
 		
 		terminationCounter = terminationCriterion;
@@ -196,10 +189,6 @@ public class GeneticAlgorithm extends Algorithm {
 	// TODO: Pretty much copy/paste; so if changes are made to 
 	//		 the start()-method, this method has to be updated!
 	public void startInBenchmarkMode() {
-		crossoverRate /= 100.0;
-		elitismRate /= 100.0;
-		mutationRate /= 1000.0;
-		
 		terminationCounter = terminationCriterion;
 		
 		runtime = System.currentTimeMillis();	
@@ -628,7 +617,7 @@ public class GeneticAlgorithm extends Algorithm {
 	private boolean hasPopulationChanged(List<Composition> population, 
 			List<Composition> matingPool) {
 		int deviation = population.size() - 
-				(int) Math.round(population.size() * maxDeviation / 100.0 );
+				(int) Math.round(population.size() * minEquality);
 		for (int i = 0; i < matingPool.size(); i++) {
 			if (deviation <= 0) {
 				return true;
@@ -706,9 +695,8 @@ public class GeneticAlgorithm extends Algorithm {
 		// Penalty factor has to be considered only if the composition 
 		// violates the constraints.
 		if (!composition.isWithinConstraints(constraintsMap)) {
-			fitness -= constraintsMap.get(
-					Constraint.PENALTY_FACTOR).getWeight() * 
-					computeDistanceToConstraints(composition) * dynamicPenalty;	
+			fitness -= penaltyFactor * computeDistanceToConstraints(
+					composition) * dynamicPenalty;	
 		}
 		if (fitness < 0.0) {
 			return 0.0;

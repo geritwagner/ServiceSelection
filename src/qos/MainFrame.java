@@ -2307,15 +2307,7 @@ public class MainFrame extends JFrame {
 			return;
 		}								
 		File file = fileChooser.getSelectedFile();
-		if (!file.getName().endsWith(".csv")) {
-			if (file.getName().contains(".")) {
-				file = new File(file.getPath().substring(
-						0, file.getPath().lastIndexOf(".")) + ".csv");
-			}
-			else {
-				file = new File(file.getPath() + ".csv");
-			}
-		}
+		checkOverwrite(file, "Model Setup has");
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(file));
@@ -2387,15 +2379,16 @@ public class MainFrame extends JFrame {
 			txtAntBeta.setText(values[3]);
 			txtAntDilution.setText(values[4]);
 			txtAntPi.setText(values[5]);
-			jTextFieldPopulationSize.setText(values[6]);
-			jTextFieldTerminationCriterion.setText(values[7]);
+			jTextFieldPenaltyFactor.setText(values[6]);
+			jTextFieldPopulationSize.setText(values[7]);
 			jComboBoxSelection.setSelectedItem(values[8]);
 			jTextFieldElitismRate.setText(values[9]);
 			jComboBoxCrossover.setSelectedItem(values[10]);
 			jTextFieldCrossoverRate.setText(values[11]);
 			jTextFieldMutationRate.setText(values[12]);
 			jComboBoxTerminationCriterion.setSelectedItem(values[13]);
-			jTextFieldTerminationDegree.setText(values[14]);
+			jTextFieldTerminationCriterion.setText(values[14]);
+			jTextFieldTerminationDegree.setText(values[15]);
 			bufferedReader.close();
 		} catch (IOException e1) {			
 			e1.printStackTrace();
@@ -2412,41 +2405,33 @@ public class MainFrame extends JFrame {
 			return;
 		}                
 		File file = fileChooser.getSelectedFile();
-		if (!file.getName().endsWith(".csv")) {
-			if (file.getName().contains(".")) {
-				file = new File(file.getPath().substring(
-						0, file.getPath().lastIndexOf(".")) + ".csv");
-			}
-			else {
-				file = new File(file.getPath() + ".csv");
-			}
-		}
+		checkOverwrite(file, "Algorithm Settings have");
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(file));				
 			String header = "txtAntIterations;txtAntAnts;txtAntAlpha;" +
 					"txtAntBeta;txtAntDilution;txtAntPi";
-			header += ";jTextFieldPopulationSize;" +
-					"jTextFieldTerminationCriterion;jComboBoxSelection";
-			header += ";jTextFieldElitismRate;jComboBoxCrossover;" +
-					"jTextFieldCrossoverRate";
-			header += ";jTextFieldMutationRate;" +
-					"jComboBoxTerminationCriterion;" +
-					"jTextFieldTerminationDegree";			
+			header += ";Penalty Factor;Population Size;" +
+					"Selection Method;" + 
+					"Elitism Rate;Crossover Method;" +
+					"Crossover Rate;Mutation Rate;" +
+					"Termination Criterion;Termination Value;" +
+					"Termination Degree of Equality";			
 			String values = ""+txtAntIterations.getText();
 			values += ";" + txtAntAnts.getText();
 			values += ";" + txtAntAlpha.getText();
 			values += ";" + txtAntBeta.getText();
 			values += ";" + txtAntDilution.getText();
 			values += ";" + txtAntPi.getText();
+			values += ";" + jTextFieldPenaltyFactor.getText();
 			values += ";" + jTextFieldPopulationSize.getText();
-			values += ";" + jTextFieldTerminationCriterion.getText();
 			values += ";" + jComboBoxSelection.getSelectedItem();
 			values += ";" + jTextFieldElitismRate.getText();
 			values += ";" + jComboBoxCrossover.getSelectedItem();
 			values += ";" + jTextFieldCrossoverRate.getText();
 			values += ";" + jTextFieldMutationRate.getText();
 			values += ";" + jComboBoxTerminationCriterion.getSelectedItem();
+			values += ";" + jTextFieldTerminationCriterion.getText();
 			values += ";" + jTextFieldTerminationDegree.getText();
 			bufferedWriter.write(header);
 			bufferedWriter.newLine();			
@@ -2766,6 +2751,7 @@ public class MainFrame extends JFrame {
 			}
 			geneticAlgorithm = new GeneticAlgorithm(
 					serviceClassesList, constraintsMap, 
+					Integer.parseInt(jTextFieldPenaltyFactor.getText()),
 					Integer.parseInt(jTextFieldPopulationSize.getText()), 
 					Integer.parseInt(jTextFieldTerminationCriterion.getText()),
 					(String) jComboBoxSelection.getSelectedItem(),
@@ -3337,15 +3323,7 @@ public class MainFrame extends JFrame {
 			return;
 		}
 		File file = fileChooser.getSelectedFile();
-		if (!file.getName().endsWith(".csv")) {
-			if (file.getName().contains(".")) {
-				file = new File(file.getPath().substring(
-						0, file.getPath().lastIndexOf(".")) + ".csv");
-			}
-			else {
-				file = new File(file.getPath() + ".csv");
-			}
-		}
+		checkOverwrite(file, "Results have");
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(file));
@@ -3590,11 +3568,6 @@ public class MainFrame extends JFrame {
 			constraintsMap.put(constraintAvailability.getTitle(), 
 					constraintAvailability);
 		}
-		Constraint constraintPenaltyFactor = new Constraint(
-				Constraint.PENALTY_FACTOR, 0, Double.parseDouble(
-						jTextFieldPenaltyFactor.getText()) / 100.0);
-		constraintsMap.put(constraintPenaltyFactor.getTitle(), 
-				constraintPenaltyFactor);
 		return constraintsMap;
 	}
 
@@ -3660,6 +3633,33 @@ public class MainFrame extends JFrame {
 		}
 		if (constraintsMap.get(Constraint.AVAILABILITY) != null) {
 			System.out.println(constraintsMap.get(Constraint.AVAILABILITY));
+		}
+	}
+	
+	private void checkOverwrite(File file, String customDescription) {
+		if (!file.getName().endsWith(".csv")) {
+			if (file.getName().contains(".")) {
+				file = new File(file.getPath().substring(
+						0, file.getPath().lastIndexOf(".")) + ".csv");
+			}
+			else {
+				file = new File(file.getPath() + ".csv");
+			}
+		}
+		if (file.exists()) {
+			if (JOptionPane.showConfirmDialog(
+					null, "<html>File already exists.<br>Overwrite?</html>", 
+					"Warning", JOptionPane.YES_NO_OPTION) != 
+						JOptionPane.YES_OPTION) {
+				JOptionPane.showMessageDialog(
+						null, "<html>" + customDescription + 
+						" <b color=red>not</b> " + "been saved!</html>", 
+						"Note", JOptionPane.WARNING_MESSAGE);
+				writeErrorLogEntry("Save " + customDescription.substring(
+						0, customDescription.lastIndexOf(" ")) + 
+						" not completed");
+				return;
+			}
 		}
 	}
 }
