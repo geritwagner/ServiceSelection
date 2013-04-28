@@ -97,6 +97,7 @@ public class MainFrame extends JFrame {
 	private JTextField jTextFieldMutationRate;
 	private JTextField jTextFieldTerminationCriterion;
 	private JTextField jTextFieldTerminationDegree;
+	private JTextField txtAntVariant;
 	private JTextField txtAntIterations;
 	private JTextField txtAntAnts;
 	private JTextField txtAntAlpha;
@@ -175,6 +176,7 @@ public class MainFrame extends JFrame {
 	private static final int DEFAULT_MUTATION_RATE = 1;
 	private static final int DEFAULT_TERMINATION_CRITERION = 100;
 	private static final int DEFAULT_DEGREE_OF_EQUALITY = 75;
+	private static final int DEFAULT_VARIANT = 1;
 	private static final int DEFAULT_ITERATIONS = 100;
 	private static final int DEFAULT_ANTS = 10;
 	private static final double DEFAULT_ALPHA = 1;
@@ -1783,15 +1785,35 @@ public class MainFrame extends JFrame {
 		gbl_panelAntAlgorithmSettings.columnWeights = 
 			new double[]{0.5, 0.5};
 		gbl_panelAntAlgorithmSettings.rowWeights = 
-			new double[]{0.2, 0.16, 0.16, 0.16, 0.16, 0.16};
+			new double[]{0.16, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14};
 		panelAntAlgorithmSettings.setLayout(gbl_panelAntAlgorithmSettings);
+		
+		JLabel jLabelAntVariant = new JLabel("Variant:");		
+		GridBagConstraints gbcJLabelAntVariant = new GridBagConstraints();
+		gbcJLabelAntVariant.gridwidth = 1;
+		gbcJLabelAntVariant.insets = new Insets(5, 0, 5, 25);
+		gbcJLabelAntVariant.gridx = 0;
+		gbcJLabelAntVariant.gridy = 0;
+		gbcJLabelAntVariant.anchor = GridBagConstraints.EAST;
+		panelAntAlgorithmSettings.add(
+				jLabelAntVariant, gbcJLabelAntVariant);
+		
+		txtAntVariant = new JTextField(""+DEFAULT_VARIANT);
+		txtAntVariant.setColumns(5);
+		txtAntVariant.setHorizontalAlignment(JTextField.RIGHT);		
+		GridBagConstraints gbc_AntVariant = new GridBagConstraints();
+		gbc_AntVariant.insets = new Insets(5, 0, 5, 50);
+		gbc_AntVariant.fill = GridBagConstraints.NONE;
+		gbc_AntVariant.gridx = 1;
+		gbc_AntVariant.gridy = 0;
+		panelAntAlgorithmSettings.add(txtAntVariant, gbc_AntVariant);
 		
 		JLabel jLabelAntIterations = new JLabel("Iterations:");		
 		GridBagConstraints gbcJLabelAntIterations = new GridBagConstraints();
 		gbcJLabelAntIterations.gridwidth = 1;
 		gbcJLabelAntIterations.insets = new Insets(5, 0, 5, 25);
 		gbcJLabelAntIterations.gridx = 0;
-		gbcJLabelAntIterations.gridy = 0;
+		gbcJLabelAntIterations.gridy = 1;
 		gbcJLabelAntIterations.anchor = GridBagConstraints.EAST;
 		panelAntAlgorithmSettings.add(
 				jLabelAntIterations, gbcJLabelAntIterations);
@@ -1803,7 +1825,7 @@ public class MainFrame extends JFrame {
 		gbc_AntIterations.insets = new Insets(5, 0, 5, 50);
 		gbc_AntIterations.fill = GridBagConstraints.NONE;
 		gbc_AntIterations.gridx = 1;
-		gbc_AntIterations.gridy = 0;
+		gbc_AntIterations.gridy = 1;
 		panelAntAlgorithmSettings.add(txtAntIterations, gbc_AntIterations);
 		
 		JLabel jLabelAntAnts = new JLabel("Ants:");
@@ -1811,7 +1833,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelAntAnts.gridwidth = 1;
 		gbcJLabelAntAnts.insets = new Insets(0, 0, 5, 25);
 		gbcJLabelAntAnts.gridx = 0;
-		gbcJLabelAntAnts.gridy = 1;
+		gbcJLabelAntAnts.gridy = 2;
 		gbcJLabelAntAnts.anchor = GridBagConstraints.EAST;
 		panelAntAlgorithmSettings.add(
 				jLabelAntAnts, gbcJLabelAntAnts);
@@ -1823,7 +1845,7 @@ public class MainFrame extends JFrame {
 		gbc_AntAnts.insets = new Insets(0, 0, 5, 50);
 		gbc_AntAnts.fill = GridBagConstraints.NONE;
 		gbc_AntAnts.gridx = 1;
-		gbc_AntAnts.gridy = 1;
+		gbc_AntAnts.gridy = 2;
 		panelAntAlgorithmSettings.add(txtAntAnts, gbc_AntAnts);
 		
 		JLabel jLabelAntAlpha = new JLabel("Alpha:");
@@ -1831,7 +1853,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelAntAlpha.gridwidth = 1;
 		gbcJLabelAntAlpha.insets = new Insets(0, 0, 5, 25);
 		gbcJLabelAntAlpha.gridx = 0;
-		gbcJLabelAntAlpha.gridy = 2;
+		gbcJLabelAntAlpha.gridy = 3;
 		gbcJLabelAntAlpha.anchor = GridBagConstraints.EAST;
 		panelAntAlgorithmSettings.add(
 				jLabelAntAlpha, gbcJLabelAntAlpha);
@@ -1843,7 +1865,7 @@ public class MainFrame extends JFrame {
 		gbc_AntAlpha.insets = new Insets(0, 0, 5, 50);
 		gbc_AntAlpha.fill = GridBagConstraints.NONE;
 		gbc_AntAlpha.gridx = 1;
-		gbc_AntAlpha.gridy = 2;
+		gbc_AntAlpha.gridy = 3;
 		panelAntAlgorithmSettings.add(txtAntAlpha, gbc_AntAlpha);
 		
 		JLabel jLabelAntBeta = new JLabel("Beta:");
@@ -1851,7 +1873,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelAntBeta.gridwidth = 1;
 		gbcJLabelAntBeta.insets = new Insets(0, 0, 5, 25);
 		gbcJLabelAntBeta.gridx = 0;
-		gbcJLabelAntBeta.gridy = 3;
+		gbcJLabelAntBeta.gridy = 4;
 		gbcJLabelAntBeta.anchor = GridBagConstraints.EAST;
 		panelAntAlgorithmSettings.add(
 				jLabelAntBeta, gbcJLabelAntBeta);
@@ -1863,7 +1885,7 @@ public class MainFrame extends JFrame {
 		gbc_AntBeta.insets = new Insets(0, 0, 5, 50);
 		gbc_AntBeta.fill = GridBagConstraints.NONE;
 		gbc_AntBeta.gridx = 1;
-		gbc_AntBeta.gridy = 3;
+		gbc_AntBeta.gridy = 4;
 		panelAntAlgorithmSettings.add(txtAntBeta, gbc_AntBeta);
 		
 		JLabel jLabelAntDilution = new JLabel("Dilution:");
@@ -1871,7 +1893,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelAntDilution.gridwidth = 1;
 		gbcJLabelAntDilution.insets = new Insets(0, 0, 5, 25);
 		gbcJLabelAntDilution.gridx = 0;
-		gbcJLabelAntDilution.gridy = 4;
+		gbcJLabelAntDilution.gridy = 5;
 		gbcJLabelAntDilution.anchor = GridBagConstraints.EAST;
 		panelAntAlgorithmSettings.add(
 				jLabelAntDilution, gbcJLabelAntDilution);
@@ -1883,7 +1905,7 @@ public class MainFrame extends JFrame {
 		gbc_AntDilution.insets = new Insets(0, 0, 5, 50);
 		gbc_AntDilution.fill = GridBagConstraints.NONE;
 		gbc_AntDilution.gridx = 1;
-		gbc_AntDilution.gridy = 4;
+		gbc_AntDilution.gridy = 5;
 		panelAntAlgorithmSettings.add(txtAntDilution, gbc_AntDilution);
 		
 		JLabel jLabelAntPi = new JLabel("Pi Init-Value:");
@@ -1891,7 +1913,7 @@ public class MainFrame extends JFrame {
 		gbcJLabelAntPi.gridwidth = 1;
 		gbcJLabelAntPi.insets = new Insets(0, 0, 5, 25);
 		gbcJLabelAntPi.gridx = 0;
-		gbcJLabelAntPi.gridy = 5;
+		gbcJLabelAntPi.gridy = 6;
 		gbcJLabelAntPi.anchor = GridBagConstraints.EAST;
 		panelAntAlgorithmSettings.add(
 				jLabelAntPi, gbcJLabelAntPi);
@@ -1903,7 +1925,7 @@ public class MainFrame extends JFrame {
 		gbc_AntPi.insets = new Insets(0, 0, 5, 50);
 		gbc_AntPi.fill = GridBagConstraints.NONE;
 		gbc_AntPi.gridx = 1;
-		gbc_AntPi.gridy = 5;
+		gbc_AntPi.gridy = 6;
 		panelAntAlgorithmSettings.add(txtAntPi, gbc_AntPi);
 
 		jProgressBarAntAlgorithm = new JProgressBar();
@@ -2373,22 +2395,23 @@ public class MainFrame extends JFrame {
 			// skip headers
 			bufferedReader.readLine().split(";");
 			String[] values = bufferedReader.readLine().split(";");
-			txtAntIterations.setText(values[0]);
-			txtAntAnts.setText(values[1]);
-			txtAntAlpha.setText(values[2]);
-			txtAntBeta.setText(values[3]);
-			txtAntDilution.setText(values[4]);
-			txtAntPi.setText(values[5]);
-			jTextFieldPenaltyFactor.setText(values[6]);
-			jTextFieldPopulationSize.setText(values[7]);
-			jComboBoxSelection.setSelectedItem(values[8]);
-			jTextFieldElitismRate.setText(values[9]);
-			jComboBoxCrossover.setSelectedItem(values[10]);
-			jTextFieldCrossoverRate.setText(values[11]);
-			jTextFieldMutationRate.setText(values[12]);
-			jComboBoxTerminationCriterion.setSelectedItem(values[13]);
-			jTextFieldTerminationCriterion.setText(values[14]);
-			jTextFieldTerminationDegree.setText(values[15]);
+			txtAntVariant.setText(values[0]);
+			txtAntIterations.setText(values[1]);
+			txtAntAnts.setText(values[2]);
+			txtAntAlpha.setText(values[3]);
+			txtAntBeta.setText(values[4]);
+			txtAntDilution.setText(values[5]);
+			txtAntPi.setText(values[6]);
+			jTextFieldPenaltyFactor.setText(values[7]);
+			jTextFieldPopulationSize.setText(values[8]);
+			jComboBoxSelection.setSelectedItem(values[9]);
+			jTextFieldElitismRate.setText(values[10]);
+			jComboBoxCrossover.setSelectedItem(values[11]);
+			jTextFieldCrossoverRate.setText(values[12]);
+			jTextFieldMutationRate.setText(values[13]);
+			jComboBoxTerminationCriterion.setSelectedItem(values[14]);
+			jTextFieldTerminationCriterion.setText(values[15]);
+			jTextFieldTerminationDegree.setText(values[16]);
 			bufferedReader.close();
 		} catch (IOException e1) {			
 			e1.printStackTrace();
@@ -2409,7 +2432,7 @@ public class MainFrame extends JFrame {
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(file));				
-			String header = "txtAntIterations;txtAntAnts;txtAntAlpha;" +
+			String header = "txtAntVariant;txtAntIterations;txtAntAnts;txtAntAlpha;" +
 					"txtAntBeta;txtAntDilution;txtAntPi";
 			header += ";Penalty Factor;Population Size;" +
 					"Selection Method;" + 
@@ -2417,7 +2440,8 @@ public class MainFrame extends JFrame {
 					"Crossover Rate;Mutation Rate;" +
 					"Termination Criterion;Termination Value;" +
 					"Termination Degree of Equality";			
-			String values = ""+txtAntIterations.getText();
+			String values = ""+txtAntVariant.getText();
+			values += ";" + txtAntIterations.getText();
 			values += ";" + txtAntAnts.getText();
 			values += ";" + txtAntAlpha.getText();
 			values += ";" + txtAntBeta.getText();
@@ -2763,6 +2787,7 @@ public class MainFrame extends JFrame {
 					Integer.parseInt(jTextFieldTerminationDegree.getText()));
 		}
 		if (jCheckBoxAntColonyOptimization.isSelected()) {
+			int variant;
 			int iterations;
 			int ants;
 			double alpha;
@@ -2770,6 +2795,7 @@ public class MainFrame extends JFrame {
 			double dilution;
 			double piInit;
 			try {
+				variant = Integer.parseInt(txtAntVariant.getText());
 				iterations = Integer.parseInt(txtAntIterations.getText());
 				ants = Integer.parseInt(txtAntAnts.getText());
 				alpha = Double.parseDouble(txtAntAlpha.getText());
@@ -2777,6 +2803,7 @@ public class MainFrame extends JFrame {
 				dilution = Double.parseDouble(txtAntDilution.getText());
 				piInit = Double.parseDouble(txtAntPi.getText());
 			} catch (Exception e) {
+				variant = DEFAULT_VARIANT;
 				iterations = DEFAULT_ITERATIONS;
 				ants = DEFAULT_ANTS;
 				alpha = DEFAULT_ALPHA;
@@ -2786,7 +2813,7 @@ public class MainFrame extends JFrame {
 			}
 			antAlgorithm = new AntAlgorithm(
 					serviceClassesList, serviceCandidatesList, constraintsMap,
-					iterations, ants, alpha, beta,
+					variant, iterations, ants, alpha, beta,
 					dilution, piInit);
 		}	
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
@@ -3504,6 +3531,7 @@ public class MainFrame extends JFrame {
 		}
 		else if (algorithm.equals("antAlg")) {
 			if (!jCheckBoxAntColonyOptimization.isSelected()) {
+				txtAntVariant.setEditable(false);
 				txtAntIterations.setEditable(false);
 				txtAntAnts.setEditable(false);
 				txtAntAlpha.setEditable(false);
@@ -3512,6 +3540,7 @@ public class MainFrame extends JFrame {
 				txtAntPi.setEditable(false);
 			}
 			else {
+				txtAntVariant.setEditable(true);
 				txtAntIterations.setEditable(true);
 				txtAntAnts.setEditable(true);
 				txtAntAlpha.setEditable(true);

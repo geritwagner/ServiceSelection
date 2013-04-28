@@ -34,7 +34,7 @@ public class AntAlgorithm extends Algorithm {
 
 	public AntAlgorithm(List<ServiceClass> serviceClassesList,
 			List<ServiceCandidate> serviceCandidatesList,
-			Map<String, Constraint> constraintsMap,
+			Map<String, Constraint> constraintsMap, int variant,
 			int iterations, int ants, double alpha, double beta, double dilution, double piInit) {
 		this.serviceClassesList = new LinkedList<ServiceClass>(serviceClassesList);
 		this.serviceCandidatesList = new LinkedList<ServiceCandidate>(serviceCandidatesList);
@@ -43,6 +43,7 @@ public class AntAlgorithm extends Algorithm {
 		this.constraintsMap = constraintsMap;	
 
 		optimalComposition = null;
+		this.variant = variant;
 		this.piInit = piInit;
 		this.ants = ants;
 		this.iterations = iterations;
@@ -642,8 +643,7 @@ public class AntAlgorithm extends Algorithm {
 				lambda = chaosFactor * lambda * (1 - lambda);
 				pi[a][b] = (1-dilution)*pi[a][b] + deltaPi[a][b] + lambda;
 			}
-		}
-		System.out.println(lambda);
+		}		
 	}
 
 	// GETTER AND SETTER
