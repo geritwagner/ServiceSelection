@@ -23,7 +23,8 @@ public class AntAlgorithm extends Algorithm {
 	private double[] nj;
 	private double[][] pi;
 	int counter = 0;
-	// variant: original = 1, Qiqing = 2, Convergent = 3, Ant Colony System = 4, Wang/He = 5
+	// variant: Ant System = 1, (Qiqing et al. 2009) = 2, Convergent Variant = 3, 
+	// Ant Colony System = 4, (Li und Yan-xiang 2011) = 5
 	int variant = 3;
 	boolean convergent = false;
 	double lambda = 0.4;

@@ -176,7 +176,7 @@ public class MainFrame extends JFrame {
 	private static final int DEFAULT_MUTATION_RATE = 1;
 	private static final int DEFAULT_TERMINATION_CRITERION = 100;
 	private static final int DEFAULT_DEGREE_OF_EQUALITY = 75;
-	private static final int DEFAULT_VARIANT = 1;
+	private static final int DEFAULT_VARIANT = 4;
 	private static final int DEFAULT_ITERATIONS = 100;
 	private static final int DEFAULT_ANTS = 10;
 	private static final double DEFAULT_ALPHA = 1;
@@ -1799,6 +1799,13 @@ public class MainFrame extends JFrame {
 				jLabelAntVariant, gbcJLabelAntVariant);
 		
 		txtAntVariant = new JTextField(""+DEFAULT_VARIANT);
+		txtAntVariant.setToolTipText("<html>Set Variant of the " +
+				"Algorithm<br>Choose Variant from 1 to 5:" + 
+				"<br>Ant System = 1" +
+				"<br>(Qiqing et al. 2009) = 2" +
+				"<br>Convergent Variant = 3" +
+				"<br>Ant Colony System = 4" +
+				"<br>(Li und Yan-xiang 2011) = 5</html>");
 		txtAntVariant.setColumns(5);
 		txtAntVariant.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntVariant = new GridBagConstraints();
@@ -1819,6 +1826,8 @@ public class MainFrame extends JFrame {
 				jLabelAntIterations, gbcJLabelAntIterations);
 		
 		txtAntIterations = new JTextField(""+DEFAULT_ITERATIONS);
+		txtAntIterations.setToolTipText("<html>Number of Iterations" +
+				"<br>Usually between 50 and 200</html>");
 		txtAntIterations.setColumns(5);
 		txtAntIterations.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntIterations = new GridBagConstraints();
@@ -1839,6 +1848,8 @@ public class MainFrame extends JFrame {
 				jLabelAntAnts, gbcJLabelAntAnts);
 		
 		txtAntAnts = new JTextField(""+DEFAULT_ANTS);
+		txtAntAnts.setToolTipText("<html>Number of Ants" +
+				"<br>Usually between 10 and 30</html>");
 		txtAntAnts.setColumns(5);
 		txtAntAnts.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntAnts = new GridBagConstraints();
@@ -1859,6 +1870,8 @@ public class MainFrame extends JFrame {
 				jLabelAntAlpha, gbcJLabelAntAlpha);
 		
 		txtAntAlpha = new JTextField(""+DEFAULT_ALPHA);
+		txtAntAlpha.setToolTipText("<html>Influence of the " +
+				"Pheromome Trail<br>Usually between 0.3 and 2</html>");
 		txtAntAlpha.setColumns(5);
 		txtAntAlpha.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntAlpha = new GridBagConstraints();
@@ -1879,6 +1892,8 @@ public class MainFrame extends JFrame {
 				jLabelAntBeta, gbcJLabelAntBeta);
 		
 		txtAntBeta = new JTextField(""+DEFAULT_BETA);
+		txtAntBeta.setToolTipText("<html>Influence of the " +
+				"local Utility<br>Usually between 0.3 and 2</html>");
 		txtAntBeta.setColumns(5);
 		txtAntBeta.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntBeta = new GridBagConstraints();
@@ -1899,6 +1914,8 @@ public class MainFrame extends JFrame {
 				jLabelAntDilution, gbcJLabelAntDilution);
 		
 		txtAntDilution = new JTextField(""+DEFAULT_DILUTION);
+		txtAntDilution.setToolTipText("<html>Dilution of the " +
+				"Pheromome Trail<br>Usually between 0.01 and 0.1</html>");
 		txtAntDilution.setColumns(5);
 		txtAntDilution.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntDilution = new GridBagConstraints();
@@ -1919,6 +1936,8 @@ public class MainFrame extends JFrame {
 				jLabelAntPi, gbcJLabelAntPi);
 		
 		txtAntPi = new JTextField(""+DEFAULT_PIINIT);
+		txtAntPi.setToolTipText("<html>Initial Value of the " +
+				"Pheromome Trail<br>Usually between 0.5 and 10</html>");
 		txtAntPi.setColumns(5);
 		txtAntPi.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntPi = new GridBagConstraints();
