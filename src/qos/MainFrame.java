@@ -73,9 +73,11 @@ public class MainFrame extends JFrame {
 	private JLabel lblWeightSumSigma;
 	private JLabel lblWeightSum;
 	private JLabel jLabelUtilityText;
-	private JLabel jLabelGeneticAlgorithmNumerator;
-	private JLabel jLabelGeneticAlgorithmDenominator;
-	private JLabel jLabelWeightedPenalty;
+	private JLabel jLabelFitnessBraceLeft;
+	private JLabel jLabelFitnessCaseOne;
+	private JLabel jLabelFitnessCaseOneDescription;
+	private JLabel jLabelFitnessCaseTwo;
+	private JLabel jLabelFitnessCaseTwoDescription;
 //	private JLabel jLabelPopulationPercentage;
 	private JLabel jLabelElitismRatePercentage;
 	private JLabel jLabelTerminationColon;
@@ -145,7 +147,6 @@ public class MainFrame extends JFrame {
 	private JTabbedPane jTabbedPane;
 	
 	// Other
-	private JSeparator jSeparatorFormula;
 	private JTextArea textAreaLog;
 
 	
@@ -1136,7 +1137,7 @@ public class MainFrame extends JFrame {
 		jPanelGeneticAlgorithmSettings.setLayout(
 				gblJPanelGeneticAlgorithmSettings);
 
-		JLabel jLabelFitnessFunction = new JLabel("Fitness:");
+		JLabel jLabelFitnessFunction = new JLabel("Fitness Function:");
 		GridBagConstraints gbcJLabelFitnessFunction = new GridBagConstraints();
 		gbcJLabelFitnessFunction.insets = new Insets(5, 5, 5, 5);
 		gbcJLabelFitnessFunction.gridheight = 3;
@@ -1148,11 +1149,10 @@ public class MainFrame extends JFrame {
 		
 		JPanel jPanelFitness = new JPanel();
 		GridBagLayout gblJPanelFitness = new GridBagLayout();
-		gblJPanelFitness.columnWeights = new double[] {1.0, 1.0};
-		gblJPanelFitness.rowWeights = new double[] {0.4, 0.2, 0.4};
+		gblJPanelFitness.columnWeights = new double[] {1.0, 1.0, 1.0};
+		gblJPanelFitness.rowWeights = new double[] {0.5, 0.5};
 		jPanelFitness.setLayout(gblJPanelFitness);
-		GridBagConstraints gbcJPanelFitness = 
-			new GridBagConstraints();
+		GridBagConstraints gbcJPanelFitness = new GridBagConstraints();
 		gbcJPanelFitness.anchor = GridBagConstraints.WEST;
 		gbcJPanelFitness.insets = new Insets(5, 10, 5, 5);
 		gbcJPanelFitness.gridwidth = 2;
@@ -1160,45 +1160,65 @@ public class MainFrame extends JFrame {
 		gbcJPanelFitness.gridy = 0;
 		jPanelGeneticAlgorithmSettings.add(jPanelFitness, gbcJPanelFitness);
 
+		Font fontBraceLeft = new Font("braceLeft", Font.PLAIN, 40);
+		
+		jLabelFitnessBraceLeft = new JLabel("{");
+		GridBagConstraints gbcJLabelFitnessBraceLeft = 
+				new GridBagConstraints();
+		gbcJLabelFitnessBraceLeft.insets = new Insets(0, 0, 12, 10);
+		gbcJLabelFitnessBraceLeft.anchor = GridBagConstraints.WEST;
+		gbcJLabelFitnessBraceLeft.fill = GridBagConstraints.VERTICAL;
+		gbcJLabelFitnessBraceLeft.gridx = 0;
+		gbcJLabelFitnessBraceLeft.gridy = 0;
+		gbcJLabelFitnessBraceLeft.gridheight = 2;
+		jPanelFitness.add(jLabelFitnessBraceLeft, gbcJLabelFitnessBraceLeft);
+		jLabelFitnessBraceLeft.setFont(fontBraceLeft);
+		
 		Font fontFormula = new Font("formula", Font.ITALIC, 10);
-		jLabelGeneticAlgorithmNumerator = new JLabel();
-		GridBagConstraints gbcJLabelNumerator = new GridBagConstraints();
-		gbcJLabelNumerator.insets = new Insets(0, 0, 5, 0);
-		gbcJLabelNumerator.anchor = GridBagConstraints.SOUTH;
-		gbcJLabelNumerator.gridx = 0;
-		gbcJLabelNumerator.gridy = 0;
-		jPanelFitness.add(
-				jLabelGeneticAlgorithmNumerator, gbcJLabelNumerator);
-		jLabelGeneticAlgorithmNumerator.setFont(fontFormula);
+		
+		jLabelFitnessCaseOne = new JLabel("Utility + 1");
+		GridBagConstraints gbcJLabelUtilityCaseOne = new GridBagConstraints();
+		gbcJLabelUtilityCaseOne.insets = new Insets(10, 0, 0, 0);
+		gbcJLabelUtilityCaseOne.anchor = GridBagConstraints.CENTER;
+		gbcJLabelUtilityCaseOne.gridx = 1;
+		gbcJLabelUtilityCaseOne.gridy = 0;
+		jPanelFitness.add(jLabelFitnessCaseOne, gbcJLabelUtilityCaseOne);
+		jLabelFitnessCaseOne.setFont(fontFormula);
+		
+		jLabelFitnessCaseOneDescription = 
+				new JLabel("if no constraints violated");
+		GridBagConstraints gbcJLabelUtilityCaseOneDescription = 
+				new GridBagConstraints();
+		gbcJLabelUtilityCaseOneDescription.insets = new Insets(10, 5, 5, 0);
+		gbcJLabelUtilityCaseOneDescription.anchor = GridBagConstraints.CENTER;
+		gbcJLabelUtilityCaseOneDescription.gridx = 2;
+		gbcJLabelUtilityCaseOneDescription.gridy = 0;
+		jPanelFitness.add(jLabelFitnessCaseOneDescription, 
+				gbcJLabelUtilityCaseOneDescription);
+		jLabelFitnessCaseOneDescription.setFont(fontFormula);
 
-		jSeparatorFormula = new JSeparator();
-		GridBagConstraints gbcJSeparatorFormula = new GridBagConstraints();
-		gbcJSeparatorFormula.fill = GridBagConstraints.HORIZONTAL;
-		gbcJSeparatorFormula.gridx = 0;
-		gbcJSeparatorFormula.gridy = 1;
-		jPanelFitness.add(
-				jSeparatorFormula, gbcJSeparatorFormula);
-
-		jLabelGeneticAlgorithmDenominator = new JLabel();
-		GridBagConstraints gbcJLabelDenominator = new GridBagConstraints();
-		gbcJLabelDenominator.insets = new Insets(5, 0, 0, 0);
-		gbcJLabelDenominator.anchor = GridBagConstraints.NORTH;
-		gbcJLabelDenominator.gridx = 0;
-		gbcJLabelDenominator.gridy = 2;
-		jPanelFitness.add(
-				jLabelGeneticAlgorithmDenominator, gbcJLabelDenominator);
-		jLabelGeneticAlgorithmDenominator.setFont(fontFormula);
-
-		jLabelWeightedPenalty = new JLabel();
-		GridBagConstraints gbcJLabelWeightedPenalty = 
+		jLabelFitnessCaseTwo = new JLabel();
+		GridBagConstraints gbcJLabelUtilityCaseTwo = 
 			new GridBagConstraints();
-		gbcJLabelWeightedPenalty.gridx = 1;
-		gbcJLabelWeightedPenalty.gridy = 0;
-		gbcJLabelWeightedPenalty.gridheight = 3;
-		gbcJLabelWeightedPenalty.anchor = GridBagConstraints.WEST;
-		jPanelFitness.add(
-				jLabelWeightedPenalty, gbcJLabelWeightedPenalty);
-		jLabelWeightedPenalty.setFont(fontFormula);
+		gbcJLabelUtilityCaseTwo.anchor = GridBagConstraints.WEST;
+		gbcJLabelUtilityCaseTwo.insets = new Insets(0, 0, 10, 0);
+		gbcJLabelUtilityCaseTwo.gridx = 1;
+		gbcJLabelUtilityCaseTwo.gridy = 1;
+		jPanelFitness.add(jLabelFitnessCaseTwo, gbcJLabelUtilityCaseTwo);
+		jLabelFitnessCaseTwo.setFont(fontFormula);
+		
+		jLabelFitnessCaseTwoDescription = new JLabel("otherwise");
+		GridBagConstraints gbcJLabelUtilityCaseTwoDescription = 
+				new GridBagConstraints();
+		gbcJLabelUtilityCaseTwoDescription.insets = new Insets(5, 10, 10, 0);
+		gbcJLabelUtilityCaseTwoDescription.anchor = GridBagConstraints.CENTER;
+		gbcJLabelUtilityCaseTwoDescription.gridx = 2;
+		gbcJLabelUtilityCaseTwoDescription.gridy = 1;
+		jPanelFitness.add(jLabelFitnessCaseTwoDescription, 
+				gbcJLabelUtilityCaseTwoDescription);
+		jLabelFitnessCaseTwoDescription.setFont(fontFormula);
+		
+		
 
 		JLabel jLabelPenaltyFactor = new JLabel("Weight Penalty Factor:");
 		GridBagConstraints gbcJLabelPenaltyFactor = new GridBagConstraints();
@@ -3016,53 +3036,47 @@ public class MainFrame extends JFrame {
 	
 	private void buildGeneticAlgorithmFitnessFunction() {
 		int i = 1;
-		String numerator = "<html>";
-		String denominator = "<html>";
+		String formula = "<html>Utility * (1 - (";
 		if (jCheckBoxMaxCosts.isSelected()) {
-			numerator += "w<sub>" + i + "</sub> * Costs";
+			formula += "w<sub>" + i + "</sub> * " +
+					"\u03B4<sub>costs</sub>";
 			i++;
 		}
 		if (jCheckBoxMaxResponseTime.isSelected()) {
-			if (numerator.equals("<html>")) {
-				numerator += "w<sub>" + i + "</sub> * Response Time";
+			if (formula.equals("<html>Utility * (1 - (")) {
+				formula += "w<sub>" + i + "</sub> * " +
+						"\u03B4<sub>response time</sub>";
 			}
 			else {
-				numerator += " + w<sub>" + i + "</sub> * Response Time";
+				formula += " + w<sub>" + i + "</sub> * " +
+						"\u03B4<sub>response time</sub>";
 			}
 			i++;
 		}
 		if (jCheckBoxMinAvailability.isSelected()) {
-			denominator += "w<sub>" + i + "</sub> * Availability ";
+			if (formula.equals("<html>Utility * (1 - (")) {
+				formula += "w<sub>" + i + "</sub> * " +
+						"\u03B4<sub>availability</sub>";
+			}
+			else {
+				formula += " + w<sub>" + i + "</sub> * " +
+						"\u03B4<sub>availability</sub>";
+			}
 			i++;
 		}
-		if (numerator.equals("<html>")) {
-			numerator = "1";
+		if (formula.equals("<html>Utility * (1 - (")) {
+			jLabelFitnessBraceLeft.setVisible(false);
+			jLabelFitnessCaseTwo.setVisible(false);
+			jLabelFitnessCaseTwoDescription.setVisible(false);
+			jLabelFitnessCaseOneDescription.setVisible(false);
 		}
 		else {
-			numerator += "</html>";
-		}
-		if (denominator.equals("<html>")) {
-			denominator = "1";
-		}
-		else {
-			denominator += "</html>";
-		}
-		jLabelGeneticAlgorithmNumerator.setText(numerator);
-		jLabelGeneticAlgorithmDenominator.setText(denominator);
-		if (numerator.equals("1") && 
-				denominator.equals("1")) {
-			jLabelGeneticAlgorithmNumerator.setVisible(false);
-			jSeparatorFormula.setVisible(false);
-			jLabelGeneticAlgorithmDenominator.setVisible(false);
-			jLabelWeightedPenalty.setText("<html>w<sub>" + i + 
-					"</sub> * Penalty Factor</html>");
-		}
-		else {
-			jLabelGeneticAlgorithmNumerator.setVisible(true);
-			jSeparatorFormula.setVisible(true);
-			jLabelGeneticAlgorithmDenominator.setVisible(true);
-			jLabelWeightedPenalty.setText("<html> + w<sub>" + i + 
-					"</sub> * Penalty Factor</html>");
+			formula += " ))</html>";
+			jLabelFitnessCaseTwo.setText(formula);
+			jLabelFitnessBraceLeft.setVisible(true);
+			jLabelFitnessCaseTwo.setVisible(true);
+			jLabelFitnessCaseTwoDescription.setVisible(true);
+			jLabelFitnessCaseOneDescription.setVisible(true);
 		}
 	}
 
