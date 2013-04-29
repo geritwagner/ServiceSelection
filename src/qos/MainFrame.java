@@ -181,8 +181,8 @@ public class MainFrame extends JFrame {
 	private static final int DEFAULT_ANTS = 10;
 	private static final double DEFAULT_ALPHA = 1;
 	private static final double DEFAULT_BETA = 1;
-	private static final double DEFAULT_DILUTION = 0.01;
-	private static final double DEFAULT_PIINIT = 1;
+	private static final double DEFAULT_DILUTION = 0.1;
+	private static final double DEFAULT_PIINIT = 0.5;
 	
 	// Formats
 	private static final DecimalFormat DECIMAL_FORMAT_TWO = 

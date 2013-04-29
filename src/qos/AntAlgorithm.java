@@ -25,7 +25,7 @@ public class AntAlgorithm extends Algorithm {
 	int counter = 0;
 	// variant: Ant System = 1, (Qiqing et al. 2009) = 2, Convergent Variant = 3, 
 	// Ant Colony System = 4, (Li und Yan-xiang 2011) = 5
-	int variant = 3;
+	int variant = 4;
 	boolean convergent = false;
 	double lambda = 0.4;
 	double chaosFactor = 4;
@@ -498,8 +498,9 @@ public class AntAlgorithm extends Algorithm {
 				
 				antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
 				currentClass++;
-				//TODO: TEST SOLUTION
+				// IMMEDIATE PHEROMONE UPDATE				
 				pi[actualService][currentService] = (1-dilution)*pi[actualService][currentService] + piInit*dilution;
+				//System.out.println("pi["+actualService+"]["+currentService+"]: "+pi[actualService][currentService]);
 			}
 		}
 
@@ -532,9 +533,9 @@ public class AntAlgorithm extends Algorithm {
 			}
 		}
 		// TODO: TEST WHETHER TRADITIONAL WAY OR ACTUAL SOLUTION IS BETTER
+		boolean pheromomeAlreadySet = false;
 		for (int k=0; k<ants; k++) {
-			Composition composition = antCompositions.get(k);
-			boolean pheromomeAlreadySet = false;
+			Composition composition = antCompositions.get(k);			
 			if (composition.isWithinConstraints(constraintsMap) && 
 					composition.getUtility() == optimalComposition.getUtility() && !pheromomeAlreadySet) {
 				double ratio = composition.getUtility();
@@ -542,15 +543,11 @@ public class AntAlgorithm extends Algorithm {
 					int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
 					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
 					deltaPi[currentID][nextID] += ratio;
-				}
+					pi[currentID][nextID] = (1-dilution)*pi[currentID][nextID] + deltaPi[currentID][nextID]*dilution;
+				}				
 				pheromomeAlreadySet = true;
 			}
-		}
-		for (int a=0; a<pi.length; a++) {
-			for (int b=0; b<pi[a].length; b++) {
-				pi[a][b] = (1-dilution)*pi[a][b] + deltaPi[a][b]*dilution;
-			}
-		}		
+		}			
 	}
 	
 	/*
