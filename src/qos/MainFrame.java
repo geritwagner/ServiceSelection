@@ -92,7 +92,6 @@ public class MainFrame extends JFrame {
 	private JTextField jTextFieldCostsWeight;
 	private JTextField jTextFieldResponseTimeWeight;
 	private JTextField jTextFieldAvailabilityWeight;
-	private JTextField jTextFieldPenaltyFactor;
 	private JTextField jTextFieldPopulationSize;
 	private JTextField jTextFieldElitismRate;
 	private JTextField jTextFieldCrossoverRate;
@@ -169,7 +168,6 @@ public class MainFrame extends JFrame {
 	private AlgorithmsVisualization algorithmVisualization;
 	
 	// Constants
-	private static final int DEFAULT_PENALTY_FACTOR = 10;
 	private static final int DEFAULT_START_POPULATION_SIZE = 100;
 	private static final int MAX_START_POPULATION_SIZE = 10000;
 	private static final int DEFAULT_ELITISM_RATE = 25;
@@ -1132,55 +1130,55 @@ public class MainFrame extends JFrame {
 		gblJPanelGeneticAlgorithmSettings.columnWeights = 
 			new double[]{0.3, 1.0, 1.0};
 		gblJPanelGeneticAlgorithmSettings.rowWeights = 
-			new double[]{0.2, 0.1, 0.2, 1.0, 1.0, 1.0,
+			new double[]{0.2, 0.1, 0.2, 1.0, 1.0,
 						 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 		jPanelGeneticAlgorithmSettings.setLayout(
 				gblJPanelGeneticAlgorithmSettings);
-
-		JLabel jLabelFitnessFunction = new JLabel("Fitness Function:");
-		GridBagConstraints gbcJLabelFitnessFunction = new GridBagConstraints();
-		gbcJLabelFitnessFunction.insets = new Insets(5, 5, 5, 5);
-		gbcJLabelFitnessFunction.gridheight = 3;
-		gbcJLabelFitnessFunction.anchor = GridBagConstraints.WEST;
-		gbcJLabelFitnessFunction.gridx = 0;
-		gbcJLabelFitnessFunction.gridy = 0;
-		jPanelGeneticAlgorithmSettings.add(
-				jLabelFitnessFunction, gbcJLabelFitnessFunction);
+		
+		Font fontBraceLeft = new Font("braceLeft", Font.PLAIN, 40);
+		Font fontFormula = new Font("formula", Font.ITALIC, 10);
 		
 		JPanel jPanelFitness = new JPanel();
 		GridBagLayout gblJPanelFitness = new GridBagLayout();
-		gblJPanelFitness.columnWeights = new double[] {1.0, 1.0, 1.0};
+		gblJPanelFitness.columnWeights = new double[] {1.0, 1.0, 1.0, 1.0};
 		gblJPanelFitness.rowWeights = new double[] {0.5, 0.5};
 		jPanelFitness.setLayout(gblJPanelFitness);
 		GridBagConstraints gbcJPanelFitness = new GridBagConstraints();
 		gbcJPanelFitness.anchor = GridBagConstraints.WEST;
-		gbcJPanelFitness.insets = new Insets(5, 10, 5, 5);
-		gbcJPanelFitness.gridwidth = 2;
-		gbcJPanelFitness.gridx = 1;
+		gbcJPanelFitness.insets = new Insets(5, 5, 5, 5);
+		gbcJPanelFitness.gridwidth = 3;
+		gbcJPanelFitness.gridx = 0;
 		gbcJPanelFitness.gridy = 0;
 		jPanelGeneticAlgorithmSettings.add(jPanelFitness, gbcJPanelFitness);
-
-		Font fontBraceLeft = new Font("braceLeft", Font.PLAIN, 40);
+		
+		JLabel jLabelFitnessFunction = new JLabel(
+				"<html><i>Fitness = </i></html>");
+		GridBagConstraints gbcJLabelFitnessFunction = new GridBagConstraints();
+		gbcJLabelFitnessFunction.insets = new Insets(5, 0, 8, 0);
+		gbcJLabelFitnessFunction.anchor = GridBagConstraints.WEST;
+		gbcJLabelFitnessFunction.gridx = 0;
+		gbcJLabelFitnessFunction.gridy = 0;
+		gbcJLabelFitnessFunction.gridheight = 2;
+		jPanelFitness.add(jLabelFitnessFunction, gbcJLabelFitnessFunction);
+//		jLabelFitnessFunction.setFont(fontFormula);
 		
 		jLabelFitnessBraceLeft = new JLabel("{");
 		GridBagConstraints gbcJLabelFitnessBraceLeft = 
 				new GridBagConstraints();
-		gbcJLabelFitnessBraceLeft.insets = new Insets(0, 0, 12, 10);
+		gbcJLabelFitnessBraceLeft.insets = new Insets(0, 0, 12, 5);
 		gbcJLabelFitnessBraceLeft.anchor = GridBagConstraints.WEST;
 		gbcJLabelFitnessBraceLeft.fill = GridBagConstraints.VERTICAL;
-		gbcJLabelFitnessBraceLeft.gridx = 0;
+		gbcJLabelFitnessBraceLeft.gridx = 1;
 		gbcJLabelFitnessBraceLeft.gridy = 0;
 		gbcJLabelFitnessBraceLeft.gridheight = 2;
 		jPanelFitness.add(jLabelFitnessBraceLeft, gbcJLabelFitnessBraceLeft);
 		jLabelFitnessBraceLeft.setFont(fontBraceLeft);
 		
-		Font fontFormula = new Font("formula", Font.ITALIC, 10);
-		
 		jLabelFitnessCaseOne = new JLabel("Utility + 1");
 		GridBagConstraints gbcJLabelUtilityCaseOne = new GridBagConstraints();
 		gbcJLabelUtilityCaseOne.insets = new Insets(10, 0, 0, 0);
-		gbcJLabelUtilityCaseOne.anchor = GridBagConstraints.CENTER;
-		gbcJLabelUtilityCaseOne.gridx = 1;
+		gbcJLabelUtilityCaseOne.anchor = GridBagConstraints.WEST;
+		gbcJLabelUtilityCaseOne.gridx = 2;
 		gbcJLabelUtilityCaseOne.gridy = 0;
 		jPanelFitness.add(jLabelFitnessCaseOne, gbcJLabelUtilityCaseOne);
 		jLabelFitnessCaseOne.setFont(fontFormula);
@@ -1189,9 +1187,9 @@ public class MainFrame extends JFrame {
 				new JLabel("if no constraints violated");
 		GridBagConstraints gbcJLabelUtilityCaseOneDescription = 
 				new GridBagConstraints();
-		gbcJLabelUtilityCaseOneDescription.insets = new Insets(10, 5, 5, 0);
-		gbcJLabelUtilityCaseOneDescription.anchor = GridBagConstraints.CENTER;
-		gbcJLabelUtilityCaseOneDescription.gridx = 2;
+		gbcJLabelUtilityCaseOneDescription.insets = new Insets(15, 5, 0, 0);
+		gbcJLabelUtilityCaseOneDescription.anchor = GridBagConstraints.WEST;
+		gbcJLabelUtilityCaseOneDescription.gridx = 3;
 		gbcJLabelUtilityCaseOneDescription.gridy = 0;
 		jPanelFitness.add(jLabelFitnessCaseOneDescription, 
 				gbcJLabelUtilityCaseOneDescription);
@@ -1202,7 +1200,7 @@ public class MainFrame extends JFrame {
 			new GridBagConstraints();
 		gbcJLabelUtilityCaseTwo.anchor = GridBagConstraints.WEST;
 		gbcJLabelUtilityCaseTwo.insets = new Insets(0, 0, 10, 0);
-		gbcJLabelUtilityCaseTwo.gridx = 1;
+		gbcJLabelUtilityCaseTwo.gridx = 2;
 		gbcJLabelUtilityCaseTwo.gridy = 1;
 		jPanelFitness.add(jLabelFitnessCaseTwo, gbcJLabelUtilityCaseTwo);
 		jLabelFitnessCaseTwo.setFont(fontFormula);
@@ -1210,71 +1208,13 @@ public class MainFrame extends JFrame {
 		jLabelFitnessCaseTwoDescription = new JLabel("otherwise");
 		GridBagConstraints gbcJLabelUtilityCaseTwoDescription = 
 				new GridBagConstraints();
-		gbcJLabelUtilityCaseTwoDescription.insets = new Insets(5, 10, 10, 0);
-		gbcJLabelUtilityCaseTwoDescription.anchor = GridBagConstraints.CENTER;
-		gbcJLabelUtilityCaseTwoDescription.gridx = 2;
+		gbcJLabelUtilityCaseTwoDescription.insets = new Insets(0, 5, 15, 0);
+		gbcJLabelUtilityCaseTwoDescription.anchor = GridBagConstraints.WEST;
+		gbcJLabelUtilityCaseTwoDescription.gridx = 3;
 		gbcJLabelUtilityCaseTwoDescription.gridy = 1;
 		jPanelFitness.add(jLabelFitnessCaseTwoDescription, 
 				gbcJLabelUtilityCaseTwoDescription);
 		jLabelFitnessCaseTwoDescription.setFont(fontFormula);
-		
-		
-
-		JLabel jLabelPenaltyFactor = new JLabel("Weight Penalty Factor:");
-		GridBagConstraints gbcJLabelPenaltyFactor = new GridBagConstraints();
-		gbcJLabelPenaltyFactor.anchor = GridBagConstraints.WEST;
-		gbcJLabelPenaltyFactor.insets = new Insets(5, 5, 5, 5);
-		gbcJLabelPenaltyFactor.gridx = 0;
-		gbcJLabelPenaltyFactor.gridy = 3;
-		jPanelGeneticAlgorithmSettings.add(
-				jLabelPenaltyFactor, gbcJLabelPenaltyFactor);
-		
-		JPanel jPanelPenaltyFactor = new JPanel();
-		GridBagLayout gblJPanelPenaltyFactor = new GridBagLayout();
-		gblJPanelPenaltyFactor.columnWeights = new double[] {1.0, 1.0};
-		gblJPanelPenaltyFactor.rowWeights = new double[] {1.0};
-		jPanelPenaltyFactor.setLayout(gblJPanelPenaltyFactor);
-		GridBagConstraints gbcJPanelPenaltyFactor = new GridBagConstraints();
-		gbcJPanelPenaltyFactor.anchor = GridBagConstraints.WEST;
-		gbcJPanelPenaltyFactor.gridwidth = 2;
-		gbcJPanelPenaltyFactor.gridx = 1;
-		gbcJPanelPenaltyFactor.gridy = 3;
-		jPanelGeneticAlgorithmSettings.add(
-				jPanelPenaltyFactor, gbcJPanelPenaltyFactor);
-
-		jTextFieldPenaltyFactor = new JTextField(
-				String.valueOf(DEFAULT_PENALTY_FACTOR));
-		jTextFieldPenaltyFactor.setColumns(3);
-		jTextFieldPenaltyFactor.setHorizontalAlignment(JTextField.RIGHT);
-		jTextFieldPenaltyFactor.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// TODO: Dass der Penalty Factor weniger als 100% sein muss, ist 
-				//		 evtl. nicht zwingend der Fall. Müsste man noch prüfen.
-				checkInputValue(jTextFieldPenaltyFactor, 100, 0, 
-						DEFAULT_PENALTY_FACTOR);
-			}
-		});
-		// TODO: Insert information!
-		jTextFieldPenaltyFactor.setToolTipText("<html>Weight of the " +
-				"Penalty Factor<br>Usually between x and y</html>");
-		GridBagConstraints gbcJTextFieldPenaltyFactor = 
-			new GridBagConstraints();
-		gbcJTextFieldPenaltyFactor.insets = new Insets(5, 10, 5, 5);
-		gbcJTextFieldPenaltyFactor.anchor = GridBagConstraints.EAST;
-		gbcJTextFieldPenaltyFactor.gridx = 0;
-		gbcJTextFieldPenaltyFactor.gridy = 0;
-		jPanelPenaltyFactor.add(
-				jTextFieldPenaltyFactor, gbcJTextFieldPenaltyFactor);
-
-		JLabel jLabelPercentagePenalty = new JLabel("%");
-		GridBagConstraints gbcJLabelPercentagePenalty = 
-				new GridBagConstraints();
-		gbcJLabelPercentagePenalty.insets = new Insets(5, 0, 5, 5);
-		gbcJLabelPercentagePenalty.anchor = GridBagConstraints.WEST;
-		gbcJLabelPercentagePenalty.gridx = 1;
-		gbcJLabelPercentagePenalty.gridy = 0;
-		jPanelPenaltyFactor.add(
-				jLabelPercentagePenalty, gbcJLabelPercentagePenalty);
 		
 		
 		
@@ -1318,7 +1258,7 @@ public class MainFrame extends JFrame {
 				"population<br>Usually about x% of the max Population</html>");
 		GridBagConstraints gbcJTextFieldPopulationSize = 
 				new GridBagConstraints();
-		gbcJTextFieldPopulationSize.insets = new Insets(5, 10, 5, 5);
+		gbcJTextFieldPopulationSize.insets = new Insets(5, 5, 5, 5);
 		gbcJTextFieldPopulationSize.anchor = GridBagConstraints.EAST;
 		gbcJTextFieldPopulationSize.gridx = 0;
 		gbcJTextFieldPopulationSize.gridy = 0;
@@ -1349,8 +1289,7 @@ public class MainFrame extends JFrame {
 		gblJPanelSelection.columnWeights = new double[] {1.0};
 		gblJPanelSelection.rowWeights = new double[] {1.0};
 		jPanelSelection.setLayout(gblJPanelSelection);
-		GridBagConstraints gbcJPanelSelection = 
-			new GridBagConstraints();
+		GridBagConstraints gbcJPanelSelection = new GridBagConstraints();
 		gbcJPanelSelection.anchor = GridBagConstraints.WEST;
 		gbcJPanelSelection.gridwidth = 2;
 		gbcJPanelSelection.gridx = 1;
@@ -1368,7 +1307,7 @@ public class MainFrame extends JFrame {
 				"Tournament Selection: z</html>");
 		GridBagConstraints gbcJComboBoxSelection = 
 			new GridBagConstraints();
-		gbcJComboBoxSelection.insets = new Insets(5, 10, 5, 5);
+		gbcJComboBoxSelection.insets = new Insets(5, 5, 5, 5);
 		gbcJComboBoxSelection.anchor = GridBagConstraints.EAST;
 		gbcJComboBoxSelection.gridx = 0;
 		gbcJComboBoxSelection.gridy = 0;
@@ -1382,8 +1321,7 @@ public class MainFrame extends JFrame {
 		gblJPanelElitismRate.columnWeights = new double[] {1.0};
 		gblJPanelElitismRate.rowWeights = new double[] {1.0};
 		jPanelElitismRate.setLayout(gblJPanelElitismRate);
-		GridBagConstraints gbcJPanelElitismRate = 
-			new GridBagConstraints();
+		GridBagConstraints gbcJPanelElitismRate = new GridBagConstraints();
 		gbcJPanelElitismRate.anchor = GridBagConstraints.WEST;
 		gbcJPanelElitismRate.gridwidth = 2;
 		gbcJPanelElitismRate.gridx = 1;
@@ -1404,7 +1342,7 @@ public class MainFrame extends JFrame {
 				"[Description for Elitism Rate]</html>");
 		GridBagConstraints gbcJCheckBoxElitismRate = new GridBagConstraints();
 		gbcJCheckBoxElitismRate.anchor = GridBagConstraints.WEST;
-		gbcJCheckBoxElitismRate.insets = new Insets(5, 10, 5, 0);
+		gbcJCheckBoxElitismRate.insets = new Insets(5, 5, 5, 0);
 		gbcJCheckBoxElitismRate.gridx = 0;
 		gbcJCheckBoxElitismRate.gridy = 0;
 		jPanelElitismRate.add(
@@ -1457,11 +1395,8 @@ public class MainFrame extends JFrame {
 		
 		JPanel jPanelCrossover = new JPanel();
 		GridBagLayout gblJPanelCrossover = new GridBagLayout();
-//		gblJPanelCrossover.columnWeights = new double[] {};
-//		gblJPanelCrossover.rowWeights = new double[] {};
 		jPanelCrossover.setLayout(gblJPanelCrossover);
-		GridBagConstraints gbcJPanelCrossover = 
-			new GridBagConstraints();
+		GridBagConstraints gbcJPanelCrossover = new GridBagConstraints();
 		gbcJPanelCrossover.anchor = GridBagConstraints.WEST;
 		gbcJPanelCrossover.gridwidth = 2;
 		gbcJPanelCrossover.gridx = 1;
@@ -1478,9 +1413,8 @@ public class MainFrame extends JFrame {
 		// TODO: Insert information!
 		jComboBoxCrossover.setToolTipText("<html>n-Point Crossover: x<br>" +
 				"Uniform Crossover: y</html>");
-		GridBagConstraints gbcJComboBoxCrossover = 
-			new GridBagConstraints();
-		gbcJComboBoxCrossover.insets = new Insets(5, 10, 5, 5);
+		GridBagConstraints gbcJComboBoxCrossover = new GridBagConstraints();
+		gbcJComboBoxCrossover.insets = new Insets(5, 5, 5, 5);
 		gbcJComboBoxCrossover.anchor = GridBagConstraints.WEST;
 		gbcJComboBoxCrossover.gridwidth = 3;
 		gbcJComboBoxCrossover.gridx = 0;
@@ -1489,10 +1423,9 @@ public class MainFrame extends JFrame {
 				gbcJComboBoxCrossover);
 		
 		JLabel jLabelCrossoverRate = new JLabel("Crossover Rate:");
-		GridBagConstraints gbcJLabelCrossoverRate = 
-				new GridBagConstraints();
+		GridBagConstraints gbcJLabelCrossoverRate = new GridBagConstraints();
 		gbcJLabelCrossoverRate.anchor = GridBagConstraints.WEST;
-		gbcJLabelCrossoverRate.insets = new Insets(5, 10, 5, 5);
+		gbcJLabelCrossoverRate.insets = new Insets(5, 5, 5, 5);
 		gbcJLabelCrossoverRate.gridx = 0;
 		gbcJLabelCrossoverRate.gridy = 1;
 		jPanelCrossover.add(
@@ -1514,7 +1447,7 @@ public class MainFrame extends JFrame {
 		jTextFieldCrossoverRate.setToolTipText("<html>Crossover Rate " +
 				"<br>Usually about x &plusmn 10%</html>");
 		GridBagConstraints gbcJTextFieldCrossoverRate = 
-			new GridBagConstraints();
+				new GridBagConstraints();
 		gbcJTextFieldCrossoverRate.insets = new Insets(5, 5, 5, 5);
 		gbcJTextFieldCrossoverRate.anchor = GridBagConstraints.WEST;
 		gbcJTextFieldCrossoverRate.gridx = 1;
@@ -1577,7 +1510,7 @@ public class MainFrame extends JFrame {
 				"<br>Usually about x &plusmn 10%</html>");
 		GridBagConstraints gbcJTextFieldMutationRate = 
 			new GridBagConstraints();
-		gbcJTextFieldMutationRate.insets = new Insets(5, 10, 5, 0);
+		gbcJTextFieldMutationRate.insets = new Insets(5, 5, 5, 0);
 		gbcJTextFieldMutationRate.anchor = GridBagConstraints.WEST;
 		gbcJTextFieldMutationRate.gridx = 0;
 		gbcJTextFieldMutationRate.gridy = 0;
@@ -1639,7 +1572,7 @@ public class MainFrame extends JFrame {
 				"Fitness Value Convergence: z<br></html>");
 		GridBagConstraints gbcJComboBoxTerminationCriterion = 
 			new GridBagConstraints();
-		gbcJComboBoxTerminationCriterion.insets = new Insets(5, 10, 5, 5);
+		gbcJComboBoxTerminationCriterion.insets = new Insets(5, 5, 5, 5);
 		gbcJComboBoxTerminationCriterion.anchor = GridBagConstraints.EAST;
 		gbcJComboBoxTerminationCriterion.gridx = 0;
 		gbcJComboBoxTerminationCriterion.gridy = 0;
@@ -1681,13 +1614,11 @@ public class MainFrame extends JFrame {
 				gbcJTextFieldTerminationCriterion);
 
 		JPanel jPanelTerminationDegree = new JPanel();
-		GridBagLayout gblJPanelTerminationDegree = 
-				new GridBagLayout();
+		GridBagLayout gblJPanelTerminationDegree = new GridBagLayout();
 		gblJPanelTerminationCriterion.columnWeights = 
 				new double[] {1.0, 0.1, 1.0};
 		gblJPanelTerminationCriterion.rowWeights = new double[] {1.0, 1.0};
-		jPanelTerminationDegree.setLayout(
-				gblJPanelTerminationDegree);
+		jPanelTerminationDegree.setLayout(gblJPanelTerminationDegree);
 		GridBagConstraints gbcJPanelTerminationDegree = 
 				new GridBagConstraints();
 		gbcJPanelTerminationDegree.gridwidth = 2;
@@ -1701,7 +1632,7 @@ public class MainFrame extends JFrame {
 		jLabelTerminationDegree.setVisible(false);
 		GridBagConstraints gbcJLabelTerminationDegree = 
 				new GridBagConstraints();
-		gbcJLabelTerminationDegree.insets = new Insets(5, 10, 5, 0);
+		gbcJLabelTerminationDegree.insets = new Insets(5, 5, 5, 0);
 		gbcJLabelTerminationDegree.anchor = GridBagConstraints.WEST;
 		gbcJLabelTerminationDegree.gridx = 0;
 		gbcJLabelTerminationDegree.gridy = 1;
@@ -1745,7 +1676,11 @@ public class MainFrame extends JFrame {
 					gbcJLabelTerminationDegreeClose);
 		
 		
+		
 		buildGeneticAlgorithmFitnessFunction();
+		
+		
+		
 		jProgressBarGeneticAlgorithm = new JProgressBar();
 		jProgressBarGeneticAlgorithm.setStringPainted(true);
 		GridBagConstraints gbcJProgressBarGeneticAlgorithm = 
@@ -2441,16 +2376,15 @@ public class MainFrame extends JFrame {
 			txtAntBeta.setText(values[4]);
 			txtAntDilution.setText(values[5]);
 			txtAntPi.setText(values[6]);
-			jTextFieldPenaltyFactor.setText(values[7]);
-			jTextFieldPopulationSize.setText(values[8]);
-			jComboBoxSelection.setSelectedItem(values[9]);
-			jTextFieldElitismRate.setText(values[10]);
-			jComboBoxCrossover.setSelectedItem(values[11]);
-			jTextFieldCrossoverRate.setText(values[12]);
-			jTextFieldMutationRate.setText(values[13]);
-			jComboBoxTerminationCriterion.setSelectedItem(values[14]);
-			jTextFieldTerminationCriterion.setText(values[15]);
-			jTextFieldTerminationDegree.setText(values[16]);
+			jTextFieldPopulationSize.setText(values[7]);
+			jComboBoxSelection.setSelectedItem(values[8]);
+			jTextFieldElitismRate.setText(values[9]);
+			jComboBoxCrossover.setSelectedItem(values[10]);
+			jTextFieldCrossoverRate.setText(values[11]);
+			jTextFieldMutationRate.setText(values[12]);
+			jComboBoxTerminationCriterion.setSelectedItem(values[13]);
+			jTextFieldTerminationCriterion.setText(values[14]);
+			jTextFieldTerminationDegree.setText(values[15]);
 			bufferedReader.close();
 		} catch (IOException e1) {			
 			e1.printStackTrace();
@@ -2473,8 +2407,7 @@ public class MainFrame extends JFrame {
 			bufferedWriter = new BufferedWriter(new FileWriter(file));				
 			String header = "txtAntVariant;txtAntIterations;txtAntAnts;txtAntAlpha;" +
 					"txtAntBeta;txtAntDilution;txtAntPi";
-			header += ";Penalty Factor;Population Size;" +
-					"Selection Method;" + 
+			header += ";Population Size;Selection Method;" + 
 					"Elitism Rate;Crossover Method;" +
 					"Crossover Rate;Mutation Rate;" +
 					"Termination Criterion;Termination Value;" +
@@ -2486,7 +2419,6 @@ public class MainFrame extends JFrame {
 			values += ";" + txtAntBeta.getText();
 			values += ";" + txtAntDilution.getText();
 			values += ";" + txtAntPi.getText();
-			values += ";" + jTextFieldPenaltyFactor.getText();
 			values += ";" + jTextFieldPopulationSize.getText();
 			values += ";" + jComboBoxSelection.getSelectedItem();
 			values += ";" + jTextFieldElitismRate.getText();
@@ -2814,7 +2746,6 @@ public class MainFrame extends JFrame {
 			}
 			geneticAlgorithm = new GeneticAlgorithm(
 					serviceClassesList, constraintsMap, 
-					Integer.parseInt(jTextFieldPenaltyFactor.getText()),
 					Integer.parseInt(jTextFieldPopulationSize.getText()), 
 					Integer.parseInt(jTextFieldTerminationCriterion.getText()),
 					(String) jComboBoxSelection.getSelectedItem(),
@@ -2942,15 +2873,24 @@ public class MainFrame extends JFrame {
 								get(0).getUtility();
 					}
 					if (jCheckboxGeneticAlgorithm.isSelected()) {
-						double geneticDelta = optimalUtility - 
-								geneticAlgorithm.getAlgorithmSolutionTiers().
-								get(0).getServiceCompositionList().get(0).
-								getUtility();
-						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_FOUR.
-								format(geneticDelta) + " (" + 
-								DECIMAL_FORMAT_TWO.format(Math.abs(
-										geneticDelta / optimalUtility * 100)) + 
-										"%)" , 4, 1);
+						if (geneticAlgorithm.getAlgorithmSolutionTiers().
+								size() > 0) {
+							double geneticDelta = optimalUtility - 
+									geneticAlgorithm.getAlgorithmSolutionTiers().
+									get(0).getServiceCompositionList().get(0).
+									getUtility();
+							jTableGeneralResults.setValueAt(
+									DECIMAL_FORMAT_FOUR.format(geneticDelta) + 
+									" (" + DECIMAL_FORMAT_TWO.format(Math.abs(
+											geneticDelta / 
+											optimalUtility * 100)) + 
+											"%)" , 4, 1);
+						}
+						else {
+							jTableGeneralResults.setValueAt(
+									"<html><b color=red>No Solution" +
+									"</b></html>", 4, 1);
+						}
 					}
 					if (jCheckBoxAntColonyOptimization.isSelected()) {
 						double antDelta = optimalUtility - antAlgorithm.
@@ -3542,7 +3482,6 @@ public class MainFrame extends JFrame {
 	private void chooseAlgorithm(String algorithm) {
 		if (algorithm.equals("genAlg")) {
 			if (!jCheckboxGeneticAlgorithm.isSelected()) {
-				jTextFieldPenaltyFactor.setEditable(false);
 				jTextFieldPopulationSize.setEditable(false);
 				jCheckBoxElitismRate.setEnabled(false);
 				jTextFieldElitismRate.setEditable(false);
@@ -3552,7 +3491,6 @@ public class MainFrame extends JFrame {
 				jComboBoxTerminationCriterion.setEnabled(false);
 			}
 			else {
-				jTextFieldPenaltyFactor.setEditable(true);
 				jTextFieldPopulationSize.setEditable(true);
 				jCheckBoxElitismRate.setEnabled(true);
 				jTextFieldElitismRate.setEditable(true);

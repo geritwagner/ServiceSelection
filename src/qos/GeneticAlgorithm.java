@@ -9,7 +9,6 @@ import java.util.Map;
 public class GeneticAlgorithm extends Algorithm {
 	private List<ServiceClass> serviceClassesList;
 	private Map<String, Constraint> constraintsMap;
-	private double penaltyFactor;
 	private int populationSize;
 	private int terminationCriterion;
 	private String selectionMethod;
@@ -26,21 +25,18 @@ public class GeneticAlgorithm extends Algorithm {
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
 	
-	private double dynamicPenalty = 1.0;
 	private int terminationCounter;
 	private int workPercentage = 0;
 	private long runtime = 0;
 	
 	public GeneticAlgorithm(List<ServiceClass> serviceClassesList, 
-			Map<String, Constraint> constraintsMap, 
-			int penaltyFactor, int populationSize, 
+			Map<String, Constraint> constraintsMap, int populationSize, 
 			int terminationCriterion, String selectionMethod, 
 			int elitismRate, String crossoverMethod,
 			int crossoverRate, int mutationRate,
 			String terminationMethod, int minEquality) {
 		this.serviceClassesList = serviceClassesList;
 		this.constraintsMap = constraintsMap;
-		this.penaltyFactor = penaltyFactor / 100.0;
 		this.populationSize = populationSize;
 		this.terminationCriterion = terminationCriterion;
 		this.selectionMethod = selectionMethod;
@@ -69,10 +65,11 @@ public class GeneticAlgorithm extends Algorithm {
 		List<Composition> population = generateInitialPopulation();
 		setVisualizationValues(population);
 		
+		int numberOfElites = (int) Math.round(
+				populationSize * elitismRate);
+		
 		while (terminationCounter > 0) {
 			// Temporarily save the elite compositions.
-			int numberOfElites = (int) Math.round(
-					populationSize * elitismRate);
 			List<Composition> elites = doSelectionElitismBased(
 					population, numberOfElites);
 		
@@ -127,8 +124,6 @@ public class GeneticAlgorithm extends Algorithm {
 			// TERMINATION CRITERION
 			// Number of Iterations
 			if (terminationMethod.contains("Iteration")) {
-				dynamicPenalty = 1 - (terminationCriterion - 
-						terminationCounter) / terminationCriterion;
 				terminationCounter--;
 				workPercentage = (int) ((1 - 1.0 * terminationCounter / 
 						terminationCriterion) * 100);
@@ -179,10 +174,13 @@ public class GeneticAlgorithm extends Algorithm {
 		System.out.println(population.get(0).getServiceCandidatesAsString());
 		System.out.println(population.get(0).getUtility());
 		System.out.println("--------------");
-		List<Composition> optimalComposition = new LinkedList<Composition>();
-		optimalComposition.add(population.get(0));
-		algorithmSolutionTiers.add(
-				new AlgorithmSolutionTier(optimalComposition, 1));
+		if (population.get(0).isWithinConstraints(constraintsMap)) {
+			List<Composition> optimalComposition = 
+					new LinkedList<Composition>();
+			optimalComposition.add(population.get(0));
+			algorithmSolutionTiers.add(
+					new AlgorithmSolutionTier(optimalComposition, 1));
+		}
 		runtime = System.currentTimeMillis() - runtime;		
 	}
 	
@@ -236,8 +234,6 @@ public class GeneticAlgorithm extends Algorithm {
 			
 			// TERMINATION CRITERION
 			// Number of Iterations
-			dynamicPenalty = 1 - (terminationCriterion - 
-					terminationCounter) / terminationCriterion;
 			terminationCounter--;
 			// Consecutive Equal Generations
 //			if (hasPopulationChanged) {
@@ -264,10 +260,13 @@ public class GeneticAlgorithm extends Algorithm {
 		Collections.sort(population, new FitnessComparator());
 		
 		// Print the best solution.
-		List<Composition> optimalComposition = new LinkedList<Composition>();
-		optimalComposition.add(population.get(0));
-		algorithmSolutionTiers.add(
-				new AlgorithmSolutionTier(optimalComposition, 1));
+		if (population.get(0).isWithinConstraints(constraintsMap)) {
+			List<Composition> optimalComposition = 
+					new LinkedList<Composition>();
+			optimalComposition.add(population.get(0));
+			algorithmSolutionTiers.add(
+					new AlgorithmSolutionTier(optimalComposition, 1));
+		}
 		runtime = System.currentTimeMillis() - runtime;		
 	}
 
@@ -653,7 +652,6 @@ public class GeneticAlgorithm extends Algorithm {
 		averageFitnessPerPopulation.add(averageFitness / population.size());
 	}
 	
-	// TODO: Literatur nach anderen Alternativen durchsuchen.
 	// Compute the distance of a composition's aggregated QoS attributes to 
 	// the given constraints.
 	private double computeDistanceToConstraints(Composition composition) {
@@ -661,30 +659,20 @@ public class GeneticAlgorithm extends Algorithm {
 		if (constraintsMap.get(Constraint.COSTS) != null &&  
 				composition.getQosVectorAggregated().getCosts() > 
 				constraintsMap.get(Constraint.COSTS).getValue()) {
-//			distance += ((composition.getQosVectorAggregated().getCosts() - 
-//					constraintsMap.get(Constraint.COSTS).getValue()) / 
-//					constraintsMap.get(Constraint.COSTS).getValue());
-			distance += 1.0;
+			distance += constraintsMap.get(
+					Constraint.COSTS).getWeight() / 100.0;
 		}
 		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null &&  
 				composition.getQosVectorAggregated().getResponseTime() > 
 				constraintsMap.get(Constraint.RESPONSE_TIME).getValue()) {
-//			distance += ((composition.getQosVectorAggregated().
-//					getResponseTime() - constraintsMap.get(
-//							Constraint.RESPONSE_TIME).getValue()) /
-//							constraintsMap.get(
-//									Constraint.RESPONSE_TIME).getValue());
-			distance += 1.0;
+			distance += constraintsMap.get(
+					Constraint.RESPONSE_TIME).getWeight() / 100.0;
 		}
 		if (constraintsMap.get(Constraint.AVAILABILITY) != null &&  
 				composition.getQosVectorAggregated().getAvailability() < 
 				constraintsMap.get(Constraint.AVAILABILITY).getValue()) {
-//			distance += ((constraintsMap.get(
-//					Constraint.AVAILABILITY).getValue() - 
-//					composition.getQosVectorAggregated().
-//					getAvailability()) / constraintsMap.get(
-//							Constraint.AVAILABILITY).getValue());
-			distance += 1.0;
+			distance += constraintsMap.get(
+					Constraint.AVAILABILITY).getWeight() / 100.0;
 		}
 		return distance;
 	}
@@ -695,11 +683,11 @@ public class GeneticAlgorithm extends Algorithm {
 		// Penalty factor has to be considered only if the composition 
 		// violates the constraints.
 		if (!composition.isWithinConstraints(constraintsMap)) {
-			fitness -= penaltyFactor * computeDistanceToConstraints(
-					composition) * dynamicPenalty;	
+			fitness -= (computeDistanceToConstraints(
+					composition) * fitness);	
 		}
-		if (fitness < 0.0) {
-			return 0.0;
+		else {
+			fitness += 1.0;
 		}
 		return fitness;
 	}
