@@ -55,7 +55,9 @@ public class AntAlgorithm extends Algorithm {
 		this.dilution = dilution;
 		
 		this.piMax = piInit;
-		this.piMin = 0.05;
+		double x = 1 / (double) this.serviceClassesList.size();
+		double pBest = Math.pow(0.05, x);		
+		this.piMin = (piMax*(1-pBest)) / ((this.serviceClassesList.size()/2-1)*pBest);		
 	}
 
 	public void start() {	
@@ -740,6 +742,7 @@ public class AntAlgorithm extends Algorithm {
 				} else if (pi[a][b] > piMax) {
 					pi[a][b] = piMax;
 				}
+				//System.out.println("pi["+a+"]["+b+"]: "+pi[a][b]);
 			}
 		}		
 	}

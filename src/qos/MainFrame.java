@@ -175,13 +175,13 @@ public class MainFrame extends JFrame {
 	private static final int DEFAULT_MUTATION_RATE = 1;
 	private static final int DEFAULT_TERMINATION_CRITERION = 100;
 	private static final int DEFAULT_DEGREE_OF_EQUALITY = 75;
-	private static final int DEFAULT_VARIANT = 4;
+	private static final int DEFAULT_VARIANT = 6;
 	private static final int DEFAULT_ITERATIONS = 100;
 	private static final int DEFAULT_ANTS = 10;
 	private static final double DEFAULT_ALPHA = 1;
 	private static final double DEFAULT_BETA = 1;
-	private static final double DEFAULT_DILUTION = 0.1;
-	private static final double DEFAULT_PIINIT = 0.5;
+	private static final double DEFAULT_DILUTION = 0.01;
+	private static final double DEFAULT_PIINIT = 1;
 	
 	// Formats
 	private static final DecimalFormat DECIMAL_FORMAT_TWO = 
