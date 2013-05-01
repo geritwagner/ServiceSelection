@@ -870,6 +870,12 @@ public class MainFrame extends JFrame {
 		gbc_separatorWeights.gridy = 5;
 		jPanelQosConstraints.add(separatorWeights, gbc_separatorWeights);
 		
+		// TODO: jSlider oder jSpinner einfügen, mit dem man die 
+		//		 Constraints-Härte einstellen kann. Die Positionen der 
+		//		 darüberliegenden Slider sollen sich natürlich automatisch 
+		//		 mit verschieben und auch die Werte in den textFields 
+		//		 sollten sich ändern.
+		
 		jCheckBoxBenchmarkMode = new JCheckBox("Benchmark Mode");
 		jCheckBoxBenchmarkMode.setToolTipText("<html>Select this checkbox " +
 				"to disable all additional features<br>" +
@@ -2627,7 +2633,13 @@ public class MainFrame extends JFrame {
 		textfield.setText(String.valueOf(slider.getValue()));
 		getUtilityFunction();
 	}
-	
+	// TODO: Constraints-Härte einbauen.
+	//		 - Vorschlag: Gao - 4. Simulation Analysis (Seite 5)
+	//		 - Bestimmung der Extremwerte wird zwar aufwändiger, aber mit dem 
+	//		   Ansatz von Gao sollte man auf der sicheren Seite sein.
+	//		 - Methode dann evtl. umbenennen? Es werden ja nicht nur die 
+	//		   Extremwerte gesetzt, sondern vor allem auch die Werte 
+	//		   für die Constraints.
 	private void setSliderExtremeValues() {
 		qosMax = determineQosMax();
 		qosMin = determineQosMin();
