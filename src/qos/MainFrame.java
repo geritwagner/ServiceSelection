@@ -92,6 +92,7 @@ public class MainFrame extends JFrame {
 	private JTextField jTextFieldCostsWeight;
 	private JTextField jTextFieldResponseTimeWeight;
 	private JTextField jTextFieldAvailabilityWeight;
+	private JTextField jTextFieldRelaxation;
 	private JTextField jTextFieldPopulationSize;
 	private JTextField jTextFieldElitismRate;
 	private JTextField jTextFieldCrossoverRate;
@@ -120,6 +121,7 @@ public class MainFrame extends JFrame {
 	private JSlider jSliderMaxCosts;
 	private JSlider jSliderMaxResponseTime;
 	private JSlider jSliderMinAvailability;
+	private JSlider jSliderRelaxation;
 	private JComboBox<String> jComboBoxCrossover;
 	private JComboBox<String> jComboBoxSelection;
 	private JComboBox<String> jComboBoxTerminationCriterion;
@@ -168,6 +170,7 @@ public class MainFrame extends JFrame {
 	private AlgorithmsVisualization algorithmVisualization;
 	
 	// Constants
+	private static final double DEFAULT_RELAXATION = 0.5;
 	private static final int DEFAULT_START_POPULATION_SIZE = 100;
 	private static final int MAX_START_POPULATION_SIZE = 10000;
 	private static final int DEFAULT_ELITISM_RATE = 25;
@@ -863,18 +866,58 @@ public class MainFrame extends JFrame {
 
 		JSeparator separatorWeights = new JSeparator();
 		GridBagConstraints gbc_separatorWeights = new GridBagConstraints();
-		gbc_separatorWeights.insets = new Insets(0, 0, 5, 5);
+		gbc_separatorWeights.insets = new Insets(0, 0, 0, 5);
 		gbc_separatorWeights.fill = GridBagConstraints.HORIZONTAL;
+		gbc_separatorWeights.anchor = GridBagConstraints.SOUTH;
 		gbc_separatorWeights.gridwidth = 2;
 		gbc_separatorWeights.gridx = 4;
 		gbc_separatorWeights.gridy = 5;
 		jPanelQosConstraints.add(separatorWeights, gbc_separatorWeights);
+		
+		JLabel jLabelRelaxation = new JLabel("Constraint Relaxation:");
+		GridBagConstraints gbcJLabelRelaxation = new GridBagConstraints();
+		gbcJLabelRelaxation.insets = new Insets(5, 5, 5, 0);
+		gbcJLabelRelaxation.gridx = 0;
+		gbcJLabelRelaxation.gridy = 5;
+		jPanelQosConstraints.add(jLabelRelaxation, gbcJLabelRelaxation);
+		
+		jSliderRelaxation = new JSlider();
+		jSliderRelaxation.setMinimum(0);
+		jSliderRelaxation.setMaximum(100);
+		jSliderRelaxation.setValue((int) (DEFAULT_RELAXATION * 100));
+		jSliderRelaxation.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				useRelaxationSlider();
+			}
+		});
+		GridBagConstraints gbcJSliderRelaxation = new GridBagConstraints();
+		gbcJSliderRelaxation.insets = new Insets(5, 0, 5, 5);
+		gbcJSliderRelaxation.fill = GridBagConstraints.BOTH;
+		gbcJSliderRelaxation.gridx = 1;
+		gbcJSliderRelaxation.gridy = 5;
+		jPanelQosConstraints.add(jSliderRelaxation, gbcJSliderRelaxation);
+		
+		jTextFieldRelaxation = new JTextField(
+				String.valueOf(DEFAULT_RELAXATION));
+		jTextFieldRelaxation.setHorizontalAlignment(JTextField.RIGHT);
+		jTextFieldRelaxation.setEditable(false);
+		GridBagConstraints gbcJTextFieldRelaxation = new GridBagConstraints();
+		gbcJTextFieldRelaxation.insets = new Insets(0, 0, 5, 5);
+		gbcJTextFieldRelaxation.fill = GridBagConstraints.HORIZONTAL;
+		gbcJTextFieldRelaxation.gridx = 2;
+		gbcJTextFieldRelaxation.gridy = 5;
+		jPanelQosConstraints.add(
+				jTextFieldRelaxation, gbcJTextFieldRelaxation);
 		
 		// TODO: jSlider oder jSpinner einfügen, mit dem man die 
 		//		 Constraints-Härte einstellen kann. Die Positionen der 
 		//		 darüberliegenden Slider sollen sich natürlich automatisch 
 		//		 mit verschieben und auch die Werte in den textFields 
 		//		 sollten sich ändern.
+		//	-> noch nicht umfassend getestet (muss noch gemacht werden)
+		
+		// TODO: Add Tooltip(?)
 		
 		jCheckBoxBenchmarkMode = new JCheckBox("Benchmark Mode");
 		jCheckBoxBenchmarkMode.setToolTipText("<html>Select this checkbox " +
@@ -883,7 +926,7 @@ public class MainFrame extends JFrame {
 		jCheckBoxBenchmarkMode.setSelected(false);
 		GridBagConstraints gbcJCheckBoxBenchmarkMode = 
 			new GridBagConstraints();
-		gbcJCheckBoxBenchmarkMode.insets = new Insets(0, 0, 5, 5);
+		gbcJCheckBoxBenchmarkMode.insets = new Insets(5, 0, 5, 5);
 		gbcJCheckBoxBenchmarkMode.gridx = 0;
 		gbcJCheckBoxBenchmarkMode.gridy = 6;
 		gbcJCheckBoxBenchmarkMode.anchor = GridBagConstraints.WEST;
@@ -2243,7 +2286,8 @@ public class MainFrame extends JFrame {
 							Double.parseDouble(constraintsWeights[1]))));
 			jTextFieldAvailabilityWeight.setText(String.valueOf(
 					(int) Math.ceil(
-							Double.parseDouble(constraintsWeights[2]))));			
+							Double.parseDouble(constraintsWeights[2]))));	
+			useRelaxationSlider();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (NullPointerException e) {
@@ -2296,6 +2340,7 @@ public class MainFrame extends JFrame {
 		serviceClassesList = servicesList;
 		
 		loadServiceData(true);
+		useRelaxationSlider();
 	}
 	
 	private void saveModelSetup() {
@@ -2633,6 +2678,23 @@ public class MainFrame extends JFrame {
 		textfield.setText(String.valueOf(slider.getValue()));
 		getUtilityFunction();
 	}
+	
+	// TODO: INSERT METHOD FOR RELAXATION SLIDER
+	private void useRelaxationSlider() {
+		jTextFieldRelaxation.setText(
+				String.valueOf(jSliderRelaxation.getValue() / 100.0));
+		jSliderMaxCosts.setValue(
+				(int) (jSliderRelaxation.getValue() / 100.0 * (
+						maxCosts - minCosts)) + minCosts);
+		jSliderMaxResponseTime.setValue(
+				(int) (jSliderRelaxation.getValue() / 100.0 * (
+						maxResponseTime - minResponseTime)) + minResponseTime);
+		jSliderMinAvailability.setValue(
+				(int) (jSliderRelaxation.getValue() / 100.0 * (
+						maxAvailability - minAvailability)) + minAvailability);
+	}
+	
+	
 	// TODO: Constraints-Härte einbauen.
 	//		 - Vorschlag: Gao - 4. Simulation Analysis (Seite 5)
 	//		 - Bestimmung der Extremwerte wird zwar aufwändiger, aber mit dem 
