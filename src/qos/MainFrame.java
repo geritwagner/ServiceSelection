@@ -365,7 +365,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void initializeMainContentPanel() {
-		// TODO: Find another title!
+		// TODO: Find another title.
 		setTitle("Service Selection");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 0, 1000, 850);
@@ -872,8 +872,8 @@ public class MainFrame extends JFrame {
 		
 		jCheckBoxBenchmarkMode = new JCheckBox("Benchmark Mode");
 		jCheckBoxBenchmarkMode.setToolTipText("<html>Select this checkbox " +
-				"to disable<br>all additional features.<br>" +
-				"(better runtime determination</html>)");
+				"to disable all additional features<br>" +
+				"(Needed for better runtime comparisons)</html>)");
 		jCheckBoxBenchmarkMode.setSelected(false);
 		GridBagConstraints gbcJCheckBoxBenchmarkMode = 
 			new GridBagConstraints();
@@ -1253,9 +1253,9 @@ public class MainFrame extends JFrame {
 						DEFAULT_START_POPULATION_SIZE);
 			}
 		});
-		// TODO: Insert information!
-		jTextFieldPopulationSize.setToolTipText("<html>Size of the start " +
-				"population<br>Usually about x% of the max Population</html>");
+		jTextFieldPopulationSize.setToolTipText("<html>Number of " +
+				"compositions in a generation<br>" +
+				"Typical value: 100</html>");
 		GridBagConstraints gbcJTextFieldPopulationSize = 
 				new GridBagConstraints();
 		gbcJTextFieldPopulationSize.insets = new Insets(5, 5, 5, 5);
@@ -1301,10 +1301,9 @@ public class MainFrame extends JFrame {
 		jComboBoxSelection.addItem("Roulette Wheel Selection");
 		jComboBoxSelection.addItem("Linear Ranking Selection");
 		jComboBoxSelection.addItem("Tournament Selection");
-		// TODO: Insert information!
-		jComboBoxSelection.setToolTipText("<html>Roulette Wheel Selection: x" +
-				"<br>Linear Ranking Selection: y<br>" +
-				"Tournament Selection: z</html>");
+		jComboBoxSelection.setToolTipText("<html>Method used to determine " +
+				"the mating pool,<br>i.e. the compositions used for " +
+				"crossover");
 		GridBagConstraints gbcJComboBoxSelection = 
 			new GridBagConstraints();
 		gbcJComboBoxSelection.insets = new Insets(5, 5, 5, 5);
@@ -1337,9 +1336,9 @@ public class MainFrame extends JFrame {
 				setElitismRateSelection();
 			}
 		});
-		// TODO: Insert information!
-		jCheckBoxElitismRate.setToolTipText("<html>" +
-				"[Description for Elitism Rate]</html>");
+		jCheckBoxElitismRate.setToolTipText("<html>If activated, the best " +
+				"compositions will<br>be preserved for the next " +
+				"generation</html>");
 		GridBagConstraints gbcJCheckBoxElitismRate = new GridBagConstraints();
 		gbcJCheckBoxElitismRate.anchor = GridBagConstraints.WEST;
 		gbcJCheckBoxElitismRate.insets = new Insets(5, 5, 5, 0);
@@ -1360,9 +1359,9 @@ public class MainFrame extends JFrame {
 						100, 1, DEFAULT_ELITISM_RATE);
 			}
 		});
-		// TODO: Insert information!
-		jTextFieldElitismRate.setToolTipText("<html>Elitism Rate<br>" +
-				"Usually about x%</html>");
+		jTextFieldElitismRate.setToolTipText("<html>Percentage of preserved " +
+				"compositions (relative to the population size)<br>" +
+				"Typical value: 1%</html>");
 		GridBagConstraints gbcJTextFieldElitismRate = 
 			new GridBagConstraints();
 		gbcJTextFieldElitismRate.insets = new Insets(5, 5, 5, 0);
@@ -1410,9 +1409,9 @@ public class MainFrame extends JFrame {
 		jComboBoxCrossover.addItem("Uniform Crossover");
 		jComboBoxCrossover.setPreferredSize(
 				jComboBoxSelection.getPreferredSize());
-		// TODO: Insert information!
-		jComboBoxCrossover.setToolTipText("<html>n-Point Crossover: x<br>" +
-				"Uniform Crossover: y</html>");
+		jComboBoxCrossover.setToolTipText("<html>Method used to create " +
+				"two child-compositions<br>out of two parent-compositions " +
+				"contained in<br>the mating pool</html>");
 		GridBagConstraints gbcJComboBoxCrossover = new GridBagConstraints();
 		gbcJComboBoxCrossover.insets = new Insets(5, 5, 5, 5);
 		gbcJComboBoxCrossover.anchor = GridBagConstraints.WEST;
@@ -1443,9 +1442,9 @@ public class MainFrame extends JFrame {
 						100, 0, DEFAULT_CROSSOVER_RATE);
 			}
 		});
-		// TODO: Insert information!
-		jTextFieldCrossoverRate.setToolTipText("<html>Crossover Rate " +
-				"<br>Usually about x &plusmn 10%</html>");
+		jTextFieldCrossoverRate.setToolTipText("<html>Probability for the " +
+				"crossover to actually happen " +
+				"<br>Typical value: 70-100%</html>");
 		GridBagConstraints gbcJTextFieldCrossoverRate = 
 				new GridBagConstraints();
 		gbcJTextFieldCrossoverRate.insets = new Insets(5, 5, 5, 5);
@@ -1505,9 +1504,9 @@ public class MainFrame extends JFrame {
 						1000, 0, DEFAULT_MUTATION_RATE);
 			}
 		});
-		// TODO: Insert information!
-		jTextFieldMutationRate.setToolTipText("<html>Mutation Rate " +
-				"<br>Usually about x &plusmn 10%</html>");
+		jTextFieldMutationRate.setToolTipText("<html>Probability for the " +
+				"mutation of a service candidate " +
+				"<br>Typical value: 1-10%</html>");
 		GridBagConstraints gbcJTextFieldMutationRate = 
 			new GridBagConstraints();
 		gbcJTextFieldMutationRate.insets = new Insets(5, 5, 5, 0);
@@ -1517,6 +1516,8 @@ public class MainFrame extends JFrame {
 		jPanelMutation.add(jTextFieldMutationRate, 
 				gbcJTextFieldMutationRate);
 		
+		// TODO: Mutation Rate auf % setzen. Typische Werte sind ja z.B. 
+		//		 0.01 oder 0.08, also 1% oder 8%.
 		JLabel jLabelMutationPromille = new JLabel("\u2030");
 		GridBagConstraints gbcJLabelMutationPromille = 
 				new GridBagConstraints();
@@ -1565,11 +1566,8 @@ public class MainFrame extends JFrame {
 				showExtendedTerminationCriterionSettings();
 			}
 		});
-		// TODO: Insert information!
-		jComboBoxTerminationCriterion.setToolTipText("<html>" +
-				"Number of Iterations: x<br>" +
-				"Consecutive Equal Generations: y<br>" +
-				"Fitness Value Convergence: z<br></html>");
+		jComboBoxTerminationCriterion.setToolTipText("<html>Criterion used " +
+				"to determine when the<br>algorithm should terminate</html>");
 		GridBagConstraints gbcJComboBoxTerminationCriterion = 
 			new GridBagConstraints();
 		gbcJComboBoxTerminationCriterion.insets = new Insets(5, 5, 5, 5);
@@ -1601,9 +1599,9 @@ public class MainFrame extends JFrame {
 						Integer.MAX_VALUE, 1, DEFAULT_TERMINATION_CRITERION);
 			}
 		});
-		// TODO: Insert information!
 		jTextFieldTerminationCriterion.setToolTipText("<html>Number of " +
-				"Iterations<br>Usually about x &plusmn 10%</html>");
+				"generations created by the algorithm<br>" +
+				"Typical value: 100-1000</html>");
 		GridBagConstraints gbcJTextFieldTerminationCriterion = 
 			new GridBagConstraints();
 		gbcJTextFieldTerminationCriterion.insets = new Insets(5, 5, 5, 0);
@@ -1650,10 +1648,10 @@ public class MainFrame extends JFrame {
 						DEFAULT_DEGREE_OF_EQUALITY);	
 			}
 		});
-		// TODO: Insert information!
+		// TODO: Find a typical value.
 		jTextFieldTerminationDegree.setToolTipText("<html>Degree to " +
-				"which the consecutive<br> generations have to be equal<br>" +
-				"(usually about x% &plusmn 10)</html>");
+				"which the consecutive<br>generations have to be equal<br>" +
+				"Typical value: 80-95%</html>");
 		jTextFieldTerminationDegree.setVisible(false);
 		GridBagConstraints gbcJTextFieldTerminationDegree = 
 				new GridBagConstraints();
@@ -2016,9 +2014,8 @@ public class MainFrame extends JFrame {
 		jScrollPaneAnalyticAlgorithm.setViewportView(jTableAnalyticAlgorithm);
 		
 		JLabel jLabelResultTiers = new JLabel("Number of Result Tiers:");
-		// TODO: Insert information!
-		jLabelResultTiers.setToolTipText("<html>Number of best solutions " +
-				"<br>which are represented</html>");
+		jLabelResultTiers.setToolTipText("<html>Number of best solutions" +
+				"<br>to be shown</html>");
 		GridBagConstraints gbcJLabelResultTiers = new GridBagConstraints();
 		gbcJLabelResultTiers.insets = new Insets(0, 5, 5, 5);
 		gbcJLabelResultTiers.anchor = GridBagConstraints.CENTER;
@@ -2464,11 +2461,11 @@ public class MainFrame extends JFrame {
 	private void showAboutDialog() {
 		JOptionPane.showMessageDialog(null, 
 				"<html><h1>Service Selection Tool</h1><br>" +
-				"<h2><i>Version 1.0 (24.04.13)</i></h2><br><br>" +
+				"<h2><i>Version 1.0 (01.05.2013)</i></h2><br><br>" +
 				"<h3>Developed by:</h3>" +
 				"<ul style=\"list-style-type: none;\">" +
-				"<li>Christian Richthammer</li>" +
 				"<li>Christian Deml</li>" +
+				"<li>Christian Richthammer</li>" +
 				"<li>Michael Mayer</li>" +
 				"<li>Gerit Wagner</li></ul></html>", 
 				"About", JOptionPane.INFORMATION_MESSAGE);
@@ -3035,24 +3032,25 @@ public class MainFrame extends JFrame {
 			jTextFieldTerminationDegree.setText(
 					String.valueOf(DEFAULT_DEGREE_OF_EQUALITY));
 			jTextFieldTerminationDegree.setVisible(true);
-			// TODO: Insert Information!
+			// TODO: Find a typical value.
 			jTextFieldTerminationCriterion.setToolTipText("<html>Number of " +
-			"consecutive equal generations<br>" +
-			"Usually about x &plusmn 5</html>");
+			"consecutive generations which contain<br>(almost) the same " +
+			"compositions<br>" +
+			"Typical value: 20</html>");
 		}
+		// TODO: Könnte man auch einfach mit "else if" und "else" machen oder?
 		else {
 			if (jComboBoxTerminationCriterion.getSelectedIndex() == 0) {
-				// TODO: Insert Information!
-				jTextFieldTerminationCriterion.setToolTipText(
-						"<html>Number of Iterations<br>" +
-						"Usually about x &plusmn 10%</html>");
+				jTextFieldTerminationCriterion.setToolTipText("<html>Number " +
+						"of generations created by the algorithm<br>" +
+						"Typical value: 100-1000</html>");
 			}
 			else {
-				// TODO: Insert Information!
+				// TODO: Find a typical value.
 				jTextFieldTerminationCriterion.setToolTipText(
-						"<html>Number of consecutive equal " +
-						"max fitness values<br>" +
-						"Usually about x &plusmn 5</html>");
+						"<html>Number of consecutive generations with the" +
+						"same maximal fitness value<br>" +
+						"Typical value: 20</html>");
 			}
 			jLabelTerminationDegree.setVisible(false);
 			jLabelTerminationDegreeClose.setVisible(false);

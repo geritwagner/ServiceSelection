@@ -137,16 +137,6 @@ public class Composition implements Comparator<Composition> {
 		return isWithinConstraints;
 	}
 	
-	// Returns the IDs of the compositions's service candidates.
-	public String getServiceCandidatesAsString() {
-		String serviceCandidates = "";
-		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
-			serviceCandidates = serviceCandidates + " " + 
-					serviceCandidate.getServiceCandidateId();
-		}
-		return serviceCandidates;
-	}
-	
 	// Compare two compositions by comparing the IDs of each of their 
 	// service candidates.
 	@Override

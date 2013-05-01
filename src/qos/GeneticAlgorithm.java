@@ -174,13 +174,6 @@ public class GeneticAlgorithm extends Algorithm {
 		// compositions. Thus, the first elements are the elite elements.
 		Collections.sort(population, new FitnessComparator());
 		
-		// Print the best solution. (Required only for testing!)
-//		System.out.println("--------------");
-//		System.out.println("BEST COMPOSITION:");
-//		System.out.println(population.get(0).getServiceCandidatesAsString());
-//		System.out.println(population.get(0).getUtility());
-//		System.out.println("--------------");
-		
 		// Show the best solution in the result table.
 		if (population.get(0).isWithinConstraints(constraintsMap)) {
 			List<Composition> optimalComposition = 
@@ -195,6 +188,7 @@ public class GeneticAlgorithm extends Algorithm {
 	
 	// TODO: Pretty much copy/paste; so if changes are made to 
 	//		 the start()-method, this method has to be updated!
+	// TODO: NOT UP-TO-DATE!!!
 	public void startInBenchmarkMode() {
 		terminationCounter = terminationCriterion;
 		
@@ -268,7 +262,7 @@ public class GeneticAlgorithm extends Algorithm {
 		// compositions. Thus, the first elements are the elite elements.
 		Collections.sort(population, new FitnessComparator());
 		
-		// Print the best solution.
+		// Show the best solution in the result table.
 		if (population.get(0).isWithinConstraints(constraintsMap)) {
 			List<Composition> optimalComposition = 
 					new LinkedList<Composition>();
@@ -276,6 +270,7 @@ public class GeneticAlgorithm extends Algorithm {
 			algorithmSolutionTiers.add(
 					new AlgorithmSolutionTier(optimalComposition, 1));
 		}
+		
 		runtime = System.currentTimeMillis() - runtime;		
 	}
 
