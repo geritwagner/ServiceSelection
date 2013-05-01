@@ -63,7 +63,7 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 		g.drawString("Generations", 565, 530);
 		g.setTransform(rotated);
 		g.drawString("Number of Different Compositions", -385, 20);
-		g.drawString("Fitness Value", -335, 420);
+		g.drawString("Fitness Value", -335, 415);
 		// Graph legend for chart to the right
 		g.setTransform(normal);
 		g.fillRect(650, 100, 100, 50);
@@ -82,7 +82,7 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 		g.setTransform(FLIP_X_COORDINATE);
 		// Drawing of the coordinate system
 				g.drawLine(50, 25, 350, 25);
-				g.drawLine(50, 25, 50, 415);
+				g.drawLine(50, 25, 50, 425);
 		// Dynamic determination of the length for one generation
 		// (x-axis)
 		// Height of the y-axis
@@ -93,12 +93,12 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 			if ((i / heightUnit) % 5 == 0) {
 				g.setTransform(FLIP_X_COORDINATE);
 				g.drawLine(53,25 + (int) Math.round(
-						(390.0 * i / lineHeight)), 
+						(400.0 * i / lineHeight)), 
 						47, 25 + (int) Math.round((
-								390.0 * i / lineHeight)));
+								400.0 * i / lineHeight)));
 				g.setTransform(normal);
-				g.drawString("" + i, 30, 497 - (int) Math.round(
-						(390.0 / lineHeight) * i));
+				g.drawString("" + i, 30, 494 - (int) Math.round(
+						(400.0 / lineHeight) * i));
 			}
 //			else {
 //				g.setTransform(FLIP_X_COORDINATE);
@@ -116,11 +116,11 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 				g.setColor(Color.RED);
 				g.drawLine(i /lineUnit * lineLength + 50, 
 						(int) Math.round(numberOfDifferentSolutions.get(i) * 
-								(390.0 / lineHeight)) + 25, (i /lineUnit + 1) * 
+								(400.0 / lineHeight)) + 25, (i /lineUnit + 1) * 
 								lineLength + 50, 
 								(int) Math.round(numberOfDifferentSolutions.
 										get(i + lineUnit) * 
-										(390.0 / lineHeight)) + 25);
+										(400.0 / lineHeight)) + 25);
 			}
 			
 			// Legend for x-axis
@@ -144,21 +144,24 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 		g.setTransform(FLIP_X_COORDINATE);
 		// Drawing of the coordinate system
 		g.drawLine(450, 25, 750, 25);
-		g.drawLine(450, 25, 450, 415);
+		g.drawLine(450, 25, 450, 425);
 
-		lineHeight = 39;
+		lineHeight = 20;
 		// Legend for y-axis
 		for (int i = 0; i < 10; i++) {
 			g.setTransform(FLIP_X_COORDINATE);
 			g.drawLine(452, 25 + lineHeight * i, 448, 25 + lineHeight * i);
+			g.drawLine(452, 25 + lineHeight * (i + 10), 
+					448, 25 + lineHeight * (i + 10));
 			g.setTransform(normal);
-			g.drawString("0." + i, 425, 497 - lineHeight * i);
+			g.drawString("0." + i, 425, 494 - lineHeight * i);
+			g.drawString("1." + i, 425, 494 - lineHeight * (i + 10));
 		}
 		// Manual insertion of the last index of the y-axis
 		g.setTransform(FLIP_X_COORDINATE);
-		g.drawLine(452, 25 + lineHeight * 10, 448, 25 + lineHeight * 10);
+		g.drawLine(452, 25 + lineHeight * 20, 448, 25 + lineHeight * 20);
 		g.setTransform(normal);
-		g.drawString("1.0", 425, 497 - lineHeight * 10);
+		g.drawString("2.0", 425, 494 - lineHeight * 20);
 
 		// // Manual insertion of the last index of the x-axis
 		g.setTransform(FLIP_X_COORDINATE);
