@@ -115,10 +115,16 @@ public class GeneticAlgorithm extends Algorithm {
 						hasPopulationChanged(population, matingPool);
 			}
 			
-			
+			// Update the population.
 			population.removeAll(population);
 			population.addAll(matingPool);
 			
+			// Update the fitness values.
+			for (Composition composition : population) {
+				composition.computeFitness(constraintsMap);
+			}
+			
+			// Save the values needed for visualization.
 			setVisualizationValues(population);
 			
 			// TERMINATION CRITERION
@@ -168,12 +174,14 @@ public class GeneticAlgorithm extends Algorithm {
 		// compositions. Thus, the first elements are the elite elements.
 		Collections.sort(population, new FitnessComparator());
 		
-		// Print the best solution.
-		System.out.println("--------------");
-		System.out.println("BEST COMPOSITION:");
-		System.out.println(population.get(0).getServiceCandidatesAsString());
-		System.out.println(population.get(0).getUtility());
-		System.out.println("--------------");
+		// Print the best solution. (Required only for testing!)
+//		System.out.println("--------------");
+//		System.out.println("BEST COMPOSITION:");
+//		System.out.println(population.get(0).getServiceCandidatesAsString());
+//		System.out.println(population.get(0).getUtility());
+//		System.out.println("--------------");
+		
+		// Show the best solution in the result table.
 		if (population.get(0).isWithinConstraints(constraintsMap)) {
 			List<Composition> optimalComposition = 
 					new LinkedList<Composition>();
@@ -181,6 +189,7 @@ public class GeneticAlgorithm extends Algorithm {
 			algorithmSolutionTiers.add(
 					new AlgorithmSolutionTier(optimalComposition, 1));
 		}
+		
 		runtime = System.currentTimeMillis() - runtime;		
 	}
 	
@@ -295,6 +304,9 @@ public class GeneticAlgorithm extends Algorithm {
 				i--;
 			}
 			else {
+				// Compute the composition's fitness value before adding it to 
+				// the population.
+				composition.computeFitness(constraintsMap);
 				population.add(composition);
 			}
 		}
@@ -360,7 +372,7 @@ public class GeneticAlgorithm extends Algorithm {
 		// Compute the cumulated fitness areas of every composition of the 
 		// population.
 		for (int i = 0; i < populationOld.size(); i++) {
-			fitnessAreas[i] = computeFitness(populationOld.get(i));
+			fitnessAreas[i] = populationOld.get(i).getFitness();
 			if (i != 0) {
 				fitnessAreas[i] += fitnessAreas[i - 1];
 			}
@@ -429,8 +441,8 @@ public class GeneticAlgorithm extends Algorithm {
 		// Pairwise comparison between two compositions. The opponents are 
 		// determined by the permutation created above.
 		for (int i = 0; i < populationOld.size(); i++) {
-			if (computeFitness(populationOld.get(i)) < 
-					computeFitness(populationOld.get(permutationIndices[i]))) {
+			if (populationOld.get(i).getFitness() < 
+					populationOld.get(permutationIndices[i]).getFitness()) {
 				matingPool.set(i, populationOld.get(permutationIndices[i]));
 			}
 		}
@@ -642,57 +654,14 @@ public class GeneticAlgorithm extends Algorithm {
 			if (!differentSolutions.contains(population.get(i))) {
 				differentSolutions.add(population.get(i));
 			}
-			if (computeFitness(population.get(i)) > maxFitness) {
-				maxFitness = computeFitness(population.get(i));
+			if (population.get(i).getFitness() > maxFitness) {
+				maxFitness = population.get(i).getFitness();
 			}
-			totalFitness += computeFitness(population.get(i));
+			totalFitness += population.get(i).getFitness();
 		}
 		numberOfDifferentSolutions.add(differentSolutions.size());
 		maxFitnessPerPopulation.add(maxFitness);
 		averageFitnessPerPopulation.add(totalFitness / population.size());
-	}
-	
-	// Compute the distance of a composition's aggregated QoS attributes to 
-	// the given constraints.
-	private double computeDistanceToConstraints(Composition composition) {
-		double distance = 0.0;
-		if (constraintsMap.get(Constraint.COSTS) != null &&  
-				composition.getQosVectorAggregated().getCosts() > 
-				constraintsMap.get(Constraint.COSTS).getValue()) {
-			distance += constraintsMap.get(
-					Constraint.COSTS).getWeight() / 100.0;
-		}
-		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null &&  
-				composition.getQosVectorAggregated().getResponseTime() > 
-				constraintsMap.get(Constraint.RESPONSE_TIME).getValue()) {
-			distance += constraintsMap.get(
-					Constraint.RESPONSE_TIME).getWeight() / 100.0;
-		}
-		if (constraintsMap.get(Constraint.AVAILABILITY) != null &&  
-				composition.getQosVectorAggregated().getAvailability() < 
-				constraintsMap.get(Constraint.AVAILABILITY).getValue()) {
-			distance += constraintsMap.get(
-					Constraint.AVAILABILITY).getWeight() / 100.0;
-		}
-		return distance;
-	}
-	
-	// Compute the fitness of a composition. The computation is based on the 
-	// approach of Ai et al. (2008) but differs from it in some details.
-	private double computeFitness(Composition composition) {
-		double fitness = composition.getUtility();
-		// If constraints are violated, use the second part of the formula.
-		// Fitness = Utility * (1 - Distance)
-		if (!composition.isWithinConstraints(constraintsMap)) {
-			fitness -= (computeDistanceToConstraints(
-					composition) * fitness);	
-		}
-		// If no constraints are violated, use the first part of the formula.
-		// Fitness = 1 + Utility
-		else {
-			fitness += 1.0;
-		}
-		return fitness;
 	}
 	
 	private int[] permuteIndices(int populationSize) {
@@ -772,10 +741,10 @@ public class GeneticAlgorithm extends Algorithm {
 	private class FitnessComparator implements Comparator<Composition> {
 		@Override
 		public int compare(Composition o1, Composition o2) {
-			if (computeFitness(o1) < computeFitness(o2)) {
+			if (o1.getFitness() < o2.getFitness()) {
 				return 1;
 			}
-			else if (computeFitness(o1) > computeFitness(o2)) {
+			else if (o1.getFitness() > o2.getFitness()) {
 				return -1;
 			}
 			else {

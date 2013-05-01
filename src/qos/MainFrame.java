@@ -2719,7 +2719,6 @@ public class MainFrame extends JFrame {
 	
 	private void pressStartButton() {
 		final Map<String, Constraint> constraintsMap = getChosenConstraints();
-		printChosenConstraintsToConsole(constraintsMap);
 		if (jCheckBoxBenchmarkMode.isSelected()) {
 			benchmarkMode = true;
 		}
@@ -3620,20 +3619,6 @@ public class MainFrame extends JFrame {
 			}
 		}
 		return min;
-	}
-	
-	private void printChosenConstraintsToConsole(
-			Map<String, Constraint> constraintsMap) {
-		System.out.println("CHOSEN CONSTRAINTS:\n--------------");
-		if (constraintsMap.get(Constraint.COSTS) != null) {
-			System.out.println(constraintsMap.get(Constraint.COSTS));
-		}
-		if (constraintsMap.get(Constraint.RESPONSE_TIME) != null) {
-			System.out.println(constraintsMap.get(Constraint.RESPONSE_TIME));
-		}
-		if (constraintsMap.get(Constraint.AVAILABILITY) != null) {
-			System.out.println(constraintsMap.get(Constraint.AVAILABILITY));
-		}
 	}
 	
 	private void checkOverwrite(File file, String customDescription) {
