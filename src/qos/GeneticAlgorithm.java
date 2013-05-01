@@ -637,7 +637,7 @@ public class GeneticAlgorithm extends Algorithm {
 	private void setVisualizationValues(List<Composition> population) {
 		List<Composition> differentSolutions = new LinkedList<Composition>();
 		double maxFitness = 0.0;
-		double averageFitness = 0.0;
+		double totalFitness = 0.0;
 		for (int i = 0; i < population.size(); i++) {
 			if (!differentSolutions.contains(population.get(i))) {
 				differentSolutions.add(population.get(i));
@@ -645,11 +645,11 @@ public class GeneticAlgorithm extends Algorithm {
 			if (computeFitness(population.get(i)) > maxFitness) {
 				maxFitness = computeFitness(population.get(i));
 			}
-			averageFitness += computeFitness(population.get(i));
+			totalFitness += computeFitness(population.get(i));
 		}
 		numberOfDifferentSolutions.add(differentSolutions.size());
 		maxFitnessPerPopulation.add(maxFitness);
-		averageFitnessPerPopulation.add(averageFitness / population.size());
+		averageFitnessPerPopulation.add(totalFitness / population.size());
 	}
 	
 	// Compute the distance of a composition's aggregated QoS attributes to 
@@ -677,15 +677,18 @@ public class GeneticAlgorithm extends Algorithm {
 		return distance;
 	}
 	
-	// Compute the fitness of a composition.
+	// Compute the fitness of a composition. The computation is based on the 
+	// approach of Ai et al. (2008) but differs from it in some details.
 	private double computeFitness(Composition composition) {
 		double fitness = composition.getUtility();
-		// Penalty factor has to be considered only if the composition 
-		// violates the constraints.
+		// If constraints are violated, use the second part of the formula.
+		// Fitness = Utility * (1 - Distance)
 		if (!composition.isWithinConstraints(constraintsMap)) {
 			fitness -= (computeDistanceToConstraints(
 					composition) * fitness);	
 		}
+		// If no constraints are violated, use the first part of the formula.
+		// Fitness = 1 + Utility
 		else {
 			fitness += 1.0;
 		}

@@ -26,8 +26,6 @@ public class Composition implements Comparator<Composition> {
 		this.utility = utility;
 	}
 	
-	// TODO: Funktion ist analog schon in der Klasse QosVector vorhanden. 
-	//		 Umstellung auf diese Variante vornehmen?
 	public void buildAggregatedQosVector() {
 		double costs = 0.0;
 		double responseTime = 0.0;
