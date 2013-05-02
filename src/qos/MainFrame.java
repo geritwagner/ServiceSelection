@@ -108,6 +108,7 @@ public class MainFrame extends JFrame {
 	private JCheckBox jCheckBoxMaxCosts;
 	private JCheckBox jCheckBoxMaxResponseTime;
 	private JCheckBox jCheckBoxMinAvailability;
+	private JCheckBox jCheckBoxRelaxation;
 	private JCheckBox jCheckBoxBenchmarkMode;
 	private JCheckBox jCheckboxGeneticAlgorithm;
 	private JCheckBox jCheckBoxAntColonyOptimization;
@@ -870,19 +871,27 @@ public class MainFrame extends JFrame {
 		jPanelQosConstraints.add(separatorWeights, gbc_separatorWeights);
 		
 		// TODO: Adjust Tooltip (?)
-		JLabel jLabelRelaxation = new JLabel("Constraint Relaxation:");
-		jLabelRelaxation.setToolTipText("<html>Use this slider to set " +
+		jCheckBoxRelaxation = new JCheckBox("Constraint Relaxation");
+		jCheckBoxRelaxation.setToolTipText("<html>Use this slider to set " +
 				"all constraints automatically</html>");
-		GridBagConstraints gbcJLabelRelaxation = new GridBagConstraints();
-		gbcJLabelRelaxation.insets = new Insets(5, 5, 5, 0);
-		gbcJLabelRelaxation.gridx = 0;
-		gbcJLabelRelaxation.gridy = 5;
-		jPanelQosConstraints.add(jLabelRelaxation, gbcJLabelRelaxation);
+		jCheckBoxRelaxation.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				checkRelaxationStatus();
+			}
+		});
+		GridBagConstraints gbcJCheckBoxRelaxation = new GridBagConstraints();
+		gbcJCheckBoxRelaxation.insets = new Insets(0, 0, 5, 5);
+		gbcJCheckBoxRelaxation.gridx = 0;
+		gbcJCheckBoxRelaxation.gridy = 5;
+		gbcJCheckBoxRelaxation.anchor = GridBagConstraints.WEST;
+		jPanelQosConstraints.add(jCheckBoxRelaxation, gbcJCheckBoxRelaxation);
 		
 		jSliderRelaxation = new JSlider();
 		jSliderRelaxation.setMinimum(0);
 		jSliderRelaxation.setMaximum(100);
 		jSliderRelaxation.setValue((int) (DEFAULT_RELAXATION * 100));
+		jSliderRelaxation.setEnabled(false);
 		jSliderRelaxation.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -896,8 +905,7 @@ public class MainFrame extends JFrame {
 		gbcJSliderRelaxation.gridy = 5;
 		jPanelQosConstraints.add(jSliderRelaxation, gbcJSliderRelaxation);
 		
-		jTextFieldRelaxation = new JTextField(
-				String.valueOf(DEFAULT_RELAXATION));
+		jTextFieldRelaxation = new JTextField("-");
 		jTextFieldRelaxation.setHorizontalAlignment(JTextField.RIGHT);
 		jTextFieldRelaxation.setEditable(false);
 		GridBagConstraints gbcJTextFieldRelaxation = new GridBagConstraints();
@@ -2275,7 +2283,7 @@ public class MainFrame extends JFrame {
 			jTextFieldAvailabilityWeight.setText(String.valueOf(
 					(int) Math.ceil(
 							Double.parseDouble(constraintsWeights[2]))));	
-			checkRelaxationSlider();
+			disableRelaxationSlider();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (NullPointerException e) {
@@ -2328,7 +2336,10 @@ public class MainFrame extends JFrame {
 		serviceClassesList = servicesList;
 		
 		loadServiceData(true);
-		useRelaxationSlider();
+		jCheckBoxRelaxation.setSelected(true);
+		jSliderRelaxation.setEnabled(true);
+		jSliderRelaxation.setValue((int) (DEFAULT_RELAXATION * 100));
+		jTextFieldRelaxation.setText(String.valueOf(DEFAULT_RELAXATION));
 	}
 	
 	private void saveModelSetup() {
@@ -2660,33 +2671,70 @@ public class MainFrame extends JFrame {
 			slider.setValue(Integer.parseInt(textField.getText()));
 		}
 		getUtilityFunction();
-		checkRelaxationSlider();
+		disableRelaxationSlider();
 	}
 	
 	private void useConstraintSlider(JTextField textfield, JSlider slider) {
 		textfield.setText(String.valueOf(slider.getValue()));
 		getUtilityFunction();
-		if (!slider.getValueIsAdjusting()) {
-			checkRelaxationSlider();
+		if (!jSliderRelaxation.getValueIsAdjusting() && (jSliderMaxCosts.
+				getValue() != (int) (Math.round(jSliderRelaxation.getValue() / 
+						100.0 * (maxCosts - minCosts)) + minCosts) || 
+						jSliderMaxResponseTime.getValue() != (int) (Math.round(
+								jSliderRelaxation.getValue() / 100.0 * (
+										maxResponseTime - minResponseTime)) + 
+										minResponseTime) || 
+										jSliderMinAvailability.
+										getValue() != (int) (Math.round(
+												jSliderRelaxation.
+												getValue() / 100.0 * (
+														minAvailability - 
+														maxAvailability)) + 
+														maxAvailability))) {
+			disableRelaxationSlider();
 		}
 	}
 	
 	private void useRelaxationSlider() {
 		jTextFieldRelaxation.setText(
 				String.valueOf(jSliderRelaxation.getValue() / 100.0));
-		jSliderMaxCosts.setValue(
-				(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
-						maxCosts - minCosts)) + minCosts));
-		jSliderMaxResponseTime.setValue(
-				(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
-						maxResponseTime - minResponseTime)) + 
-						minResponseTime));
-		jSliderMinAvailability.setValue(
-				(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
-						minAvailability - maxAvailability)) + 
-						maxAvailability));
+		if (jCheckBoxMaxCosts.isSelected()) {
+			jSliderMaxCosts.setValue(
+					(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
+							maxCosts - minCosts)) + minCosts));
+		}
+		if (jCheckBoxMaxResponseTime.isSelected()) {
+			jSliderMaxResponseTime.setValue(
+					(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
+							maxResponseTime - minResponseTime)) + 
+							minResponseTime));
+		}
+		if (jCheckBoxMinAvailability.isSelected()) {
+			jSliderMinAvailability.setValue(
+					(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
+							minAvailability - maxAvailability)) + 
+							maxAvailability));
+		}
 	}
 	
+	private void checkRelaxationStatus() {
+		if (jCheckBoxRelaxation.isSelected()) {
+			useRelaxationSlider();
+			jTextFieldRelaxation.setText(String.valueOf(DEFAULT_RELAXATION));
+			jSliderRelaxation.setEnabled(true);
+		}
+		else {
+			jSliderRelaxation.setEnabled(false);
+			jTextFieldRelaxation.setText("-");
+		}
+	}
+	
+	private void disableRelaxationSlider() {
+		jCheckBoxRelaxation.setSelected(false);
+		jSliderRelaxation.setEnabled(false);
+		jTextFieldRelaxation.setText("-");
+	}
+
 	// Set the extrem values of the constraint sliders. The values are 
 	// computed according to the approach of Gao et al., which can be found 
 	// under "4. Simulation Analysis" in their paper "Qos-aware Service 
@@ -3527,29 +3575,6 @@ public class MainFrame extends JFrame {
 			writeErrorLogEntry("Value has to be between " + minInput + 
 					" and " + maxInput);
 			textField.setText(String.valueOf(defaultInput));
-		}
-	}
-	
-	// TODO: Solve rounding problem
-	private void checkRelaxationSlider() {
-		if ((Math.round(100.0 * (jSliderMaxCosts.getValue() - minCosts) / 
-				(maxCosts - minCosts))) == Math.round(100.0 * (
-						jSliderMaxResponseTime.getValue() - minResponseTime) / 
-						(maxResponseTime - minResponseTime)) && Math.round(
-								100.0 * (jSliderMaxCosts.getValue() - 
-										minCosts) / (maxCosts - minCosts)) == 
-											Math.round(100.0 * (
-													jSliderMinAvailability.
-													getValue() - 
-													maxAvailability) / (
-															minAvailability - 
-															maxAvailability))) {
-			jSliderRelaxation.setValue((int) Math.round(100.0 * (
-					jSliderMaxCosts.getValue() - minCosts) / (
-							maxCosts - minCosts)));
-		}
-		else {
-			writeErrorLogEntry("Relaxation Slider cannot be adjusted");
 		}
 	}
 	
