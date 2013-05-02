@@ -2720,7 +2720,8 @@ public class MainFrame extends JFrame {
 	private void checkRelaxationStatus() {
 		if (jCheckBoxRelaxation.isSelected()) {
 			useRelaxationSlider();
-			jTextFieldRelaxation.setText(String.valueOf(DEFAULT_RELAXATION));
+			jTextFieldRelaxation.setText(String.valueOf(
+					jSliderRelaxation.getValue() / 100.0));
 			jSliderRelaxation.setEnabled(true);
 		}
 		else {
