@@ -9,8 +9,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-//import java.awt.event.MouseAdapter;
-//import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -78,7 +76,6 @@ public class MainFrame extends JFrame {
 	private JLabel jLabelFitnessCaseOneDescription;
 	private JLabel jLabelFitnessCaseTwo;
 	private JLabel jLabelFitnessCaseTwoDescription;
-//	private JLabel jLabelPopulationPercentage;
 	private JLabel jLabelElitismRatePercentage;
 	private JLabel jLabelTerminationColon;
 	private JLabel jLabelTerminationDegree;
@@ -162,8 +159,6 @@ public class MainFrame extends JFrame {
 	 */
 
 	// Class Objects
-	private QosVector qosMax;
-	private QosVector qosMin;
 	private GeneticAlgorithm geneticAlgorithm;
 	private AntAlgorithm antAlgorithm;
 	private AnalyticAlgorithm analyticAlgorithm;
@@ -918,6 +913,7 @@ public class MainFrame extends JFrame {
 		//	-> noch nicht umfassend getestet (muss noch gemacht werden)
 		
 		// TODO: Add Tooltip(?)
+		//		 -> Kann nicht schaden :)
 		
 		jCheckBoxBenchmarkMode = new JCheckBox("Benchmark Mode");
 		jCheckBoxBenchmarkMode.setToolTipText("<html>Select this checkbox " +
@@ -1565,8 +1561,6 @@ public class MainFrame extends JFrame {
 		jPanelMutation.add(jTextFieldMutationRate, 
 				gbcJTextFieldMutationRate);
 		
-		// TODO: Mutation Rate auf % setzen. Typische Werte sind ja z.B. 
-		//		 0.01 oder 0.08, also 1% oder 8%.
 		JLabel jLabelMutationPromille = new JLabel("\u2030");
 		GridBagConstraints gbcJLabelMutationPromille = 
 				new GridBagConstraints();
@@ -2679,65 +2673,57 @@ public class MainFrame extends JFrame {
 		getUtilityFunction();
 	}
 	
-	// TODO: INSERT METHOD FOR RELAXATION SLIDER
 	private void useRelaxationSlider() {
 		jTextFieldRelaxation.setText(
 				String.valueOf(jSliderRelaxation.getValue() / 100.0));
 		jSliderMaxCosts.setValue(
-				(int) (jSliderRelaxation.getValue() / 100.0 * (
-						maxCosts - minCosts)) + minCosts);
+				(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
+						maxCosts - minCosts)) + minCosts));
 		jSliderMaxResponseTime.setValue(
-				(int) (jSliderRelaxation.getValue() / 100.0 * (
-						maxResponseTime - minResponseTime)) + minResponseTime);
+				(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
+						maxResponseTime - minResponseTime)) + minResponseTime));
 		jSliderMinAvailability.setValue(
-				(int) (jSliderRelaxation.getValue() / 100.0 * (
-						maxAvailability - minAvailability)) + minAvailability);
+				(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
+						minAvailability - maxAvailability)) + maxAvailability));
 	}
 	
-	
-	// TODO: Constraints-Härte einbauen.
-	//		 - Vorschlag: Gao - 4. Simulation Analysis (Seite 5)
-	//		 - Bestimmung der Extremwerte wird zwar aufwändiger, aber mit dem 
-	//		   Ansatz von Gao sollte man auf der sicheren Seite sein.
-	//		 - Methode dann evtl. umbenennen? Es werden ja nicht nur die 
-	//		   Extremwerte gesetzt, sondern vor allem auch die Werte 
-	//		   für die Constraints.
+	// Set the extrem values of the constraint sliders. The values are 
+	// computed according to the approach of Gao et al., which can be found 
+	// under "4. Simulation Analysis" in their paper "Qos-aware Service 
+	// Composition based on Tree-Coded Genetic Algorithm".
 	private void setSliderExtremeValues() {
-		qosMax = determineQosMax();
-		qosMin = determineQosMin();
-		maxCosts = (int) Math.ceil(
-				qosMax.getCosts() * serviceClassesList.size());
-		minCosts = (int) Math.floor(
-				qosMin.getCosts() * serviceClassesList.size());
-		maxResponseTime = (int) Math.ceil(
-				qosMax.getResponseTime() * serviceClassesList.size());
+		QosVector qosMaxComposition = determineQosMaxComposition(
+				serviceClassesList);
+		QosVector qosMinComposition = determineQosMinComposition(
+				serviceClassesList);
+		maxCosts = (int) Math.ceil(qosMaxComposition.getCosts());
+		minCosts = (int) Math.floor(qosMinComposition.getCosts());
+		maxResponseTime = (int) Math.ceil(qosMaxComposition.getResponseTime());
 		minResponseTime = (int) Math.floor(
-				qosMin.getResponseTime() * serviceClassesList.size());
-		maxAvailability = (int) Math.ceil(Math.pow(
-				qosMax.getAvailability(), serviceClassesList.size()) * 100);
-		minAvailability = (int) Math.floor(Math.pow(
-				qosMin.getAvailability(), serviceClassesList.size()) * 100);
+				qosMinComposition.getResponseTime());
+		maxAvailability = (int) Math.ceil(
+				qosMaxComposition.getAvailability() * 100);
+		minAvailability = (int) Math.floor(
+				qosMinComposition.getAvailability() * 100);
 
 		jSliderMaxCosts.setMaximum(maxCosts);
-		jSliderMaxCosts.setValue(
-				(int) Math.round((maxCosts + minCosts) / 2.0));
 		jSliderMaxCosts.setMinimum(minCosts);
 		jTextFieldMaxCosts.setToolTipText("<html>Max. Costs<br>" +
 				"Margin: " + minCosts + " - " + maxCosts + "</html>");
 		jSliderMaxResponseTime.setMaximum(maxResponseTime);
-		jSliderMaxResponseTime.setValue(
-				(int) Math.round((maxResponseTime + minResponseTime) / 2.0));
 		jSliderMaxResponseTime.setMinimum(minResponseTime);
 		jTextFieldMaxResponseTime.setToolTipText(
 				"<html>Max. Response Time<br>" +"Margin: " + minResponseTime + 
 				" - " + maxResponseTime + "</html>");
 		jSliderMinAvailability.setMaximum(maxAvailability);
-		jSliderMinAvailability.setValue(
-				(int) Math.round((maxAvailability + minAvailability) / 2.0));
 		jSliderMinAvailability.setMinimum(minAvailability);
 		jTextFieldMinAvailability.setToolTipText(
 				"<html>Min. Availability<br>" +"Margin: " + minAvailability + 
 				" - " + maxAvailability + "</html>");
+		
+		// Set the values of the constraints according to the given 
+		// constraints relaxation.
+		useRelaxationSlider();
 	}
 	
 	private void changeWeight(JTextField textField) {
@@ -2800,9 +2786,13 @@ public class MainFrame extends JFrame {
 		algorithmInProgress = true;
 		
 		// Calculate the utility value for all service candidates.
+		QosVector qosMaxServiceCandidate = determineQosMaxServiceCandidate(
+				serviceCandidatesList);
+		QosVector qosMinServiceCandidate = determineQosMinServiceCandidate(
+				serviceCandidatesList);
 		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
-			serviceCandidate.determineUtilityValue(
-					constraintsMap, qosMax, qosMin);
+			serviceCandidate.determineUtilityValue(constraintsMap, 
+					qosMaxServiceCandidate, qosMinServiceCandidate);
 		}
 		jProgressBarGeneticAlgorithm.setValue(0);
 		jProgressBarAnalyticAlgorithm.setValue(0);
@@ -3112,7 +3102,6 @@ public class MainFrame extends JFrame {
 			"compositions<br>" +
 			"Typical value: 20</html>");
 		}
-		// TODO: Könnte man auch einfach mit "else if" und "else" machen oder?
 		else {
 			if (jComboBoxTerminationCriterion.getSelectedIndex() == 0) {
 				jTextFieldTerminationCriterion.setToolTipText("<html>Number " +
@@ -3659,9 +3648,13 @@ public class MainFrame extends JFrame {
 		return algorithmMap;
 	}
 	
-	private QosVector determineQosMax() {
+	// Determine the maximum value for each QoS attribute over all service 
+	// candidates given to the method.
+	// Note that "maximum" really means "maximum" and not "best".
+	private QosVector determineQosMaxServiceCandidate(
+			List<ServiceCandidate> serviceCandidates) {
 		QosVector max = new QosVector(0.0, 0.0, 0.0);
-		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+		for (ServiceCandidate serviceCandidate : serviceCandidates) {
 			QosVector qos = serviceCandidate.getQosVector();
 			if (qos.getCosts() > max.getCosts()) {
 				max.setCosts(qos.getCosts());
@@ -3676,9 +3669,13 @@ public class MainFrame extends JFrame {
 		return max;
 	}
 	
-	private QosVector determineQosMin() {
+	// Determine the minimum value for each QoS attribute over all service 
+	// candidates given to the method.
+	// Note that "minimum" really means "minimum" and not "worst".
+	private QosVector determineQosMinServiceCandidate(
+			List<ServiceCandidate> serviceCandidates) {
 		QosVector min = new QosVector(100000.0, 100000.0, 1.0);
-		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+		for (ServiceCandidate serviceCandidate : serviceCandidates) {
 			QosVector qos = serviceCandidate.getQosVector();
 			if (qos.getCosts() < min.getCosts()) {
 				min.setCosts(qos.getCosts());
@@ -3691,6 +3688,46 @@ public class MainFrame extends JFrame {
 			}
 		}
 		return min;
+	}
+	
+	// Determine the maximum value for each QoS attribute that can be obtained 
+	// by always selecting the maximum values of the service candidates of 
+	// each service class.
+	// Note that "maximum" really means "maximum" and not "best".
+	private QosVector determineQosMaxComposition(
+			List<ServiceClass> serviceClasses) {
+		double costs = 0.0;
+		double responseTime = 0.0;
+		double availability = 1.0;
+		QosVector maxServiceCandidate;
+		for (ServiceClass serviceClass : serviceClasses) {
+			maxServiceCandidate = determineQosMaxServiceCandidate(
+					serviceClass.getServiceCandidateList());
+			costs += maxServiceCandidate.getCosts();
+			responseTime += maxServiceCandidate.getResponseTime();
+			availability *= maxServiceCandidate.getAvailability();
+		}
+		return new QosVector(costs, responseTime, availability);
+	}
+	
+	// Determine the minimum value for each QoS attribute that can be obtained 
+	// by always selecting the minimum values of the service candidates of 
+	// each service class.
+	// Note that "minimum" really means "minimum" and not "worst".
+	private QosVector determineQosMinComposition(
+			List<ServiceClass> serviceClasses) {
+		double costs = 0.0;
+		double responseTime = 0.0;
+		double availability = 1.0;
+		QosVector minServiceCandidate;
+		for (ServiceClass serviceClass : serviceClasses) {
+			minServiceCandidate = determineQosMinServiceCandidate(
+					serviceClass.getServiceCandidateList());
+			costs += minServiceCandidate.getCosts();
+			responseTime += minServiceCandidate.getResponseTime();
+			availability *= minServiceCandidate.getAvailability();
+		}
+		return new QosVector(costs, responseTime, availability);
 	}
 	
 	private void checkOverwrite(File file, String customDescription) {

@@ -1,2 +1,0 @@
-txtAntIterations;txtAntAnts;txtAntAlpha;txtAntBeta;txtAntDilution;txtAntPi;jTextFieldPopulationSize;jTextFieldTerminationCriterion;jComboBoxSelection;jTextFieldElitismRate;jComboBoxCrossover;jTextFieldCrossoverRate;jTextFieldMutationRate;jComboBoxTerminationCriterion;jTextFieldTerminationDegree
-100;10;1.0;1.0;0.01;1.0;100;100;Roulette Wheel Selection;25;One-Point Crossover;70;1;Number of Iterations;75
