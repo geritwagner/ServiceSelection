@@ -869,7 +869,10 @@ public class MainFrame extends JFrame {
 		gbc_separatorWeights.gridy = 5;
 		jPanelQosConstraints.add(separatorWeights, gbc_separatorWeights);
 		
+		// TODO: Adjust Tooltip (?)
 		JLabel jLabelRelaxation = new JLabel("Constraint Relaxation:");
+		jLabelRelaxation.setToolTipText("<html>Use this slider to set " +
+				"all constraints automatically</html>");
 		GridBagConstraints gbcJLabelRelaxation = new GridBagConstraints();
 		gbcJLabelRelaxation.insets = new Insets(5, 5, 5, 0);
 		gbcJLabelRelaxation.gridx = 0;
@@ -904,16 +907,7 @@ public class MainFrame extends JFrame {
 		gbcJTextFieldRelaxation.gridy = 5;
 		jPanelQosConstraints.add(
 				jTextFieldRelaxation, gbcJTextFieldRelaxation);
-		
-		// TODO: jSlider oder jSpinner einfügen, mit dem man die 
-		//		 Constraints-Härte einstellen kann. Die Positionen der 
-		//		 darüberliegenden Slider sollen sich natürlich automatisch 
-		//		 mit verschieben und auch die Werte in den textFields 
-		//		 sollten sich ändern.
-		//	-> noch nicht umfassend getestet (muss noch gemacht werden)
-		
-		// TODO: Add Tooltip(?)
-		//		 -> Kann nicht schaden :)
+
 		
 		jCheckBoxBenchmarkMode = new JCheckBox("Benchmark Mode");
 		jCheckBoxBenchmarkMode.setToolTipText("<html>Select this checkbox " +
@@ -2281,7 +2275,7 @@ public class MainFrame extends JFrame {
 			jTextFieldAvailabilityWeight.setText(String.valueOf(
 					(int) Math.ceil(
 							Double.parseDouble(constraintsWeights[2]))));	
-			useRelaxationSlider();
+			checkRelaxationSlider();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (NullPointerException e) {
@@ -2666,11 +2660,15 @@ public class MainFrame extends JFrame {
 			slider.setValue(Integer.parseInt(textField.getText()));
 		}
 		getUtilityFunction();
+		checkRelaxationSlider();
 	}
 	
 	private void useConstraintSlider(JTextField textfield, JSlider slider) {
 		textfield.setText(String.valueOf(slider.getValue()));
 		getUtilityFunction();
+		if (!slider.getValueIsAdjusting()) {
+			checkRelaxationSlider();
+		}
 	}
 	
 	private void useRelaxationSlider() {
@@ -2681,10 +2679,12 @@ public class MainFrame extends JFrame {
 						maxCosts - minCosts)) + minCosts));
 		jSliderMaxResponseTime.setValue(
 				(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
-						maxResponseTime - minResponseTime)) + minResponseTime));
+						maxResponseTime - minResponseTime)) + 
+						minResponseTime));
 		jSliderMinAvailability.setValue(
 				(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
-						minAvailability - maxAvailability)) + maxAvailability));
+						minAvailability - maxAvailability)) + 
+						maxAvailability));
 	}
 	
 	// Set the extrem values of the constraint sliders. The values are 
@@ -3527,6 +3527,29 @@ public class MainFrame extends JFrame {
 			writeErrorLogEntry("Value has to be between " + minInput + 
 					" and " + maxInput);
 			textField.setText(String.valueOf(defaultInput));
+		}
+	}
+	
+	// TODO: Solve rounding problem
+	private void checkRelaxationSlider() {
+		if ((Math.round(100.0 * (jSliderMaxCosts.getValue() - minCosts) / 
+				(maxCosts - minCosts))) == Math.round(100.0 * (
+						jSliderMaxResponseTime.getValue() - minResponseTime) / 
+						(maxResponseTime - minResponseTime)) && Math.round(
+								100.0 * (jSliderMaxCosts.getValue() - 
+										minCosts) / (maxCosts - minCosts)) == 
+											Math.round(100.0 * (
+													jSliderMinAvailability.
+													getValue() - 
+													maxAvailability) / (
+															minAvailability - 
+															maxAvailability))) {
+			jSliderRelaxation.setValue((int) Math.round(100.0 * (
+					jSliderMaxCosts.getValue() - minCosts) / (
+							maxCosts - minCosts)));
+		}
+		else {
+			writeErrorLogEntry("Relaxation Slider cannot be adjusted");
 		}
 	}
 	
