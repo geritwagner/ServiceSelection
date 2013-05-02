@@ -603,7 +603,7 @@ public class MainFrame extends JFrame {
 		jCheckBoxMaxCosts = new JCheckBox("Max. Costs");
 		jCheckBoxMaxCosts.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				changeConstraintCheckboxStatus("Costs");
+				changeConstraintCheckboxStatus(jCheckBoxMaxCosts);
 			}
 		});
 		jCheckBoxMaxCosts.setSelected(true);
@@ -683,7 +683,7 @@ public class MainFrame extends JFrame {
 		jCheckBoxMaxResponseTime = new JCheckBox("Max. Response Time");
 		jCheckBoxMaxResponseTime.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				changeConstraintCheckboxStatus("Response Time");
+				changeConstraintCheckboxStatus(jCheckBoxMaxResponseTime);
 			}
 		});
 		jCheckBoxMaxResponseTime.setSelected(true);
@@ -776,7 +776,7 @@ public class MainFrame extends JFrame {
 		jCheckBoxMinAvailability = new JCheckBox("Min. Availability");
 		jCheckBoxMinAvailability.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				changeConstraintCheckboxStatus("Availability");
+				changeConstraintCheckboxStatus(jCheckBoxMinAvailability);
 			}
 		});
 		jCheckBoxMinAvailability.setSelected(true);
@@ -873,7 +873,10 @@ public class MainFrame extends JFrame {
 		// TODO: Adjust Tooltip (?)
 		jCheckBoxRelaxation = new JCheckBox("Constraint Relaxation");
 		jCheckBoxRelaxation.setToolTipText("<html>Use this slider to set " +
-				"all constraints automatically</html>");
+				"all constraints automatically<br>" +
+				"cons<sup>(i)</sup> = coeff<sub>relax</sub> * " +
+				"(max<sup>(i)</sup> - min<sup>(i)</sup>) + " +
+				"min<sup>(i)</sup></html>");
 		jCheckBoxRelaxation.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -2338,8 +2341,8 @@ public class MainFrame extends JFrame {
 		loadServiceData(true);
 		jCheckBoxRelaxation.setSelected(true);
 		jSliderRelaxation.setEnabled(true);
-		jSliderRelaxation.setValue((int) (DEFAULT_RELAXATION * 100));
-		jTextFieldRelaxation.setText(String.valueOf(DEFAULT_RELAXATION));
+		jTextFieldRelaxation.setText(String.valueOf(
+				jSliderRelaxation.getValue() / 100.0));
 	}
 	
 	private void saveModelSetup() {
@@ -2603,9 +2606,9 @@ public class MainFrame extends JFrame {
 	 * 	+-----------------------------------------------------------+
 	 */
 
-	private void changeConstraintCheckboxStatus(String constraint) {
+	private void changeConstraintCheckboxStatus(JCheckBox checkBox) {
 		int lblWeights;
-		if (constraint.equals("Costs")) {
+		if (checkBox == jCheckBoxMaxCosts) {
 			jSliderMaxCosts.setEnabled(jCheckBoxMaxCosts.isSelected());
 			jTextFieldMaxCosts.setEditable(jCheckBoxMaxCosts.isSelected());
 			lblWeights = 
@@ -2616,7 +2619,7 @@ public class MainFrame extends JFrame {
 			jTextFieldCostsWeight.setEditable(jCheckBoxMaxCosts.isSelected());
 			changeWeight(jTextFieldCostsWeight);
 		}
-		else if (constraint.equals("Response Time")) {
+		else if (checkBox == jCheckBoxMaxResponseTime) {
 			jSliderMaxResponseTime.setEnabled(
 					jCheckBoxMaxResponseTime.isSelected());
 			jTextFieldMaxResponseTime.setEditable(
@@ -2631,7 +2634,7 @@ public class MainFrame extends JFrame {
 					jCheckBoxMaxResponseTime.isSelected());
 			changeWeight(jTextFieldResponseTimeWeight);
 		}
-		else if (constraint.equals("Availability")) {
+		else if (checkBox == jCheckBoxMinAvailability) {
 			jSliderMinAvailability.setEnabled(
 					jCheckBoxMinAvailability.isSelected());
 			jTextFieldMinAvailability.setEditable(
@@ -2648,6 +2651,9 @@ public class MainFrame extends JFrame {
 		}
 		getUtilityFunction();
 		buildGeneticAlgorithmFitnessFunction();
+		if (checkBox.isSelected()) {
+			disableRelaxationSlider();
+		}
 	}
 	
 	private void setConstraintValueManually(
