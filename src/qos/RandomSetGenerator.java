@@ -10,8 +10,8 @@ public class RandomSetGenerator {
 	private static final double CORRELATION_COST_AVAILABILITY = 0.8;
 	private static final double CORRELATION_TIME_AVAILABILITY = 0.2;
 	
-	// TODO: Set realistic extreme values for qos attributes. Especially
-	//		 MIN_AVAILABILITY has to be discussed.
+	// TODO: Set realistic extreme values for qos attributes. 
+	//		 Especially MIN_AVAILABILITY has to be discussed.
 	private static final double MIN_COST = 0.0;
 	private static final double MAX_COST = 100.0;
 	private static final double MIN_TIME = 0.0;

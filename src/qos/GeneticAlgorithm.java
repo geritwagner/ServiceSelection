@@ -7,27 +7,31 @@ import java.util.List;
 import java.util.Map;
 
 public class GeneticAlgorithm extends Algorithm {
-	private List<ServiceClass> serviceClassesList;
-	private Map<String, Constraint> constraintsMap;
+	
 	private int populationSize;
 	private int terminationCriterion;
-	private String selectionMethod;
+	private int terminationCounter;
+	private int workPercentage = 0;
+	
+	private long runtime = 0;
+
 	private double elitismRate;
-	private String crossoverMethod;
 	private double crossoverRate;
 	private double mutationRate;
-	private String terminationMethod;
 	private double minEquality;
+
+	private String selectionMethod;
+	private String crossoverMethod;
+	private String terminationMethod;
 	
 	private List<Integer> numberOfDifferentSolutions;
 	private List<Double> maxFitnessPerPopulation;
 	private List<Double> averageFitnessPerPopulation;
+	private List<ServiceClass> serviceClassesList;
 	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
 	
-	private int terminationCounter;
-	private int workPercentage = 0;
-	private long runtime = 0;
+	private Map<String, Constraint> constraintsMap;
 	
 	public GeneticAlgorithm(List<ServiceClass> serviceClassesList, 
 			Map<String, Constraint> constraintsMap, int populationSize, 
@@ -171,7 +175,8 @@ public class GeneticAlgorithm extends Algorithm {
 		}
 		
 		// Sort the population according to the fitness of the 
-		// compositions. Thus, the first elements are the elite elements.
+		// compositions. Thus, the first elements are the elite 
+		// elements.
 		Collections.sort(population, new FitnessComparator());
 		
 		// Show the best solution in the result table.
@@ -281,15 +286,16 @@ public class GeneticAlgorithm extends Algorithm {
 		// Loop to construct the requested number of compositions.
 		for (int i = 0; i < populationSize; i++) {
 			Composition composition = new Composition();
-			// Loop to randomly select a service candidate for each service 
-			// class.
+			// Loop to randomly select a service candidate for each 
+			// service class.
 			for (int j = 0; j < serviceClassesList.size(); j++) {
-				// Generate a random number between 0 and the number of 
-				// service candidates in this service class.
+				// Generate a random number between 0 and the number 
+				// of service candidates in this service class.
 				int random = (int) (Math.random() * serviceClassesList.get(
 						j).getServiceCandidateList().size());
-				// Select the corresponding service candidate and add it to the 
-				// new composition. QoS values are aggregated automatically.
+				// Select the corresponding service candidate 
+				// and add it to the new composition.
+				// QoS values are aggregated automatically.
 				ServiceCandidate serviceCandidate = serviceClassesList.get(
 						j).getServiceCandidateList().get((random));
 				composition.addServiceCandidate(serviceCandidate);
@@ -299,8 +305,8 @@ public class GeneticAlgorithm extends Algorithm {
 				i--;
 			}
 			else {
-				// Compute the composition's fitness value before adding it to 
-				// the population.
+				// Compute the composition's fitness value 
+				// before adding it to the population.
 				composition.computeFitness(constraintsMap);
 				population.add(composition);
 			}
@@ -308,11 +314,38 @@ public class GeneticAlgorithm extends Algorithm {
 		return population;
 	}
 	
+	
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |			      ELITE PRESERVATION METHODS			  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
+	
+	private List<Composition> doElitePreservation(
+			List<Composition> matingPool, List<Composition> elites) {
+		Collections.sort(matingPool, new FitnessComparator());
+		// Remove the worst compositions by using the other part 
+		// of the population.
+		matingPool = matingPool.subList(0, matingPool.size() - elites.size());
+		// Add the elite compositions to the beginning of the list. 
+		// Note that they are not necessarily the elite compositions 
+		// in the new population. 
+		// So they might also be added at the end.
+		matingPool.addAll(0, elites);
+		
+		return matingPool;
+	}
+	
 	private List<Composition> doSelectionElitismBased(
 			List<Composition> population, int numberOfElites) {
 		List<Composition> elites = new LinkedList<Composition>();
 		// Sort the population according to the fitness of the 
-		// compositions. Thus, the first elements are the elite elements.
+		// compositions. Thus, the first elements are the elite 
+		// elements.
 		Collections.sort(population, new FitnessComparator());
 		for (int i = 0; i < numberOfElites; i++) {
 			elites.add(population.get(i));
@@ -320,52 +353,23 @@ public class GeneticAlgorithm extends Algorithm {
 		return elites;
 	}
 	
-	private void doMutation(List<Composition> population, 
-			double mutationRate) {
-		for (int i = 0; i < population.size(); i++) {
-			List<ServiceCandidate> serviceCandidates = 
-					population.get(i).getServiceCandidatesList();
-			
-			for (int j = 0; j < serviceCandidates.size(); j++) {
-				if (Math.random() < mutationRate) {
-					ServiceCandidate oldServiceCandidate = 
-							serviceCandidates.get(j);
-					// Get the service candidates from the service class 
-					// that has to be mutated. "-1" is necessary because 
-					// the IDs start with 1 instead of 0!
-					List<ServiceCandidate> newServiceCandidates = 
-							serviceClassesList.get(oldServiceCandidate.
-									getServiceClassId() - 1).
-									getServiceCandidateList();
-					serviceCandidates.set(j, newServiceCandidates.get((int) 
-							(Math.random() * newServiceCandidates.size())));
-					population.get(i).buildAggregatedQosVector();
-					population.get(i).computeUtilityValue();
-				}
-			}
-		}
-	}
 	
-	private List<Composition> doElitePreservation(
-			List<Composition> matingPool, List<Composition> elites) {
-		Collections.sort(matingPool, new FitnessComparator());
-		// Remove the worst compositions by using the other part of the 
-		// population.
-		matingPool = matingPool.subList(0, matingPool.size() - elites.size());
-		// Add the elite compositions to the beginning of the list. Note that 
-		// they are not necessarily the elite compositions in the new 
-		// population. So they might also be added at the end.
-		matingPool.addAll(0, elites);
-		
-		return matingPool;
-	}
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				     SELECTION METHODS					  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
 	
 	private List<Composition> doSelectionRouletteWheel(
 			List<Composition> populationOld) {
 		double[] fitnessAreas = new double[populationOld.size()];
 		List<Composition> matingPool = new LinkedList<Composition>();
-		// Compute the cumulated fitness areas of every composition of the 
-		// population.
+		// Compute the cumulated fitness areas of every composition 
+		// of the population.
 		for (int i = 0; i < populationOld.size(); i++) {
 			fitnessAreas[i] = populationOld.get(i).getFitness();
 			if (i != 0) {
@@ -374,8 +378,8 @@ public class GeneticAlgorithm extends Algorithm {
 		}
 		// Save the fitnessAreaSum.
 		double fitnessAreaSum = fitnessAreas[populationOld.size() - 1];
-		// Randomly select the compositions of the new population with 
-		// respect to their fitness values.
+		// Randomly select the compositions of the new population 
+		// with respect to their fitness values.
 		for (int i = 0; i < populationOld.size(); i++) {
 			double random = Math.random() * fitnessAreaSum;
 			for (int j = 0; j < populationOld.size(); j++) {
@@ -433,8 +437,9 @@ public class GeneticAlgorithm extends Algorithm {
 			new LinkedList<Composition>(populationOld);
 		// Permute the indices of the population.
 		int[] permutationIndices = permuteIndices(populationOld.size());
-		// Pairwise comparison between two compositions. The opponents are 
-		// determined by the permutation created above.
+		// Pairwise comparison between two compositions. 
+		// The opponents are determined by the permutation 
+		// created above.
 		for (int i = 0; i < populationOld.size(); i++) {
 			if (populationOld.get(i).getFitness() < 
 					populationOld.get(permutationIndices[i]).getFitness()) {
@@ -444,11 +449,60 @@ public class GeneticAlgorithm extends Algorithm {
 		return matingPool;
 	}
 	
+	
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				       MUTATION METHOD					  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
+	
+	private void doMutation(List<Composition> population, 
+			double mutationRate) {
+		for (int i = 0; i < population.size(); i++) {
+			List<ServiceCandidate> serviceCandidates = 
+					population.get(i).getServiceCandidatesList();
+			
+			for (int j = 0; j < serviceCandidates.size(); j++) {
+				if (Math.random() < mutationRate) {
+					ServiceCandidate oldServiceCandidate = 
+							serviceCandidates.get(j);
+					// Get the service candidates from the service 
+					// class that has to be mutated. "-1" is 
+					// necessary because the IDs start 
+					// with 1 instead of 0!
+					List<ServiceCandidate> newServiceCandidates = 
+							serviceClassesList.get(oldServiceCandidate.
+									getServiceClassId() - 1).
+									getServiceCandidateList();
+					serviceCandidates.set(j, newServiceCandidates.get((int) 
+							(Math.random() * newServiceCandidates.size())));
+					population.get(i).buildAggregatedQosVector();
+					population.get(i).computeUtilityValue();
+				}
+			}
+		}
+	}
+	
+
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				     CROSSOVER METHODS					  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
+	
 	private List<Composition> doCrossoverOnePoint(
 			List<Composition> matingPool, double crossoverRate) {
 		List<Composition> populationNew = new LinkedList<Composition>();
-		// If there is only one composition left in the mating pool, simply 
-		// add it to the new population.
+		// If there is only one composition left in the mating pool, 
+		// simply add it to the new population.
 		while (matingPool.size() > 0) {
 			if (matingPool.size() == 1) {
 				populationNew.add(matingPool.get(0));
@@ -461,12 +515,13 @@ public class GeneticAlgorithm extends Algorithm {
 					(int) (Math.random() * matingPool.size()));
 
 			if (Math.random() < crossoverRate) {
-				// Randomly select the crossover point. 0 is excluded from the 
-				// different possibilities because the resulting composition 
-				// would be exactly the same as the first input composition. 
-				// The last crossover point that is possible is included, 
-				// however, because then, at least the last service candidate 
-				// is changed. This is because of the definition of 
+				// Randomly select the crossover point. 0 is excluded 
+				// from the different possibilities because the 
+				// resulting composition would be exactly the same as 
+				// the first input composition. The last crossover
+				// point that is possible is included, however,
+				// because then, at least the last service candidate 
+				// is changed. This is because of the definition of
 				// List.subList().
 				int crossoverPoint = (int) (Math.random() * 
 						(serviceClassesList.size() - 1) + 1);
@@ -508,8 +563,8 @@ public class GeneticAlgorithm extends Algorithm {
 	private List<Composition> doCrossoverTwoPoint(
 			List<Composition> matingPool, double crossoverRate) {
 		List<Composition> populationNew = new LinkedList<Composition>();
-		// If there is only one composition left in the mating pool, simply 
-		// add it to the new population.
+		// If there is only one composition left in the mating pool, 
+		// simply add it to the new population.
 		while (matingPool.size() > 0) {
 			if (matingPool.size() == 1) {
 				populationNew.add(matingPool.get(0));
@@ -577,8 +632,8 @@ public class GeneticAlgorithm extends Algorithm {
 	private List<Composition> doCrossoverUniform(
 			List<Composition> matingPool, double crossoverRate) {
 		List<Composition> populationNew = new LinkedList<Composition>();
-		// If there is only one composition left in the mating pool, simply 
-		// add it to the new population.
+		// If there is only one composition left in the mating pool, 
+		// simply add it to the new population.
 		while (matingPool.size() > 0) {
 			if (matingPool.size() == 1) {
 				populationNew.add(matingPool.get(0));
@@ -597,15 +652,19 @@ public class GeneticAlgorithm extends Algorithm {
 						compositionA.getServiceCandidatesList().size(); i++) {
 					if (Math.random() < 0.5) {
 						compositionC.addServiceCandidate(
-								compositionA.getServiceCandidatesList().get(i));
+								compositionA.getServiceCandidatesList().
+								get(i));
 						compositionD.addServiceCandidate(
-								compositionB.getServiceCandidatesList().get(i));
+								compositionB.getServiceCandidatesList().
+								get(i));
 					}
 					else {
 						compositionD.addServiceCandidate(
-								compositionB.getServiceCandidatesList().get(i));
+								compositionB.getServiceCandidatesList().
+								get(i));
 						compositionC.addServiceCandidate(
-								compositionA.getServiceCandidatesList().get(i));
+								compositionA.getServiceCandidatesList().
+								get(i));
 					}
 				}
 				
@@ -619,6 +678,17 @@ public class GeneticAlgorithm extends Algorithm {
 		}
 		return populationNew;
 	}
+	
+	
+	
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |				     	HELPER METHODS					  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
 	
 	private boolean hasPopulationChanged(List<Composition> population, 
 			List<Composition> matingPool) {

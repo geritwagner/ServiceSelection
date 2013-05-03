@@ -367,7 +367,7 @@ public class MainFrame extends JFrame {
 		// TODO: Find another title.
 		setTitle("Service Selection");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 0, 1000, 850);
+		setBounds(100, 0, 1100, 850);
 
 		contentPane = new JPanel();
 		contentPane.setBorder(new LineBorder(Color.BLACK));
@@ -2026,8 +2026,8 @@ public class MainFrame extends JFrame {
 
 		jTableAnalyticAlgorithm = new ServiceSelectionTable(1, 2, true);
 		jTableAnalyticAlgorithm.setEnabled(false);
-		// Look for a better solution for this listener if 
-		// more analytic methods
+		// Look for a better solution for this listener 
+		// if more analytic methods are implemented
 //		jTableAnalyticAlgorithm.addMouseListener(new MouseAdapter() {
 //			public void mouseClicked(MouseEvent e) {
 //				if (jTableAnalyticAlgorithm.getSelectedRow() == 0 && 
@@ -2344,8 +2344,8 @@ public class MainFrame extends JFrame {
 		loadServiceData(true);
 		jCheckBoxRelaxation.setSelected(true);
 		jSliderRelaxation.setEnabled(true);
-		jTextFieldRelaxation.setText(String.valueOf(
-				jSliderRelaxation.getValue() / 100.0));
+		jSliderRelaxation.setValue((int) (DEFAULT_RELAXATION * 100));
+		jTextFieldRelaxation.setText(String.valueOf(DEFAULT_RELAXATION));
 	}
 	
 	private void saveModelSetup() {
@@ -2458,8 +2458,8 @@ public class MainFrame extends JFrame {
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(file));				
-			String header = "txtAntVariant;txtAntIterations;txtAntAnts;txtAntAlpha;" +
-					"txtAntBeta;txtAntDilution;txtAntPi";
+			String header = "txtAntVariant;txtAntIterations;txtAntAnts;" +
+					"txtAntAlpha;txtAntBeta;txtAntDilution;txtAntPi";
 			header += ";Population Size;Selection Method;" + 
 					"Elitism Rate;Crossover Method;" +
 					"Crossover Rate;Mutation Rate;" +
@@ -2525,9 +2525,7 @@ public class MainFrame extends JFrame {
 				"<li>Michael Mayer</li>" +
 				"<li>Gerit Wagner</li></ul></html>", 
 				"About", JOptionPane.INFORMATION_MESSAGE);
-		
 	}
-	
 	
 	private void loadServiceData(boolean generationMode) {
 		// Write service classes headers.
@@ -2728,10 +2726,11 @@ public class MainFrame extends JFrame {
 		jTextFieldRelaxation.setText("-");
 	}
 
-	// Set the extrem values of the constraint sliders. The values are 
-	// computed according to the approach of Gao et al., which can be found 
-	// under "4. Simulation Analysis" in their paper "Qos-aware Service 
-	// Composition based on Tree-Coded Genetic Algorithm".
+	// Set the extrem values of the constraint sliders. The values  
+	// are computed according to the approach of Gao et al., which
+	// can be found under "4. Simulation Analysis" in their paper 
+	// "Qos-aware Service Composition based on Tree-Coded Genetic 
+	// Algorithm".
 	private void setSliderExtremeValues() {
 		QosVector qosMaxComposition = determineQosMaxComposition(
 				serviceClassesList);
@@ -2762,8 +2761,8 @@ public class MainFrame extends JFrame {
 				"<html>Min. Availability<br>" +"Margin: " + minAvailability + 
 				" - " + maxAvailability + "</html>");
 		
-		// Set the values of the constraints according to the given 
-		// constraints relaxation.
+		// Set the values of the constraints according  
+		// to the given constraints relaxation.
 		useRelaxationSlider();
 	}
 	
@@ -2930,7 +2929,6 @@ public class MainFrame extends JFrame {
 			public void run() {
 				setEnabled(false);
 				jButtonStart.setEnabled(false);
-//				setCursor(new Cursor(Cursor.WAIT_CURSOR));
 				if (jCheckboxGeneticAlgorithm.isSelected()) {
 					doGeneticAlgorithm();
 				}
@@ -3689,8 +3687,8 @@ public class MainFrame extends JFrame {
 		return algorithmMap;
 	}
 	
-	// Determine the maximum value for each QoS attribute over all service 
-	// candidates given to the method.
+	// Determine the maximum value for each QoS attribute over all 
+	// service candidates given to the method.
 	// Note that "maximum" really means "maximum" and not "best".
 	private QosVector determineQosMaxServiceCandidate(
 			List<ServiceCandidate> serviceCandidates) {
@@ -3710,8 +3708,8 @@ public class MainFrame extends JFrame {
 		return max;
 	}
 	
-	// Determine the minimum value for each QoS attribute over all service 
-	// candidates given to the method.
+	// Determine the minimum value for each QoS attribute over all 
+	// service candidates given to the method.
 	// Note that "minimum" really means "minimum" and not "worst".
 	private QosVector determineQosMinServiceCandidate(
 			List<ServiceCandidate> serviceCandidates) {
@@ -3731,9 +3729,9 @@ public class MainFrame extends JFrame {
 		return min;
 	}
 	
-	// Determine the maximum value for each QoS attribute that can be obtained 
-	// by always selecting the maximum values of the service candidates of 
-	// each service class.
+	// Determine the maximum value for each QoS attribute that can 
+	// be obtained by always selecting the maximum values of the 
+	// service candidates of each service class.
 	// Note that "maximum" really means "maximum" and not "best".
 	private QosVector determineQosMaxComposition(
 			List<ServiceClass> serviceClasses) {
@@ -3751,9 +3749,9 @@ public class MainFrame extends JFrame {
 		return new QosVector(costs, responseTime, availability);
 	}
 	
-	// Determine the minimum value for each QoS attribute that can be obtained 
-	// by always selecting the minimum values of the service candidates of 
-	// each service class.
+	// Determine the minimum value for each QoS attribute that can 
+	// be obtained by always selecting the minimum values of the 
+	// service candidates of each service class.
 	// Note that "minimum" really means "minimum" and not "worst".
 	private QosVector determineQosMinComposition(
 			List<ServiceClass> serviceClasses) {
