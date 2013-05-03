@@ -603,7 +603,8 @@ public class MainFrame extends JFrame {
 		jCheckBoxMaxCosts = new JCheckBox("Max. Costs");
 		jCheckBoxMaxCosts.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				changeConstraintCheckboxStatus(jCheckBoxMaxCosts);
+				changeConstraintCheckboxStatus(jCheckBoxMaxCosts, 
+						jTextFieldCostsWeight, jSliderMaxCosts);
 			}
 		});
 		jCheckBoxMaxCosts.setSelected(true);
@@ -683,7 +684,8 @@ public class MainFrame extends JFrame {
 		jCheckBoxMaxResponseTime = new JCheckBox("Max. Response Time");
 		jCheckBoxMaxResponseTime.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				changeConstraintCheckboxStatus(jCheckBoxMaxResponseTime);
+				changeConstraintCheckboxStatus(jCheckBoxMaxResponseTime, 
+						jTextFieldResponseTimeWeight, jSliderMaxResponseTime);
 			}
 		});
 		jCheckBoxMaxResponseTime.setSelected(true);
@@ -776,7 +778,8 @@ public class MainFrame extends JFrame {
 		jCheckBoxMinAvailability = new JCheckBox("Min. Availability");
 		jCheckBoxMinAvailability.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				changeConstraintCheckboxStatus(jCheckBoxMinAvailability);
+				changeConstraintCheckboxStatus(jCheckBoxMinAvailability, 
+						jTextFieldAvailabilityWeight, jSliderMinAvailability);
 			}
 		});
 		jCheckBoxMinAvailability.setSelected(true);
@@ -2590,6 +2593,14 @@ public class MainFrame extends JFrame {
 		webServicesLoaded = true;
 		checkEnableStartButton();
 		setSliderExtremeValues();
+		if (generationMode) {
+			jSliderMaxCosts.setValue((int) (
+					DEFAULT_RELAXATION * (maxCosts + minCosts)));
+			jSliderMaxResponseTime.setValue((int) (
+					DEFAULT_RELAXATION * (maxResponseTime + minResponseTime)));
+			jSliderMinAvailability.setValue((int) (
+					DEFAULT_RELAXATION * (maxAvailability + minAvailability)));
+		}
 		checkInputValue(jTextFieldPopulationSize, 
 				MAX_START_POPULATION_SIZE, 1, 
 				DEFAULT_START_POPULATION_SIZE);
@@ -2606,49 +2617,24 @@ public class MainFrame extends JFrame {
 	 * 	+-----------------------------------------------------------+
 	 */
 
-	private void changeConstraintCheckboxStatus(JCheckBox checkBox) {
+	private void changeConstraintCheckboxStatus(JCheckBox checkBox, 
+			JTextField textFieldWeight, JSlider slider) {
 		int lblWeights;
-		if (checkBox == jCheckBoxMaxCosts) {
-			jSliderMaxCosts.setEnabled(jCheckBoxMaxCosts.isSelected());
-			jTextFieldMaxCosts.setEditable(jCheckBoxMaxCosts.isSelected());
-			lblWeights = 
-				Integer.parseInt(lblWeightSum.getText());
-			lblWeights -= Integer.parseInt(jTextFieldCostsWeight.getText());
-			lblWeightSum.setText(String.valueOf(lblWeights));
-			jTextFieldCostsWeight.setText("0");
-			jTextFieldCostsWeight.setEditable(jCheckBoxMaxCosts.isSelected());
-			changeWeight(jTextFieldCostsWeight);
+		slider.setEnabled(checkBox.isSelected());
+		textFieldWeight.setEditable(checkBox.isSelected());
+		lblWeights = Integer.parseInt(lblWeightSum.getText());
+		lblWeights -= Integer.parseInt(textFieldWeight.getText());
+		if (checkBox.isSelected()) {
+			textFieldWeight.setText(String.valueOf(
+					Math.max(0, 100 - lblWeights)));
+			lblWeightSum.setText(String.valueOf(
+					lblWeights + Math.max(0, 100 - lblWeights)));
 		}
-		else if (checkBox == jCheckBoxMaxResponseTime) {
-			jSliderMaxResponseTime.setEnabled(
-					jCheckBoxMaxResponseTime.isSelected());
-			jTextFieldMaxResponseTime.setEditable(
-					jCheckBoxMaxResponseTime.isSelected());
-			lblWeights = 
-				Integer.parseInt(lblWeightSum.getText());
-			lblWeights -= Integer.parseInt(
-					jTextFieldResponseTimeWeight.getText());
+		else {
 			lblWeightSum.setText(String.valueOf(lblWeights));
-			jTextFieldResponseTimeWeight.setText("0");
-			jTextFieldResponseTimeWeight.setEditable(
-					jCheckBoxMaxResponseTime.isSelected());
-			changeWeight(jTextFieldResponseTimeWeight);
+			textFieldWeight.setText("0");
 		}
-		else if (checkBox == jCheckBoxMinAvailability) {
-			jSliderMinAvailability.setEnabled(
-					jCheckBoxMinAvailability.isSelected());
-			jTextFieldMinAvailability.setEditable(
-					jCheckBoxMinAvailability.isSelected());
-			lblWeights = 
-				Integer.parseInt(lblWeightSum.getText());
-			lblWeights -= Integer.parseInt(
-					jTextFieldAvailabilityWeight.getText());
-			lblWeightSum.setText(String.valueOf(lblWeights));
-			jTextFieldAvailabilityWeight.setText("0");
-			jTextFieldAvailabilityWeight.setEditable(
-					jCheckBoxMinAvailability.isSelected());
-			changeWeight(jTextFieldAvailabilityWeight);
-		}
+		changeWeight(textFieldWeight);
 		getUtilityFunction();
 		buildGeneticAlgorithmFitnessFunction();
 		if (checkBox.isSelected()) {
