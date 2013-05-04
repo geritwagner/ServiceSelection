@@ -169,9 +169,9 @@ public class MainFrame extends JFrame {
 	private static final double DEFAULT_RELAXATION = 0.5;
 	private static final int DEFAULT_START_POPULATION_SIZE = 100;
 	private static final int MAX_START_POPULATION_SIZE = 10000;
-	private static final int DEFAULT_ELITISM_RATE = 25;
+	private static final int DEFAULT_ELITISM_RATE = 1;
 	private static final int DEFAULT_CROSSOVER_RATE = 70;
-	private static final int DEFAULT_MUTATION_RATE = 1;
+	private static final int DEFAULT_MUTATION_RATE = 10;
 	private static final int DEFAULT_TERMINATION_CRITERION = 100;
 	private static final int DEFAULT_DEGREE_OF_EQUALITY = 75;
 	private static final int DEFAULT_VARIANT = 6;
@@ -1559,7 +1559,7 @@ public class MainFrame extends JFrame {
 		});
 		jTextFieldMutationRate.setToolTipText("<html>Probability for the " +
 				"mutation of a service candidate " +
-				"<br>Typical value: 1-10%</html>");
+				"<br>Typical value: 1-80\u2030</html>");
 		GridBagConstraints gbcJTextFieldMutationRate = 
 			new GridBagConstraints();
 		gbcJTextFieldMutationRate.insets = new Insets(5, 5, 5, 0);
@@ -1702,7 +1702,7 @@ public class MainFrame extends JFrame {
 		// TODO: Find a typical value.
 		jTextFieldTerminationDegree.setToolTipText("<html>Degree to " +
 				"which the consecutive<br>generations have to be equal<br>" +
-				"Typical value: 80-95%</html>");
+				"Typical value: 75-95%</html>");
 		jTextFieldTerminationDegree.setVisible(false);
 		GridBagConstraints gbcJTextFieldTerminationDegree = 
 				new GridBagConstraints();
