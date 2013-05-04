@@ -1806,10 +1806,11 @@ public class MainFrame extends JFrame {
 		txtAntVariant.setToolTipText("<html>Set Variant of the " +
 				"Algorithm<br>Choose Variant from 1 to 5:" + 
 				"<br>Ant System = 1" +
-				"<br>(Qiqing et al. 2009) = 2" +
-				"<br>Convergent Variant = 3" +
-				"<br>Ant Colony System = 4" +
-				"<br>(Li und Yan-xiang 2011) = 5</html>");
+				"<br>Ant Colony System = 2" +
+				"<br>MAX-MIN Ant System = 3" +				
+				"<br>Convergent Variant = 4" +
+				"<br>(Qiqing et al. 2009) = 5" +
+				"<br>(Li und Yan-xiang 2011) = 6</html>");
 		txtAntVariant.setColumns(5);
 		txtAntVariant.setHorizontalAlignment(JTextField.RIGHT);		
 		GridBagConstraints gbc_AntVariant = new GridBagConstraints();
