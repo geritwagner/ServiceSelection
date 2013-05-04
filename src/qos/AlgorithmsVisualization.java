@@ -15,15 +15,18 @@ public class AlgorithmsVisualization extends JFrame {
 	private List<Integer> numberOfDifferentSolutions;
 	private List<Double> maxUtilityPerPopulation;
 	private List<Double> averageUtilityPerPopulation;
+	private List<Double> optUtilityPerIteration;
 
 	public AlgorithmsVisualization(
 			List<Integer> numberOfDifferentSolutions, 
 			List<Double> maxUtilityPerPopulation,
-			List<Double> averageUtilityPerPopulation) {
+			List<Double> averageUtilityPerPopulation,
+			List<Double> optUtilityPerIteration) {
 		super("Result Visualization");
 		this.numberOfDifferentSolutions = numberOfDifferentSolutions;
 		this.maxUtilityPerPopulation = maxUtilityPerPopulation;
 		this.averageUtilityPerPopulation = averageUtilityPerPopulation;
+		this.optUtilityPerIteration = optUtilityPerIteration;
 		initializeFrame();
 	}
 	
@@ -51,9 +54,9 @@ public class AlgorithmsVisualization extends JFrame {
 				new GeneticAlgorithmVisualizationPanel(
 						numberOfDifferentSolutions, maxUtilityPerPopulation, 
 						averageUtilityPerPopulation), null);
-		
-		JPanel jPanelAntAlgorithm = new JPanel();
-		tabbedPane.addTab("Ant Algorithm", null, jPanelAntAlgorithm, null);
+				
+		tabbedPane.addTab("Ant Algorithm", null, 
+				new AntAlgorithmVisualizationPanel(optUtilityPerIteration), null);
 	}
 	
 	public void closeWindow() {

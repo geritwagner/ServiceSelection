@@ -30,7 +30,8 @@ public class AntAlgorithm extends Algorithm {
 	double chaosFactor = 4;
 	double piMax = 1;
 	double piMin = 0;
-
+	
+	private List<Double> optUtilityPerIteration;
 	private long runtime = 0;
 	private int workPercentage;
 
@@ -63,21 +64,32 @@ public class AntAlgorithm extends Algorithm {
 		runtime = System.currentTimeMillis();
 		workPercentage = 0;
 		initAlgo();
+		optUtilityPerIteration = new LinkedList<Double>();
 		
 		if (variant == 4) {
 			int it = 1;
 			while (!convergent && (it < 2000)) {
 				doIterationV4();
+				// FOR VISUALIZATION
+				if (optimalComposition != null) {
+					optUtilityPerIteration.add(optimalComposition.getUtility());
+				} else {
+					optUtilityPerIteration.add(0.0);
+				}
 				it++;
-			}
-			System.out.println(it);			
+			}						
 		} else if (variant == 6) {
 			int it = 1;			
 			while (!convergent && (it < 2000)) {
 				doIterationV6();
+				// FOR VISUALIZATION
+				if (optimalComposition != null) {
+					optUtilityPerIteration.add(optimalComposition.getUtility());
+				} else {
+					optUtilityPerIteration.add(0.0);
+				}
 				it++;
-			}
-			System.out.println(it);	
+			}			
 		} else {
 			// RUN ITERATIONS
 			for (int i=1; i<=iterations; i++) {
@@ -89,6 +101,13 @@ public class AntAlgorithm extends Algorithm {
 					doIterationV3();
 				} else if (variant == 5) {					
 					doIterationV5();
+				}
+				
+				// FOR VISUALIZATION
+				if (optimalComposition != null) {
+					optUtilityPerIteration.add(optimalComposition.getUtility());
+				} else {
+					optUtilityPerIteration.add(0.0);
 				}				
 				
 				// PROGRESSBAR			
@@ -841,6 +860,10 @@ public class AntAlgorithm extends Algorithm {
 
 	public int getWorkPercentage() {
 		return workPercentage;
+	}
+
+	public List<Double> getOptUtilityPerIteration() {
+		return optUtilityPerIteration;
 	}	
 
 }
