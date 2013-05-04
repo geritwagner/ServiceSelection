@@ -103,74 +103,7 @@ public class AntAlgorithmVisualizationPanel extends JPanel {
 				g.setTransform(FLIP_X_COORDINATE);
 			}
 		}
-		g.setColor(Color.BLACK);
-		
-		/*
-
-
-
-		// MAX/AVERAGE FITNESS VALUE PER GENERATION
-		g.setTransform(FLIP_X_COORDINATE);
-		// Drawing of the coordinate system
-		g.drawLine(450, 25, 750, 25);
-		g.drawLine(450, 25, 450, 425);
-
-		lineHeight = 20;
-		// Legend for y-axis
-		for (int i = 0; i < 10; i++) {
-			g.setTransform(FLIP_X_COORDINATE);
-			g.drawLine(452, 25 + lineHeight * i, 448, 25 + lineHeight * i);
-			g.drawLine(452, 25 + lineHeight * (i + 10), 
-					448, 25 + lineHeight * (i + 10));
-			g.setTransform(normal);
-			g.drawString("0." + i, 425, 494 - lineHeight * i);
-			g.drawString("1." + i, 425, 494 - lineHeight * (i + 10));
-		}
-		// Manual insertion of the last index of the y-axis
-		g.setTransform(FLIP_X_COORDINATE);
-		g.drawLine(452, 25 + lineHeight * 20, 448, 25 + lineHeight * 20);
-		g.setTransform(normal);
-		g.drawString("2.0", 425, 494 - lineHeight * 20);
-
-		// // Manual insertion of the last index of the x-axis
-		g.setTransform(FLIP_X_COORDINATE);
-		
-		// Drawing of the graphs and the legend for x-axis
-		for (int i = 0; i <= maxXCoordinate; i += lineUnit) {
-			// Max. fitness graph
-			if (i < maxUtilityPerPopulation.size() - 1 - lineUnit) {
-				g.setColor(Color.YELLOW);
-				g.drawLine(i / lineUnit * lineLength + 450, 
-						(int) Math.round(maxUtilityPerPopulation.get(i) * 10 * 
-								lineHeight + 25), 
-								(i / lineUnit + 1) * lineLength + 450, 
-								(int) Math.round(maxUtilityPerPopulation.
-										get(i + lineUnit) * 10 * 
-										lineHeight + 25));
-				// Average fitness graph
-				g.setColor(Color.GREEN);
-				g.drawLine(i / lineUnit * lineLength + 450, 
-						(int) Math.round(averageUtilityPerPopulation.get(i) * 
-								10 * lineHeight + 25), 
-								(i / lineUnit + 1) * lineLength + 450, 
-								(int) Math.round(averageUtilityPerPopulation.
-										get(i + lineUnit) * 10 * 
-										lineHeight + 25));
-			}
-			
-			// Legend for x-axis
-			if ((i /lineUnit) % 5 == 0) {
-				g.setColor(Color.BLACK);
-				g.drawLine((i /lineUnit) * lineLength + 450, 25, 
-						(i /lineUnit) * lineLength + 450, 27);
-				g.setTransform(normal);
-				g.drawString(String.valueOf((i)), 
-						(i /lineUnit) * lineLength + 445, 505);
-				g.setTransform(FLIP_X_COORDINATE);
-			}
-		}
-		g.setColor(Color.BLACK);
-		*/
+		g.setColor(Color.BLACK);		
 	}
 	
 	private int determineLineLengthProperties() {
@@ -262,19 +195,5 @@ public class AntAlgorithmVisualizationPanel extends JPanel {
 		else {
 			return 0;
 		}
-	}
-	
-	private int determineHeightUnit(int lineHeight) {
-		if (lineHeight <= 100) {
-			return 1;
-		}
-		else if (lineHeight <= 1000) {
-			return 10;
-		}
-		else {
-			return 100;
-		}
-	}
-
-	
+	}	
 }
