@@ -76,6 +76,7 @@ public class AntAlgorithm extends Algorithm {
 				} else {
 					optUtilityPerIteration.add(0.0);
 				}
+				workPercentage = (int) ((100 * it) / 2000);
 				it++;
 			}						
 		} else if (variant == 6) {
@@ -88,6 +89,7 @@ public class AntAlgorithm extends Algorithm {
 				} else {
 					optUtilityPerIteration.add(0.0);
 				}
+				workPercentage = (int) ((100 * it) / 2000);
 				it++;
 			}			
 		} else {
@@ -111,7 +113,7 @@ public class AntAlgorithm extends Algorithm {
 				}				
 				
 				// PROGRESSBAR			
-				workPercentage = (int) (100 * (i / iterations));
+				workPercentage = (int) ((100 * i) / iterations);				
 			}	
 		}
 		

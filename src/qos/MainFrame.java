@@ -2905,8 +2905,7 @@ public class MainFrame extends JFrame {
 						if (jCheckboxGeneticAlgorithm.isSelected()) {
 							jProgressBarGeneticAlgorithm.setValue(
 									geneticAlgorithm.getWorkPercentage());
-						}
-						//TODO: ProgressBar of Ant doesn't work correctly
+						}						
 						if (jCheckBoxAntColonyOptimization.isSelected()) {
 							jProgressBarAntAlgorithm.setValue(
 									antAlgorithm.getWorkPercentage());
