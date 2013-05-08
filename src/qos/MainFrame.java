@@ -181,6 +181,7 @@ public class MainFrame extends JFrame {
 	private static final double DEFAULT_BETA = 1;
 	private static final double DEFAULT_DILUTION = 0.01;
 	private static final double DEFAULT_PIINIT = 1;
+	private static final int NUMBER_OF_BENCHMARK_ITERATIONS = 10000;
 	
 	// Formats
 	private static final DecimalFormat DECIMAL_FORMAT_TWO = 
@@ -2338,9 +2339,8 @@ public class MainFrame extends JFrame {
 		serviceClassesList.removeAll(serviceClassesList);
 		
 		// Use RandomSetGenerator to create web services data.
-		List<ServiceClass> servicesList = RandomSetGenerator.generateSet(
+		serviceClassesList = new RandomSetGenerator().generateSet(
 				numberOfServiceClasses, numberOfWebServices);
-		serviceClassesList = servicesList;
 		
 		loadServiceData(true);
 		jCheckBoxRelaxation.setSelected(true);
@@ -2825,7 +2825,7 @@ public class MainFrame extends JFrame {
 		}
 		cumulatedRuntime = 0;
 		algorithmInProgress = true;
-		
+
 		// Calculate the utility value for all service candidates.
 		QosVector qosMaxServiceCandidate = determineQosMaxServiceCandidate(
 				serviceCandidatesList);
@@ -2837,7 +2837,7 @@ public class MainFrame extends JFrame {
 		}
 		jProgressBarGeneticAlgorithm.setValue(0);
 		jProgressBarAnalyticAlgorithm.setValue(0);
-		
+
 		if (jCheckboxGeneticAlgorithm.isSelected()) {
 			if (!jCheckBoxElitismRate.isSelected()) {
 				jTextFieldElitismRate.setText("0");
@@ -2891,13 +2891,13 @@ public class MainFrame extends JFrame {
 			analyticAlgorithm = new AnalyticAlgorithm(
 					serviceClassesList, constraintsMap, 
 					(Integer) jSpinnerNumberResultTiers.getValue());
-		}	
+		}
 
-		// Progress Bar Thread
+
 		if (!benchmarkMode && 
 				(jCheckboxGeneticAlgorithm.isSelected() || 
-				jCheckBoxAnalyticAlgorithm.isSelected() || 
-				jCheckBoxAntColonyOptimization.isSelected())) {
+						jCheckBoxAnalyticAlgorithm.isSelected() || 
+						jCheckBoxAntColonyOptimization.isSelected())) {
 			new Thread() {
 				@Override
 				public void run() {
@@ -2923,119 +2923,208 @@ public class MainFrame extends JFrame {
 			}.start();
 		}
 		
-		// Calculation and Results Display Thread
-		new Thread() {
-			@Override
-			public void run() {
-				setEnabled(false);
-				jButtonStart.setEnabled(false);
-				if (jCheckboxGeneticAlgorithm.isSelected()) {
-					doGeneticAlgorithm();
+		// TODO: Extend benchmark mode!
+		// BENCHMARK MODE
+		if (benchmarkMode) {
+			if (jCheckboxGeneticAlgorithm.isSelected()) {
+				String[][] iterationValueArray = 
+						new String[NUMBER_OF_BENCHMARK_ITERATIONS][3];
+				for (int i = 0; i < NUMBER_OF_BENCHMARK_ITERATIONS; i++) {
+					geneticAlgorithm.startInBenchmarkMode();
+					iterationValueArray[i][0] = String.valueOf(i + 1);
+					iterationValueArray[i][1] = String.valueOf(
+							geneticAlgorithm.getRuntime());
+					if (geneticAlgorithm.getAlgorithmSolutionTiers().
+							size() > 0) {
+						iterationValueArray[i][2] = String.valueOf(
+								geneticAlgorithm.getAlgorithmSolutionTiers().
+								get(0).getServiceCompositionList().
+								get(0).getUtility());
+					}
+					else {
+						iterationValueArray[i][2] = "No Solution";
+					}
 				}
-				if (jCheckBoxAntColonyOptimization.isSelected()) {
-					doAntAlgorithm();					
+				
+				File file = new File("benchmark_genetic.csv");
+				checkOverwrite(file, "Benchmark has");
+				BufferedWriter bufferedWriter = null;
+				try {
+					bufferedWriter = new BufferedWriter(new FileWriter(file));
+					bufferedWriter.write("Iteration;Runtime;Utility");			
+					for (int i = 0; i < NUMBER_OF_BENCHMARK_ITERATIONS; i++) {				
+						bufferedWriter.newLine();
+						bufferedWriter.write(iterationValueArray[i][0] + ";" + 
+								iterationValueArray[i][1] + ";" + 
+								iterationValueArray[i][2]);
+					}
+					bufferedWriter.close();
+					writeErrorLogEntry("File benchmark_genetic has been " +
+							"created successfully");
+				} catch (IOException e1) {			
+					writeErrorLogEntry("File benchmark_genetic has not been " +
+							"created successfully");
 				}
-				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-					doEnumeration();
-				}						
-				algorithmInProgress = false;
-				if (jCheckboxGeneticAlgorithm.isSelected()) {
-					jProgressBarGeneticAlgorithm.setValue(100);
-				}
-				if (jCheckBoxAntColonyOptimization.isSelected()) {
-					jProgressBarAntAlgorithm.setValue(100);
-				}
-				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-					jProgressBarAnalyticAlgorithm.setValue(100);
-				}
-				if (cumulatedRuntime > 120000) {
-					jTableGeneralResults.setValueAt(
-							cumulatedRuntime / 60000 + " min", 0, 1);
-				}
-				else if (cumulatedRuntime > 1000) {
-					jTableGeneralResults.setValueAt(
-							cumulatedRuntime / 1000 + " s", 0, 1);
-				}
-				else {
-					jTableGeneralResults.setValueAt(
-							cumulatedRuntime + " ms", 0, 1);
-				}
-				// TODO: If ant algorithm has no solution, 
-				//		 handle output visualization!
-				if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-					double optimalUtility = 0.0;
+			}
+			if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+				String[][] iterationValueArray = 
+						new String[NUMBER_OF_BENCHMARK_ITERATIONS][3];
+				for (int i = 0; i < NUMBER_OF_BENCHMARK_ITERATIONS; i++) {
+					analyticAlgorithm.startInBenchmarkMode();
+					iterationValueArray[i][0] = String.valueOf(i + 1);
+					iterationValueArray[i][1] = String.valueOf(
+							analyticAlgorithm.getRuntime());
 					if (analyticAlgorithm.getAlgorithmSolutionTiers().
 							size() > 0) {
-						optimalUtility = analyticAlgorithm.
-								getAlgorithmSolutionTiers().								
+						iterationValueArray[i][2] = String.valueOf(
+								analyticAlgorithm.getAlgorithmSolutionTiers().
 								get(0).getServiceCompositionList().
-								get(0).getUtility();
+								get(0).getUtility());
 					}
+					else {
+						iterationValueArray[i][2] = "No Solution";
+					}
+				}
+				
+				File file = new File("benchmark_analytic.csv");
+				checkOverwrite(file, "Benchmark has");
+				BufferedWriter bufferedWriter = null;
+				try {
+					bufferedWriter = new BufferedWriter(new FileWriter(file));
+					bufferedWriter.write("Iteration;Runtime;Utility");			
+					for (int i = 0; i < NUMBER_OF_BENCHMARK_ITERATIONS; i++) {				
+						bufferedWriter.newLine();
+						bufferedWriter.write(iterationValueArray[i][0] + ";" + 
+								iterationValueArray[i][1] + ";" + 
+								iterationValueArray[i][2]);
+					}
+					bufferedWriter.close();
+					writeErrorLogEntry("File benchmark_analytic has been " +
+							"created successfully");
+				} catch (IOException e1) {			
+					writeErrorLogEntry("File benchmark_analytic has not been " +
+							"created successfully");
+				}
+			}
+		}
+		// STANDARD MODE
+		else {
+			// Calculation and Results Display Thread
+			new Thread() {
+				@Override
+				public void run() {
+					setEnabled(false);
+					jButtonStart.setEnabled(false);
 					if (jCheckboxGeneticAlgorithm.isSelected()) {
-						if (geneticAlgorithm.getAlgorithmSolutionTiers().
-								size() > 0) {
-							double geneticDelta = optimalUtility - 
-									geneticAlgorithm.getAlgorithmSolutionTiers().
-									get(0).getServiceCompositionList().get(0).
-									getUtility();
-							jTableGeneralResults.setValueAt(
-									DECIMAL_FORMAT_FOUR.format(geneticDelta) + 
-									" (" + DECIMAL_FORMAT_TWO.format(Math.abs(
-											geneticDelta / 
-											optimalUtility * 100)) + 
-											"%)" , 4, 1);
-						}
-						else {
-							jTableGeneralResults.setValueAt(
-									"<html><b color=red>No Solution" +
-									"</b></html>", 4, 1);
-						}
+						doGeneticAlgorithm();
 					}
 					if (jCheckBoxAntColonyOptimization.isSelected()) {
-						double antDelta = optimalUtility - antAlgorithm.
-								getAlgorithmSolutionTiers().get(0).
-								getServiceCompositionList().get(0).
-								getUtility();
-						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_FOUR.
-								format(antDelta) + " (" + 
-								DECIMAL_FORMAT_TWO.format(Math.abs(
-										antDelta / optimalUtility * 100)) + 
-										"%)" , 5, 1);
+						doAntAlgorithm();					
 					}
+					if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+						doEnumeration();
+					}						
+					algorithmInProgress = false;
+					if (jCheckboxGeneticAlgorithm.isSelected()) {
+						jProgressBarGeneticAlgorithm.setValue(100);
+					}
+					if (jCheckBoxAntColonyOptimization.isSelected()) {
+						jProgressBarAntAlgorithm.setValue(100);
+					}
+					if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+						jProgressBarAnalyticAlgorithm.setValue(100);
+					}
+					if (cumulatedRuntime > 120000) {
+						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.
+								format(cumulatedRuntime / 60000) + " min", 
+								0, 1);
+					}
+					else if (cumulatedRuntime > 1000) {
+						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.
+								format(cumulatedRuntime / 1000) + " s", 0, 1);
+					}
+					else {
+						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.
+								format(cumulatedRuntime) + " ms", 0, 1);
+					}
+					// TODO: If ant algorithm has no solution, 
+					//		 handle output visualization!
+					if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+						double optimalUtility = 0.0;
+						if (analyticAlgorithm.getAlgorithmSolutionTiers().
+								size() > 0) {
+							optimalUtility = analyticAlgorithm.
+									getAlgorithmSolutionTiers().								
+									get(0).getServiceCompositionList().
+									get(0).getUtility();
+						}
+						if (jCheckboxGeneticAlgorithm.isSelected()) {
+							if (geneticAlgorithm.getAlgorithmSolutionTiers().
+									size() > 0) {
+								double geneticDelta = optimalUtility - 
+										geneticAlgorithm.
+										getAlgorithmSolutionTiers().
+										get(0).getServiceCompositionList().
+										get(0).getUtility();
+								jTableGeneralResults.setValueAt(
+										DECIMAL_FORMAT_FOUR.format(
+												geneticDelta) + " (" + 
+												DECIMAL_FORMAT_TWO.format(
+														Math.abs(geneticDelta / 
+																optimalUtility 
+																* 100)) + 
+																"%)" , 4, 1);
+							}
+							else {
+								jTableGeneralResults.setValueAt(
+										"<html><b color=red>No Solution" +
+												"</b></html>", 4, 1);
+							}
+						}
+						if (jCheckBoxAntColonyOptimization.isSelected()) {
+							double antDelta = optimalUtility - antAlgorithm.
+									getAlgorithmSolutionTiers().get(0).
+									getServiceCompositionList().get(0).
+									getUtility();
+							jTableGeneralResults.setValueAt(
+									DECIMAL_FORMAT_FOUR.format(antDelta) + 
+									" (" + DECIMAL_FORMAT_TWO.format(Math.abs(
+											antDelta / optimalUtility * 100)) + 
+											"%)" , 5, 1);
+						}
+					}
+					buildResultTable();
+					if (benchmarkMode) {
+						jButtonVisualize.setEnabled(false);
+					}
+					else {
+						jButtonVisualize.setEnabled(true);
+					}
+					jButtonSaveResults.setEnabled(true);
+					jButtonStart.setEnabled(true);
+					setEnabled(true);				
 				}
-				buildResultTable();
-				if (benchmarkMode) {
-					jButtonVisualize.setEnabled(false);
-				}
-				else {
-					jButtonVisualize.setEnabled(true);
-				}
-				jButtonSaveResults.setEnabled(true);
-				jButtonStart.setEnabled(true);
-				setEnabled(true);				
-			}
-		}.start();
-	}
+			}.start();
+		}
+
+		
+	}			
 	
 	private void doGeneticAlgorithm() {
-		if (benchmarkMode) {
-			geneticAlgorithm.startInBenchmarkMode();
+		geneticAlgorithm.start();
+		double runtime = geneticAlgorithm.getRuntime();
+		cumulatedRuntime += runtime;
+		if (runtime > 120000) {
+			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
+					runtime / 60000.0) + " min", 1, 1);
+		}
+		else if (runtime > 1000) {
+			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
+					runtime / 1000.0) + " s", 1, 1);
 		}
 		else {
-			geneticAlgorithm.start();
-		}
-		cumulatedRuntime += geneticAlgorithm.getRuntime();
-		if (geneticAlgorithm.getRuntime() > 120000) {
-			jTableGeneralResults.setValueAt(
-					geneticAlgorithm.getRuntime() / 60000.0 + " min", 1, 1);
-		}
-		else if (geneticAlgorithm.getRuntime() > 1000) {
-			jTableGeneralResults.setValueAt(
-					geneticAlgorithm.getRuntime() / 1000.0 + " s", 1, 1);
-		}
-		else {
-			jTableGeneralResults.setValueAt(
-					geneticAlgorithm.getRuntime() + " ms", 1, 1);
+			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
+					runtime) + " ms", 1, 1);
 		}
 	}
 	
@@ -3058,18 +3147,19 @@ public class MainFrame extends JFrame {
 	
 	private void doEnumeration() {
 		analyticAlgorithm.start();
+		double runtime = analyticAlgorithm.getRuntime();
 		cumulatedRuntime += analyticAlgorithm.getRuntime();
-		if (analyticAlgorithm.getRuntime() > 120000) {
-			jTableGeneralResults.setValueAt(
-					analyticAlgorithm.getRuntime() / 60000.0 + " min", 3, 1);
+		if (runtime > 120000) {
+			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
+					analyticAlgorithm.getRuntime() / 60000.0) + " min", 3, 1);
 		}
-		else if (analyticAlgorithm.getRuntime() > 1000) {
-			jTableGeneralResults.setValueAt(
-					analyticAlgorithm.getRuntime() / 1000.0 + " s", 3, 1);
+		else if (runtime > 1000) {
+			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
+					analyticAlgorithm.getRuntime() / 1000.0) + " s", 3, 1);
 		}
 		else {
-			jTableGeneralResults.setValueAt(
-					analyticAlgorithm.getRuntime() + " ms", 3, 1);
+			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
+					runtime) + " ms", 3, 1);
 		}
 	}
 	
@@ -3410,7 +3500,7 @@ public class MainFrame extends JFrame {
 		}
 		if (jPanelAlgorithmResult.getComponents().length == 0) {
 			jPanelAlgorithmResult.add(new JLabel("<html><h1 color=red>" +
-					"No Solution!</h1></html>"));
+					"No Solution</h1></html>"));
 		}
 	}
 	

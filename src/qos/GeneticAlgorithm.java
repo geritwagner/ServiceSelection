@@ -197,14 +197,17 @@ public class GeneticAlgorithm extends Algorithm {
 	public void startInBenchmarkMode() {
 		terminationCounter = terminationCriterion;
 		
-		runtime = System.currentTimeMillis();	
-
+//		maxFitnessPerPopulation = new LinkedList<Double>();
+		
+		runtime = System.currentTimeMillis();
+		
 		List<Composition> population = generateInitialPopulation();
-
+		
+		int numberOfElites = (int) Math.round(
+				populationSize * elitismRate);
+		
 		while (terminationCounter > 0) {
 			// Temporarily save the elite compositions.
-			int numberOfElites = (int) Math.round(
-					populationSize * elitismRate);
 			List<Composition> elites = doSelectionElitismBased(
 					population, numberOfElites);
 		
@@ -216,13 +219,11 @@ public class GeneticAlgorithm extends Algorithm {
 //			matingPool = doSelectionLinearRanking(population);
 			// Binary Tournament
 //			matingPool = doSelectionBinaryTournament(population);
-
+			
 			// CROSSOVER
 			// One-Point Crossover
 			matingPool = doCrossoverOnePoint(matingPool, crossoverRate);
-			// Two-Point Crossover
 //			matingPool = doCrossoverTwoPoint(matingPool, crossoverRate);
-			// Uniform Crossover
 //			matingPool = doCrossoverUniform(matingPool, crossoverRate);
 
 			// MUTATION
@@ -232,12 +233,21 @@ public class GeneticAlgorithm extends Algorithm {
 			matingPool = doElitePreservation(matingPool, elites);
 			
 //			boolean hasPopulationChanged = true;
-//			hasPopulationChanged(population, matingPool);
+//			if (terminationMethod.contains("Consecutive Equal Generations")) {
+//				hasPopulationChanged = 
+//						hasPopulationChanged(population, matingPool);
+//			}
 			
+			// Update the population.
 			population.removeAll(population);
 			population.addAll(matingPool);
 			
-			// Needed for Fitness Value Convergence
+			// Update the fitness values.
+			for (Composition composition : population) {
+				composition.computeFitness(constraintsMap);
+			}
+			
+			// Save the values needed for visualization.
 //			setVisualizationValues(population);
 			
 			// TERMINATION CRITERION
@@ -264,7 +274,8 @@ public class GeneticAlgorithm extends Algorithm {
 		}
 		
 		// Sort the population according to the fitness of the 
-		// compositions. Thus, the first elements are the elite elements.
+		// compositions. Thus, the first elements are the elite 
+		// elements.
 		Collections.sort(population, new FitnessComparator());
 		
 		// Show the best solution in the result table.

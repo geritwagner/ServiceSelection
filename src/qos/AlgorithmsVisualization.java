@@ -6,7 +6,6 @@ import javax.swing.JFrame;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.JTabbedPane;
-import javax.swing.JPanel;
 
 public class AlgorithmsVisualization extends JFrame {
 
@@ -56,7 +55,8 @@ public class AlgorithmsVisualization extends JFrame {
 						averageUtilityPerPopulation), null);
 				
 		tabbedPane.addTab("Ant Algorithm", null, 
-				new AntAlgorithmVisualizationPanel(optUtilityPerIteration), null);
+				new AntAlgorithmVisualizationPanel(
+						optUtilityPerIteration), null);
 	}
 	
 	public void closeWindow() {
