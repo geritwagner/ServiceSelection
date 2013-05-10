@@ -61,7 +61,7 @@ public class AntAlgorithm extends Algorithm {
 	}
 
 	public void start() {	
-		runtime = System.currentTimeMillis();
+		runtime = System.nanoTime();
 		workPercentage = 0;
 		initAlgo();
 		optUtilityPerIteration = new LinkedList<Double>();
@@ -117,7 +117,7 @@ public class AntAlgorithm extends Algorithm {
 			}	
 		}
 		
-		runtime = System.currentTimeMillis() - runtime;
+		runtime = System.nanoTime() - runtime;
 		if (optimalComposition != null) {
 			List<ServiceCandidate> sCList = new LinkedList<ServiceCandidate>();
 			for (int i=1; i<optimalComposition.getServiceCandidatesList().size()-1; i++) {

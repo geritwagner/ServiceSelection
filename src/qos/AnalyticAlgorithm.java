@@ -36,7 +36,7 @@ public class AnalyticAlgorithm extends Algorithm {
 	
 	@Override
 	public void start() {
-		runtime = System.currentTimeMillis();
+		runtime = System.nanoTime();
 		workPercentage = 0;
 		// Do complete enumeration.
 		for (int i = 0; i < serviceClassesList.get(0).
@@ -46,8 +46,21 @@ public class AnalyticAlgorithm extends Algorithm {
 		}	
 		for (int i = 0; i < algorithmSolutionTiers.size(); i++) {
 			algorithmSolutionTiers.get(i).setTierTitle(i + 1);
-		} 
-		runtime = System.currentTimeMillis() - runtime;
+		}
+		runtime = System.nanoTime() - runtime;
+	}
+	
+	public void startInBenchmarkMode() {
+		runtime = System.nanoTime();
+		// Do complete enumeration.
+		for (int i = 0; i < serviceClassesList.get(0).
+				getServiceCandidateList().size(); i++) {
+			doCompleteEnumeration(new Composition(), 0, i);
+		}	
+		for (int i = 0; i < algorithmSolutionTiers.size(); i++) {
+			algorithmSolutionTiers.get(i).setTierTitle(i + 1);
+		}
+		runtime = System.nanoTime() - runtime;
 	}
 	
 	// ENUMERATION

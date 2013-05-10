@@ -52,8 +52,8 @@ public class GeneticAlgorithm extends Algorithm {
 		this.minEquality = minEquality / 100.0;
 	}
 
-	// TODO: if changes are made to this method, 
-	//		 startInBenchmarkMode() has to be updated!
+	// If changes are made to this method, 
+	// startInBenchmarkMode() has to be updated!
 	@Override
 	public void start() {
 		workPercentage = 0;
@@ -64,7 +64,7 @@ public class GeneticAlgorithm extends Algorithm {
 		maxFitnessPerPopulation = new LinkedList<Double>();
 		averageFitnessPerPopulation = new LinkedList<Double>();
 		
-		runtime = System.currentTimeMillis();
+		runtime = System.nanoTime();
 		
 		List<Composition> population = generateInitialPopulation();
 		setVisualizationValues(population);
@@ -120,7 +120,7 @@ public class GeneticAlgorithm extends Algorithm {
 			}
 			
 			// Update the population.
-			population.removeAll(population);
+			population.clear();
 			population.addAll(matingPool);
 			
 			// Update the fitness values.
@@ -188,26 +188,22 @@ public class GeneticAlgorithm extends Algorithm {
 					new AlgorithmSolutionTier(optimalComposition, 1));
 		}
 		
-		runtime = System.currentTimeMillis() - runtime;		
+		runtime = System.nanoTime() - runtime;		
 	}
 	
-	// TODO: Pretty much copy/paste; so if changes are made to 
-	//		 the start()-method, this method has to be updated!
-	// TODO: NOT UP-TO-DATE!!!
+	// Pretty much copy/paste; so if changes are made to 
+	// the start()-method, this method has to be updated!
 	public void startInBenchmarkMode() {
 		terminationCounter = terminationCriterion;
-		
-		runtime = System.currentTimeMillis();	
-
+//		maxFitnessPerPopulation = new LinkedList<Double>();
+		runtime = System.nanoTime();
 		List<Composition> population = generateInitialPopulation();
-
+		int numberOfElites = (int) Math.round(
+				populationSize * elitismRate);
 		while (terminationCounter > 0) {
 			// Temporarily save the elite compositions.
-			int numberOfElites = (int) Math.round(
-					populationSize * elitismRate);
 			List<Composition> elites = doSelectionElitismBased(
 					population, numberOfElites);
-		
 			// SELECTION
 			List<Composition> matingPool;
 			// Roulette Wheel
@@ -216,28 +212,28 @@ public class GeneticAlgorithm extends Algorithm {
 //			matingPool = doSelectionLinearRanking(population);
 			// Binary Tournament
 //			matingPool = doSelectionBinaryTournament(population);
-
 			// CROSSOVER
 			// One-Point Crossover
 			matingPool = doCrossoverOnePoint(matingPool, crossoverRate);
-			// Two-Point Crossover
 //			matingPool = doCrossoverTwoPoint(matingPool, crossoverRate);
-			// Uniform Crossover
 //			matingPool = doCrossoverUniform(matingPool, crossoverRate);
-
 			// MUTATION
 			doMutation(matingPool, mutationRate);
-			
 			// Replace the worst compositions with the elites.
 			matingPool = doElitePreservation(matingPool, elites);
-			
 //			boolean hasPopulationChanged = true;
-//			hasPopulationChanged(population, matingPool);
-			
-			population.removeAll(population);
+//			if (terminationMethod.contains("Consecutive Equal Generations")) {
+//				hasPopulationChanged = 
+//						hasPopulationChanged(population, matingPool);
+//			}
+			// Update the population.
+			population.clear();
 			population.addAll(matingPool);
-			
-			// Needed for Fitness Value Convergence
+			// Update the fitness values.
+			for (Composition composition : population) {
+				composition.computeFitness(constraintsMap);
+			}
+			// Save the values needed for visualization.
 //			setVisualizationValues(population);
 			
 			// TERMINATION CRITERION
@@ -262,12 +258,14 @@ public class GeneticAlgorithm extends Algorithm {
 //				terminationCounter = terminationCriterion;
 //			}
 		}
-		
 		// Sort the population according to the fitness of the 
-		// compositions. Thus, the first elements are the elite elements.
+		// compositions. Thus, the first elements are the elite 
+		// elements.
 		Collections.sort(population, new FitnessComparator());
-		
 		// Show the best solution in the result table.
+		// But first, delete the best solution from the previous 
+		// benchmarking iteration.
+		algorithmSolutionTiers.clear();
 		if (population.get(0).isWithinConstraints(constraintsMap)) {
 			List<Composition> optimalComposition = 
 					new LinkedList<Composition>();
@@ -275,8 +273,7 @@ public class GeneticAlgorithm extends Algorithm {
 			algorithmSolutionTiers.add(
 					new AlgorithmSolutionTier(optimalComposition, 1));
 		}
-		
-		runtime = System.currentTimeMillis() - runtime;		
+		runtime = System.nanoTime() - runtime;		
 	}
 
 	
