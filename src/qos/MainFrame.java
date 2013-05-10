@@ -181,7 +181,7 @@ public class MainFrame extends JFrame {
 	private static final double DEFAULT_BETA = 1;
 	private static final double DEFAULT_DILUTION = 0.01;
 	private static final double DEFAULT_PIINIT = 1;
-	private static final int NUMBER_OF_BENCHMARK_ITERATIONS = 10000;
+	private static final int NUMBER_OF_BENCHMARK_ITERATIONS = 100;
 	
 	// Formats
 	private static final DecimalFormat DECIMAL_FORMAT_TWO = 
@@ -2322,7 +2322,7 @@ public class MainFrame extends JFrame {
 				new JLabel("Number of Web Services (per Class):"),
 				spinnerNumberOfWebServices
 		};
-		if (JOptionPane.showConfirmDialog(null, dialogComponents, 
+		if (JOptionPane.showConfirmDialog(this, dialogComponents, 
 				"Random Set Properties", 
 				JOptionPane.OK_CANCEL_OPTION, 
 				JOptionPane.QUESTION_MESSAGE) != JOptionPane.YES_OPTION) {
@@ -2349,6 +2349,12 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void saveModelSetup() {
+		if (serviceClassesList.size() <= 0) {
+			JOptionPane.showMessageDialog(this, 
+					"<html>No Web Services available.<br>" +
+					"Please load or generate Model Setup!</html>");
+			return;
+		}
 		ServiceSelectionFileChooser fileChooser = 
 				new ServiceSelectionFileChooser("DataSet.csv");
 		if (fileChooser.showSaveDialog(MainFrame.this) != 
@@ -2356,47 +2362,57 @@ public class MainFrame extends JFrame {
 			return;
 		}								
 		File file = fileChooser.getSelectedFile();
-		checkOverwrite(file, "Model Setup has");
-		BufferedWriter bufferedWriter = null;
-		try {
-			bufferedWriter = new BufferedWriter(new FileWriter(file));
-			
-			Map<String, Constraint> constraintsMap = getChosenConstraints();
-			Constraint costs = constraintsMap.get(Constraint.COSTS);
-			Constraint responseTime = constraintsMap.get(
-					Constraint.RESPONSE_TIME);
-			Constraint availability = constraintsMap.get(
-					Constraint.AVAILABILITY);			
-			String constraintsHeader = "" + Constraint.COSTS + 
-					";" + Constraint.RESPONSE_TIME + 
-					";" + Constraint.AVAILABILITY;			
-			String values = "" + costs.getValue() + ";" + 
-					responseTime.getValue() + ";" + availability.getValue();
-			String weights = "" + costs.getWeight() + ";" + 
-					responseTime.getWeight() + ";" + availability.getWeight();
-			bufferedWriter.write(constraintsHeader);
-			bufferedWriter.newLine();
-			bufferedWriter.write(values);
-			bufferedWriter.newLine();
-			bufferedWriter.write(weights);
-			bufferedWriter.newLine();
-			bufferedWriter.newLine();
-			
-			String header = "serviceClassId;serviceClassName;ID;Name;" +
-					"Costs;Response Time;Availability";
-			bufferedWriter.write(header);			
-			for (ServiceCandidate sc : serviceCandidatesList) {
-				String line = sc.getServiceClassId() + ";ServiceClass" + 
-					sc.getServiceClassId() + ";" + sc.getServiceCandidateId() + 
-					";" + sc.getName() + ";" + sc.getQosVector().getCosts() + 
-					";" + sc.getQosVector().getResponseTime() + ";" + 
-					sc.getQosVector().getAvailability();
+		if (!file.getAbsolutePath().toLowerCase().endsWith(".csv")) {
+			file = new File(
+					fileChooser.getSelectedFile().getAbsolutePath() + ".csv");
+		}
+		if (checkOverwrite(file, "Model Setup has")) {
+			BufferedWriter bufferedWriter = null;
+			try {
+				bufferedWriter = new BufferedWriter(new FileWriter(file));
+				
+				Map<String, Constraint> constraintsMap = 
+					getChosenConstraints();
+				Constraint costs = constraintsMap.get(Constraint.COSTS);
+				Constraint responseTime = constraintsMap.get(
+						Constraint.RESPONSE_TIME);
+				Constraint availability = constraintsMap.get(
+						Constraint.AVAILABILITY);			
+				String constraintsHeader = "" + Constraint.COSTS + 
+						";" + Constraint.RESPONSE_TIME + 
+						";" + Constraint.AVAILABILITY;			
+				String values = "" + costs.getValue() + ";" + 
+						responseTime.getValue() + ";" + 
+						availability.getValue();
+				String weights = "" + costs.getWeight() + ";" + 
+						responseTime.getWeight() + ";" + 
+						availability.getWeight();
+				bufferedWriter.write(constraintsHeader);
 				bufferedWriter.newLine();
-				bufferedWriter.write(line);
+				bufferedWriter.write(values);
+				bufferedWriter.newLine();
+				bufferedWriter.write(weights);
+				bufferedWriter.newLine();
+				bufferedWriter.newLine();
+				
+				String header = "serviceClassId;serviceClassName;ID;Name;" +
+						"Costs;Response Time;Availability";
+				bufferedWriter.write(header);			
+				for (ServiceCandidate sc : serviceCandidatesList) {
+					String line = sc.getServiceClassId() + ";ServiceClass" + 
+						sc.getServiceClassId() + ";" + 
+						sc.getServiceCandidateId() + ";" + 
+						sc.getName() + ";" + 
+						sc.getQosVector().getCosts() + ";" + 
+						sc.getQosVector().getResponseTime() + ";" + 
+						sc.getQosVector().getAvailability();
+					bufferedWriter.newLine();
+					bufferedWriter.write(line);
+				}
+				bufferedWriter.close();
+			} catch (IOException e1) {	
+				e1.printStackTrace();
 			}
-			bufferedWriter.close();
-		} catch (IOException e1) {	
-			e1.printStackTrace();
 		}
 	}
 	
@@ -2454,39 +2470,45 @@ public class MainFrame extends JFrame {
 			return;
 		}                
 		File file = fileChooser.getSelectedFile();
-		checkOverwrite(file, "Algorithm Settings have");
-		BufferedWriter bufferedWriter = null;
-		try {
-			bufferedWriter = new BufferedWriter(new FileWriter(file));				
-			String header = "txtAntVariant;txtAntIterations;txtAntAnts;" +
-					"txtAntAlpha;txtAntBeta;txtAntDilution;txtAntPi";
-			header += ";Population Size;Selection Method;" + 
-					"Elitism Rate;Crossover Method;" +
-					"Crossover Rate;Mutation Rate;" +
-					"Termination Criterion;Termination Value;" +
-					"Termination Degree of Equality";			
-			String values = ""+txtAntVariant.getText();
-			values += ";" + txtAntIterations.getText();
-			values += ";" + txtAntAnts.getText();
-			values += ";" + txtAntAlpha.getText();
-			values += ";" + txtAntBeta.getText();
-			values += ";" + txtAntDilution.getText();
-			values += ";" + txtAntPi.getText();
-			values += ";" + jTextFieldPopulationSize.getText();
-			values += ";" + jComboBoxSelection.getSelectedItem();
-			values += ";" + jTextFieldElitismRate.getText();
-			values += ";" + jComboBoxCrossover.getSelectedItem();
-			values += ";" + jTextFieldCrossoverRate.getText();
-			values += ";" + jTextFieldMutationRate.getText();
-			values += ";" + jComboBoxTerminationCriterion.getSelectedItem();
-			values += ";" + jTextFieldTerminationCriterion.getText();
-			values += ";" + jTextFieldTerminationDegree.getText();
-			bufferedWriter.write(header);
-			bufferedWriter.newLine();			
-			bufferedWriter.write(values);			
-			bufferedWriter.close();
-		} catch (IOException e1) {			
-			e1.printStackTrace();
+		if (!file.getAbsolutePath().toLowerCase().endsWith(".csv")) {
+			file = new File(
+					fileChooser.getSelectedFile().getAbsolutePath() + ".csv");
+		}
+		if (checkOverwrite(file, "Algorithm Settings have")) {
+			BufferedWriter bufferedWriter = null;
+			try {
+				bufferedWriter = new BufferedWriter(new FileWriter(file));				
+				String header = "txtAntVariant;txtAntIterations;txtAntAnts;" +
+						"txtAntAlpha;txtAntBeta;txtAntDilution;txtAntPi";
+				header += ";Population Size;Selection Method;" + 
+						"Elitism Rate;Crossover Method;" +
+						"Crossover Rate;Mutation Rate;" +
+						"Termination Criterion;Termination Value;" +
+						"Termination Degree of Equality";			
+				String values = ""+txtAntVariant.getText();
+				values += ";" + txtAntIterations.getText();
+				values += ";" + txtAntAnts.getText();
+				values += ";" + txtAntAlpha.getText();
+				values += ";" + txtAntBeta.getText();
+				values += ";" + txtAntDilution.getText();
+				values += ";" + txtAntPi.getText();
+				values += ";" + jTextFieldPopulationSize.getText();
+				values += ";" + jComboBoxSelection.getSelectedItem();
+				values += ";" + jTextFieldElitismRate.getText();
+				values += ";" + jComboBoxCrossover.getSelectedItem();
+				values += ";" + jTextFieldCrossoverRate.getText();
+				values += ";" + jTextFieldMutationRate.getText();
+				values += 
+					";" + jComboBoxTerminationCriterion.getSelectedItem();
+				values += ";" + jTextFieldTerminationCriterion.getText();
+				values += ";" + jTextFieldTerminationDegree.getText();
+				bufferedWriter.write(header);
+				bufferedWriter.newLine();			
+				bufferedWriter.write(values);			
+				bufferedWriter.close();
+			} catch (IOException e1) {			
+				e1.printStackTrace();
+			}
 		}
 	}
 	
@@ -2515,7 +2537,7 @@ public class MainFrame extends JFrame {
 	
 	// TODO: Adjust Dialog (if necessary)
 	private void showAboutDialog() {
-		JOptionPane.showMessageDialog(null, 
+		JOptionPane.showMessageDialog(this, 
 				"<html><h1>Service Selection Tool</h1><br>" +
 				"<h2><i>Version 1.0 (10.05.2013)</i></h2><br><br>" +
 				"<h3>Developed by:</h3>" +
@@ -2815,12 +2837,21 @@ public class MainFrame extends JFrame {
 	 */
 	
 	private void pressStartButton() {
+		// Delete former results
+		jTableGeneralResults.setValueAt("", 0, 1);
+		jTableGeneralResults.setValueAt("", 1, 1);
+		jTableGeneralResults.setValueAt("", 2, 1);
+		jTableGeneralResults.setValueAt("", 3, 1);
+		jTableGeneralResults.setValueAt("", 4, 1);
+		jTableGeneralResults.setValueAt("", 5, 1);
+		while (jTabbedPane.getTabCount() > 0) {
+			jTabbedPane.removeTabAt(0);
+		}
+
 		if(executeBenchmarking) {
 			executeBenchmarkingMethod();
 			return;
 		}
-		
-		
 		final Map<String, Constraint> constraintsMap = getChosenConstraints();
 		if (jCheckBoxBenchmarkMode.isSelected()) {
 			benchmarkMode = true;
@@ -2897,36 +2928,9 @@ public class MainFrame extends JFrame {
 					serviceClassesList, constraintsMap, 
 					(Integer) jSpinnerNumberResultTiers.getValue());
 		}
-
-
-		if (!benchmarkMode && 
-				(jCheckboxGeneticAlgorithm.isSelected() || 
-						jCheckBoxAnalyticAlgorithm.isSelected() || 
-						jCheckBoxAntColonyOptimization.isSelected())) {
-			new Thread() {
-				@Override
-				public void run() {
-					while(algorithmInProgress) {
-						if (jCheckboxGeneticAlgorithm.isSelected()) {
-							jProgressBarGeneticAlgorithm.setValue(
-									geneticAlgorithm.getWorkPercentage());
-						}						
-						if (jCheckBoxAntColonyOptimization.isSelected()) {
-							jProgressBarAntAlgorithm.setValue(
-									antAlgorithm.getWorkPercentage());
-						}
-						if (jCheckBoxAnalyticAlgorithm.isSelected()) {
-							jProgressBarAnalyticAlgorithm.setValue(
-									analyticAlgorithm.getWorkPercentage());
-						}
-						try {
-							sleep(100);
-						} catch (InterruptedException e) {
-						}
-					}
-				}
-			}.start();
-		}
+		
+		setEnabled(false);
+		jButtonStart.setEnabled(false);
 		
 		// BENCHMARK MODE
 		if (benchmarkMode) {
@@ -2949,23 +2953,26 @@ public class MainFrame extends JFrame {
 				}
 				
 				File file = new File("benchmark_genetic.csv");
-				checkOverwrite(file, "Benchmark has");
-				BufferedWriter bufferedWriter = null;
-				try {
-					bufferedWriter = new BufferedWriter(new FileWriter(file));
-					bufferedWriter.write("Iteration;Runtime;Utility");			
-					for (int i = 0; i < NUMBER_OF_BENCHMARK_ITERATIONS; i++) {				
-						bufferedWriter.newLine();
-						bufferedWriter.write(iterationValueArray[i][0] + ";" + 
-								iterationValueArray[i][1] + ";" + 
-								iterationValueArray[i][2]);
+				if(checkOverwrite(file, "Benchmark has")) {
+					BufferedWriter bufferedWriter = null;
+					try {
+						bufferedWriter = new BufferedWriter(
+								new FileWriter(file));
+						bufferedWriter.write("Iteration;Runtime;Utility");			
+						for (int i = 0; i < NUMBER_OF_BENCHMARK_ITERATIONS; 
+						i++) {				
+							bufferedWriter.newLine();
+							bufferedWriter.write(iterationValueArray[i][0] + 
+									";" + iterationValueArray[i][1] + 
+									";" + iterationValueArray[i][2]);
+						}
+						bufferedWriter.close();
+						writeErrorLogEntry("File benchmark_genetic has " +
+								"been created successfully");
+					} catch (IOException e1) {			
+						writeErrorLogEntry("File benchmark_genetic has " +
+								"not been created successfully");
 					}
-					bufferedWriter.close();
-					writeErrorLogEntry("File benchmark_genetic has been " +
-							"created successfully");
-				} catch (IOException e1) {			
-					writeErrorLogEntry("File benchmark_genetic has not been " +
-							"created successfully");
 				}
 			}
 			if (jCheckBoxAnalyticAlgorithm.isSelected()) {
@@ -2987,34 +2994,65 @@ public class MainFrame extends JFrame {
 				}
 				
 				File file = new File("benchmark_analytic.csv");
-				checkOverwrite(file, "Benchmark has");
-				BufferedWriter bufferedWriter = null;
-				try {
-					bufferedWriter = new BufferedWriter(new FileWriter(file));
-					bufferedWriter.write("Iteration;Runtime;Utility");			
-					for (int i = 0; i < NUMBER_OF_BENCHMARK_ITERATIONS; i++) {				
-						bufferedWriter.newLine();
-						bufferedWriter.write(iterationValueArray[i][0] + ";" + 
-								iterationValueArray[i][1] + ";" + 
-								iterationValueArray[i][2]);
+				if (checkOverwrite(file, "Benchmark has")) {
+					BufferedWriter bufferedWriter = null;
+					try {
+						bufferedWriter = new BufferedWriter(
+								new FileWriter(file));
+						bufferedWriter.write("Iteration;Runtime;Utility");			
+						for (int i = 0; i < NUMBER_OF_BENCHMARK_ITERATIONS; 
+						i++) {				
+							bufferedWriter.newLine();
+							bufferedWriter.write(iterationValueArray[i][0] + 
+									";" + iterationValueArray[i][1] + 
+									";" + iterationValueArray[i][2]);
+						}
+						bufferedWriter.close();
+						writeErrorLogEntry("File benchmark_analytic has " +
+								"been created successfully");
+					} catch (IOException e1) {			
+						writeErrorLogEntry("File benchmark_analytic has not " +
+								"been created successfully");
 					}
-					bufferedWriter.close();
-					writeErrorLogEntry("File benchmark_analytic has " +
-							"been created successfully");
-				} catch (IOException e1) {			
-					writeErrorLogEntry("File benchmark_analytic has not " +
-							"been created successfully");
 				}
 			}
+			jButtonVisualize.setEnabled(false);
+			jButtonSaveResults.setEnabled(false);
 		}
 		// STANDARD MODE
 		else {
+			// Progress Bar Thread
+			if ((jCheckboxGeneticAlgorithm.isSelected() || 
+					jCheckBoxAnalyticAlgorithm.isSelected() || 
+					jCheckBoxAntColonyOptimization.isSelected())) {
+				new Thread() {
+					@Override
+					public void run() {
+						while(algorithmInProgress) {
+							if (jCheckboxGeneticAlgorithm.isSelected()) {
+								jProgressBarGeneticAlgorithm.setValue(
+										geneticAlgorithm.getWorkPercentage());
+							}						
+							if (jCheckBoxAntColonyOptimization.isSelected()) {
+								jProgressBarAntAlgorithm.setValue(
+										antAlgorithm.getWorkPercentage());
+							}
+							if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+								jProgressBarAnalyticAlgorithm.setValue(
+										analyticAlgorithm.getWorkPercentage());
+							}
+							try {
+								sleep(100);
+							} catch (InterruptedException e) {
+							}
+						}
+					}
+				}.start();
+			}
 			// Calculation and Results Display Thread
 			new Thread() {
 				@Override
 				public void run() {
-					setEnabled(false);
-					jButtonStart.setEnabled(false);
 					if (jCheckboxGeneticAlgorithm.isSelected()) {
 						doGeneticAlgorithm();
 					}
@@ -3059,7 +3097,8 @@ public class MainFrame extends JFrame {
 						double optimalUtility = 0.0;
 						if (analyticAlgorithm.getAlgorithmSolutionTiers().
 								size() > 0) {
-							optimalUtility = analyticAlgorithm.getOptimalUtiliy();
+							optimalUtility = 
+								analyticAlgorithm.getOptimalUtiliy();
 						}
 						if (jCheckboxGeneticAlgorithm.isSelected()) {
 							if (geneticAlgorithm.getAlgorithmSolutionTiers().
@@ -3083,9 +3122,7 @@ public class MainFrame extends JFrame {
 						}
 						if (jCheckBoxAntColonyOptimization.isSelected()) {
 							double antDelta = optimalUtility - antAlgorithm.
-									getAlgorithmSolutionTiers().get(0).
-									getServiceCompositionList().get(0).
-									getUtility();
+									getOptimalUtiliy();
 							jTableGeneralResults.setValueAt(
 									DECIMAL_FORMAT_FOUR.format(antDelta) + 
 									" (" + DECIMAL_FORMAT_TWO.format(Math.abs(
@@ -3094,20 +3131,13 @@ public class MainFrame extends JFrame {
 						}
 					}
 					buildResultTable();
-					if (benchmarkMode) {
-						jButtonVisualize.setEnabled(false);
-					}
-					else {
-						jButtonVisualize.setEnabled(true);
-					}
-					jButtonSaveResults.setEnabled(true);
-					jButtonStart.setEnabled(true);
-					setEnabled(true);				
+					jButtonVisualize.setEnabled(true);
+					jButtonSaveResults.setEnabled(true);			
 				}
 			}.start();
 		}
-
-		
+		jButtonStart.setEnabled(true);
+		setEnabled(true);	
 	}			
 	
 	private void doGeneticAlgorithm() {
@@ -3280,6 +3310,7 @@ public class MainFrame extends JFrame {
 		return;
 	}
 
+	
 	
 	/*	+-----------------------------------------------------------+
 	 * 	| +-------------------------------------------------------+ |
@@ -3535,26 +3566,31 @@ public class MainFrame extends JFrame {
 	
 	private void saveResults() {
 		final ServiceSelectionFileChooser fileChooser = 
-				new ServiceSelectionFileChooser("Result");
+				new ServiceSelectionFileChooser("Result.csv");
 		if (!(fileChooser.showSaveDialog(MainFrame.this) == 
 				JFileChooser.APPROVE_OPTION)) {
 			return;
 		}
 		File file = fileChooser.getSelectedFile();
-		checkOverwrite(file, "Results have");
-		BufferedWriter bufferedWriter = null;
-		try {
-			bufferedWriter = new BufferedWriter(new FileWriter(file));
-			String header = "Algorithm;Runtime;Utility;Costs;" +
-					"Response Time;Availability";
-			bufferedWriter.write(header);			
-			for (String line : saveResultList) {				
-				bufferedWriter.newLine();
-				bufferedWriter.write(line);
+		if (!file.getAbsolutePath().toLowerCase().endsWith(".csv")) {
+			file = new File(
+					fileChooser.getSelectedFile().getAbsolutePath() + ".csv");
+		}
+		if (checkOverwrite(file, "Results have")) {
+			BufferedWriter bufferedWriter = null;
+			try {
+				bufferedWriter = new BufferedWriter(new FileWriter(file));
+				String header = "Algorithm;Runtime;Utility;Costs;" +
+						"Response Time;Availability";
+				bufferedWriter.write(header);			
+				for (String line : saveResultList) {				
+					bufferedWriter.newLine();
+					bufferedWriter.write(line);
+				}
+				bufferedWriter.close();
+			} catch (IOException e1) {			
+				e1.printStackTrace();
 			}
-			bufferedWriter.close();
-		} catch (IOException e1) {			
-			e1.printStackTrace();
 		}
 	}
 	
@@ -3889,7 +3925,7 @@ public class MainFrame extends JFrame {
 		return new QosVector(costs, responseTime, availability);
 	}
 	
-	private void checkOverwrite(File file, String customDescription) {
+	private boolean checkOverwrite(File file, String customDescription) {
 		if (!file.getName().endsWith(".csv")) {
 			if (file.getName().contains(".")) {
 				file = new File(file.getPath().substring(
@@ -3901,18 +3937,19 @@ public class MainFrame extends JFrame {
 		}
 		if (file.exists()) {
 			if (JOptionPane.showConfirmDialog(
-					null, "<html>File already exists.<br>Overwrite?</html>", 
+					this, "<html>File already exists.<br>Overwrite?</html>", 
 					"Warning", JOptionPane.YES_NO_OPTION) != 
 						JOptionPane.YES_OPTION) {
 				JOptionPane.showMessageDialog(
-						null, "<html>" + customDescription + 
+						this, "<html>" + customDescription + 
 						" <b color=red>not</b> " + "been saved!</html>", 
 						"Note", JOptionPane.WARNING_MESSAGE);
 				writeErrorLogEntry("Save " + customDescription.substring(
 						0, customDescription.lastIndexOf(" ")) + 
 						" not completed");
-				return;
+				return false;
 			}
 		}
+		return true;
 	}
 }

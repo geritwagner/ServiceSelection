@@ -26,8 +26,10 @@ public class ServiceCandidate {
 	
 	public void determineUtilityValue(Map<String, Constraint> constraintsMap, 
 			QosVector max, QosVector min) {
-		// (Q_Max - Q_i) / (Q_max - Q_min) * Weight		QoS to be minimized
-		// (Q_i - Q_min) / (Q_max - Q_min) * Weight		QoS to be maximized
+		// (Q_Max - Q_i) / (Q_max - Q_min) * Weight		
+		//  -> QoS to be minimized
+		// (Q_i - Q_min) / (Q_max - Q_min) * Weight		
+		//  -> QoS to be maximized
 		if (max == min) {
 			
 		}

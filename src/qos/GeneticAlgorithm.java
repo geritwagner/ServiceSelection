@@ -796,6 +796,10 @@ public class GeneticAlgorithm extends Algorithm {
 	public int getWorkPercentage() {
 		return workPercentage;
 	}
+	public double getOptimalUtiliy() {
+		return algorithmSolutionTiers.get(0).
+		getServiceCompositionList().get(0).getUtility();
+	}
 	
 	
 	
@@ -813,10 +817,5 @@ public class GeneticAlgorithm extends Algorithm {
 				return 0;
 			}
 		}
-	}
-
-
-	public double getOptimalUtiliy() {
-		return 	this.getAlgorithmSolutionTiers().get(0).getServiceCompositionList().get(0).getUtility();
 	}
 }
