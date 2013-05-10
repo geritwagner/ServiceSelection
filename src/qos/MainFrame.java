@@ -202,6 +202,7 @@ public class MainFrame extends JFrame {
 	private boolean correctWeights = true;
 	private boolean benchmarkMode = false;
 	private boolean algorithmInProgress;
+	private boolean executeBenchmarking = false;
 	
 	// Integer & Double
 	private int maxCosts = 10000;
@@ -2816,6 +2817,12 @@ public class MainFrame extends JFrame {
 	 */
 	
 	private void pressStartButton() {
+		if(executeBenchmarking) {
+			executeBenchmarkingMethod();
+			return;
+		}
+		
+		
 		final Map<String, Constraint> constraintsMap = getChosenConstraints();
 		if (jCheckBoxBenchmarkMode.isSelected()) {
 			benchmarkMode = true;
@@ -3160,6 +3167,22 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	private void executeBenchmarkingMethod() {
+		
+		// Gerit: todo
+		
+		// Define Test-Scenarios
+		
+			// Model-Setup
+		loadModelSetup();
+			// Algorithm Settings
+		
+		// Execute Methods
+		
+		// Save Results
+		
+		return;
+	}
 
 	
 	/*	+-----------------------------------------------------------+
