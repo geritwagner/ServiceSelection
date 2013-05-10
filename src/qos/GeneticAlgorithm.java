@@ -814,4 +814,9 @@ public class GeneticAlgorithm extends Algorithm {
 			}
 		}
 	}
+
+
+	public double getOptimalUtiliy() {
+		return 	this.getAlgorithmSolutionTiers().get(0).getServiceCompositionList().get(0).getUtility();
+	}
 }

@@ -851,6 +851,10 @@ public class AntAlgorithm extends Algorithm {
 		return runtime;
 	}
 
+	public double getOptimalUtiliy() {
+		return optimalComposition.getUtility();
+	}
+	
 	public List<AlgorithmSolutionTier> getAlgorithmSolutionTiers() {
 		return algorithmSolutionTiers;
 	}

@@ -2941,9 +2941,7 @@ public class MainFrame extends JFrame {
 					if (geneticAlgorithm.getAlgorithmSolutionTiers().
 							size() > 0) {
 						iterationValueArray[i][2] = String.valueOf(
-								geneticAlgorithm.getAlgorithmSolutionTiers().
-								get(0).getServiceCompositionList().
-								get(0).getUtility());
+								geneticAlgorithm.getOptimalUtiliy());
 					}
 					else {
 						iterationValueArray[i][2] = "No Solution";
@@ -2981,9 +2979,7 @@ public class MainFrame extends JFrame {
 					if (analyticAlgorithm.getAlgorithmSolutionTiers().
 							size() > 0) {
 						iterationValueArray[i][2] = String.valueOf(
-								analyticAlgorithm.getAlgorithmSolutionTiers().
-								get(0).getServiceCompositionList().
-								get(0).getUtility());
+								analyticAlgorithm.getOptimalUtiliy());
 					}
 					else {
 						iterationValueArray[i][2] = "No Solution";
@@ -3063,19 +3059,13 @@ public class MainFrame extends JFrame {
 						double optimalUtility = 0.0;
 						if (analyticAlgorithm.getAlgorithmSolutionTiers().
 								size() > 0) {
-							optimalUtility = analyticAlgorithm.
-									getAlgorithmSolutionTiers().								
-									get(0).getServiceCompositionList().
-									get(0).getUtility();
+							optimalUtility = analyticAlgorithm.getOptimalUtiliy();
 						}
 						if (jCheckboxGeneticAlgorithm.isSelected()) {
 							if (geneticAlgorithm.getAlgorithmSolutionTiers().
 									size() > 0) {
 								double geneticDelta = optimalUtility - 
-										geneticAlgorithm.
-										getAlgorithmSolutionTiers().
-										get(0).getServiceCompositionList().
-										get(0).getUtility();
+										geneticAlgorithm.getOptimalUtiliy();
 								jTableGeneralResults.setValueAt(
 										DECIMAL_FORMAT_FOUR.format(
 												geneticDelta) + " (" + 
