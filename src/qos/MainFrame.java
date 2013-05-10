@@ -3034,18 +3034,24 @@ public class MainFrame extends JFrame {
 					if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 						jProgressBarAnalyticAlgorithm.setValue(100);
 					}
-					if (cumulatedRuntime > 120000) {
+					if (cumulatedRuntime > (120000.0 * 1000000.0)) {
 						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.
-								format(cumulatedRuntime / 60000) + " min", 
-								0, 1);
+								format(cumulatedRuntime / 
+										(60000.0 * 1000000.0)) + " min", 0, 1);
 					}
-					else if (cumulatedRuntime > 1000) {
+					else if (cumulatedRuntime > (1000.0 * 1000000.0)) {
 						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.
-								format(cumulatedRuntime / 1000) + " s", 0, 1);
+								format(cumulatedRuntime / 
+										(1000.0 * 1000000.0)) + " s", 0, 1);
+					}
+					else if (cumulatedRuntime > 1000000.0) {
+						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.
+								format(cumulatedRuntime / 1000000.0) + 
+								" ms", 0, 1);
 					}
 					else {
 						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.
-								format(cumulatedRuntime) + " ms", 0, 1);
+								format(cumulatedRuntime) + " ns", 0, 1);
 					}
 					// TODO: If ant algorithm has no solution, 
 					//		 handle output visualization!
@@ -3114,52 +3120,65 @@ public class MainFrame extends JFrame {
 		geneticAlgorithm.start();
 		double runtime = geneticAlgorithm.getRuntime();
 		cumulatedRuntime += runtime;
-		if (runtime > 120000) {
+		if (runtime > (120000.0 * 1000000.0)) {
 			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
-					runtime / 60000.0) + " min", 1, 1);
+					runtime / (60000.0 * 1000000.0)) + " min", 1, 1);
 		}
-		else if (runtime > 1000) {
+		else if (runtime > (1000.0 * 1000000.0)) {
 			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
-					runtime / 1000.0) + " s", 1, 1);
+					runtime / (1000.0 * 1000000.0)) + " s", 1, 1);
+		}
+		else if (runtime > 1000000.0) {
+			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
+					runtime / 1000000.0) + " ms", 1, 1);
 		}
 		else {
 			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
-					runtime) + " ms", 1, 1);
+					runtime) + " ns", 1, 1);
 		}
 	}
 	
 	private void doAntAlgorithm() {			
-		antAlgorithm.start();        
-		cumulatedRuntime += antAlgorithm.getRuntime();
-		if (antAlgorithm.getRuntime() > 120000) {
-			jTableGeneralResults.setValueAt(
-					antAlgorithm.getRuntime() / 60000.0 + " min", 2, 1);
+		antAlgorithm.start();
+		double runtime = antAlgorithm.getRuntime();
+		cumulatedRuntime += runtime;
+		if (runtime > (120000.0 * 1000000.0)) {
+			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
+					runtime / (60000.0 * 1000000.0)) + " min", 2, 1);
 		}
-		else if (antAlgorithm.getRuntime() > 1000) {
-			jTableGeneralResults.setValueAt(
-					antAlgorithm.getRuntime() / 1000.0 + " s", 2, 1);
+		else if (runtime > (1000.0 * 1000000.0)) {
+			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
+					runtime / (1000.0 * 1000000.0)) + " s", 2, 1);
+		}
+		else if (runtime > 1000000.0) {
+			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
+					runtime / 1000000.0) + " ms", 2, 1);
 		}
 		else {
-			jTableGeneralResults.setValueAt(
-					antAlgorithm.getRuntime() + " ms", 2, 1);
-		}		    
+			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
+					runtime) + " ns", 2, 1);
+		}
 	}
 	
 	private void doEnumeration() {
 		analyticAlgorithm.start();
 		double runtime = analyticAlgorithm.getRuntime();
-		cumulatedRuntime += analyticAlgorithm.getRuntime();
-		if (runtime > 120000) {
+		cumulatedRuntime += runtime;
+		if (runtime > (120000.0 * 1000000.0)) {
 			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
-					analyticAlgorithm.getRuntime() / 60000.0) + " min", 3, 1);
+					runtime / (60000.0 * 1000000.0)) + " min", 3, 1);
 		}
-		else if (runtime > 1000) {
+		else if (runtime > (1000.0 * 1000000.0)) {
 			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
-					analyticAlgorithm.getRuntime() / 1000.0) + " s", 3, 1);
+					runtime / (1000.0 * 1000000.0)) + " s", 3, 1);
+		}
+		else if (runtime > 1000000.0) {
+			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
+					runtime / 1000000.0) + " ms", 3, 1);
 		}
 		else {
 			jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.format(
-					runtime) + " ms", 3, 1);
+					runtime) + " ns", 3, 1);
 		}
 	}
 	
@@ -3366,14 +3385,14 @@ public class MainFrame extends JFrame {
 				// Build String for Result-Export
 				String resultLine = "";
 				resultLine += algorithmTitle;
-				resultLine += ";"+algorithm.getRuntime();
-				resultLine += ";"+tierServiceCompositionList.get(rowCount).
+				resultLine += ";" + algorithm.getRuntime();
+				resultLine += ";" + tierServiceCompositionList.get(rowCount).
 						getUtility();
-				resultLine += ";"+tierServiceCompositionList.get(rowCount).
+				resultLine += ";" + tierServiceCompositionList.get(rowCount).
 						getQosVectorAggregated().getCosts();
-				resultLine += ";"+tierServiceCompositionList.get(rowCount).
+				resultLine += ";" + tierServiceCompositionList.get(rowCount).
 						getQosVectorAggregated().getResponseTime();
-				resultLine += ";"+tierServiceCompositionList.get(rowCount).
+				resultLine += ";" + tierServiceCompositionList.get(rowCount).
 						getQosVectorAggregated().getAvailability();				
 				saveResultList.add(resultLine);
 				

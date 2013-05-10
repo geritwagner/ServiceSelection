@@ -64,7 +64,7 @@ public class GeneticAlgorithm extends Algorithm {
 		maxFitnessPerPopulation = new LinkedList<Double>();
 		averageFitnessPerPopulation = new LinkedList<Double>();
 		
-		runtime = System.currentTimeMillis();
+		runtime = System.nanoTime();
 		
 		List<Composition> population = generateInitialPopulation();
 		setVisualizationValues(population);
@@ -188,7 +188,7 @@ public class GeneticAlgorithm extends Algorithm {
 					new AlgorithmSolutionTier(optimalComposition, 1));
 		}
 		
-		runtime = System.currentTimeMillis() - runtime;		
+		runtime = System.nanoTime() - runtime;		
 	}
 	
 	// TODO: Pretty much copy/paste; so if changes are made to 
@@ -199,7 +199,7 @@ public class GeneticAlgorithm extends Algorithm {
 		
 //		maxFitnessPerPopulation = new LinkedList<Double>();
 		
-		runtime = System.currentTimeMillis();
+		runtime = System.nanoTime();
 		
 		List<Composition> population = generateInitialPopulation();
 		
@@ -287,7 +287,7 @@ public class GeneticAlgorithm extends Algorithm {
 					new AlgorithmSolutionTier(optimalComposition, 1));
 		}
 		
-		runtime = System.currentTimeMillis() - runtime;		
+		runtime = System.nanoTime() - runtime;		
 	}
 
 	
