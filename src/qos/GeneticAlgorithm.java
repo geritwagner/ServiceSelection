@@ -120,7 +120,7 @@ public class GeneticAlgorithm extends Algorithm {
 			}
 			
 			// Update the population.
-			population.removeAll(population);
+			population.clear();
 			population.addAll(matingPool);
 			
 			// Update the fitness values.
@@ -239,7 +239,7 @@ public class GeneticAlgorithm extends Algorithm {
 //			}
 			
 			// Update the population.
-			population.removeAll(population);
+			population.clear();
 			population.addAll(matingPool);
 			
 			// Update the fitness values.
@@ -279,6 +279,9 @@ public class GeneticAlgorithm extends Algorithm {
 		Collections.sort(population, new FitnessComparator());
 		
 		// Show the best solution in the result table.
+		// But first, delete the best solution from the previous 
+		// benchmarking iteration.
+		algorithmSolutionTiers.clear();
 		if (population.get(0).isWithinConstraints(constraintsMap)) {
 			List<Composition> optimalComposition = 
 					new LinkedList<Composition>();
