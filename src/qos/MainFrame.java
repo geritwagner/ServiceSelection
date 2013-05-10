@@ -365,7 +365,6 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void initializeMainContentPanel() {
-		// TODO: Find another title.
 		setTitle("Service Selection");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 0, 1100, 850);
@@ -874,7 +873,6 @@ public class MainFrame extends JFrame {
 		gbc_separatorWeights.gridy = 5;
 		jPanelQosConstraints.add(separatorWeights, gbc_separatorWeights);
 		
-		// TODO: Adjust Tooltip (?)
 		jCheckBoxRelaxation = new JCheckBox("Constraint Relaxation");
 		jCheckBoxRelaxation.setToolTipText("<html>Use this slider to set " +
 				"all constraints automatically<br>" +
@@ -2518,7 +2516,7 @@ public class MainFrame extends JFrame {
 	private void showAboutDialog() {
 		JOptionPane.showMessageDialog(null, 
 				"<html><h1>Service Selection Tool</h1><br>" +
-				"<h2><i>Version 1.0 (01.05.2013)</i></h2><br><br>" +
+				"<h2><i>Version 1.0 (10.05.2013)</i></h2><br><br>" +
 				"<h3>Developed by:</h3>" +
 				"<ul style=\"list-style-type: none;\">" +
 				"<li>Christian Deml</li>" +
@@ -2923,7 +2921,6 @@ public class MainFrame extends JFrame {
 			}.start();
 		}
 		
-		// TODO: Extend benchmark mode!
 		// BENCHMARK MODE
 		if (benchmarkMode) {
 			if (jCheckboxGeneticAlgorithm.isSelected()) {
@@ -2999,11 +2996,11 @@ public class MainFrame extends JFrame {
 								iterationValueArray[i][2]);
 					}
 					bufferedWriter.close();
-					writeErrorLogEntry("File benchmark_analytic has been " +
-							"created successfully");
+					writeErrorLogEntry("File benchmark_analytic has " +
+							"been created successfully");
 				} catch (IOException e1) {			
-					writeErrorLogEntry("File benchmark_analytic has not been " +
-							"created successfully");
+					writeErrorLogEntry("File benchmark_analytic has not " +
+							"been created successfully");
 				}
 			}
 		}
