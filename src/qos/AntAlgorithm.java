@@ -52,12 +52,7 @@ public class AntAlgorithm extends Algorithm {
 		this.iterations = iterations;
 		this.alpha = alpha;
 		this.beta = beta;
-		this.dilution = dilution;
-		
-		this.piMax = piInit;
-		double x = 1 / (double) this.serviceClassesList.size();
-		double pBest = Math.pow(0.05, x);		
-		this.piMin = (piMax*(1-pBest)) / ((this.serviceClassesList.size()/2-1)*pBest);		
+		this.dilution = dilution;						
 	}
 
 	public void start() {	
@@ -99,7 +94,14 @@ public class AntAlgorithm extends Algorithm {
 					doIteration();
 				} else if (variant == 2) {
 					doIterationV2();
-				} else if (variant == 3) {					
+				} else if (variant == 3) {
+					if (optimalComposition != null) {
+						piMax = optimalComposition.getUtility() / dilution;
+					} else {
+						piMax = 0.6 / dilution;
+					}					
+					piMin = piMax / (double) serviceClassesList.size();
+					piInit = piMax;					
 					doIterationV3();
 				} else if (variant == 5) {					
 					doIterationV5();
