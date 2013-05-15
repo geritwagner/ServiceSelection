@@ -461,25 +461,31 @@ public class GeneticAlgorithm extends Algorithm {
 			double mutationRate) {
 		for (int i = 0; i < population.size(); i++) {
 			List<ServiceCandidate> serviceCandidates = 
-					population.get(i).getServiceCandidatesList();
+					new LinkedList<ServiceCandidate>(
+							population.get(i).getServiceCandidatesList());
+			Collections.copy(serviceCandidates, 
+					population.get(i).getServiceCandidatesList());
+			boolean mutate = false;
 			
 			for (int j = 0; j < serviceCandidates.size(); j++) {
 				if (Math.random() < mutationRate) {
-					ServiceCandidate oldServiceCandidate = 
-							serviceCandidates.get(j);
+					mutate = true;
 					// Get the service candidates from the service 
-					// class that has to be mutated. "-1" is 
-					// necessary because the IDs start 
-					// with 1 instead of 0!
+					// class that has to be mutated.
 					List<ServiceCandidate> newServiceCandidates = 
-							serviceClassesList.get(oldServiceCandidate.
-									getServiceClassId() - 1).
+							serviceClassesList.get(j).
 									getServiceCandidateList();
 					serviceCandidates.set(j, newServiceCandidates.get((int) 
 							(Math.random() * newServiceCandidates.size())));
-					population.get(i).buildAggregatedQosVector();
-					population.get(i).computeUtilityValue();
 				}
+			}
+			if (mutate) {
+				Composition composition = new Composition();
+				composition.setServiceCandidateList(serviceCandidates);
+				composition.buildAggregatedQosVector();
+				composition.computeUtilityValue();
+				composition.computeFitness(constraintsMap);
+				population.set(i, composition);
 			}
 		}
 	}
