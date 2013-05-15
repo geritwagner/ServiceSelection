@@ -482,9 +482,13 @@ public class GeneticAlgorithm extends Algorithm {
 			if (mutate) {
 				Composition composition = new Composition();
 				composition.setServiceCandidateList(serviceCandidates);
-				composition.buildAggregatedQosVector();
-				composition.computeUtilityValue();
+				
+				// TODO: Kann man sich eigentlich sparen, da das 
+				//		 sowieso auﬂerhalb noch gemacht wird. 
+				//		 W‰hrend des Crossovers wird die Fitness 
+				//		 auch nicht aktualisiert.
 				composition.computeFitness(constraintsMap);
+				
 				population.set(i, composition);
 			}
 		}
