@@ -248,11 +248,10 @@ public class GeneticAlgorithm extends Algorithm {
 //				terminationCounter--;
 //			}
 			// Fitness Value Convergence
-//			if (maxFitnessPerPopulation.get(
-//					maxFitnessPerPopulation.size() - 1) <= 
+//			if ((double) maxFitnessPerPopulation.get(
+//					maxFitnessPerPopulation.size() - 1) == (double)
 //					maxFitnessPerPopulation.get(
-//							maxFitnessPerPopulation.size() - 2 - 
-//							terminationCriterion + terminationCounter)) {
+//							maxFitnessPerPopulation.size() - 2)) {
 //				terminationCounter--;
 //			}
 //			else {
