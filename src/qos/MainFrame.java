@@ -181,7 +181,7 @@ public class MainFrame extends JFrame {
 	private static final double DEFAULT_BETA = 1;
 	private static final double DEFAULT_DILUTION = 0.01;
 	private static final double DEFAULT_PIINIT = 1;
-	private static final int NUMBER_OF_BENCHMARK_ITERATIONS = 100;
+	private static final int NUMBER_OF_BENCHMARK_ITERATIONS = 10000;
 	
 	// Formats
 	private static final DecimalFormat DECIMAL_FORMAT_TWO = 
@@ -1547,7 +1547,7 @@ public class MainFrame extends JFrame {
 		
 		jTextFieldMutationRate = new JTextField(
 				String.valueOf(DEFAULT_MUTATION_RATE));
-		jTextFieldMutationRate.setColumns(2);
+		jTextFieldMutationRate.setColumns(3);
 		jTextFieldMutationRate.setHorizontalAlignment(
 				JTextField.RIGHT);
 		jTextFieldMutationRate.addActionListener(new ActionListener() {
@@ -2300,7 +2300,7 @@ public class MainFrame extends JFrame {
 			try {
 				bufferedReader.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				writeErrorLogEntry("File reader has not been closed");
 			}
 		}
 	}
@@ -2409,9 +2409,15 @@ public class MainFrame extends JFrame {
 					bufferedWriter.newLine();
 					bufferedWriter.write(line);
 				}
-				bufferedWriter.close();
-			} catch (IOException e1) {	
-				e1.printStackTrace();
+			} catch (IOException e) {	
+				writeErrorLogEntry(
+						"Model Setup has not been saved successfully");
+			} finally {
+				try {
+					bufferedWriter.close();
+				} catch (IOException e) {
+					writeErrorLogEntry("File writer has not been closed");
+				}
 			}
 		}
 	}
@@ -2454,12 +2460,19 @@ public class MainFrame extends JFrame {
 			jComboBoxTerminationCriterion.setSelectedItem(values[13]);
 			jTextFieldTerminationCriterion.setText(values[14]);
 			jTextFieldTerminationDegree.setText(values[15]);
-			bufferedReader.close();
-		} catch (IOException e1) {			
-			e1.printStackTrace();
+			
+		} catch (IOException e) {			
+			writeErrorLogEntry(
+					"Algorithm settings could not be loaded successfully");
 		} catch (NullPointerException e) {
 			writeErrorLogEntry("Chosen file has the wrong (internal) format");
-		}	
+		} finally {
+			try {
+				bufferedReader.close();
+			} catch (IOException e) {
+				writeErrorLogEntry("File reader has not been closed");
+			}
+		}
 	}
 	
 	private void saveAlgorithmSettings() {
@@ -2505,9 +2518,16 @@ public class MainFrame extends JFrame {
 				bufferedWriter.write(header);
 				bufferedWriter.newLine();			
 				bufferedWriter.write(values);			
-				bufferedWriter.close();
-			} catch (IOException e1) {			
-				e1.printStackTrace();
+			} catch (IOException e) {			
+				writeErrorLogEntry("Algorithm settings have not " +
+						"been saved successfully");
+			} finally {
+				try {
+					bufferedWriter.close();
+				} catch (IOException e) {
+					writeErrorLogEntry(
+							"File writer has not been closed");
+				}
 			}
 		}
 	}
@@ -2535,7 +2555,7 @@ public class MainFrame extends JFrame {
 //		
 //	}
 	
-	// TODO: Adjust Dialog (if necessary)
+	// TODO: Adjust Dialog if program gets updated
 	private void showAboutDialog() {
 		JOptionPane.showMessageDialog(this, 
 				"<html><h1>Service Selection Tool</h1><br>" +
@@ -2966,12 +2986,18 @@ public class MainFrame extends JFrame {
 									";" + iterationValueArray[i][1] + 
 									";" + iterationValueArray[i][2]);
 						}
-						bufferedWriter.close();
 						writeErrorLogEntry("File benchmark_genetic has " +
 								"been created successfully");
-					} catch (IOException e1) {			
+					} catch (IOException e) {			
 						writeErrorLogEntry("File benchmark_genetic has " +
 								"not been created successfully");
+					} finally {
+						try {
+							bufferedWriter.close();
+						} catch (IOException e) {
+							writeErrorLogEntry(
+									"File writer has not been closed");
+						}
 					}
 				}
 			}
@@ -3007,12 +3033,18 @@ public class MainFrame extends JFrame {
 									";" + iterationValueArray[i][1] + 
 									";" + iterationValueArray[i][2]);
 						}
-						bufferedWriter.close();
 						writeErrorLogEntry("File benchmark_analytic has " +
 								"been created successfully");
 					} catch (IOException e1) {			
 						writeErrorLogEntry("File benchmark_analytic has not " +
 								"been created successfully");
+					} finally {
+						try {
+							bufferedWriter.close();
+						} catch (IOException e) {
+							writeErrorLogEntry(
+									"File writer has not been closed");
+						}
 					}
 				}
 			}
@@ -3255,9 +3287,11 @@ public class MainFrame extends JFrame {
 	private void setElitismRateSelection() {
 		if (jCheckBoxElitismRate.isSelected()) {
 			jTextFieldElitismRate.setEditable(true);
+			jTextFieldElitismRate.setText("1");
 		}
 		else {
 			jTextFieldElitismRate.setEditable(false);
+			jTextFieldElitismRate.setText("0");
 		}
 	}
 
@@ -3587,9 +3621,14 @@ public class MainFrame extends JFrame {
 					bufferedWriter.newLine();
 					bufferedWriter.write(line);
 				}
-				bufferedWriter.close();
-			} catch (IOException e1) {			
-				e1.printStackTrace();
+			} catch (IOException e) {			
+				writeErrorLogEntry("File has not been created successfully");
+			} finally {
+				try {
+					bufferedWriter.close();
+				} catch (IOException e) {
+					writeErrorLogEntry("File writer has not been closed");
+				}
 			}
 		}
 	}
@@ -3662,8 +3701,7 @@ public class MainFrame extends JFrame {
 	private void checkInputValue(JTextField textField, 
 			int maxInput, int minInput, int defaultInput) {
 		if (textField.equals(jTextFieldPopulationSize) && 
-				serviceClassesList != null) {
-//			int populationSize = Integer.parseInt(textField.getText());
+				serviceClassesList.size() <= 0) {
 			long maxPopulationSize = 1;
 			for (ServiceClass serviceClass : serviceClassesList) {
 				maxPopulationSize *= 
@@ -3674,54 +3712,45 @@ public class MainFrame extends JFrame {
 				}
 			}
 			if (maxPopulationSize < Long.MAX_VALUE) {
-				if (Long.parseLong(
-						textField.getText()) > maxPopulationSize) {
-					textField.setText(String.valueOf(maxPopulationSize));
-//					jLabelPopulationPercentage.setText("( = 100 % )");
-					writeErrorLogEntry(
-							"Value has to be between " + minInput + 
-							" and " + maxPopulationSize);
-					return;
-				}
-				else if (Long.parseLong(textField.getText()) < minInput) {
-					textField.setText(String.valueOf(minInput));
-//					jLabelPopulationPercentage.setText(
-//							"( = " + DECIMAL_FORMAT_FOUR.format(
-//									100.0 / maxPopulationSize) + " %)");
-					writeErrorLogEntry(
-							"Value has to be between " + minInput + 
-							" and " + maxPopulationSize);
-					return;
-				}
-				else {
-					if (maxInput < Long.MAX_VALUE) {
-//						jLabelPopulationPercentage.setText(
-//								"( = " + DECIMAL_FORMAT_FOUR.format((double)
-//										populationSize * 100.0 / 
-//										maxPopulationSize) + 
-//								" % )");
-//						jLabelPopulationPercentage.setVisible(true);
+				try {
+					if (Long.parseLong(
+							textField.getText()) > maxPopulationSize) {
+						textField.setText(String.valueOf(maxPopulationSize));
+						writeErrorLogEntry(
+								"Value has to be between " + minInput + 
+								" and " + maxPopulationSize);
+						return;
 					}
-				}
+					else if (Long.parseLong(textField.getText()) < minInput) {
+						textField.setText(String.valueOf(minInput));
+						writeErrorLogEntry(
+								"Value has to be between " + minInput + 
+								" and " + maxPopulationSize);
+						return;
+					}
+				} catch (NumberFormatException e) {
+					textField.setText(String.valueOf(defaultInput));
+					writeErrorLogEntry(
+							"Value has to be from the type Integer");
+				}	
 			}
 			else { 
-//				jLabelPopulationPercentage.setVisible(false);
 				writeErrorLogEntry(
 						"Max. Population is too big to be computed");
+				return;
 			}
 		}
 
-		long input = 0;
 		try {
-			input = Long.parseLong(textField.getText());
+			long input = Long.parseLong(textField.getText());
+			if (input > maxInput || input < minInput) {
+				writeErrorLogEntry("Value has to be between " + minInput + 
+						" and " + maxInput);
+				textField.setText(String.valueOf(defaultInput));
+			}
 		} catch (NumberFormatException e) {
 			textField.setText(String.valueOf(defaultInput));
 			writeErrorLogEntry("Value has to be from the type Integer");
-		}
-		if (input > maxInput || input < minInput) {
-			writeErrorLogEntry("Value has to be between " + minInput + 
-					" and " + maxInput);
-			textField.setText(String.valueOf(defaultInput));
 		}
 	}
 	
@@ -3736,52 +3765,48 @@ public class MainFrame extends JFrame {
 	
 	private void chooseAlgorithm(String algorithm) {
 		if (algorithm.equals("genAlg")) {
-			if (!jCheckboxGeneticAlgorithm.isSelected()) {
-				jTextFieldPopulationSize.setEditable(false);
-				jCheckBoxElitismRate.setEnabled(false);
-				jTextFieldElitismRate.setEditable(false);
-				jTextFieldTerminationCriterion.setEditable(false);
-				jComboBoxSelection.setEnabled(false);
-				jComboBoxCrossover.setEnabled(false);
-				jComboBoxTerminationCriterion.setEnabled(false);
-			}
-			else {
-				jTextFieldPopulationSize.setEditable(true);
-				jCheckBoxElitismRate.setEnabled(true);
-				jTextFieldElitismRate.setEditable(true);
-				jTextFieldTerminationCriterion.setEditable(true);
-				jComboBoxSelection.setEnabled(true);
-				jComboBoxCrossover.setEnabled(true);
-				jComboBoxTerminationCriterion.setEnabled(true);
-			}
+			jTextFieldPopulationSize.setEditable(
+					jCheckboxGeneticAlgorithm.isSelected());
+			jCheckBoxElitismRate.setEnabled(
+					jCheckboxGeneticAlgorithm.isSelected());
+			jTextFieldElitismRate.setEditable(
+					jCheckboxGeneticAlgorithm.isSelected());
+			jTextFieldTerminationCriterion.setEditable(
+					jCheckboxGeneticAlgorithm.isSelected());
+			jComboBoxSelection.setEnabled(
+					jCheckboxGeneticAlgorithm.isSelected());
+			jComboBoxCrossover.setEnabled(
+					jCheckboxGeneticAlgorithm.isSelected());
+			jTextFieldCrossoverRate.setEditable(
+					jCheckboxGeneticAlgorithm.isSelected());
+			jTextFieldMutationRate.setEditable(
+					jCheckboxGeneticAlgorithm.isSelected());
+			jComboBoxTerminationCriterion.setEnabled(
+					jCheckboxGeneticAlgorithm.isSelected());
+			jTextFieldTerminationDegree.setEditable(
+					jCheckboxGeneticAlgorithm.isSelected());
 		}
 		else if (algorithm.equals("antAlg")) {
-			if (!jCheckBoxAntColonyOptimization.isSelected()) {
-				txtAntVariant.setEditable(false);
-				txtAntIterations.setEditable(false);
-				txtAntAnts.setEditable(false);
-				txtAntAlpha.setEditable(false);
-				txtAntBeta.setEditable(false);
-				txtAntDilution.setEditable(false);
-				txtAntPi.setEditable(false);
-			}
-			else {
-				txtAntVariant.setEditable(true);
-				txtAntIterations.setEditable(true);
-				txtAntAnts.setEditable(true);
-				txtAntAlpha.setEditable(true);
-				txtAntBeta.setEditable(true);
-				txtAntDilution.setEditable(true);
-				txtAntPi.setEditable(true);;
-			}
+			txtAntVariant.setEditable(
+					jCheckBoxAntColonyOptimization.isSelected());
+			txtAntIterations.setEditable(
+					jCheckBoxAntColonyOptimization.isSelected());
+			txtAntAnts.setEditable(
+					jCheckBoxAntColonyOptimization.isSelected());
+			txtAntAlpha.setEditable(
+					jCheckBoxAntColonyOptimization.isSelected());
+			txtAntBeta.setEditable(
+					jCheckBoxAntColonyOptimization.isSelected());
+			txtAntDilution.setEditable(
+					jCheckBoxAntColonyOptimization.isSelected());
+			txtAntPi.setEditable(
+					jCheckBoxAntColonyOptimization.isSelected());
 		}
 		else {
-			if (!jCheckBoxAnalyticAlgorithm.isSelected()) {
-				jTableAnalyticAlgorithm.setEnabled(false);
-			}
-			else {
-				jTableAnalyticAlgorithm.setEnabled(true);
-			}
+			jTableAnalyticAlgorithm.setEnabled(
+					jCheckBoxAnalyticAlgorithm.isSelected());
+			jSpinnerNumberResultTiers.setEnabled(
+					jCheckBoxAnalyticAlgorithm.isSelected());
 		}
 	}
 	

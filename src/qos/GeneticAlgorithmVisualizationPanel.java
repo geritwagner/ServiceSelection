@@ -114,6 +114,7 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 			// Graph
 			if (i < numberOfDifferentSolutions.size() - 1 - lineUnit) {
 				g.setColor(Color.RED);
+//				System.out.println(numberOfDifferentSolutions.get(i));
 				g.drawLine(i /lineUnit * lineLength + 50, 
 						(int) Math.round(numberOfDifferentSolutions.get(i) * 
 								(400.0 / lineHeight)) + 25, (i /lineUnit + 1) * 
@@ -166,6 +167,8 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 		// // Manual insertion of the last index of the x-axis
 		g.setTransform(FLIP_X_COORDINATE);
 		
+//		System.out.println();
+		
 		// Drawing of the graphs and the legend for x-axis
 		for (int i = 0; i <= maxXCoordinate; i += lineUnit) {
 			// Max. fitness graph
@@ -180,6 +183,8 @@ public class GeneticAlgorithmVisualizationPanel extends JPanel {
 										lineHeight + 25));
 				// Average fitness graph
 				g.setColor(Color.GREEN);
+//				System.out.println(maxUtilityPerPopulation.get(i) + 
+//						" - " + averageUtilityPerPopulation.get(i));
 				g.drawLine(i / lineUnit * lineLength + 450, 
 						(int) Math.round(averageUtilityPerPopulation.get(i) * 
 								10 * lineHeight + 25), 
