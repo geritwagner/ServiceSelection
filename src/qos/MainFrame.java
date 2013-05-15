@@ -204,6 +204,8 @@ public class MainFrame extends JFrame {
 	private boolean benchmarkMode = false;
 	private boolean algorithmInProgress;
 	private boolean executeBenchmarking = false;
+	private boolean geneticAlgorithmExecuted = false;
+	private boolean antAlgorithmExecuted = false;
 	
 	// Integer & Double
 	private int maxCosts = 10000;
@@ -2076,7 +2078,7 @@ public class MainFrame extends JFrame {
 		panelAnalyticBody.add(jLabelResultTiers, gbcJLabelResultTiers);
 
 		jSpinnerNumberResultTiers = 
-			new JSpinner(new SpinnerNumberModel(1, 1, 3, 1));
+			new JSpinner(new SpinnerNumberModel(1, 1, 5, 1));
 		((JSpinner.DefaultEditor) jSpinnerNumberResultTiers.getEditor()).
 		getTextField().setEditable(false);
 		jSpinnerNumberResultTiers.setPreferredSize(new Dimension(35, 25));
@@ -2755,10 +2757,12 @@ public class MainFrame extends JFrame {
 			jTextFieldRelaxation.setText(String.valueOf(
 					jSliderRelaxation.getValue() / 100.0));
 			jSliderRelaxation.setEnabled(true);
+			jCheckBoxRelaxation.setSelected(true);
 		}
 		else {
 			jSliderRelaxation.setEnabled(false);
 			jTextFieldRelaxation.setText("-");
+			jCheckBoxRelaxation.setSelected(false);
 		}
 	}
 	
@@ -2813,7 +2817,14 @@ public class MainFrame extends JFrame {
 			Integer.parseInt(textField.getText());
 		} catch (NumberFormatException e) {
 			textField.setText("0");
+			writeErrorLogEntry("Value has to be from the type Integer!");
 		}
+		if (Integer.parseInt(textField.getText()) < 0 || 
+				Integer.parseInt(textField.getText()) > 100) {
+			textField.setText("0");
+			writeErrorLogEntry("Value has to be between 0 and 100");
+		}
+		
 		int cumulatedPercentage = 0;
 		if (jCheckBoxMaxCosts.isSelected()) {
 			cumulatedPercentage += Integer.parseInt(
@@ -2867,12 +2878,14 @@ public class MainFrame extends JFrame {
 		while (jTabbedPane.getTabCount() > 0) {
 			jTabbedPane.removeTabAt(0);
 		}
+		
+		geneticAlgorithmExecuted = jCheckboxGeneticAlgorithm.isSelected();
+		antAlgorithmExecuted = jCheckBoxAntColonyOptimization.isSelected();
 
 		if(executeBenchmarking) {
 			executeBenchmarkingMethod();
 			return;
 		}
-		final Map<String, Constraint> constraintsMap = getChosenConstraints();
 		if (jCheckBoxBenchmarkMode.isSelected()) {
 			benchmarkMode = true;
 		}
@@ -2882,6 +2895,8 @@ public class MainFrame extends JFrame {
 		cumulatedRuntime = 0;
 		algorithmInProgress = true;
 
+		final Map<String, Constraint> constraintsMap = getChosenConstraints();
+		
 		// Calculate the utility value for all service candidates.
 		QosVector qosMaxServiceCandidate = determineQosMaxServiceCandidate(
 				serviceCandidatesList);
@@ -2894,7 +2909,7 @@ public class MainFrame extends JFrame {
 		jProgressBarGeneticAlgorithm.setValue(0);
 		jProgressBarAnalyticAlgorithm.setValue(0);
 
-		if (jCheckboxGeneticAlgorithm.isSelected()) {
+		if (geneticAlgorithmExecuted) {
 			if (!jCheckBoxElitismRate.isSelected()) {
 				jTextFieldElitismRate.setText("0");
 			}
@@ -2913,7 +2928,7 @@ public class MainFrame extends JFrame {
 					((String) jComboBoxTerminationCriterion.getSelectedItem()),
 					Integer.parseInt(jTextFieldTerminationDegree.getText()));
 		}
-		if (jCheckBoxAntColonyOptimization.isSelected()) {
+		if (antAlgorithmExecuted) {
 			int variant;
 			int iterations;
 			int ants;
@@ -2954,7 +2969,7 @@ public class MainFrame extends JFrame {
 		
 		// BENCHMARK MODE
 		if (benchmarkMode) {
-			if (jCheckboxGeneticAlgorithm.isSelected()) {
+			if (geneticAlgorithmExecuted) {
 				String[][] iterationValueArray = 
 						new String[NUMBER_OF_BENCHMARK_ITERATIONS][3];
 				for (int i = 0; i < NUMBER_OF_BENCHMARK_ITERATIONS; i++) {
@@ -3001,7 +3016,7 @@ public class MainFrame extends JFrame {
 					}
 				}
 			}
-			if (jCheckBoxAnalyticAlgorithm.isSelected()) {
+			if (antAlgorithmExecuted) {
 				String[][] iterationValueArray = 
 						new String[NUMBER_OF_BENCHMARK_ITERATIONS][3];
 				for (int i = 0; i < NUMBER_OF_BENCHMARK_ITERATIONS; i++) {
@@ -3054,18 +3069,17 @@ public class MainFrame extends JFrame {
 		// STANDARD MODE
 		else {
 			// Progress Bar Thread
-			if ((jCheckboxGeneticAlgorithm.isSelected() || 
-					jCheckBoxAnalyticAlgorithm.isSelected() || 
-					jCheckBoxAntColonyOptimization.isSelected())) {
+			if (geneticAlgorithmExecuted || antAlgorithmExecuted || 
+					jCheckBoxAnalyticAlgorithm.isSelected() ) {
 				new Thread() {
 					@Override
 					public void run() {
 						while(algorithmInProgress) {
-							if (jCheckboxGeneticAlgorithm.isSelected()) {
+							if (geneticAlgorithmExecuted) {
 								jProgressBarGeneticAlgorithm.setValue(
 										geneticAlgorithm.getWorkPercentage());
 							}						
-							if (jCheckBoxAntColonyOptimization.isSelected()) {
+							if (antAlgorithmExecuted) {
 								jProgressBarAntAlgorithm.setValue(
 										antAlgorithm.getWorkPercentage());
 							}
@@ -3085,20 +3099,20 @@ public class MainFrame extends JFrame {
 			new Thread() {
 				@Override
 				public void run() {
-					if (jCheckboxGeneticAlgorithm.isSelected()) {
+					if (geneticAlgorithmExecuted) {
 						doGeneticAlgorithm();
 					}
-					if (jCheckBoxAntColonyOptimization.isSelected()) {
+					if (antAlgorithmExecuted) {
 						doAntAlgorithm();					
 					}
 					if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 						doEnumeration();
 					}						
 					algorithmInProgress = false;
-					if (jCheckboxGeneticAlgorithm.isSelected()) {
+					if (geneticAlgorithmExecuted) {
 						jProgressBarGeneticAlgorithm.setValue(100);
 					}
-					if (jCheckBoxAntColonyOptimization.isSelected()) {
+					if (antAlgorithmExecuted) {
 						jProgressBarAntAlgorithm.setValue(100);
 					}
 					if (jCheckBoxAnalyticAlgorithm.isSelected()) {
@@ -3132,7 +3146,7 @@ public class MainFrame extends JFrame {
 							optimalUtility = 
 								analyticAlgorithm.getOptimalUtiliy();
 						}
-						if (jCheckboxGeneticAlgorithm.isSelected()) {
+						if (geneticAlgorithmExecuted) {
 							if (geneticAlgorithm.getAlgorithmSolutionTiers().
 									size() > 0) {
 								double geneticDelta = optimalUtility - 
@@ -3152,7 +3166,7 @@ public class MainFrame extends JFrame {
 												"</b></html>", 4, 1);
 							}
 						}
-						if (jCheckBoxAntColonyOptimization.isSelected()) {
+						if (antAlgorithmExecuted) {
 							double antDelta = optimalUtility - antAlgorithm.
 									getOptimalUtiliy();
 							jTableGeneralResults.setValueAt(
@@ -3163,7 +3177,12 @@ public class MainFrame extends JFrame {
 						}
 					}
 					buildResultTable();
-					jButtonVisualize.setEnabled(true);
+					if (geneticAlgorithmExecuted || antAlgorithmExecuted) {
+						jButtonVisualize.setEnabled(true);
+					}
+					else {
+						jButtonVisualize.setEnabled(false);
+					}
 					jButtonSaveResults.setEnabled(true);			
 				}
 			}.start();
@@ -3644,12 +3663,29 @@ public class MainFrame extends JFrame {
 		if (algorithmVisualization != null) {
 			algorithmVisualization.closeWindow();
 		}
-		algorithmVisualization = 
-				new AlgorithmsVisualization( 
-						geneticAlgorithm.getNumberOfDifferentSolutions(),
-						geneticAlgorithm.getMaxUtilityPerPopulation(),
-						geneticAlgorithm.getAverageUtilityPerPopulation(),
-						antAlgorithm.getOptUtilityPerIteration());
+		if (geneticAlgorithmExecuted && antAlgorithmExecuted) {
+			algorithmVisualization = 
+					new AlgorithmsVisualization( 
+							geneticAlgorithm.getNumberOfDifferentSolutions(),
+							geneticAlgorithm.getMaxUtilityPerPopulation(),
+							geneticAlgorithm.getAverageUtilityPerPopulation(),
+							antAlgorithm.getOptUtilityPerIteration(), 
+							geneticAlgorithmExecuted, antAlgorithmExecuted);
+		}
+		else if (geneticAlgorithmExecuted && !antAlgorithmExecuted) {
+			algorithmVisualization = 
+					new AlgorithmsVisualization( 
+							geneticAlgorithm.getNumberOfDifferentSolutions(),
+							geneticAlgorithm.getMaxUtilityPerPopulation(),
+							geneticAlgorithm.getAverageUtilityPerPopulation(),
+							geneticAlgorithmExecuted, antAlgorithmExecuted);
+		}
+		else if (!geneticAlgorithmExecuted && antAlgorithmExecuted) {
+			algorithmVisualization = 
+					new AlgorithmsVisualization( 
+							antAlgorithm.getOptUtilityPerIteration(),
+							geneticAlgorithmExecuted, antAlgorithmExecuted);
+		}
 	}
 	
 	
@@ -3755,7 +3791,10 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void checkEnableStartButton() {
-		if (webServicesLoaded && correctWeights) {
+		if (webServicesLoaded && correctWeights && (
+				jCheckboxGeneticAlgorithm.isSelected() || 
+				jCheckBoxAntColonyOptimization.isSelected() || 
+				jCheckBoxAnalyticAlgorithm.isSelected())) {
 			jButtonStart.setEnabled(true);
 		}
 		else {
@@ -3808,6 +3847,7 @@ public class MainFrame extends JFrame {
 			jSpinnerNumberResultTiers.setEnabled(
 					jCheckBoxAnalyticAlgorithm.isSelected());
 		}
+		checkEnableStartButton();
 	}
 	
 	

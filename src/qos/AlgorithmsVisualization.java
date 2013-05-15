@@ -15,17 +15,49 @@ public class AlgorithmsVisualization extends JFrame {
 	private List<Double> maxUtilityPerPopulation;
 	private List<Double> averageUtilityPerPopulation;
 	private List<Double> optUtilityPerIteration;
+	private boolean isGeneticAlgorithmChosen;
+	private boolean isAntAlgorithmChosen;
 
 	public AlgorithmsVisualization(
 			List<Integer> numberOfDifferentSolutions, 
 			List<Double> maxUtilityPerPopulation,
 			List<Double> averageUtilityPerPopulation,
-			List<Double> optUtilityPerIteration) {
+			List<Double> optUtilityPerIteration,
+			boolean isGeneticAlgorithmChosen,
+			boolean isAntAlgorithmChosen) {
 		super("Result Visualization");
 		this.numberOfDifferentSolutions = numberOfDifferentSolutions;
 		this.maxUtilityPerPopulation = maxUtilityPerPopulation;
 		this.averageUtilityPerPopulation = averageUtilityPerPopulation;
 		this.optUtilityPerIteration = optUtilityPerIteration;
+		this.isGeneticAlgorithmChosen = isGeneticAlgorithmChosen;
+		this.isAntAlgorithmChosen = isAntAlgorithmChosen;
+		initializeFrame();
+	}
+	
+	public AlgorithmsVisualization(
+			List<Integer> numberOfDifferentSolutions, 
+			List<Double> maxUtilityPerPopulation,
+			List<Double> averageUtilityPerPopulation,
+			boolean isGeneticAlgorithmChosen,
+			boolean isAntAlgorithmChosen) {
+		super("Result Visualization");
+		this.numberOfDifferentSolutions = numberOfDifferentSolutions;
+		this.maxUtilityPerPopulation = maxUtilityPerPopulation;
+		this.averageUtilityPerPopulation = averageUtilityPerPopulation;
+		this.isGeneticAlgorithmChosen = isGeneticAlgorithmChosen;
+		this.isAntAlgorithmChosen = isAntAlgorithmChosen;
+		initializeFrame();
+	}
+	
+	public AlgorithmsVisualization(
+			List<Double> optUtilityPerIteration,
+			boolean isGeneticAlgorithmChosen,
+			boolean isAntAlgorithmChosen) {
+		super("Result Visualization");
+		this.optUtilityPerIteration = optUtilityPerIteration;
+		this.isGeneticAlgorithmChosen = isGeneticAlgorithmChosen;
+		this.isAntAlgorithmChosen = isAntAlgorithmChosen;
 		initializeFrame();
 	}
 	
@@ -49,14 +81,18 @@ public class AlgorithmsVisualization extends JFrame {
 		gbcTabbedPane.gridy = 0;
 		getContentPane().add(tabbedPane, gbcTabbedPane);
 
-		tabbedPane.addTab("Genetic Algorithm", null, 
-				new GeneticAlgorithmVisualizationPanel(
-						numberOfDifferentSolutions, maxUtilityPerPopulation, 
-						averageUtilityPerPopulation), null);
-				
-		tabbedPane.addTab("Ant Algorithm", null, 
-				new AntAlgorithmVisualizationPanel(
-						optUtilityPerIteration), null);
+		if (isGeneticAlgorithmChosen) {
+			tabbedPane.addTab("Genetic Algorithm", null, 
+					new GeneticAlgorithmVisualizationPanel(
+							numberOfDifferentSolutions, 
+							maxUtilityPerPopulation, 
+							averageUtilityPerPopulation), null);
+		}
+		if (isAntAlgorithmChosen) {
+			tabbedPane.addTab("Ant Algorithm", null, 
+					new AntAlgorithmVisualizationPanel(
+							optUtilityPerIteration), null);
+		}
 	}
 	
 	public void closeWindow() {
