@@ -110,6 +110,11 @@ public class GeneticAlgorithm extends Algorithm {
 			// MUTATION
 			doMutation(matingPool, mutationRate);
 			
+			// Update the fitness values.
+			for (Composition composition : population) {
+				composition.computeFitness(constraintsMap);
+			}
+			
 			// Replace the worst compositions with the elites.
 			matingPool = doElitePreservation(matingPool, elites);
 			
@@ -122,11 +127,6 @@ public class GeneticAlgorithm extends Algorithm {
 			// Update the population.
 			population.clear();
 			population.addAll(matingPool);
-			
-			// Update the fitness values.
-			for (Composition composition : population) {
-				composition.computeFitness(constraintsMap);
-			}
 			
 			// Save the values needed for visualization.
 			setVisualizationValues(population);
