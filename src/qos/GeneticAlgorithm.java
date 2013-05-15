@@ -135,8 +135,8 @@ public class GeneticAlgorithm extends Algorithm {
 			// Number of Iterations
 			if (terminationMethod.contains("Iteration")) {
 				terminationCounter--;
-				workPercentage = (int) ((1 - 1.0 * terminationCounter / 
-						terminationCriterion) * 100);
+				workPercentage = (int) ((1.0 - 1.0 * terminationCounter / 
+						terminationCriterion) * 100.0);
 			}
 
 			// Consecutive Equal Generations
@@ -148,29 +148,30 @@ public class GeneticAlgorithm extends Algorithm {
 				else {
 					terminationCounter--;
 				}
-				workPercentage = Math.max((int) (100.0 - 100.0 * 
-						numberOfDifferentSolutions.get(
-								numberOfDifferentSolutions.size() - 1) / 
-								numberOfDifferentSolutions.get(0)), 
+				workPercentage = Math.max(
+						(int) (((double) terminationCriterion - 
+								(double) terminationCounter) / 
+								(double) terminationCriterion * 100.0), 
 								workPercentage);
 			}
 			
 			// Fitness Value Convergence
 			else {
-				if (maxFitnessPerPopulation.get(
-						maxFitnessPerPopulation.size() - 1) <= 
+				// "Unnecessary cast" is not unnecessary at all!
+				if ((double) maxFitnessPerPopulation.get(
+						maxFitnessPerPopulation.size() - 1) == (double)
 						maxFitnessPerPopulation.get(
-								maxFitnessPerPopulation.size() - 2 - 
-								terminationCriterion + terminationCounter)) {
+								maxFitnessPerPopulation.size() - 2)) {
 					terminationCounter--;
 				}
 				else {
 					terminationCounter = terminationCriterion;
 				}
-				workPercentage = Math.min(Math.max((int) (100.0 * 
-						terminationCriterion / numberOfDifferentSolutions.get(
-								numberOfDifferentSolutions.size() - 1)), 
-								workPercentage), 100);
+				workPercentage = Math.max(
+						(int) (((double) terminationCriterion - 
+								(double) terminationCounter) / 
+								(double) terminationCriterion * 100.0), 
+								workPercentage);
 			}
 		}
 		
