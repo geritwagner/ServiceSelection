@@ -9,6 +9,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -637,11 +639,15 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMaxCosts = 
 			new JTextField(String.valueOf(jSliderMaxCosts.getValue()));
-		jTextFieldMaxCosts.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		jTextFieldMaxCosts.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
 				setConstraintValueManually(jSliderMaxCosts, 
 						jTextFieldMaxCosts, jSliderMaxCosts.getMinimum(),
 						jSliderMaxCosts.getMaximum());
+			}
+			@Override
+			public void focusGained(FocusEvent e) {
 			}
 		});
 		jTextFieldMaxCosts.setHorizontalAlignment(JTextField.RIGHT);
@@ -662,9 +668,13 @@ public class MainFrame extends JFrame {
 
 		jTextFieldCostsWeight = new JTextField("34");
 		jTextFieldCostsWeight.setHorizontalAlignment(JTextField.RIGHT);
-		jTextFieldCostsWeight.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		jTextFieldCostsWeight.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent arg0) {
 				changeWeight(jTextFieldCostsWeight);
+			}
+			@Override
+			public void focusGained(FocusEvent arg0) {
 			}
 		});
 		GridBagConstraints gbc_txtCostsWeight = new GridBagConstraints();
@@ -723,12 +733,16 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMaxResponseTime = new JTextField(
 				String.valueOf(jSliderMaxResponseTime.getValue()));
-		jTextFieldMaxResponseTime.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		jTextFieldMaxResponseTime.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
 				setConstraintValueManually(jSliderMaxResponseTime, 
 						jTextFieldMaxResponseTime, 
 						jSliderMaxResponseTime.getMinimum(), 
 						jSliderMaxResponseTime.getMaximum());
+			}
+			@Override
+			public void focusGained(FocusEvent e) {
 			}
 		});
 		jTextFieldMaxResponseTime.setHorizontalAlignment(JTextField.RIGHT);
@@ -753,9 +767,13 @@ public class MainFrame extends JFrame {
 
 		jTextFieldResponseTimeWeight = new JTextField("33");
 		jTextFieldResponseTimeWeight.setHorizontalAlignment(JTextField.RIGHT);
-		jTextFieldResponseTimeWeight.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		jTextFieldResponseTimeWeight.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent arg0) {
 				changeWeight(jTextFieldResponseTimeWeight);
+			}
+			@Override
+			public void focusGained(FocusEvent arg0) {
 			}
 		});
 		GridBagConstraints gbc_txtResponseTimeWeight = 
@@ -814,12 +832,16 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMinAvailability = new JTextField(
 				String.valueOf(jSliderMinAvailability.getValue()));
-		jTextFieldMinAvailability.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		jTextFieldMinAvailability.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
 				setConstraintValueManually(jSliderMinAvailability, 
 						jTextFieldMinAvailability, 
 						jSliderMinAvailability.getMinimum(), 
 						jSliderMinAvailability.getMaximum());
+			}
+			@Override
+			public void focusGained(FocusEvent e) {
 			}
 		});
 		jTextFieldMinAvailability.setHorizontalAlignment(JTextField.RIGHT);
@@ -843,9 +865,13 @@ public class MainFrame extends JFrame {
 
 		jTextFieldAvailabilityWeight = new JTextField("33");
 		jTextFieldAvailabilityWeight.setHorizontalAlignment(JTextField.RIGHT);
-		jTextFieldAvailabilityWeight.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		jTextFieldAvailabilityWeight.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent arg0) {
 				changeWeight(jTextFieldAvailabilityWeight);
+			}
+			@Override
+			public void focusGained(FocusEvent arg0) {
 			}
 		});
 		GridBagConstraints gbc_txtAvailabilityWeight = 
@@ -1301,12 +1327,15 @@ public class MainFrame extends JFrame {
 				String.valueOf(DEFAULT_START_POPULATION_SIZE));
 		jTextFieldPopulationSize.setColumns(3);
 		jTextFieldPopulationSize.setHorizontalAlignment(JTextField.RIGHT);
-		jTextFieldPopulationSize.addActionListener(new ActionListener() {
+		jTextFieldPopulationSize.addFocusListener(new FocusListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void focusLost(FocusEvent e) {
 				checkInputValue(jTextFieldPopulationSize, 
 						MAX_START_POPULATION_SIZE, 1, 
 						DEFAULT_START_POPULATION_SIZE);
+			}
+			@Override
+			public void focusGained(FocusEvent e) {
 			}
 		});
 		jTextFieldPopulationSize.setToolTipText("<html>Number of " +
@@ -1320,16 +1349,6 @@ public class MainFrame extends JFrame {
 		gbcJTextFieldPopulationSize.gridy = 0;
 		jPanelPopulationSize.add(jTextFieldPopulationSize, 
 				gbcJTextFieldPopulationSize);
-
-//		jLabelPopulationPercentage = new JLabel();
-//		GridBagConstraints gbcJLabelStartPopulationPercentage = 
-//			new GridBagConstraints();
-//		gbcJLabelStartPopulationPercentage.insets = new Insets(5, 0, 5, 5);
-//		gbcJLabelStartPopulationPercentage.anchor = GridBagConstraints.WEST;
-//		gbcJLabelStartPopulationPercentage.gridx = 1;
-//		gbcJLabelStartPopulationPercentage.gridy = 0;
-//		jPanelPopulationSize.add(jLabelPopulationPercentage, 
-//				gbcJLabelStartPopulationPercentage);
 		
 		JLabel jLabelSelection = new JLabel("Selection Method:");
 		GridBagConstraints gbcJLabelSelection = new GridBagConstraints();
@@ -1408,11 +1427,14 @@ public class MainFrame extends JFrame {
 		jTextFieldElitismRate.setColumns(2);
 		jTextFieldElitismRate.setHorizontalAlignment(
 				JTextField.RIGHT);
-		jTextFieldElitismRate.addActionListener(new ActionListener() {
+		jTextFieldElitismRate.addFocusListener(new FocusListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void focusLost(FocusEvent e) {
 				checkInputValue(jTextFieldElitismRate,
 						100, 1, DEFAULT_ELITISM_RATE);
+			}
+			@Override
+			public void focusGained(FocusEvent e) {
 			}
 		});
 		jTextFieldElitismRate.setToolTipText("<html>Percentage of preserved " +
@@ -1491,11 +1513,14 @@ public class MainFrame extends JFrame {
 		jTextFieldCrossoverRate.setColumns(2);
 		jTextFieldCrossoverRate.setHorizontalAlignment(
 				JTextField.RIGHT);
-		jTextFieldCrossoverRate.addActionListener(new ActionListener() {
+		jTextFieldCrossoverRate.addFocusListener(new FocusListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				checkInputValue(jTextFieldCrossoverRate, 
-						100, 0, DEFAULT_CROSSOVER_RATE);
+			public void focusLost(FocusEvent e) {
+					checkInputValue(jTextFieldCrossoverRate, 
+							100, 0, DEFAULT_CROSSOVER_RATE);
+			}
+			@Override
+			public void focusGained(FocusEvent e) {
 			}
 		});
 		jTextFieldCrossoverRate.setToolTipText("<html>Probability for the " +
@@ -1553,11 +1578,14 @@ public class MainFrame extends JFrame {
 		jTextFieldMutationRate.setColumns(3);
 		jTextFieldMutationRate.setHorizontalAlignment(
 				JTextField.RIGHT);
-		jTextFieldMutationRate.addActionListener(new ActionListener() {
+		jTextFieldMutationRate.addFocusListener(new FocusListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void focusLost(FocusEvent e) {
 				checkInputValue(jTextFieldMutationRate, 
 						1000, 0, DEFAULT_MUTATION_RATE);
+			}
+			@Override
+			public void focusGained(FocusEvent e) {
 			}
 		});
 		jTextFieldMutationRate.setToolTipText("<html>Probability for the " +
@@ -1646,11 +1674,14 @@ public class MainFrame extends JFrame {
 		jTextFieldTerminationCriterion.setColumns(3);
 		jTextFieldTerminationCriterion.setHorizontalAlignment(
 				JTextField.RIGHT);
-		jTextFieldTerminationCriterion.addActionListener(new ActionListener() {
+		jTextFieldTerminationCriterion.addFocusListener(new FocusListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void focusLost(FocusEvent e) {
 				checkInputValue(jTextFieldTerminationCriterion, 
 						Integer.MAX_VALUE, 1, DEFAULT_TERMINATION_CRITERION);
+			}
+			@Override
+			public void focusGained(FocusEvent e) {
 			}
 		});
 		jTextFieldTerminationCriterion.setToolTipText("<html>Number of " +
@@ -1695,11 +1726,14 @@ public class MainFrame extends JFrame {
 				String.valueOf(DEFAULT_DEGREE_OF_EQUALITY));
 		jTextFieldTerminationDegree.setColumns(2);
 		jTextFieldTerminationDegree.setHorizontalAlignment(JTextField.RIGHT);
-		jTextFieldTerminationDegree.addActionListener(new ActionListener() {
+		jTextFieldTerminationDegree.addFocusListener(new FocusListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void focusLost(FocusEvent e) {
 				checkInputValue(jTextFieldTerminationDegree, 100, 1, 
 						DEFAULT_DEGREE_OF_EQUALITY);	
+			}
+			@Override
+			public void focusGained(FocusEvent e) {
 			}
 		});
 		// TODO: Find a typical value.
@@ -2721,22 +2755,7 @@ public class MainFrame extends JFrame {
 	private void useConstraintSlider(JTextField textfield, JSlider slider) {
 		textfield.setText(String.valueOf(slider.getValue()));
 		getUtilityFunction();
-		if (!jSliderRelaxation.getValueIsAdjusting() && (jSliderMaxCosts.
-				getValue() != (int) (Math.round(jSliderRelaxation.getValue() / 
-						100.0 * (maxCosts - minCosts)) + minCosts) || 
-						jSliderMaxResponseTime.getValue() != (int) (Math.round(
-								jSliderRelaxation.getValue() / 100.0 * (
-										maxResponseTime - minResponseTime)) + 
-										minResponseTime) || 
-										jSliderMinAvailability.
-										getValue() != (int) (Math.round(
-												jSliderRelaxation.
-												getValue() / 100.0 * (
-														minAvailability - 
-														maxAvailability)) + 
-														maxAvailability))) {
-			disableRelaxationSlider();
-		}
+		disableRelaxationSlider();
 	}
 	
 	private void useRelaxationSlider() {
@@ -3148,8 +3167,6 @@ public class MainFrame extends JFrame {
 						jTableGeneralResults.setValueAt(DECIMAL_FORMAT_TWO.
 								format(cumulatedRuntime) + " ns", 0, 1);
 					}
-					// TODO: If ant algorithm has no solution, 
-					//		 handle output visualization!
 					if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 						double optimalUtility = 0.0;
 						if (analyticAlgorithm.getAlgorithmSolutionTiers().
