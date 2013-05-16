@@ -2809,7 +2809,22 @@ public class MainFrame extends JFrame {
 	private void useConstraintSlider(JTextField textfield, JSlider slider) {
 		textfield.setText(String.valueOf(slider.getValue()));
 		getUtilityFunction();
-		disableRelaxationSlider();
+		if (!jSliderRelaxation.getValueIsAdjusting() && (jSliderMaxCosts.
+				getValue() != (int) (Math.round(jSliderRelaxation.getValue() / 
+						100.0 * (maxCosts - minCosts)) + minCosts) || 
+						jSliderMaxResponseTime.getValue() != (int) (Math.round(
+								jSliderRelaxation.getValue() / 100.0 * (
+										maxResponseTime - minResponseTime)) + 
+										minResponseTime) || 
+										jSliderMinAvailability.
+										getValue() != (int) (Math.round(
+												jSliderRelaxation.
+												getValue() / 100.0 * (
+														minAvailability - 
+														maxAvailability)) + 
+														maxAvailability))) {
+			disableRelaxationSlider();
+		}
 	}
 	
 	private void useRelaxationSlider() {
