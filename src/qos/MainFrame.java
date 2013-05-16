@@ -9,8 +9,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -639,15 +639,18 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMaxCosts = 
 			new JTextField(String.valueOf(jSliderMaxCosts.getValue()));
-		jTextFieldMaxCosts.addFocusListener(new FocusListener() {
+		jTextFieldMaxCosts.addKeyListener(new KeyListener() {
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void keyTyped(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
 				setConstraintValueManually(jSliderMaxCosts, 
 						jTextFieldMaxCosts, jSliderMaxCosts.getMinimum(),
 						jSliderMaxCosts.getMaximum());
 			}
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 		jTextFieldMaxCosts.setHorizontalAlignment(JTextField.RIGHT);
@@ -668,13 +671,16 @@ public class MainFrame extends JFrame {
 
 		jTextFieldCostsWeight = new JTextField("34");
 		jTextFieldCostsWeight.setHorizontalAlignment(JTextField.RIGHT);
-		jTextFieldCostsWeight.addFocusListener(new FocusListener() {
+		jTextFieldCostsWeight.addKeyListener(new KeyListener() {
 			@Override
-			public void focusLost(FocusEvent arg0) {
+			public void keyTyped(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
 				changeWeight(jTextFieldCostsWeight);
 			}
 			@Override
-			public void focusGained(FocusEvent arg0) {
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 		GridBagConstraints gbc_txtCostsWeight = new GridBagConstraints();
@@ -733,16 +739,19 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMaxResponseTime = new JTextField(
 				String.valueOf(jSliderMaxResponseTime.getValue()));
-		jTextFieldMaxResponseTime.addFocusListener(new FocusListener() {
+		jTextFieldMaxResponseTime.addKeyListener(new KeyListener() {
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void keyTyped(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
 				setConstraintValueManually(jSliderMaxResponseTime, 
 						jTextFieldMaxResponseTime, 
 						jSliderMaxResponseTime.getMinimum(), 
 						jSliderMaxResponseTime.getMaximum());
 			}
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 		jTextFieldMaxResponseTime.setHorizontalAlignment(JTextField.RIGHT);
@@ -767,13 +776,16 @@ public class MainFrame extends JFrame {
 
 		jTextFieldResponseTimeWeight = new JTextField("33");
 		jTextFieldResponseTimeWeight.setHorizontalAlignment(JTextField.RIGHT);
-		jTextFieldResponseTimeWeight.addFocusListener(new FocusListener() {
+		jTextFieldResponseTimeWeight.addKeyListener(new KeyListener() {
 			@Override
-			public void focusLost(FocusEvent arg0) {
+			public void keyTyped(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
 				changeWeight(jTextFieldResponseTimeWeight);
 			}
 			@Override
-			public void focusGained(FocusEvent arg0) {
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 		GridBagConstraints gbc_txtResponseTimeWeight = 
@@ -832,16 +844,19 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMinAvailability = new JTextField(
 				String.valueOf(jSliderMinAvailability.getValue()));
-		jTextFieldMinAvailability.addFocusListener(new FocusListener() {
+		jTextFieldMinAvailability.addKeyListener(new KeyListener() {
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void keyTyped(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
 				setConstraintValueManually(jSliderMinAvailability, 
 						jTextFieldMinAvailability, 
 						jSliderMinAvailability.getMinimum(), 
 						jSliderMinAvailability.getMaximum());
 			}
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 		jTextFieldMinAvailability.setHorizontalAlignment(JTextField.RIGHT);
@@ -865,13 +880,16 @@ public class MainFrame extends JFrame {
 
 		jTextFieldAvailabilityWeight = new JTextField("33");
 		jTextFieldAvailabilityWeight.setHorizontalAlignment(JTextField.RIGHT);
-		jTextFieldAvailabilityWeight.addFocusListener(new FocusListener() {
+		jTextFieldAvailabilityWeight.addKeyListener(new KeyListener() {
 			@Override
-			public void focusLost(FocusEvent arg0) {
+			public void keyTyped(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
 				changeWeight(jTextFieldAvailabilityWeight);
 			}
 			@Override
-			public void focusGained(FocusEvent arg0) {
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 		GridBagConstraints gbc_txtAvailabilityWeight = 
@@ -1327,15 +1345,18 @@ public class MainFrame extends JFrame {
 				String.valueOf(DEFAULT_START_POPULATION_SIZE));
 		jTextFieldPopulationSize.setColumns(3);
 		jTextFieldPopulationSize.setHorizontalAlignment(JTextField.RIGHT);
-		jTextFieldPopulationSize.addFocusListener(new FocusListener() {
+		jTextFieldPopulationSize.addKeyListener(new KeyListener() {
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void keyTyped(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
 				checkInputValue(jTextFieldPopulationSize, 
 						MAX_START_POPULATION_SIZE, 1, 
 						DEFAULT_START_POPULATION_SIZE);
 			}
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 		jTextFieldPopulationSize.setToolTipText("<html>Number of " +
@@ -1427,14 +1448,17 @@ public class MainFrame extends JFrame {
 		jTextFieldElitismRate.setColumns(2);
 		jTextFieldElitismRate.setHorizontalAlignment(
 				JTextField.RIGHT);
-		jTextFieldElitismRate.addFocusListener(new FocusListener() {
+		jTextFieldElitismRate.addKeyListener(new KeyListener() {
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void keyTyped(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
 				checkInputValue(jTextFieldElitismRate,
 						100, 1, DEFAULT_ELITISM_RATE);
 			}
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 		jTextFieldElitismRate.setToolTipText("<html>Percentage of preserved " +
@@ -1513,14 +1537,17 @@ public class MainFrame extends JFrame {
 		jTextFieldCrossoverRate.setColumns(2);
 		jTextFieldCrossoverRate.setHorizontalAlignment(
 				JTextField.RIGHT);
-		jTextFieldCrossoverRate.addFocusListener(new FocusListener() {
+		jTextFieldCrossoverRate.addKeyListener(new KeyListener() {
 			@Override
-			public void focusLost(FocusEvent e) {
-					checkInputValue(jTextFieldCrossoverRate, 
-							100, 0, DEFAULT_CROSSOVER_RATE);
+			public void keyTyped(KeyEvent arg0) {
 			}
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void keyReleased(KeyEvent arg0) {
+				checkInputValue(jTextFieldCrossoverRate, 
+						100, 0, DEFAULT_CROSSOVER_RATE);
+			}
+			@Override
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 		jTextFieldCrossoverRate.setToolTipText("<html>Probability for the " +
@@ -1578,14 +1605,17 @@ public class MainFrame extends JFrame {
 		jTextFieldMutationRate.setColumns(3);
 		jTextFieldMutationRate.setHorizontalAlignment(
 				JTextField.RIGHT);
-		jTextFieldMutationRate.addFocusListener(new FocusListener() {
+		jTextFieldMutationRate.addKeyListener(new KeyListener() {
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void keyTyped(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
 				checkInputValue(jTextFieldMutationRate, 
 						1000, 0, DEFAULT_MUTATION_RATE);
 			}
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 		jTextFieldMutationRate.setToolTipText("<html>Probability for the " +
@@ -1674,14 +1704,17 @@ public class MainFrame extends JFrame {
 		jTextFieldTerminationCriterion.setColumns(3);
 		jTextFieldTerminationCriterion.setHorizontalAlignment(
 				JTextField.RIGHT);
-		jTextFieldTerminationCriterion.addFocusListener(new FocusListener() {
+		jTextFieldTerminationCriterion.addKeyListener(new KeyListener() {
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void keyTyped(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
 				checkInputValue(jTextFieldTerminationCriterion, 
 						Integer.MAX_VALUE, 1, DEFAULT_TERMINATION_CRITERION);
 			}
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 		jTextFieldTerminationCriterion.setToolTipText("<html>Number of " +
@@ -1726,14 +1759,17 @@ public class MainFrame extends JFrame {
 				String.valueOf(DEFAULT_DEGREE_OF_EQUALITY));
 		jTextFieldTerminationDegree.setColumns(2);
 		jTextFieldTerminationDegree.setHorizontalAlignment(JTextField.RIGHT);
-		jTextFieldTerminationDegree.addFocusListener(new FocusListener() {
+		jTextFieldTerminationDegree.addKeyListener(new KeyListener() {
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void keyTyped(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
 				checkInputValue(jTextFieldTerminationDegree, 100, 1, 
 						DEFAULT_DEGREE_OF_EQUALITY);	
 			}
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 		// TODO: Find a typical value.
@@ -2231,117 +2267,16 @@ public class MainFrame extends JFrame {
 		new MainFrame().setVisible(true);
 	}
 	
-	// Load web services from a CSV file.
-	private void loadModelSetup() {				
-		// Delete previously loaded web services.
-		serviceCandidatesList.removeAll(serviceCandidatesList);
-		serviceClassesList.removeAll(serviceClassesList);
-		
+	// Load web services from a CSV file.	
+	private void loadModelSetup() {
 		ServiceSelectionFileChooser fileChooser = 
 				new ServiceSelectionFileChooser("");
 		if (fileChooser.showOpenDialog(MainFrame.this) != 
 				JFileChooser.APPROVE_OPTION) {
 			return;
 		}
-		File file = fileChooser.getSelectedFile();
-		if (file == null || !file.canExecute()) {
-			writeErrorLogEntry("File does not exist");
-			return;
-		}
-		else if (!file.getName().endsWith(".csv")) {
-			writeErrorLogEntry("Chosen file has the wrong format");
-			return;
-		}
-		
-		BufferedReader bufferedReader = null;
-		try {
-			bufferedReader = new BufferedReader(new FileReader(file));
-			
-			// Load Constraints
-			// Constraints-Header will never be used
-			bufferedReader.readLine().split(";");
-			String[] constraintsValues = bufferedReader.readLine().split(";");
-			String[] constraintsWeights = bufferedReader.readLine().split(";");
-			
-			// skip header and empty line
-			bufferedReader.readLine();
-			bufferedReader.readLine();
-
-			// Load web services data.
-			String[] serviceCandidateArray;
-			while (bufferedReader.ready()) {
-				serviceCandidateArray = bufferedReader.readLine().split(";");
-				// Create and save service candidates.
-				ServiceCandidate serviceCandidate = new ServiceCandidate(
-						Integer.parseInt(serviceCandidateArray[0]), 
-						Integer.parseInt(serviceCandidateArray[2]), 
-						serviceCandidateArray[3], 
-						new QosVector(
-								Double.parseDouble(serviceCandidateArray[4]), 
-								Double.parseDouble(serviceCandidateArray[5]), 
-								Double.parseDouble(serviceCandidateArray[6])));
-				serviceCandidatesList.add(serviceCandidate);
-
-				// Create and save service classes. Assign service candidates 
-				// to service classes.
-				boolean serviceClassAlreadyCreated = false;
-				for (ServiceClass serviceClass : serviceClassesList) {
-					if (serviceClass.getServiceClassId() == Integer.parseInt(
-							serviceCandidateArray[0])) {
-						serviceClassAlreadyCreated = true;
-						serviceClass.getServiceCandidateList().add(
-								serviceCandidate);
-						break;
-					}
-				}
-				if (! serviceClassAlreadyCreated) {
-					ServiceClass serviceClass = new ServiceClass(
-							Integer.parseInt(serviceCandidateArray[0]), 
-							serviceCandidateArray[1], 
-							new LinkedList<ServiceCandidate>());
-					serviceClassesList.add(serviceClass);
-					serviceClass.getServiceCandidateList().add(
-							serviceCandidate);
-				}
-			}
-			
-			loadServiceData(false);
-			
-			// NOW SET LOADED CONSTRAINTS
-			jSliderMaxCosts.setValue((int) Math.ceil(
-					Double.parseDouble(constraintsValues[0])));
-			jSliderMaxResponseTime.setValue((int) Math.ceil(
-					Double.parseDouble(constraintsValues[1])));
-			jSliderMinAvailability.setValue((int) Math.ceil(
-					Double.parseDouble(constraintsValues[2])*100));
-			jTextFieldMaxCosts.setText(constraintsValues[0]);
-			jTextFieldMaxResponseTime.setText(constraintsValues[1]);
-			jTextFieldMinAvailability.setText(String.valueOf(
-					Double.parseDouble(constraintsValues[2]) * 100));
-			jTextFieldCostsWeight.setText(String.valueOf(
-					(int) Math.ceil(
-							Double.parseDouble(constraintsWeights[0]))));
-			jTextFieldResponseTimeWeight.setText(String.valueOf(
-					(int) Math.ceil(
-							Double.parseDouble(constraintsWeights[1]))));
-			jTextFieldAvailabilityWeight.setText(String.valueOf(
-					(int) Math.ceil(
-							Double.parseDouble(constraintsWeights[2]))));	
-			disableRelaxationSlider();
-			changeWeight(jTextFieldCostsWeight);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (NullPointerException e) {
-			writeErrorLogEntry("Chosen file has the wrong (internal) format");
-		} catch (Exception e) {
-			writeErrorLogEntry("Data from chosen file isn't proper! Data couldn't be loaded correctly");
-		}
-		finally {
-			try {
-				bufferedReader.close();
-			} catch (IOException e) {
-				writeErrorLogEntry("File reader has not been closed");
-			}
+		else {
+			loadModelSetup(fileChooser.getSelectedFile().getAbsolutePath());
 		}
 	}
 	
@@ -2350,7 +2285,7 @@ public class MainFrame extends JFrame {
 		// Delete previously loaded web services.
 		serviceCandidatesList.removeAll(serviceCandidatesList);
 		serviceClassesList.removeAll(serviceClassesList);
-
+		
 		File file = new File(filename);
 		if (file == null || !file.canExecute()) {
 			writeErrorLogEntry("File does not exist");
@@ -2442,7 +2377,8 @@ public class MainFrame extends JFrame {
 		} catch (NullPointerException e) {
 			writeErrorLogEntry("Chosen file has the wrong (internal) format");
 		} catch (Exception e) {
-			writeErrorLogEntry("Data from chosen file isn't proper! Data couldn't be loaded correctly");
+			writeErrorLogEntry("Data from chosen file isn't proper! " +
+					"Data couldn't be loaded correctly");
 		}
 		finally {
 			try {
@@ -2578,52 +2514,9 @@ public class MainFrame extends JFrame {
 				JFileChooser.APPROVE_OPTION) {
 			return;
 		}
-		File file = fileChooser.getSelectedFile();
-		if (file == null || !file.canExecute()) {
-			writeErrorLogEntry("File does not exist");
-			return;
-		}
-		else if (!file.getName().endsWith(".csv")) {
-			writeErrorLogEntry("Chosen file has the wrong format");
-			return;
-		}
-		BufferedReader bufferedReader = null;
-		try {
-			bufferedReader = new BufferedReader(new FileReader(file));			
-			// skip headers
-			bufferedReader.readLine().split(";");
-			String[] values = bufferedReader.readLine().split(";");
-			txtAntVariant.setText(values[0]);
-			txtAntIterations.setText(values[1]);
-			txtAntAnts.setText(values[2]);
-			txtAntAlpha.setText(values[3]);
-			txtAntBeta.setText(values[4]);
-			txtAntDilution.setText(values[5]);
-			txtAntPi.setText(values[6]);
-			jTextFieldPopulationSize.setText(values[7]);
-			jComboBoxSelection.setSelectedItem(values[8]);
-			jTextFieldElitismRate.setText(values[9]);
-			jComboBoxCrossover.setSelectedItem(values[10]);
-			jTextFieldCrossoverRate.setText(values[11]);
-			jTextFieldMutationRate.setText(values[12]);
-			jComboBoxTerminationCriterion.setSelectedItem(values[13]);
-			jTextFieldTerminationCriterion.setText(values[14]);
-			jTextFieldTerminationDegree.setText(values[15]);
-			
-		} catch (IOException e) {			
-			writeErrorLogEntry(
-					"Algorithm settings could not be loaded successfully");
-		} catch (NullPointerException e) {
-			writeErrorLogEntry("Chosen file has the wrong (internal) format");
-		} catch (Exception e) {
-			writeErrorLogEntry("Data from chosen file isn't proper! Data couldn't be loaded correctly");
-		} 
-		finally {
-			try {
-				bufferedReader.close();
-			} catch (IOException e) {
-				writeErrorLogEntry("File reader has not been closed");
-			}
+		else {
+			loadAlgorithmSettings(
+					fileChooser.getSelectedFile().getAbsolutePath());
 		}
 	}
 	
@@ -2667,7 +2560,8 @@ public class MainFrame extends JFrame {
 		} catch (NullPointerException e) {
 			writeErrorLogEntry("Chosen file has the wrong (internal) format");
 		} catch (Exception e) {
-			writeErrorLogEntry("Data from chosen file isn't proper! Data couldn't be loaded correctly");
+			writeErrorLogEntry("Data from chosen file isn't proper! " +
+					"Data couldn't be loaded correctly");
 		} 
 		finally {
 			try {
@@ -2722,7 +2616,8 @@ public class MainFrame extends JFrame {
 				bufferedWriter.newLine();			
 				bufferedWriter.write(values);
 				
-				writeErrorLogEntry("Algorithm-Settings successfully saved to File!");
+				writeErrorLogEntry("Algorithm-Settings successfully " +
+						"saved to File!");
 			} catch (IOException e) {			
 				writeErrorLogEntry("Algorithm settings have not " +
 						"been saved successfully");
