@@ -3175,14 +3175,25 @@ public class MainFrame extends JFrame {
 												"</b></html>", 4, 1);
 							}
 						}
-						if (antAlgorithmExecuted) {
-							double antDelta = optimalUtility - antAlgorithm.
-									getOptimalUtiliy();
-							jTableGeneralResults.setValueAt(
-									DECIMAL_FORMAT_FOUR.format(antDelta) + 
-									" (" + DECIMAL_FORMAT_TWO.format(Math.abs(
-											antDelta / optimalUtility * 100)) + 
-											"%)" , 5, 1);
+						if (antAlgorithmExecuted) {								
+							if (antAlgorithm.getAlgorithmSolutionTiers().
+									size() > 0) {
+								double antDelta = optimalUtility - antAlgorithm.
+										getOptimalUtiliy();
+								jTableGeneralResults.setValueAt(
+										DECIMAL_FORMAT_FOUR.format(
+												antDelta) + " (" + 
+												DECIMAL_FORMAT_TWO.format(
+														Math.abs(antDelta / 
+																optimalUtility 
+																* 100)) + 
+																"%)" , 5, 1);
+							}
+							else {
+								jTableGeneralResults.setValueAt(
+										"<html><b color=red>No Solution" +
+												"</b></html>", 5, 1);
+							}
 						}
 					}
 					buildResultTable();

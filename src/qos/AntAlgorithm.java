@@ -126,12 +126,12 @@ public class AntAlgorithm extends Algorithm {
 				sCList.add(optimalComposition.getServiceCandidatesList().get(i));
 			}	
 			optimalComposition.setServiceCandidateList(sCList);
+			buildSolutionTiers();
 		}
 		else {
 			optimalComposition = new Composition();
 			optimalComposition.addServiceCandidate(new ServiceCandidate(0, 0, "keine Lösung", new QosVector()));	
-		}	
-		buildSolutionTiers();		
+		}					
 	}
 
 	private void initAlgo() {	
