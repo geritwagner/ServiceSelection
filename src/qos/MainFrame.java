@@ -2232,7 +2232,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	// Load web services from a CSV file.
-	private void loadModelSetup() {
+	private void loadModelSetup() {				
 		// Delete previously loaded web services.
 		serviceCandidatesList.removeAll(serviceCandidatesList);
 		serviceClassesList.removeAll(serviceClassesList);
@@ -2307,6 +2307,114 @@ public class MainFrame extends JFrame {
 			
 			loadServiceData(false);
 			
+			// NOW SET LOADED CONSTRAINTS
+			jSliderMaxCosts.setValue((int) Math.ceil(
+					Double.parseDouble(constraintsValues[0])));
+			jSliderMaxResponseTime.setValue((int) Math.ceil(
+					Double.parseDouble(constraintsValues[1])));
+			jSliderMinAvailability.setValue((int) Math.ceil(
+					Double.parseDouble(constraintsValues[2])*100));
+			jTextFieldMaxCosts.setText(constraintsValues[0]);
+			jTextFieldMaxResponseTime.setText(constraintsValues[1]);
+			jTextFieldMinAvailability.setText(String.valueOf(
+					Double.parseDouble(constraintsValues[2]) * 100));
+			jTextFieldCostsWeight.setText(String.valueOf(
+					(int) Math.ceil(
+							Double.parseDouble(constraintsWeights[0]))));
+			jTextFieldResponseTimeWeight.setText(String.valueOf(
+					(int) Math.ceil(
+							Double.parseDouble(constraintsWeights[1]))));
+			jTextFieldAvailabilityWeight.setText(String.valueOf(
+					(int) Math.ceil(
+							Double.parseDouble(constraintsWeights[2]))));	
+			disableRelaxationSlider();
+			changeWeight(jTextFieldCostsWeight);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			writeErrorLogEntry("Chosen file has the wrong (internal) format");
+		} catch (Exception e) {
+			writeErrorLogEntry("Data from chosen file isn't proper! Data couldn't be loaded correctly");
+		}
+		finally {
+			try {
+				bufferedReader.close();
+			} catch (IOException e) {
+				writeErrorLogEntry("File reader has not been closed");
+			}
+		}
+	}
+	
+	// Load web services from a CSV file without a Dialog.
+	private void loadModelSetup(String filename) {
+		// Delete previously loaded web services.
+		serviceCandidatesList.removeAll(serviceCandidatesList);
+		serviceClassesList.removeAll(serviceClassesList);
+
+		File file = new File(filename);
+		if (file == null || !file.canExecute()) {
+			writeErrorLogEntry("File does not exist");
+			return;
+		}
+		else if (!file.getName().endsWith(".csv")) {
+			writeErrorLogEntry("Chosen file has the wrong format");
+			return;
+		}
+
+		BufferedReader bufferedReader = null;
+		try {
+			bufferedReader = new BufferedReader(new FileReader(file));
+
+			// Load Constraints
+			// Constraints-Header will never be used
+			bufferedReader.readLine().split(";");
+			String[] constraintsValues = bufferedReader.readLine().split(";");
+			String[] constraintsWeights = bufferedReader.readLine().split(";");
+
+			// skip header and empty line
+			bufferedReader.readLine();
+			bufferedReader.readLine();
+
+			// Load web services data.
+			String[] serviceCandidateArray;
+			while (bufferedReader.ready()) {
+				serviceCandidateArray = bufferedReader.readLine().split(";");
+				// Create and save service candidates.
+				ServiceCandidate serviceCandidate = new ServiceCandidate(
+						Integer.parseInt(serviceCandidateArray[0]), 
+						Integer.parseInt(serviceCandidateArray[2]), 
+						serviceCandidateArray[3], 
+						new QosVector(
+								Double.parseDouble(serviceCandidateArray[4]), 
+								Double.parseDouble(serviceCandidateArray[5]), 
+								Double.parseDouble(serviceCandidateArray[6])));
+				serviceCandidatesList.add(serviceCandidate);
+
+				// Create and save service classes. Assign service candidates 
+				// to service classes.
+				boolean serviceClassAlreadyCreated = false;
+				for (ServiceClass serviceClass : serviceClassesList) {
+					if (serviceClass.getServiceClassId() == Integer.parseInt(
+							serviceCandidateArray[0])) {
+						serviceClassAlreadyCreated = true;
+						serviceClass.getServiceCandidateList().add(
+								serviceCandidate);
+						break;
+					}
+				}
+				if (! serviceClassAlreadyCreated) {
+					ServiceClass serviceClass = new ServiceClass(
+							Integer.parseInt(serviceCandidateArray[0]), 
+							serviceCandidateArray[1], 
+							new LinkedList<ServiceCandidate>());
+					serviceClassesList.add(serviceClass);
+					serviceClass.getServiceCandidateList().add(
+							serviceCandidate);
+				}
+			}
+
+			loadServiceData(false);
+
 			// NOW SET LOADED CONSTRAINTS
 			jSliderMaxCosts.setValue((int) Math.ceil(
 					Double.parseDouble(constraintsValues[0])));
@@ -2471,6 +2579,57 @@ public class MainFrame extends JFrame {
 			return;
 		}
 		File file = fileChooser.getSelectedFile();
+		if (file == null || !file.canExecute()) {
+			writeErrorLogEntry("File does not exist");
+			return;
+		}
+		else if (!file.getName().endsWith(".csv")) {
+			writeErrorLogEntry("Chosen file has the wrong format");
+			return;
+		}
+		BufferedReader bufferedReader = null;
+		try {
+			bufferedReader = new BufferedReader(new FileReader(file));			
+			// skip headers
+			bufferedReader.readLine().split(";");
+			String[] values = bufferedReader.readLine().split(";");
+			txtAntVariant.setText(values[0]);
+			txtAntIterations.setText(values[1]);
+			txtAntAnts.setText(values[2]);
+			txtAntAlpha.setText(values[3]);
+			txtAntBeta.setText(values[4]);
+			txtAntDilution.setText(values[5]);
+			txtAntPi.setText(values[6]);
+			jTextFieldPopulationSize.setText(values[7]);
+			jComboBoxSelection.setSelectedItem(values[8]);
+			jTextFieldElitismRate.setText(values[9]);
+			jComboBoxCrossover.setSelectedItem(values[10]);
+			jTextFieldCrossoverRate.setText(values[11]);
+			jTextFieldMutationRate.setText(values[12]);
+			jComboBoxTerminationCriterion.setSelectedItem(values[13]);
+			jTextFieldTerminationCriterion.setText(values[14]);
+			jTextFieldTerminationDegree.setText(values[15]);
+			
+		} catch (IOException e) {			
+			writeErrorLogEntry(
+					"Algorithm settings could not be loaded successfully");
+		} catch (NullPointerException e) {
+			writeErrorLogEntry("Chosen file has the wrong (internal) format");
+		} catch (Exception e) {
+			writeErrorLogEntry("Data from chosen file isn't proper! Data couldn't be loaded correctly");
+		} 
+		finally {
+			try {
+				bufferedReader.close();
+			} catch (IOException e) {
+				writeErrorLogEntry("File reader has not been closed");
+			}
+		}
+	}
+	
+	// Load Algorithm Settings without Dialog
+	private void loadAlgorithmSettings(String filename) {		
+		File file = new File(filename);
 		if (file == null || !file.canExecute()) {
 			writeErrorLogEntry("File does not exist");
 			return;
@@ -3384,9 +3543,9 @@ public class MainFrame extends JFrame {
 		// Define Test-Scenarios
 		
 			// Model-Setup
-		loadModelSetup();
+		loadModelSetup("C:/ModelSetup.csv");
 			// Algorithm Settings
-		
+		loadAlgorithmSettings("C:/AlgorithmSettings.csv");
 		// Execute Methods
 		
 		// Save Results
