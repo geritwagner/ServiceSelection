@@ -2293,10 +2293,13 @@ public class MainFrame extends JFrame {
 					(int) Math.ceil(
 							Double.parseDouble(constraintsWeights[2]))));	
 			disableRelaxationSlider();
+			changeWeight(jTextFieldCostsWeight);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (NullPointerException e) {
 			writeErrorLogEntry("Chosen file has the wrong (internal) format");
+		} catch (Exception e) {
+			writeErrorLogEntry("Data from chosen file isn't proper! Data couldn't be loaded correctly");
 		}
 		finally {
 			try {
@@ -2358,7 +2361,7 @@ public class MainFrame extends JFrame {
 			return;
 		}
 		ServiceSelectionFileChooser fileChooser = 
-				new ServiceSelectionFileChooser("DataSet.csv");
+				new ServiceSelectionFileChooser("ModelSetup.csv");
 		if (fileChooser.showSaveDialog(MainFrame.this) != 
 				JFileChooser.APPROVE_OPTION) {
 			return;
@@ -2411,12 +2414,13 @@ public class MainFrame extends JFrame {
 					bufferedWriter.newLine();
 					bufferedWriter.write(line);
 				}
+				writeErrorLogEntry("Model Setup successfully saved to File!");
 			} catch (IOException e) {	
 				writeErrorLogEntry(
 						"Model Setup has not been saved successfully");
 			} finally {
 				try {
-					bufferedWriter.close();
+					bufferedWriter.close();					
 				} catch (IOException e) {
 					writeErrorLogEntry("File writer has not been closed");
 				}
@@ -2468,7 +2472,10 @@ public class MainFrame extends JFrame {
 					"Algorithm settings could not be loaded successfully");
 		} catch (NullPointerException e) {
 			writeErrorLogEntry("Chosen file has the wrong (internal) format");
-		} finally {
+		} catch (Exception e) {
+			writeErrorLogEntry("Data from chosen file isn't proper! Data couldn't be loaded correctly");
+		} 
+		finally {
 			try {
 				bufferedReader.close();
 			} catch (IOException e) {
@@ -2519,7 +2526,9 @@ public class MainFrame extends JFrame {
 				values += ";" + jTextFieldTerminationDegree.getText();
 				bufferedWriter.write(header);
 				bufferedWriter.newLine();			
-				bufferedWriter.write(values);			
+				bufferedWriter.write(values);
+				
+				writeErrorLogEntry("Algorithm-Settings successfully saved to File!");
 			} catch (IOException e) {			
 				writeErrorLogEntry("Algorithm settings have not " +
 						"been saved successfully");
