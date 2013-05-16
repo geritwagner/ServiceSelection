@@ -9,6 +9,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedReader;
@@ -639,18 +641,15 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMaxCosts = 
 			new JTextField(String.valueOf(jSliderMaxCosts.getValue()));
-		jTextFieldMaxCosts.addKeyListener(new KeyListener() {
+		jTextFieldMaxCosts.addFocusListener(new FocusListener() {
 			@Override
-			public void keyTyped(KeyEvent arg0) {
-			}
-			@Override
-			public void keyReleased(KeyEvent arg0) {
+			public void focusLost(FocusEvent arg0) {
 				setConstraintValueManually(jSliderMaxCosts, 
 						jTextFieldMaxCosts, jSliderMaxCosts.getMinimum(),
 						jSliderMaxCosts.getMaximum());
 			}
 			@Override
-			public void keyPressed(KeyEvent arg0) {
+			public void focusGained(FocusEvent arg0) {
 			}
 		});
 		jTextFieldMaxCosts.setHorizontalAlignment(JTextField.RIGHT);
@@ -739,19 +738,16 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMaxResponseTime = new JTextField(
 				String.valueOf(jSliderMaxResponseTime.getValue()));
-		jTextFieldMaxResponseTime.addKeyListener(new KeyListener() {
+		jTextFieldMaxResponseTime.addFocusListener(new FocusListener() {
 			@Override
-			public void keyTyped(KeyEvent arg0) {
-			}
-			@Override
-			public void keyReleased(KeyEvent arg0) {
+			public void focusLost(FocusEvent arg0) {
 				setConstraintValueManually(jSliderMaxResponseTime, 
 						jTextFieldMaxResponseTime, 
 						jSliderMaxResponseTime.getMinimum(), 
 						jSliderMaxResponseTime.getMaximum());
 			}
 			@Override
-			public void keyPressed(KeyEvent arg0) {
+			public void focusGained(FocusEvent arg0) {
 			}
 		});
 		jTextFieldMaxResponseTime.setHorizontalAlignment(JTextField.RIGHT);
@@ -844,19 +840,16 @@ public class MainFrame extends JFrame {
 
 		jTextFieldMinAvailability = new JTextField(
 				String.valueOf(jSliderMinAvailability.getValue()));
-		jTextFieldMinAvailability.addKeyListener(new KeyListener() {
+		jTextFieldMinAvailability.addFocusListener(new FocusListener() {
 			@Override
-			public void keyTyped(KeyEvent arg0) {
-			}
-			@Override
-			public void keyReleased(KeyEvent arg0) {
+			public void focusLost(FocusEvent arg0) {
 				setConstraintValueManually(jSliderMinAvailability, 
 						jTextFieldMinAvailability, 
 						jSliderMinAvailability.getMinimum(), 
 						jSliderMinAvailability.getMaximum());
 			}
 			@Override
-			public void keyPressed(KeyEvent arg0) {
+			public void focusGained(FocusEvent arg0) {
 			}
 		});
 		jTextFieldMinAvailability.setHorizontalAlignment(JTextField.RIGHT);
