@@ -206,6 +206,7 @@ public class MainFrame extends JFrame {
 	private boolean executeBenchmarking = false;
 	private boolean geneticAlgorithmExecuted = false;
 	private boolean antAlgorithmExecuted = false;
+	private boolean enableSaveResults = false;
 	
 	// Integer & Double
 	private int maxCosts = 10000;
@@ -1242,7 +1243,7 @@ public class MainFrame extends JFrame {
 				new JLabel("if no constraints violated");
 		GridBagConstraints gbcJLabelUtilityCaseOneDescription = 
 				new GridBagConstraints();
-		gbcJLabelUtilityCaseOneDescription.insets = new Insets(15, 5, 0, 0);
+		gbcJLabelUtilityCaseOneDescription.insets = new Insets(10, 5, 0, 0);
 		gbcJLabelUtilityCaseOneDescription.anchor = GridBagConstraints.WEST;
 		gbcJLabelUtilityCaseOneDescription.gridx = 3;
 		gbcJLabelUtilityCaseOneDescription.gridy = 0;
@@ -1263,7 +1264,7 @@ public class MainFrame extends JFrame {
 		jLabelFitnessCaseTwoDescription = new JLabel("otherwise");
 		GridBagConstraints gbcJLabelUtilityCaseTwoDescription = 
 				new GridBagConstraints();
-		gbcJLabelUtilityCaseTwoDescription.insets = new Insets(0, 5, 15, 0);
+		gbcJLabelUtilityCaseTwoDescription.insets = new Insets(0, 5, 10, 0);
 		gbcJLabelUtilityCaseTwoDescription.anchor = GridBagConstraints.WEST;
 		gbcJLabelUtilityCaseTwoDescription.gridx = 3;
 		gbcJLabelUtilityCaseTwoDescription.gridy = 1;
@@ -2989,7 +2990,7 @@ public class MainFrame extends JFrame {
 					if (geneticAlgorithm.getAlgorithmSolutionTiers().
 							size() > 0) {
 						iterationValueArray[i][2] = String.valueOf(
-								geneticAlgorithm.getOptimalUtiliy());
+								geneticAlgorithm.getOptimalUtility());
 					}
 					else {
 						iterationValueArray[i][2] = "No Solution";
@@ -3036,7 +3037,7 @@ public class MainFrame extends JFrame {
 					if (analyticAlgorithm.getAlgorithmSolutionTiers().
 							size() > 0) {
 						iterationValueArray[i][2] = String.valueOf(
-								analyticAlgorithm.getOptimalUtiliy());
+								analyticAlgorithm.getOptimalUtility());
 					}
 					else {
 						iterationValueArray[i][2] = "No Solution";
@@ -3104,6 +3105,7 @@ public class MainFrame extends JFrame {
 					}
 				}.start();
 			}
+			enableSaveResults = false;
 			// Calculation and Results Display Thread
 			new Thread() {
 				@Override
@@ -3153,13 +3155,14 @@ public class MainFrame extends JFrame {
 						if (analyticAlgorithm.getAlgorithmSolutionTiers().
 								size() > 0) {
 							optimalUtility = 
-								analyticAlgorithm.getOptimalUtiliy();
+								analyticAlgorithm.getOptimalUtility();
+							enableSaveResults = true;
 						}
 						if (geneticAlgorithmExecuted) {
 							if (geneticAlgorithm.getAlgorithmSolutionTiers().
 									size() > 0) {
 								double geneticDelta = optimalUtility - 
-										geneticAlgorithm.getOptimalUtiliy();
+										geneticAlgorithm.getOptimalUtility();
 								jTableGeneralResults.setValueAt(
 										DECIMAL_FORMAT_FOUR.format(
 												geneticDelta) + " (" + 
@@ -3168,6 +3171,7 @@ public class MainFrame extends JFrame {
 																optimalUtility 
 																* 100)) + 
 																"%)" , 4, 1);
+								enableSaveResults = true;
 							}
 							else {
 								jTableGeneralResults.setValueAt(
@@ -3178,8 +3182,8 @@ public class MainFrame extends JFrame {
 						if (antAlgorithmExecuted) {								
 							if (antAlgorithm.getAlgorithmSolutionTiers().
 									size() > 0) {
-								double antDelta = optimalUtility - antAlgorithm.
-										getOptimalUtiliy();
+								double antDelta = optimalUtility - 
+										antAlgorithm.getOptimalUtility();
 								jTableGeneralResults.setValueAt(
 										DECIMAL_FORMAT_FOUR.format(
 												antDelta) + " (" + 
@@ -3188,6 +3192,7 @@ public class MainFrame extends JFrame {
 																optimalUtility 
 																* 100)) + 
 																"%)" , 5, 1);
+								enableSaveResults = true;
 							}
 							else {
 								jTableGeneralResults.setValueAt(
@@ -3197,13 +3202,9 @@ public class MainFrame extends JFrame {
 						}
 					}
 					buildResultTable();
-					if (geneticAlgorithmExecuted || antAlgorithmExecuted) {
-						jButtonVisualize.setEnabled(true);
-					}
-					else {
-						jButtonVisualize.setEnabled(false);
-					}
-					jButtonSaveResults.setEnabled(true);			
+					jButtonVisualize.setEnabled(
+							geneticAlgorithmExecuted || antAlgorithmExecuted);
+					jButtonSaveResults.setEnabled(enableSaveResults);			
 				}
 			}.start();
 		}
@@ -3308,18 +3309,11 @@ public class MainFrame extends JFrame {
 			i++;
 		}
 		if (formula.equals("<html>Utility * (1 - (")) {
-			jLabelFitnessBraceLeft.setVisible(false);
-			jLabelFitnessCaseTwo.setVisible(false);
-			jLabelFitnessCaseTwoDescription.setVisible(false);
-			jLabelFitnessCaseOneDescription.setVisible(false);
+			jLabelFitnessCaseTwo.setText("Utility + 1");
 		}
 		else {
 			formula += " ))</html>";
 			jLabelFitnessCaseTwo.setText(formula);
-			jLabelFitnessBraceLeft.setVisible(true);
-			jLabelFitnessCaseTwo.setVisible(true);
-			jLabelFitnessCaseTwoDescription.setVisible(true);
-			jLabelFitnessCaseOneDescription.setVisible(true);
 		}
 	}
 

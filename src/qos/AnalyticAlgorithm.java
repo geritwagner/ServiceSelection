@@ -204,13 +204,11 @@ public class AnalyticAlgorithm extends Algorithm {
 	public long getRuntime() {
 		return runtime;
 	}
-	
-	public double getOptimalUtiliy(){
-		return 	this.getAlgorithmSolutionTiers().get(0).getServiceCompositionList().get(0).getUtility();
-	}
-	
 	public int getWorkPercentage() {
 		return workPercentage;
 	}
-	
+	public double getOptimalUtility(){
+		return algorithmSolutionTiers.get(0).
+				getServiceCompositionList().get(0).getUtility();
+	}
 }

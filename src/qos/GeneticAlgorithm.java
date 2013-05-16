@@ -806,9 +806,9 @@ public class GeneticAlgorithm extends Algorithm {
 	public int getWorkPercentage() {
 		return workPercentage;
 	}
-	public double getOptimalUtiliy() {
+	public double getOptimalUtility() {
 		return algorithmSolutionTiers.get(0).
-		getServiceCompositionList().get(0).getUtility();
+				getServiceCompositionList().get(0).getUtility();
 	}
 	
 	

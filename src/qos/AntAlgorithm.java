@@ -853,7 +853,7 @@ public class AntAlgorithm extends Algorithm {
 		return runtime;
 	}
 
-	public double getOptimalUtiliy() {
+	public double getOptimalUtility() {
 		return optimalComposition.getUtility();
 	}
 	
