@@ -52,6 +52,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
+import jsc.distributions.*;
+
+
 public class MainFrame extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
@@ -197,6 +200,7 @@ public class MainFrame extends JFrame {
 	private List<ServiceCandidate> serviceCandidatesList = 
 		new LinkedList<ServiceCandidate>();
 	private List<String> saveResultList = new LinkedList<String>();
+	private static List<Double> BatchBenchmarkOptimalityResults = new LinkedList<Double>();
 	
 	// Boolean
 	private boolean webServicesLoaded = false;
@@ -207,6 +211,7 @@ public class MainFrame extends JFrame {
 	private boolean geneticAlgorithmExecuted = false;
 	private boolean antAlgorithmExecuted = false;
 	private boolean enableSaveResults = false;
+	private static boolean parameterTuning = false;
 	
 	// Integer & Double
 	private int maxCosts = 10000;
@@ -251,6 +256,10 @@ public class MainFrame extends JFrame {
 	 * 	+-----------------------------------------------------------+
 	 */
 	public MainFrame() {
+		if(parameterTuning){
+			parameterTuning();
+			return;
+		}
 		// Initialization logging
 		System.out.println(dateFormatLog.format(new Date()) + 
 				"Initialize Main Content Panel - Started");
@@ -1122,7 +1131,11 @@ public class MainFrame extends JFrame {
 				jLabelUtilityText, gbc_lblUtilityText);
 		 
 		jButtonStart = new JButton("Start");
-		jButtonStart.setEnabled(false);
+		if(isparameterTuning()){
+			jButtonStart.setEnabled(true);
+		}else{
+			jButtonStart.setEnabled(false);			
+		}
 		jButtonStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				pressStartButton();
@@ -2782,7 +2795,7 @@ public class MainFrame extends JFrame {
 		jTextFieldRelaxation.setText("-");
 	}
 
-	// Set the extrem values of the constraint sliders. The values  
+	// Set the extreme values of the constraint sliders. The values  
 	// are computed according to the approach of Gao et al., which
 	// can be found under "4. Simulation Analysis" in their paper 
 	// "Qos-aware Service Composition based on Tree-Coded Genetic 
@@ -2878,6 +2891,8 @@ public class MainFrame extends JFrame {
 	 */
 	
 	private void pressStartButton() {
+
+		
 		// Delete former results
 		jTableGeneralResults.setValueAt("", 0, 1);
 		jTableGeneralResults.setValueAt("", 1, 1);
@@ -2892,10 +2907,7 @@ public class MainFrame extends JFrame {
 		geneticAlgorithmExecuted = jCheckboxGeneticAlgorithm.isSelected();
 		antAlgorithmExecuted = jCheckBoxAntColonyOptimization.isSelected();
 
-		if(executeBenchmarking) {
-			executeBenchmarkingMethod();
-			return;
-		}
+		
 		if (jCheckBoxBenchmarkMode.isSelected()) {
 			benchmarkMode = true;
 		}
@@ -3360,23 +3372,210 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	private void executeBenchmarkingMethod() {
+	/*	+-----------------------------------------------------------+
+	 * 	| +-------------------------------------------------------+ |
+	 * 	| |														  | |
+	 * 	| |		 		BENCHMARKING METHODS			 		  | |
+	 * 	| |														  | |
+	 * 	| +-------------------------------------------------------+ |
+	 * 	+-----------------------------------------------------------+
+	 */
+	
+	private void parameterTuning() {
+				
+		/* Gerit: todo
+		 * Parameter-tuning algorithm: BRUTUS (Birattari 2009, pp.101)
+		 * F-RACE (Birattari 2009, pp.103) is a possible extension which is structurally similar to BRUTUS.
+		 * Pseudo-Code: BRUTUS
+
+					function Brutus(M)
+					# Number of experiments for each candidate
+					# M = [T/t] with T:= overall time available for tuning, t:= runtime for a single experiment (0.5s)
+					N = floor(M/|Theta|)
+					# Allocate array for storing estimated
+					# expected performance of candidates
+					A = allocate array(|Theta|)
+					for (k = 1; k <= N; k++) do
+						# Sample an instance according to PI
+						i = sample instance()
+							foreach theta in Theta do
+								# Run candidate theta on instance i
+								s = run experiment(theta, i)
+								# Evaluate obtained solution
+								c = evaluate solution(s)
+								# Update estimate of expected
+								# performance of candidate theta
+								A[Theta] = update mean(A[Theta], c, k)
+							done
+					done
+					# Select best configuration
+					theta = which min(A)
+					return theta
+
+		 */
 		
-		// Gerit: todo
+		boolean antAlgo = true;
+		boolean geneticAlgo = false;
 		
-		// Define Test-Scenarios
+		double[][] antAlgorithmSettings = null;
+		double[][] geneticAlgorithmSettings = null;
 		
-			// Model-Setup
-		loadModelSetup();
-			// Algorithm Settings
+		// Sample/define candidate configurations/settings 
+		// & Allocate array for storing estimated expected performance of candidates
+		if(antAlgo){
+			antAlgorithmSettings = sampleAntAlgorithmSettings(100);
+				// optional output
+//				for(double[] row : antAlgorithmSettings){
+//					for(double column : row){
+//						System.out.print(column+";");}
+//					System.out.println();
+//			}
+		}
+		if(geneticAlgo){
+			geneticAlgorithmSettings = geneticAlgorithmSettings(100);
+				// optional output
+//				for(double[] row : antAlgorithmSettings){
+//					for(double column : row){
+//						System.out.print(column+";");}
+//					System.out.println();
+//			}
+		}
 		
-		// Execute Methods
+		// maximal tuning time in s
+		int maxTuningTime = 3600;
 		
-		// Save Results
+		// estimated average runtime for a single instance   (at the moment: without benchmarking)
+		double estimtedRuntimeSingleInstance = 0.5;
+		
+		// determine the max. amount of tests
+		int N = (int) Math.floor(maxTuningTime/estimtedRuntimeSingleInstance);
+		
+		for (int k = 1; k <= N; k++){
+			sampleModelSetup();
+			for(double[] antAlgorithmParameterConfiguration : antAlgorithmSettings) {
+//				# Run candidate theta on instance i
+//				s = run experiment(theta, i)
+//				# Evaluate obtained solution
+//				c = evaluate solution(s)
+//				# Update estimate of expected
+//				# performance of candidate theta
+//				A[Theta] = update mean(A[Theta], c, k)
+
+			}
+		}
+
 		
 		return;
 	}
 
+
+
+
+	private void sampleModelSetup() {
+		 /* Model setup distributions:
+		 * 		(no analytic solution, few classes with many candidates would also be feasible)
+		 * 		number of classes in [1;20], discrete: Binomial(20, 0.5)
+		 * 															>Mean: 10
+		 * 		number of candidates in [1;20], discrete: Binomial(20, 0.5) 
+		 * 															>Mean: 10
+		 * 		restrictions in [0.6; 1.0], continuous: Beta(2,2) -> (linear transformation: 2/5*Beta+0,6) 
+		 * 															>Mean: 0.8
+		 */
+		// Classes & Candidates
+		// with analytic solution:
+//		Binomial numberOfServiceClasses = new Binomial(10, 0.7);
+//		Binomial numberOfWebServices = new Binomial(10, 0.7);	
+		
+		Binomial numberOfServiceClasses = new Binomial(20, 0.5);
+		Binomial numberOfWebServices = new Binomial(20, 0.5);
+		serviceClassesList = new RandomSetGenerator().generateSet(
+		(int) numberOfServiceClasses.random(), (int) numberOfWebServices.random());
+		
+		
+		// restrictions
+		// constraintsMap
+		// weights
+		
+	}
+
+
+	private double[][] geneticAlgorithmSettings(int thetaSetSize) {
+		 /* Genetic algorithm - parameter distribution details:
+		  * 	population size
+		  * 	elitism rate
+		  * 	crossover-rate
+		  * 	mutation rate
+		  * 
+		*/	 
+		
+		// Birattari p.85: sampling/discretizing Theta
+		// Birattari p.140:sample-values for Theta		
+		
+		double[][] geneticAlgorithmSettings = new double[thetaSetSize][7];
+		
+		// define parameter distributions
+/*
+		int id = 1;
+		for(double[] row : geneticAlgorithmSettings){
+			row[0] = id;
+			id++;
+			// row[1] = (int) iterations.random();
+			row[1] = (int) populationSize.random();
+			row[2] = elitismRate.random();
+			row[3] = crossoverRate.random();
+			row[4] = mutationRate.random();
+			//row[5] := estimated expected utility
+			//row[6] := estimated expected runtime
+		}	
+*/
+		return geneticAlgorithmSettings;
+	}
+
+
+	private static double[][] sampleAntAlgorithmSettings(int thetaSetSize) {
+		 /* Ant algorithm - parameter distribution details:
+		 * 		iterations in [100; 10000], discrete: Binomial(10000, 0.01)
+		 * 															>Mean: 1,000	[Graf 2003, p.86]
+		 * 		ants in [1, 30], discrete: Binomial(1000;0.015)		>Mean: 15		[Dorigo und Gambardella 1997, p.57/58]
+		 * 		alpha in [0; infinite], continuous: Gamma(2, 1.33) 	>Mean: 1.5		[Yuan et al 2011, p.85]
+		 * 		beta in [0; infinite], continuous: Gamma(2, 1)		>Mean: 2		[Yuan et al 2011, p.85]
+		 * 		dilution in [0;1], continuous Beta(2,5) 			>Mean: 0.1 		[Graf 2003, p.85]
+		 * 		pi in [0; infinite], continuous Gamma(5, 1)			>Mean: 5		[Quelle??]
+		*/	 
+		
+
+		// Birattari p.85: sampling/discretizing Theta
+		// Birattari p.140:sample-values for Theta		
+		
+		
+		double[][] antAlgorithmSettings = new double[thetaSetSize][9];
+		
+		// Exponential iterations = new Exponential(150);
+		int iterations = 100;
+		Binomial ants = new Binomial(1000, 0.015);
+		Gamma alpha = new Gamma(2, 2);
+		Gamma beta = new Gamma(2,2);
+		Beta dilution = new Beta(2, 5);
+		Gamma pi = new Gamma(5, 1);
+		
+		int id = 1;
+		for(double[] row : antAlgorithmSettings){
+			row[0] = id;
+			id++;
+			// row[1] = (int) iterations.random();
+			row[1] = iterations;
+			row[2] = (int) ants.random();
+			row[3] = (double) alpha.random();
+			row[4] = (double) beta.random();
+			row[5] = (double) dilution.random();
+			row[6] = (double) pi.random();
+			//row[7] := estimated expected utility
+			//row[8] := estimated expected runtime
+		}
+		return antAlgorithmSettings;
+	}
+	
+	
 	
 	
 	/*	+-----------------------------------------------------------+
@@ -4031,4 +4230,22 @@ public class MainFrame extends JFrame {
 		}
 		return true;
 	}
+
+	public static boolean isparameterTuning() {
+		return parameterTuning;
+	}
+
+	public static List<Double> getBatchBenchmarkOptimalityResults() {
+		return BatchBenchmarkOptimalityResults;
+	}
+
+	public void resetBatchBenchmarkOptimalityResults() {
+		 BatchBenchmarkOptimalityResults.clear();
+	}
+
+	public static void addBatchBenchmarkOptimalityResults(Double value) {
+		BatchBenchmarkOptimalityResults.add(value);
+	}
+
+
 }
