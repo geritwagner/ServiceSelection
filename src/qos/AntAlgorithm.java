@@ -133,14 +133,6 @@ public class AntAlgorithm extends Algorithm {
 			optimalComposition.addServiceCandidate(new ServiceCandidate(0, 0, "keine Lösung", new QosVector()));	
 		}
 		
-		// gerit: to do
-		// LIB-BENCHMARK: save optimality 
-		 if(MainFrame.isparameterTuning()){
-			MainFrame.addBatchBenchmarkOptimalityResults(optimalComposition.getUtility());
-		 }
-			
-		
-		
 	}
 
 	private void initAlgo() {	

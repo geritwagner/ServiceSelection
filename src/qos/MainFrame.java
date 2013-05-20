@@ -204,7 +204,6 @@ public class MainFrame extends JFrame {
 	private List<ServiceCandidate> serviceCandidatesList = 
 		new LinkedList<ServiceCandidate>();
 	private List<String> saveResultList = new LinkedList<String>();
-	private static List<Double> BatchBenchmarkOptimalityResults = new LinkedList<Double>();
 	
 	// Boolean
 	private boolean webServicesLoaded = false;
@@ -215,7 +214,7 @@ public class MainFrame extends JFrame {
 	private boolean geneticAlgorithmExecuted = false;
 	private boolean antAlgorithmExecuted = false;
 	private boolean enableSaveResults = false;
-	private static boolean parameterTuning = false;
+	private static boolean parameterTuning = true;
 	
 	// Integer & Double
 	private int maxCosts = 10000;
@@ -224,7 +223,9 @@ public class MainFrame extends JFrame {
 	private int minCosts = 0;
 	private int minResponseTime = 0;
 	private int minAvailability = 0;
-	private double cumulatedRuntime;	
+	private double cumulatedRuntime;
+	private static double actualParameterTuningOptimalityResult = 100;
+	
 
 	
 	
@@ -261,6 +262,7 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame() {
 		if(parameterTuning){
+			System.out.println(dateFormatLog.format(new Date()) + " Parameter Tuning Mode");
 			parameterTuning();
 			return;
 		}
@@ -2834,25 +2836,42 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void useRelaxationSlider() {
-		jTextFieldRelaxation.setText(
-				String.valueOf(jSliderRelaxation.getValue() / 100.0));
+		double relaxation = jSliderRelaxation.getValue() / 100.0;
+		jTextFieldRelaxation.setText(String.valueOf(relaxation));
 		if (jCheckBoxMaxCosts.isSelected()) {
-			jSliderMaxCosts.setValue(
-					(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
-							maxCosts - minCosts)) + minCosts));
+			jSliderMaxCosts.setValue((getIntRelaxationMaxCost(relaxation)));
 		}
 		if (jCheckBoxMaxResponseTime.isSelected()) {
-			jSliderMaxResponseTime.setValue(
-					(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
-							maxResponseTime - minResponseTime)) + 
-							minResponseTime));
+			jSliderMaxResponseTime.setValue(getIntRelaxationMaxResponseTime(relaxation));
 		}
 		if (jCheckBoxMinAvailability.isSelected()) {
-			jSliderMinAvailability.setValue(
-					(int) (Math.round(jSliderRelaxation.getValue() / 100.0 * (
-							minAvailability - maxAvailability)) + 
-							maxAvailability));
+			jSliderMinAvailability.setValue(getIntRelaxationMinAvailability(relaxation));
 		}
+	}
+	
+	private double getRelaxationMinAvailability(double r){
+		return r* (minAvailability - maxAvailability) + maxAvailability;
+	}
+	
+	private int getIntRelaxationMinAvailability(double r){
+		return (int) Math.round(getRelaxationMinAvailability(r));
+	}
+	
+	private double getRelaxationMaxResponseTime(double r){
+		return r*(maxResponseTime - minResponseTime) + minResponseTime;
+	}
+	
+	private int getIntRelaxationMaxResponseTime(double r){
+		return (int) Math.round(getRelaxationMaxResponseTime(r));
+	}	
+	
+	
+	private double getRelaxationMaxCost(double r){
+		return r*(maxCosts - minCosts) + minCosts;
+	}
+	
+	private int getIntRelaxationMaxCost(double r){
+		return (int) Math.round(getRelaxationMaxCost(r));
 	}
 	
 	private void checkRelaxationStatus() {
@@ -2876,25 +2895,9 @@ public class MainFrame extends JFrame {
 		jTextFieldRelaxation.setText("-");
 	}
 
-	// Set the extreme values of the constraint sliders. The values  
-	// are computed according to the approach of Gao et al., which
-	// can be found under "4. Simulation Analysis" in their paper 
-	// "Qos-aware Service Composition based on Tree-Coded Genetic 
-	// Algorithm".
+	// Set the extreme values of the constraint sliders.
 	private void setSliderExtremeValues() {
-		QosVector qosMaxComposition = determineQosMaxComposition(
-				serviceClassesList);
-		QosVector qosMinComposition = determineQosMinComposition(
-				serviceClassesList);
-		maxCosts = (int) Math.ceil(qosMaxComposition.getCosts());
-		minCosts = (int) Math.floor(qosMinComposition.getCosts());
-		maxResponseTime = (int) Math.ceil(qosMaxComposition.getResponseTime());
-		minResponseTime = (int) Math.floor(
-				qosMinComposition.getResponseTime());
-		maxAvailability = (int) Math.ceil(
-				qosMaxComposition.getAvailability() * 100);
-		minAvailability = (int) Math.floor(
-				qosMinComposition.getAvailability() * 100);
+		determineMinMaxQosComposition();
 
 		jSliderMaxCosts.setMaximum(maxCosts);
 		jSliderMaxCosts.setMinimum(minCosts);
@@ -2914,6 +2917,26 @@ public class MainFrame extends JFrame {
 		// Set the values of the constraints according  
 		// to the given constraints relaxation.
 		useRelaxationSlider();
+	}
+	
+		// The values are computed according to the approach of Gao et al., which
+		// can be found under "4. Simulation Analysis" in their paper 
+		// "Qos-aware Service Composition based on Tree-Coded Genetic 
+		// Algorithm".
+	private void determineMinMaxQosComposition(){
+		QosVector qosMaxComposition = determineQosMaxComposition(
+				serviceClassesList);
+		QosVector qosMinComposition = determineQosMinComposition(
+				serviceClassesList);
+		maxCosts = (int) Math.ceil(qosMaxComposition.getCosts());
+		minCosts = (int) Math.floor(qosMinComposition.getCosts());
+		maxResponseTime = (int) Math.ceil(qosMaxComposition.getResponseTime());
+		minResponseTime = (int) Math.floor(
+				qosMinComposition.getResponseTime());
+		maxAvailability = (int) Math.ceil(
+				qosMaxComposition.getAvailability() * 100);
+		minAvailability = (int) Math.floor(
+				qosMinComposition.getAvailability() * 100);
 	}
 	
 	private void changeWeight(JTextField textField) {
@@ -3461,7 +3484,6 @@ public class MainFrame extends JFrame {
 	 */
 	
 	private void parameterTuning() {
-				
 		/* Gerit: todo
 		 * Parameter-tuning algorithm: BRUTUS (Birattari 2009, pp.101)
 		 * F-RACE (Birattari 2009, pp.103) is a possible extension which is structurally similar to BRUTUS.
@@ -3490,19 +3512,22 @@ public class MainFrame extends JFrame {
 					# Select best configuration
 					theta = which min(A)
 					return theta
-
 		 */
 		
 		boolean antAlgo = true;
 		boolean geneticAlgo = false;
 		
+		int sizeTheta = 10;
+		
 		double[][] antAlgorithmSettings = null;
 		double[][] geneticAlgorithmSettings = null;
+		
+		Map<String, Constraint> constraintsMap = null;
 		
 		// Sample/define candidate configurations/settings 
 		// & Allocate array for storing estimated expected performance of candidates
 		if(antAlgo){
-			antAlgorithmSettings = sampleAntAlgorithmSettings(100);
+			antAlgorithmSettings = sampleAntAlgorithmSettings(sizeTheta);
 				// optional output
 //				for(double[] row : antAlgorithmSettings){
 //					for(double column : row){
@@ -3511,46 +3536,67 @@ public class MainFrame extends JFrame {
 //			}
 		}
 		if(geneticAlgo){
-			geneticAlgorithmSettings = geneticAlgorithmSettings(100);
-				// optional output
-//				for(double[] row : antAlgorithmSettings){
-//					for(double column : row){
-//						System.out.print(column+";");}
-//					System.out.println();
-//			}
+			geneticAlgorithmSettings = sampleGeneticAlgorithmSettings(100);
 		}
 		
 		// maximal tuning time in s
-		int maxTuningTime = 3600;
+		int maxTuningTime = 2;
 		
 		// estimated average runtime for a single instance   (at the moment: without benchmarking)
-		double estimtedRuntimeSingleInstance = 0.5;
+		double estimtedRuntimeSingleInstance = 0.005;
 		
 		// determine the max. amount of tests
 		int N = (int) Math.floor(maxTuningTime/estimtedRuntimeSingleInstance);
 		
+		System.out.println(dateFormatLog.format(new Date()) + " Starting Tuning Phase, Durchläufe:" +N+"*"+sizeTheta);
 		for (int k = 1; k <= N; k++){
-			sampleModelSetup();
+			constraintsMap = sampleModelSetup();
+			int index = 0;
 			for(double[] antAlgorithmParameterConfiguration : antAlgorithmSettings) {
-//				# Run candidate theta on instance i
-//				s = run experiment(theta, i)
-//				# Evaluate obtained solution
-//				c = evaluate solution(s)
-//				# Update estimate of expected
-//				# performance of candidate theta
-//				A[Theta] = update mean(A[Theta], c, k)
+				// run ant-algorithm
+				// change variants!!!!
+				int antVariant = 1;
+				
+				antAlgorithm = new AntAlgorithm(
+						serviceClassesList, serviceCandidatesList, constraintsMap,
+						antVariant, (int) antAlgorithmParameterConfiguration[1], (int) antAlgorithmParameterConfiguration[2], 
+						antAlgorithmParameterConfiguration[3], antAlgorithmParameterConfiguration[4],
+						antAlgorithmParameterConfiguration[5], antAlgorithmParameterConfiguration[6]);
+				antAlgorithm.start();
+
+				System.out.println("setActualParameterTuningOptimalityResult: "+antAlgorithm.getOptimalUtility());
+						
+				// update estimated expected utility/runtime for parameter configuration
+				// ggf. setActualParameterTuningOptimalityResult löschen?	
+				// double runtime = antAlgorithm.getRuntime();	
+				// gerit: TESTEN!!!!
+				antAlgorithmSettings[index][7] = antAlgorithmSettings[index][7]+getActualParameterTuningOptimalityResult();
+//				antAlgorithmSettings[index][7]= updateMean(antAlgorithmSettings[index][7], 
+//						getActualParameterTuningOptimalityResult(), index);
+				antAlgorithmSettings[index][8]= updateMean(antAlgorithmSettings[index][8], 
+						antAlgorithm.getRuntime(), index);
+				
+				System.out.println(index+";"+antAlgorithmSettings[index][7]+";"+antAlgorithmSettings[index][8]+" optimality: "+getActualParameterTuningOptimalityResult());
+				index++;
+				
+				// run genetic algorithm
+
+
 
 			}
 		}
-
+		System.out.println(dateFormatLog.format(new Date()) + " Finished Tuning Phase");
+		saveTuningResults(antAlgorithmSettings);
 		
 		return;
 	}
 
+	private double updateMean(double expected,
+			double additionalUtilityValue, int instanceNumber) {
+		return (expected*(instanceNumber-1)+additionalUtilityValue)/instanceNumber;
+	}
 
-
-
-	private void sampleModelSetup() {
+	private Map<String, Constraint> sampleModelSetup() {
 		 /* Model setup distributions:
 		 * 		(no analytic solution, few classes with many candidates would also be feasible)
 		 * 		number of classes in [1;20], discrete: Binomial(20, 0.5)
@@ -3569,16 +3615,52 @@ public class MainFrame extends JFrame {
 		Binomial numberOfWebServices = new Binomial(20, 0.5);
 		serviceClassesList = new RandomSetGenerator().generateSet(
 		(int) numberOfServiceClasses.random(), (int) numberOfWebServices.random());
-		
+		determineMinMaxQosComposition();		
 		
 		// restrictions
-		// constraintsMap
-		// weights
+		Beta relaxation = new Beta(2,2);
+		Map<String, Constraint> generatedConstraints = new HashMap<String, Constraint>();
+		// linear transformation: 2/5*Beta+0,6
+		double relaxationValue = relaxation.random()*2/5+0.6;
+		
+		double maxCost = getRelaxationMaxCost(relaxationValue);
+		double maxResponseTime = getRelaxationMaxResponseTime(relaxationValue);
+		double minAvailability = getRelaxationMinAvailability(relaxationValue);
+		
+		// sample weights
+		double weightCost = Math.random();
+		double weightResponseTime = Math.random();
+		double weightAvailability = Math.random();
+		double weightSum = weightCost+weightResponseTime+weightAvailability;
+		//normalize weights
+		weightCost = weightCost/weightSum;
+		weightResponseTime = weightResponseTime/weightSum;
+		weightAvailability = weightAvailability/weightSum;
+		
+		
+		// generate constraints
+		Constraint constraintCosts = new Constraint(Constraint.COSTS, 
+				maxCost, 
+				weightCost);
+		generatedConstraints.put(constraintCosts.getTitle(), constraintCosts);
+		
+		Constraint constraintResponseTime = new Constraint(Constraint.RESPONSE_TIME, 
+				maxResponseTime, 
+				weightResponseTime);
+		generatedConstraints.put(constraintResponseTime.getTitle(), constraintResponseTime);
+		
+		Constraint constraintAvailability = new Constraint(Constraint.AVAILABILITY, 
+				minAvailability, 
+				weightAvailability);
+		generatedConstraints.put(constraintAvailability.getTitle(), constraintAvailability);
+		
+		
+		return generatedConstraints;
 		
 	}
 
 
-	private double[][] geneticAlgorithmSettings(int thetaSetSize) {
+	private double[][] sampleGeneticAlgorithmSettings(int thetaSetSize) {
 		 /* Genetic algorithm - parameter distribution details:
 		  * 	population size
 		  * 	elitism rate
@@ -3649,7 +3731,9 @@ public class MainFrame extends JFrame {
 			row[5] = (double) dilution.random();
 			row[6] = (double) pi.random();
 			//row[7] := estimated expected utility
+			row[7] = 0;
 			//row[8] := estimated expected runtime
+			row[8] = 0;
 		}
 		return antAlgorithmSettings;
 	}
@@ -3906,6 +3990,42 @@ public class MainFrame extends JFrame {
 		if (jPanelAlgorithmResult.getComponents().length == 0) {
 			jPanelAlgorithmResult.add(new JLabel("<html><h1 color=red>" +
 					"No Solution</h1></html>"));
+		}
+	}
+	
+	private void saveTuningResults(double[][] results){
+		final ServiceSelectionFileChooser fileChooser = 
+				new ServiceSelectionFileChooser("TuningResults.csv");
+		if (!(fileChooser.showSaveDialog(MainFrame.this) == 
+				JFileChooser.APPROVE_OPTION)) {
+			return;
+		}
+		File file = fileChooser.getSelectedFile();
+		if (!file.getAbsolutePath().toLowerCase().endsWith(".csv")) {
+			file = new File(
+					fileChooser.getSelectedFile().getAbsolutePath() + ".csv");
+		}
+		if (checkOverwrite(file, "Results have")) {
+			BufferedWriter bufferedWriter = null;
+			try {
+				bufferedWriter = new BufferedWriter(new FileWriter(file));		
+				for (double[] row : results) {	
+					String line = "";
+					for (double cell: row){
+						line+=cell+";";
+					}
+					bufferedWriter.newLine();
+					bufferedWriter.write(line);
+				}
+			} catch (IOException e) {			
+				writeErrorLogEntry("File has not been created successfully");
+			} finally {
+				try {
+					bufferedWriter.close();
+				} catch (IOException e)  {
+					writeErrorLogEntry("File writer has not been closed");
+				}
+			}
 		}
 	}
 	
@@ -4314,17 +4434,19 @@ public class MainFrame extends JFrame {
 		return parameterTuning;
 	}
 
-	public static List<Double> getBatchBenchmarkOptimalityResults() {
-		return BatchBenchmarkOptimalityResults;
+
+
+	public static double getActualParameterTuningOptimalityResult() {
+		return actualParameterTuningOptimalityResult;
 	}
 
-	public void resetBatchBenchmarkOptimalityResults() {
-		 BatchBenchmarkOptimalityResults.clear();
+
+
+	public static void setActualParameterTuningOptimalityResult(
+			double utility) {
+		actualParameterTuningOptimalityResult = utility;
 	}
 
-	public static void addBatchBenchmarkOptimalityResults(Double value) {
-		BatchBenchmarkOptimalityResults.add(value);
-	}
 
 
 }
