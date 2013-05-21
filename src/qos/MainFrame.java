@@ -207,7 +207,6 @@ public class MainFrame extends JFrame {
 	private boolean correctWeights = true;
 	private boolean benchmarkMode = false;
 	private boolean algorithmInProgress;
-	private boolean executeBenchmarking = false;
 	private boolean geneticAlgorithmExecuted = false;
 	private boolean antAlgorithmExecuted = false;
 	private boolean enableSaveResults = false;
@@ -2973,10 +2972,7 @@ public class MainFrame extends JFrame {
 		geneticAlgorithmExecuted = jCheckboxGeneticAlgorithm.isSelected();
 		antAlgorithmExecuted = jCheckBoxAntColonyOptimization.isSelected();
 
-		if(executeBenchmarking) {
-			executeBenchmarkingMethod();
-			return;
-		}
+
 		if (jCheckBoxBenchmarkMode.isSelected()) {
 			benchmarkMode = true;
 		}
@@ -3438,24 +3434,6 @@ public class MainFrame extends JFrame {
 			jTextFieldTerminationDegree.setVisible(false);
 		}
 	}
-
-	private void executeBenchmarkingMethod() {
-		
-		// Gerit: todo
-		
-		// Define Test-Scenarios
-		
-			// Model-Setup
-		loadModelSetup("C:/ModelSetup.csv");
-			// Algorithm Settings
-		loadAlgorithmSettings("C:/AlgorithmSettings.csv");
-		// Execute Methods
-		
-		// Save Results
-		
-		return;
-	}
-
 	
 	
 	/*	+-----------------------------------------------------------+
