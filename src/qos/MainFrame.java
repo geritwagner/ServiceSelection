@@ -3543,7 +3543,7 @@ public class MainFrame extends JFrame {
 		int maxTuningTime = 2;
 		
 		// estimated average runtime for a single instance   (at the moment: without benchmarking)
-		double estimtedRuntimeSingleInstance = 0.005;
+		double estimtedRuntimeSingleInstance = 0.05;
 		
 		// determine the max. amount of tests
 		int N = (int) Math.floor(maxTuningTime/estimtedRuntimeSingleInstance);
@@ -3564,7 +3564,7 @@ public class MainFrame extends JFrame {
 						antAlgorithmParameterConfiguration[5], antAlgorithmParameterConfiguration[6]);
 				antAlgorithm.start();
 
-				System.out.println("setActualParameterTuningOptimalityResult: "+antAlgorithm.getOptimalUtility());
+				//System.out.println("setActualParameterTuningOptimalityResult: "+antAlgorithm.getOptimalUtility());
 						
 				// update estimated expected utility/runtime for parameter configuration
 				// ggf. setActualParameterTuningOptimalityResult löschen?	
@@ -3576,7 +3576,7 @@ public class MainFrame extends JFrame {
 				antAlgorithmSettings[index][8]= updateMean(antAlgorithmSettings[index][8], 
 						antAlgorithm.getRuntime(), index);
 				
-				System.out.println(index+";"+antAlgorithmSettings[index][7]+";"+antAlgorithmSettings[index][8]+" optimality: "+getActualParameterTuningOptimalityResult());
+				// System.out.println(index+";"+antAlgorithmSettings[index][7]+";"+antAlgorithmSettings[index][8]+" optimality: "+getActualParameterTuningOptimalityResult());
 				index++;
 				
 				// run genetic algorithm
@@ -3584,6 +3584,8 @@ public class MainFrame extends JFrame {
 
 
 			}
+			System.out.print(".");
+			
 		}
 		System.out.println(dateFormatLog.format(new Date()) + " Finished Tuning Phase");
 		saveTuningResults(antAlgorithmSettings);
@@ -3614,7 +3616,15 @@ public class MainFrame extends JFrame {
 		Binomial numberOfServiceClasses = new Binomial(20, 0.5);
 		Binomial numberOfWebServices = new Binomial(20, 0.5);
 		serviceClassesList = new RandomSetGenerator().generateSet(
-		(int) numberOfServiceClasses.random(), (int) numberOfWebServices.random());
+				(int) numberOfServiceClasses.random(), (int) numberOfWebServices.random());
+		 
+		for (int i = 0 ; i < serviceClassesList.size() ; i++) {
+			ServiceClass serviceClass = serviceClassesList.get(i);  
+		    for (ServiceCandidate serviceCandidate : serviceClass.getServiceCandidateList()) {
+		    	serviceCandidatesList.add(serviceCandidate);
+		    }
+		}
+	    
 		determineMinMaxQosComposition();		
 		
 		// restrictions
