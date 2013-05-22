@@ -3591,6 +3591,7 @@ public class MainFrame extends JFrame {
 		time = System.nanoTime();
 		for (int i = 1; i<iterations; i++){
 			Map<String, Constraint> constraintsMap = sampleModelSetup();
+
 			@SuppressWarnings("unused")
 			double[][] temp = tuneAntAlgo(antAlgorithmSettings, constraintsMap);
 		}
@@ -3621,27 +3622,39 @@ public class MainFrame extends JFrame {
 	
 	private double[][] tuneAntAlgo(double[][] antAlgorithmSettings, Map<String, Constraint> constraintsMap){
 		int index = 0;
+
+		// Calculate the utility value for all service candidates.
+		  QosVector qosMaxServiceCandidate = determineQosMaxServiceCandidate(
+		    serviceCandidatesList);
+		  QosVector qosMinServiceCandidate = determineQosMinServiceCandidate(
+		    serviceCandidatesList);
+		  for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+		   serviceCandidate.determineUtilityValue(constraintsMap, 
+		     qosMaxServiceCandidate, qosMinServiceCandidate);
+		  }
+		  
 		for(double[] antAlgorithmParameterConfiguration : antAlgorithmSettings) {
 			// run ant-algorithm
 			int antVariant = 1;
-			
+
 			antAlgorithm = new AntAlgorithm(
 					serviceClassesList, serviceCandidatesList, constraintsMap,
 					antVariant, (int) antAlgorithmParameterConfiguration[1], (int) antAlgorithmParameterConfiguration[2], 
 					antAlgorithmParameterConfiguration[3], antAlgorithmParameterConfiguration[4],
 					antAlgorithmParameterConfiguration[5], antAlgorithmParameterConfiguration[6]);
 			antAlgorithm.start();
-					
+			antAlgorithm.start();
+			
 			// update estimated expected utility for parameter configuration
 			antAlgorithmSettings[index][7]= updateMean(antAlgorithmSettings[index][7], 
-					(double) antAlgorithm.getOptimalUtility(), index+1);
+					antAlgorithm.getOptimalUtility(), index+1);
 			// to do: optimal utility = 0.0 ??
-			// System.out.print(antAlgorithm.getAlgorithmSolutionTiers().get(0) + "(utility);");
+			System.out.print(antAlgorithm.getOptimalUtility() + "(utility);");
 			// update estimated expected runtime for parameter configuration
 			long runtime = antAlgorithm.getRuntime()/1000000;
 			antAlgorithmSettings[index][8]= (double) updateMean(antAlgorithmSettings[index][8], 
 					(double) runtime, index+1);
-			 System.out.println(runtime+"(runtime);");
+			System.out.println(runtime+"(runtime);");
 			index++;
 		}
 		return antAlgorithmSettings;
