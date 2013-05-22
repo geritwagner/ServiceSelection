@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.2" icons="true" automaticImage="PNG" always-add-relationships="true" generalizations="true" 
+  realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
+  <class id="1" language="java" name="qos.ServiceClass" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/ServiceClass.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1215" y="1955"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="qos.ServiceSelectionFileChooser" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/ServiceSelectionFileChooser.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="-759" y="992"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="qos.AlgorithmSolutionTier" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/AlgorithmSolutionTier.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="259" y="1955"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="qos.ServiceSelectionTable" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/ServiceSelectionTable.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="-604" y="538"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="qos.Algorithm" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/Algorithm.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="334" y="1310"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="qos.GeneticAlgorithm.FitnessComparator" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/GeneticAlgorithm.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="72" y="2055"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="qos.AlgorithmsVisualization" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/AlgorithmsVisualization.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="-391" y="1163"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="qos.RandomSetGenerator" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/RandomSetGenerator.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1481" y="1153"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="9" language="java" name="qos.BasicTableModel" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/BasicTableModel.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="-657" y="816"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="10" language="java" name="qos.QosVector" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/QosVector.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1080" y="2249"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="11" language="java" name="qos.GeneticAlgorithmVisualizationPanel" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/GeneticAlgorithmVisualizationPanel.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="-628" y="1479"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="12" language="java" name="qos.MainFrame" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/MainFrame.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="1786" width="277" x="168" y="-588"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="13" language="java" name="qos.ServiceCandidate" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/ServiceCandidate.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="595" y="2285"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="14" language="java" name="qos.AntAlgorithmVisualizationPanel" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/AntAlgorithmVisualizationPanel.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="-280" y="1465"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="15" language="java" name="qos.Constraint" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/Constraint.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="-385" y="2290"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="16" language="java" name="qos.AnalyticAlgorithm" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/AnalyticAlgorithm.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="-22" y="1452"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="17" language="java" name="qos.AntAlgorithm" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/AntAlgorithm.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="838" y="1558"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="18" language="java" name="qos.Composition" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/Composition.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="325" y="2096"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="19" language="java" name="qos.GeneticAlgorithm" project="ServiceSelection" 
+    file="/ServiceSelection/src/qos/GeneticAlgorithm.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="359" y="1607"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <dependency id="20">    
+    <bendpoint x="453" y="1238"/>    
+    <bendpoint x="551" y="1473"/>    
+    <bendpoint x="537" y="1784"/>    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="18"/>  
+  </dependency>  
+  <dependency id="21">    
+    <bendpoint x="158" y="1462"/>    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="3"/>  
+  </dependency>  
+  <generalization id="22">    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <dependency id="23">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="5"/>  
+  </dependency>  
+  <nesting id="24">    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="6"/>  
+  </nesting>  
+  <association id="25">    
+    <bendpoint x="18" y="1132"/>    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="26" name="analyticAlgorithm"/>      
+      <multiplicity id="27" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="28">    
+    <bendpoint x="1018" y="783"/>    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <association id="29">    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="30" name="jTableWebServices"/>      
+      <multiplicity id="31" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="32">    
+    <bendpoint x="493" y="1866"/>    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="33" name="optimalComposition"/>      
+      <multiplicity id="34" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="18" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="35">    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="36" name="algorithmSolutionTiers"/>      
+      <multiplicity id="37" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="38">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="14"/>  
+  </dependency>  
+  <dependency id="39">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="18"/>  
+  </dependency>  
+  <dependency id="40">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="9"/>  
+  </dependency>  
+  <association id="41">    
+    <bendpoint x="254" y="1312"/>    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="42" name="geneticAlgorithm"/>      
+      <multiplicity id="43" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="19" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="44">    
+    <bendpoint x="51" y="1719"/>    
+    <bendpoint x="-99" y="1893"/>    
+    <bendpoint x="-162" y="2062"/>    
+    <end type="SOURCE" refId="19" navigable="false">      
+      <attribute id="45" name="constraintsMap"/>      
+      <multiplicity id="46" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="15" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="47">    
+    <end type="SOURCE" refId="19" navigable="false">      
+      <attribute id="48" name="serviceClassesList"/>      
+      <multiplicity id="49" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="50">    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="51" name="serviceCandidatesList"/>      
+      <multiplicity id="52" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="53">    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="54" name="jTableGeneralResults"/>      
+      <multiplicity id="55" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="56">    
+    <end type="SOURCE" refId="19" navigable="false">      
+      <attribute id="57" name="algorithmSolutionTiers"/>      
+      <multiplicity id="58" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="59">    
+    <bendpoint x="948" y="1097"/>    
+    <bendpoint x="1054" y="1296"/>    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="60" name="serviceClassesList"/>      
+      <multiplicity id="61" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="62">    
+    <bendpoint x="542" y="1943"/>    
+    <bendpoint x="379" y="2220"/>    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="63" name="constraintsMap"/>      
+      <multiplicity id="64" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="15" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="65">    
+    <bendpoint x="1189" y="2075"/>    
+    <bendpoint x="1161" y="2139"/>    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="66" name="qosVectorMax"/>      
+      <multiplicity id="67" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="10" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="68">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <association id="69">    
+    <bendpoint x="599" y="1095"/>    
+    <bendpoint x="611" y="1584"/>    
+    <bendpoint x="618" y="1852"/>    
+    <bendpoint x="602" y="2036"/>    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="70" name="serviceCandidatesList"/>      
+      <multiplicity id="71" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="72">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="1"/>  
+  </dependency>  
+  <association id="73">    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="74" name="algorithmSolutionTiers"/>      
+      <multiplicity id="75" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="76">    
+    <bendpoint x="1452" y="1975"/>    
+    <bendpoint x="1393" y="2108"/>    
+    <bendpoint x="1286" y="2194"/>    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="10"/>  
+  </dependency>  
+  <association id="77">    
+    <bendpoint x="-101" y="1686"/>    
+    <bendpoint x="-134" y="1856"/>    
+    <bendpoint x="-187" y="2038"/>    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="78" name="constraintsMap"/>      
+      <multiplicity id="79" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="15" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="80">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="9"/>  
+  </dependency>  
+  <association id="81">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="82" name="serviceCompositions"/>      
+      <multiplicity id="83" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="18" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="84">    
+    <bendpoint x="200" y="1809"/>    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="85" name="serviceClassesList"/>      
+      <multiplicity id="86" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="87">    
+    <bendpoint x="920" y="1866"/>    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="13"/>  
+  </dependency>  
+  <association id="88">    
+    <bendpoint x="1144" y="2072"/>    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="89" name="qosVectorMin"/>      
+      <multiplicity id="90" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="10" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="91">    
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="92" name="qosVector"/>      
+      <multiplicity id="93" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="10" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="94">    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="95" name="serviceClassesList"/>      
+      <multiplicity id="96" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="97">    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="98" name="jTableServiceClasses"/>      
+      <multiplicity id="99" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="100">    
+    <bendpoint x="945" y="2112"/>    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="101" name="serviceCandidateList"/>      
+      <multiplicity id="102" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="103">    
+    <bendpoint x="872" y="1950"/>    
+    <bendpoint x="916" y="2078"/>    
+    <end type="SOURCE" refId="17"/>    
+    <end type="TARGET" refId="10"/>  
+  </dependency>  
+  <dependency id="104">    
+    <bendpoint x="354" y="1875"/>    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="18"/>  
+  </dependency>  
+  <association id="105">    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="106" name="algorithmVisualization"/>      
+      <multiplicity id="107" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="108">    
+    <bendpoint x="-142" y="1319"/>    
+    <bendpoint x="-143" y="1595"/>    
+    <bendpoint x="-217" y="1861"/>    
+    <bendpoint x="-237" y="1970"/>    
+    <bendpoint x="-267" y="2060"/>    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="15"/>  
+  </dependency>  
+  <dependency id="109">    
+    <bendpoint x="296" y="2134"/>    
+    <end type="SOURCE" refId="18"/>    
+    <end type="TARGET" refId="15"/>  
+  </dependency>  
+  <generalization id="110">    
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <association id="111">    
+    <bendpoint x="495" y="2134"/>    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="112" name="qosVectorAggregated"/>      
+      <multiplicity id="113" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="10" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="114">    
+    <end type="SOURCE" refId="17"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <dependency id="115">    
+    <bendpoint x="472" y="1866"/>    
+    <bendpoint x="495" y="2000"/>    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="13"/>  
+  </dependency>  
+  <association id="116">    
+    <bendpoint x="474" y="1238"/>    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="117" name="antAlgorithm"/>      
+      <multiplicity id="118" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="17" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="119">    
+    <bendpoint x="679" y="1951"/>    
+    <bendpoint x="658" y="2089"/>    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="120" name="serviceCandidatesList"/>      
+      <multiplicity id="121" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="122">    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="123" name="jTableAnalyticAlgorithm"/>      
+      <multiplicity id="124" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="125">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="15"/>  
+  </dependency>  
+  <dependency id="126">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="11"/>  
+  </dependency>  
+  <dependency id="127">    
+    <bendpoint x="137" y="1238"/>    
+    <bendpoint x="137" y="1462"/>    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="3"/>  
+  </dependency>  
+  <dependency id="128">    
+    <bendpoint x="-47" y="1884"/>    
+    <bendpoint x="-23" y="2254"/>    
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="13"/>  
+  </dependency>  
+  <dependency id="129">    
+    <bendpoint x="981" y="1238"/>    
+    <bendpoint x="981" y="1462"/>    
+    <bendpoint x="981" y="1866"/>    
+    <bendpoint x="981" y="2000"/>    
+    <bendpoint x="981" y="2134"/>    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="10"/>  
+  </dependency>  
+  <association id="130">    
+    <bendpoint x="28" y="1866"/>    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="131" name="compositionsList"/>      
+      <multiplicity id="132" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="18" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true"/>    
+    <operations public="false" package="false" protected="false" private="false"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

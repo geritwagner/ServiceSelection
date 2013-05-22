@@ -3544,7 +3544,8 @@ public class MainFrame extends JFrame {
 		
 		
 		// maximal tuning time in s
-		long maxTuningTime = 30;
+		long ActualTuningTime = System.currentTimeMillis();
+		long maxTuningTime = 10;
 		maxTuningTime*=1000000000;
 		// estimated average runtime for a single instance   (at the moment: without benchmarking)
 		long estimtedRuntimeSingleInstance = 1;
@@ -3578,8 +3579,9 @@ public class MainFrame extends JFrame {
 		}
 		
 		// save results
-		System.out.println(dateFormatLog.format(new Date()) + " Finished Tuning Phase");
-		saveTuningResults(antAlgorithmSettings);
+		System.out.println(dateFormatLog.format(new Date()) + " Finished Tuning Phase , target runtime" + maxTuningTime + ", elapsed time="
+				+(System.currentTimeMillis()-ActualTuningTime)/1000 + "s(accuracy="+(System.currentTimeMillis()-ActualTuningTime)/maxTuningTime/1000+ ")");
+		saveTuningResults(antAlgorithmSettings, antAlgo);
 		
 		return;
 	}
@@ -3589,11 +3591,12 @@ public class MainFrame extends JFrame {
 		time = System.nanoTime();
 		for (int i = 1; i<iterations; i++){
 			Map<String, Constraint> constraintsMap = sampleModelSetup();
+			@SuppressWarnings("unused")
 			double[][] temp = tuneAntAlgo(antAlgorithmSettings, constraintsMap);
 		}
 		time = (System.nanoTime() - time);
 		time/=iterations;
-		// instance must be tested for all parameter configuration -> no division
+		// instance must be tested for all parameter configuration -> no division by ParameterConfigurationList.length
 		return time;
 	}
 	
@@ -3602,11 +3605,12 @@ public class MainFrame extends JFrame {
 		time = System.nanoTime();
 		for (int i = 1; i<iterations; i++){
 			Map<String, Constraint> constraintsMap = sampleModelSetup();
+			@SuppressWarnings("unused")
 			double[][] temp = tuneGeneticAlgo(geneticAlgorithmSettings, constraintsMap);
 		}
 		time = (System.nanoTime() - time);
 		time/=iterations;
-		// instance must be tested for all parameter configuration -> no division
+		// instance must be tested for all parameter configuration -> no division by ParameterConfigurationList.length
 		return time;
 	}
 	
@@ -3628,21 +3632,23 @@ public class MainFrame extends JFrame {
 					antAlgorithmParameterConfiguration[5], antAlgorithmParameterConfiguration[6]);
 			antAlgorithm.start();
 					
-			// update estimated expected utility/runtime for parameter configuration
+			// update estimated expected utility for parameter configuration
 			antAlgorithmSettings[index][7]= updateMean(antAlgorithmSettings[index][7], 
-					(long) antAlgorithm.getOptimalUtility(), index+1);
+					(double) antAlgorithm.getOptimalUtility(), index+1);
+			// to do: optimal utility = 0.0 ??
+			// System.out.print(antAlgorithm.getAlgorithmSolutionTiers().get(0) + "(utility);");
+			// update estimated expected runtime for parameter configuration
 			long runtime = antAlgorithm.getRuntime()/1000000;
-			System.out.print(runtime + ";");
 			antAlgorithmSettings[index][8]= (double) updateMean(antAlgorithmSettings[index][8], 
-					runtime, index+1);
-			System.out.println(antAlgorithmSettings[index][8]+";");
+					(double) runtime, index+1);
+			 System.out.println(runtime+"(runtime);");
 			index++;
 		}
 		return antAlgorithmSettings;
 	}
 
 	private double updateMean(double expected,
-			long additionalValue, int instanceNumber) {
+			double additionalValue, int instanceNumber) {
 		return (expected*(instanceNumber-1)+additionalValue)/instanceNumber;
 	}
 
@@ -4053,7 +4059,7 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	private void saveTuningResults(double[][] results){
+	private void saveTuningResults(double[][] results, boolean antAlgo){
 		final ServiceSelectionFileChooser fileChooser = 
 				new ServiceSelectionFileChooser("TuningResults.csv");
 		if (!(fileChooser.showSaveDialog(MainFrame.this) == 
@@ -4069,6 +4075,8 @@ public class MainFrame extends JFrame {
 			BufferedWriter bufferedWriter = null;
 			try {
 				bufferedWriter = new BufferedWriter(new FileWriter(file));		
+				if(antAlgo){bufferedWriter.write("id;iterations;ants;alpha;beta;dilution;pi;e(utility);e(runtime);");}
+				if(!antAlgo){bufferedWriter.write("id; INSERT COLUMN DESCRIPTIONS");}
 				for (double[] row : results) {	
 					String line = "";
 					for (double cell: row){
