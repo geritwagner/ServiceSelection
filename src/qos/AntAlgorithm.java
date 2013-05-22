@@ -24,12 +24,12 @@ public class AntAlgorithm extends Algorithm {
 	private double[][] pi;		
 	// variant: Ant System = 1, Ant Colony System = 2, MAX-MIN Ant System = 3
 	// Convergent Variant = 4, (Qiqing et al. 2009) = 5, (Li und Yan-xiang 2011) = 6	
-	int variant = 4;
-	boolean convergent = false;
-	double lambda = 0.4;
-	double chaosFactor = 4;
-	double piMax = 1;
-	double piMin = 0;
+	private int variant = 4;
+	private boolean convergent = false;
+	private double lambda = 0.4;
+	private double chaosFactor = 4;
+	private double piMax = 1;
+	private double piMin = 0;
 	
 	private List<Double> optUtilityPerIteration;
 	private long runtime = 0;
