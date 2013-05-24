@@ -217,6 +217,7 @@ public class MainFrame extends JFrame {
 	private boolean geneticAlgorithmExecuted = false;
 	private boolean antAlgorithmExecuted = false;
 	private boolean enableSaveResults = false;
+	private boolean print;
 	private static boolean parameterTuning = true;
 	
 	// Integer & Double
@@ -3545,12 +3546,12 @@ public class MainFrame extends JFrame {
 		
 		
 		// maximal tuning time in s
-		long maxTuningTime = 10;
+		long maxTuningTime = 100;
 		maxTuningTime*=1000000000;
 		// estimated average runtime for a single instance   (at the moment: without benchmarking)
 		long estimtedRuntimeSingleInstance = 1;
 		if(antAlgo){
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettings, 5);
+			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettings, 10);
 			System.out.println("estimtedRuntimeSingleInstance: "+ estimtedRuntimeSingleInstance/1000000/sizeTheta + 
 					"ms, estimated time one run (all instances and the set of parameter configurations)="+estimtedRuntimeSingleInstance/1000000);
 		}
@@ -3572,12 +3573,12 @@ public class MainFrame extends JFrame {
 			
 			// run ant algorithm
 			if(antAlgo){
-				antAlgorithmSettings = tuneAntAlgo(antAlgorithmSettings, constraintsMap);
+				antAlgorithmSettings = tuneAntAlgo(antAlgorithmSettings, constraintsMap, k);
 			}
 			
 			// run genetic algorithm
 			if(geneticAlgo){
-				geneticAlgorithmSettings = tuneGeneticAlgo(geneticAlgorithmSettings, constraintsMap);
+				geneticAlgorithmSettings = tuneGeneticAlgo(geneticAlgorithmSettings, constraintsMap, k);
 			}
 		}
 		
@@ -3599,7 +3600,7 @@ public class MainFrame extends JFrame {
 			Map<String, Constraint> constraintsMap = sampleModelSetup();
 
 			@SuppressWarnings("unused")
-			double[][] temp = tuneAntAlgo(antAlgorithmSettings, constraintsMap);
+			double[][] temp = tuneAntAlgo(antAlgorithmSettings, constraintsMap, 1);
 		}
 		time = (System.nanoTime() - time);
 		time/=iterations;
@@ -3613,7 +3614,7 @@ public class MainFrame extends JFrame {
 		for (int i = 1; i<iterations; i++){
 			Map<String, Constraint> constraintsMap = sampleModelSetup();
 			@SuppressWarnings("unused")
-			double[][] temp = tuneGeneticAlgo(geneticAlgorithmSettings, constraintsMap);
+			double[][] temp = tuneGeneticAlgo(geneticAlgorithmSettings, constraintsMap, 1);
 		}
 		time = (System.nanoTime() - time);
 		time/=iterations;
@@ -3621,13 +3622,12 @@ public class MainFrame extends JFrame {
 		return time;
 	}
 	
-	private double[][] tuneGeneticAlgo(double[][] antAlgorithmSettings, Map<String, Constraint> constraintsMap){
+	private double[][] tuneGeneticAlgo(double[][] antAlgorithmSettings, Map<String, Constraint> constraintsMap, int instanceNumber){
 		// to do
 		return null;
 	}
 	
-	private double[][] tuneAntAlgo(double[][] antAlgorithmSettings, Map<String, Constraint> constraintsMap){
-		int index = 0;
+	private double[][] tuneAntAlgo(double[][] antAlgorithmSettings, Map<String, Constraint> constraintsMap, int instanceNumber){
 
 		// Calculate the utility value for all service candidates.
 		  QosVector qosMaxServiceCandidate = determineQosMaxServiceCandidate(
@@ -3638,7 +3638,10 @@ public class MainFrame extends JFrame {
 		   serviceCandidate.determineUtilityValue(constraintsMap, 
 		     qosMaxServiceCandidate, qosMinServiceCandidate);
 		  }
-		  
+
+		Runtime rt = Runtime.getRuntime();
+		rt.gc();
+		int index = 0;		  
 		for(double[] antAlgorithmParameterConfiguration : antAlgorithmSettings) {
 			// run ant-algorithm
 			int antVariant = 1;
@@ -3649,7 +3652,6 @@ public class MainFrame extends JFrame {
 					antAlgorithmParameterConfiguration[3], antAlgorithmParameterConfiguration[4],
 					antAlgorithmParameterConfiguration[5], antAlgorithmParameterConfiguration[6]);
 			antAlgorithm.start();
-			antAlgorithm.start();
 			
 			double utility = antAlgorithm.getOptimalUtility();
 			// no feasible solution: utility = 0
@@ -3659,14 +3661,15 @@ public class MainFrame extends JFrame {
 			
 			// update estimated expected utility for parameter configuration
 			antAlgorithmSettings[index][7]= updateMean(antAlgorithmSettings[index][7], 
-					utility, index+1);
-			System.out.print(utility + "(utility);");
+					utility, instanceNumber);
+			System.out.print("utility;"+utility);
 			// update estimated expected runtime for parameter configuration
 			long runtime = antAlgorithm.getRuntime()/1000000;
 			antAlgorithmSettings[index][8]= (double) updateMean(antAlgorithmSettings[index][8], 
-					(double) runtime, index+1);
-			System.out.println(runtime+"(runtime);");
+					(double) runtime, instanceNumber);
+			System.out.println(";runtime;"+runtime+";");
 			index++;
+			rt.gc();
 		}
 		return antAlgorithmSettings;
 	}
@@ -3711,7 +3714,6 @@ public class MainFrame extends JFrame {
 		// linear transformation: 2/5*Beta+0,6
 		double relaxationValue = relaxation.random()*2/5+0.6;
 		
-		// to do: constraints testen
 		double maxCost = getRelaxationMaxCost(relaxationValue);
 		double maxResponseTime = getRelaxationMaxResponseTime(relaxationValue);
 		double minAvailability = getRelaxationMinAvailability(relaxationValue)/100;
@@ -3722,9 +3724,9 @@ public class MainFrame extends JFrame {
 		double weightAvailability = Math.random();
 		double weightSum = weightCost+weightResponseTime+weightAvailability;
 		//normalize weights
-		weightCost = weightCost/weightSum;
-		weightResponseTime = weightResponseTime/weightSum;
-		weightAvailability = weightAvailability/weightSum;
+		weightCost = (weightCost/weightSum)*100;
+		weightResponseTime = (weightResponseTime/weightSum)*100;
+		weightAvailability = (weightAvailability/weightSum)*100;
 		
 		
 		// generate constraints
@@ -3808,7 +3810,7 @@ public class MainFrame extends JFrame {
 		Gamma alpha = new Gamma(2, 2);
 		Gamma beta = new Gamma(2,2);
 		Beta dilution = new Beta(2, 5);
-		Gamma pi = new Gamma(5, 1);
+		Gamma piInit = new Gamma(5, 1);
 		
 		// to do : does rounding alpha and beta to integers make a difference? (inefficient taylor series) 
 		
@@ -3822,7 +3824,7 @@ public class MainFrame extends JFrame {
 			row[3] = (double) alpha.random();
 			row[4] = (double) beta.random();
 			row[5] = (double) dilution.random();
-			row[6] = (double) pi.random();
+			row[6] = (double) piInit.random();
 			//row[7] := estimated expected utility
 			row[7] = 0;
 			//row[8] := estimated expected runtime
@@ -4102,7 +4104,7 @@ public class MainFrame extends JFrame {
 			BufferedWriter bufferedWriter = null;
 			try {
 				bufferedWriter = new BufferedWriter(new FileWriter(file));		
-				if(antAlgo){bufferedWriter.write("id;iterations;ants;alpha;beta;dilution;pi;e(utility);e(runtime in ms);");}
+				if(antAlgo){bufferedWriter.write("id;iterations;ants;alpha;beta;dilution;piInit;e(utility);e(runtime in ms);");}
 				if(!antAlgo){bufferedWriter.write("id; INSERT COLUMN DESCRIPTIONS");}
 				for (double[] row : results) {	
 					String line = "";
