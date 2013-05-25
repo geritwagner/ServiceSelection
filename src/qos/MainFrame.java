@@ -3083,7 +3083,7 @@ public class MainFrame extends JFrame {
 				dilution = DEFAULT_DILUTION;
 				piInit = DEFAULT_PIINIT;
 			}
-			antAlgorithm = new AntAlgorithm(
+			AntAlgorithm.setParamsAntAlgorithm(
 					serviceClassesList, serviceCandidatesList, constraintsMap,
 					variant, iterations, ants, alpha, beta,
 					dilution, piInit);
@@ -3546,12 +3546,12 @@ public class MainFrame extends JFrame {
 		
 		
 		// maximal tuning time in s
-		long maxTuningTime = 100;
+		long maxTuningTime = 150;
 		maxTuningTime*=1000000000;
 		// estimated average runtime for a single instance   (at the moment: without benchmarking)
 		long estimtedRuntimeSingleInstance = 1;
 		if(antAlgo){
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettings, 10);
+			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettings, 5);
 			System.out.println("estimtedRuntimeSingleInstance: "+ estimtedRuntimeSingleInstance/1000000/sizeTheta + 
 					"ms, estimated time one run (all instances and the set of parameter configurations)="+estimtedRuntimeSingleInstance/1000000);
 		}
@@ -3569,7 +3569,7 @@ public class MainFrame extends JFrame {
 			// generate random model setups
 			constraintsMap = sampleModelSetup();
 			
-			System.out.println(dateFormatLog.format(new Date()) + ": test parameter configurations with model-setup");
+//			System.out.println(dateFormatLog.format(new Date()) + ": test parameter configurations with model-setup");
 			
 			// run ant algorithm
 			if(antAlgo){
@@ -3646,7 +3646,7 @@ public class MainFrame extends JFrame {
 			// run ant-algorithm
 			int antVariant = 1;
 
-			antAlgorithm = new AntAlgorithm(
+			AntAlgorithm.setParamsAntAlgorithm(
 					serviceClassesList, serviceCandidatesList, constraintsMap,
 					antVariant, (int) antAlgorithmParameterConfiguration[1], (int) antAlgorithmParameterConfiguration[2], 
 					antAlgorithmParameterConfiguration[3], antAlgorithmParameterConfiguration[4],
@@ -3660,13 +3660,13 @@ public class MainFrame extends JFrame {
 			}
 			
 			// update estimated expected utility for parameter configuration
-			antAlgorithmSettings[index][7]= updateMean(antAlgorithmSettings[index][7], 
-					utility, instanceNumber);
+//			antAlgorithmSettings[index][7]= updateMean(antAlgorithmSettings[index][7], 
+//					utility, instanceNumber);
 			System.out.print("utility;"+utility);
 			// update estimated expected runtime for parameter configuration
 			long runtime = antAlgorithm.getRuntime()/1000000;
-			antAlgorithmSettings[index][8]= (double) updateMean(antAlgorithmSettings[index][8], 
-					(double) runtime, instanceNumber);
+//			antAlgorithmSettings[index][8]= (double) updateMean(antAlgorithmSettings[index][8], 
+//					(double) runtime, instanceNumber);
 			System.out.println(";runtime;"+runtime+";");
 			index++;
 			rt.gc();
@@ -3745,8 +3745,8 @@ public class MainFrame extends JFrame {
 				weightAvailability);
 		generatedConstraints.put(constraintAvailability.getTitle(), constraintAvailability);
 		
-		System.out.println(dateFormatLog.format(new Date()) + ": Sample model-setup (relaxation="+relaxationValue+")");		
-		System.out.println(constraintAvailability.toString()+";"+constraintCosts+";"+constraintResponseTime+";");
+//		System.out.println(dateFormatLog.format(new Date()) + ": Sample model-setup (relaxation="+relaxationValue+")");		
+//		System.out.println(constraintAvailability.toString()+";"+constraintCosts+";"+constraintResponseTime+";");
 		
 		return generatedConstraints;
 		
@@ -4412,7 +4412,7 @@ public class MainFrame extends JFrame {
 			algorithmMap.put("Genetic Algorithm", geneticAlgorithm);
 		}
 		if (jCheckBoxAntColonyOptimization.isSelected()) {
-			algorithmMap.put("Ant Colony Algorithm", antAlgorithm);
+			// algorithmMap.put("Ant Colony Algorithm", antAlgorithm);
 		}
 		if (jCheckBoxAnalyticAlgorithm.isSelected()) {
 			algorithmMap.put("Analytic Algorithm", analyticAlgorithm);

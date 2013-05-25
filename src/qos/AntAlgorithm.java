@@ -5,57 +5,58 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class AntAlgorithm extends Algorithm {
+public class AntAlgorithm {
 
-	private List<ServiceClass> serviceClassesList;
-	private List<ServiceCandidate> serviceCandidatesList;
-	private Map<String, Constraint> constraintsMap;	
-	private List<AlgorithmSolutionTier> algorithmSolutionTiers =
+	private static List<ServiceClass> serviceClassesList;
+	private static List<ServiceCandidate> serviceCandidatesList;
+	private static Map<String, Constraint> constraintsMap;	
+	private static List<AlgorithmSolutionTier> algorithmSolutionTiers =
 			new LinkedList<AlgorithmSolutionTier>();
 
-	private double piInit;
-	private int ants;
-	private int iterations;
-	private double alpha;
-	private double beta;
-	private double dilution;	
-	private Composition optimalComposition;
-	private double[] nj;
-	private double[][] pi;		
+	private static double piInit;
+	private static int ants;
+	private static int iterations;
+	private static double alpha;
+	private static double beta;
+	private static double dilution;	
+	private static Composition optimalComposition;
+	private static double[] nj;
+	private static double[][] pi;		
 	// variant: Ant System = 1, Ant Colony System = 2, MAX-MIN Ant System = 3
 	// Convergent Variant = 4, (Qiqing et al. 2009) = 5, (Li und Yan-xiang 2011) = 6	
-	private int variant = 4;
-	private boolean convergent = false;
-	private double lambda = 0.4;
-	private double chaosFactor = 4;
-	private double piMax = 1;
-	private double piMin = 0;
+	private static int variant = 4;
+	private static boolean convergent = false;
+	private static double lambda = 0.4;
+	private static double chaosFactor = 4;
+	private static double piMax = 1;
+	private static double piMin = 0;
 	
-	private List<Double> optUtilityPerIteration;
-	private long runtime = 0;
-	private int workPercentage;
+	private static List<Double> optUtilityPerIteration;
+	private static long runtime = 0;
+	private static int workPercentage;
 
-	public AntAlgorithm(List<ServiceClass> serviceClassesList,
-			List<ServiceCandidate> serviceCandidatesList,
-			Map<String, Constraint> constraintsMap, int variant,
-			int iterations, int ants, double alpha, double beta, double dilution, double piInit) {
-		this.serviceClassesList = new LinkedList<ServiceClass>(serviceClassesList);
-		this.serviceCandidatesList = new LinkedList<ServiceCandidate>(serviceCandidatesList);
-		Collections.copy(this.serviceClassesList, serviceClassesList);
-		Collections.copy(this.serviceCandidatesList, serviceCandidatesList);	
-		this.constraintsMap = constraintsMap;	
+	public static void setParamsAntAlgorithm(List<ServiceClass> setServiceClassesList,
+			List<ServiceCandidate> setServiceCandidatesList,
+			Map<String, Constraint> setConstraintsMap, int setVariant,
+			int setIterations, int setAnts, double setAlpha, double setBeta, double setDilution, double setPiInit) {
+		serviceClassesList = new LinkedList<ServiceClass>(setServiceClassesList);
+		serviceCandidatesList = new LinkedList<ServiceCandidate>(setServiceCandidatesList);
+		Collections.copy(serviceClassesList, serviceClassesList);
+		Collections.copy(serviceCandidatesList, serviceCandidatesList);	
+		constraintsMap = setConstraintsMap;	
 
 		optimalComposition = null;
-		this.variant = variant;
-		this.piInit = piInit;
-		this.ants = ants;
-		this.iterations = iterations;
-		this.alpha = alpha;
-		this.beta = beta;
-		this.dilution = dilution;						
+		variant = setVariant;
+		piInit = setPiInit;
+		ants = setAnts;
+		iterations = setIterations;
+		alpha = setAlpha;
+		beta = setBeta;
+		dilution = setDilution;						
 	}
+	
 
-	public void start() {	
+	public static void start() {	
 		runtime = System.nanoTime();
 		workPercentage = 0;
 		initAlgo();
@@ -135,7 +136,7 @@ public class AntAlgorithm extends Algorithm {
 		
 	}
 
-	private void initAlgo() {	
+	private static void initAlgo() {	
 		// ADD PSEUDO NODES AT THE BEGINNING AND AT THE END
 		List<ServiceCandidate> tempServiceCandidateList =
 				new LinkedList<ServiceCandidate>();
@@ -158,7 +159,7 @@ public class AntAlgorithm extends Algorithm {
 		setUtilityArray();
 	}
 	
-	private void initPheromoneMatrix() {
+	private static void initPheromoneMatrix() {
 		// INITIALIZE PHEROMONE-MATRIX
 		pi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
 		for (int i=0; i<pi.length; i++) {
@@ -168,7 +169,7 @@ public class AntAlgorithm extends Algorithm {
 		}
 	}
 	
-	private void setUtilityArray() {
+	private static void setUtilityArray() {
 		// CONSIDER START AND END NODE
 		nj = new double[serviceCandidatesList.size()];
 		// SET UTILITY OF START AND END NODE TO ONE
@@ -180,7 +181,7 @@ public class AntAlgorithm extends Algorithm {
 		}
 	}	
 
-	private void buildSolutionTiers() {
+	private static void buildSolutionTiers() {
 		List<Composition> requestedCompositions =
 				new LinkedList<Composition>();
 		requestedCompositions.add(optimalComposition);
@@ -193,7 +194,7 @@ public class AntAlgorithm extends Algorithm {
 	 *  ANT SYSTEM
 	 */
 
-	private void doIteration() {
+	private static void doIteration() {
 		List<Composition> antCompositions = new LinkedList<Composition>();
 		for (int k=0; k<ants; k++) {
 			int currentClass = 0;
@@ -280,7 +281,7 @@ public class AntAlgorithm extends Algorithm {
 	 *  ANT COLONY SYSTEM
 	 */
 	
-	private void doIterationV2() {
+	private static void doIterationV2() {
 		List<Composition> antCompositions = new LinkedList<Composition>();
 		double q0 = 0.5;
 		for (int k=0; k<ants; k++) {
@@ -390,7 +391,7 @@ public class AntAlgorithm extends Algorithm {
 	 *  MAX-MIN ANT SYSTEM
 	 */	
 	
-	private void doIterationV3() {
+	private static void doIterationV3() {
 		List<Composition> antCompositions = new LinkedList<Composition>();
 		for (int k=0; k<ants; k++) {
 			int currentClass = 0;
@@ -482,7 +483,7 @@ public class AntAlgorithm extends Algorithm {
 	 *  CONVERGENT VARIANT
 	 */
 	
-	private void doIterationV4() {
+	private static void doIterationV4() {
 		List<Composition> antCompositions = new LinkedList<Composition>();
 		for (int k=0; k<ants; k++) {
 			int currentClass = 0;
@@ -577,7 +578,7 @@ public class AntAlgorithm extends Algorithm {
 	 *  (Qiqing et al. 2009)
 	 */
 		
-	private void doIterationV5() {
+	private static void doIterationV5() {
 		List<Composition> antCompositions = new LinkedList<Composition>();
 		for (int k=0; k<ants; k++) {
 			int currentClass = 0;
@@ -669,7 +670,7 @@ public class AntAlgorithm extends Algorithm {
 	 *  (Li und Yan-xiang 2011)
 	 */
 	
-	private void doIterationV6() {
+	private static void doIterationV6() {
 		List<Composition> antCompositions = new LinkedList<Composition>();
 		for (int k=0; k<ants; k++) {
 			int currentClass = 0;
@@ -761,117 +762,117 @@ public class AntAlgorithm extends Algorithm {
 	
 
 	// GETTER AND SETTER
-	public List<ServiceClass> getServiceClassesList() {
+	public static List<ServiceClass> getServiceClassesList() {
 		return serviceClassesList;
 	}
 
-	public void setServiceClassesList(List<ServiceClass> serviceClassesList) {
-		this.serviceClassesList = serviceClassesList;
+	public static void setServiceClassesList(List<ServiceClass> serviceClassesList) {
+		serviceClassesList = serviceClassesList;
 	}
 
-	public List<ServiceCandidate> getServiceCandidatesList() {
+	public static List<ServiceCandidate> getServiceCandidatesList() {
 		return serviceCandidatesList;
 	}
 
-	public void setServiceCandidatesList(
+	public static void setServiceCandidatesList(
 			List<ServiceCandidate> serviceCandidatesList) {
-		this.serviceCandidatesList = serviceCandidatesList;
+		serviceCandidatesList = serviceCandidatesList;
 	}
 
-	public Map<String, Constraint> getConstraintsMap() {
+	public static Map<String, Constraint> getConstraintsMap() {
 		return constraintsMap;
 	}
 
-	public void setConstraintsMap(Map<String, Constraint> constraintsMap) {
-		this.constraintsMap = constraintsMap;
+	public static void setConstraintsMap(Map<String, Constraint> constraintsMap) {
+		constraintsMap = constraintsMap;
 	}
 
-	public double getPiInit() {
+	public static double getPiInit() {
 		return piInit;
 	}
 
-	public void setPiInit(double piInit) {
-		this.piInit = piInit;
+	public static void setPiInit(double piInit) {
+		piInit = piInit;
 	}
 
-	public int getAnts() {
+	public static int getAnts() {
 		return ants;
 	}
 
-	public void setAnts(int ants) {
-		this.ants = ants;
+	public static void setAnts(int ants) {
+		ants = ants;
 	}
 
-	public int getIterations() {
+	public static int getIterations() {
 		return iterations;
 	}
 
-	public void setIterations(int iterations) {
-		this.iterations = iterations;
+	public static void setIterations(int iterations) {
+		iterations = iterations;
 	}
 
-	public double getAlpha() {
+	public static double getAlpha() {
 		return alpha;
 	}
 
-	public void setAlpha(double alpha) {
-		this.alpha = alpha;
+	public static void setAlpha(double alpha) {
+		alpha = alpha;
 	}
 
-	public double getBeta() {
+	public static double getBeta() {
 		return beta;
 	}
 
-	public void setBeta(double beta) {
-		this.beta = beta;
+	public static void setBeta(double beta) {
+		beta = beta;
 	}
 
-	public double getDilution() {
+	public static double getDilution() {
 		return dilution;
 	}
 
-	public void setDilution(double dilution) {
-		this.dilution = dilution;
+	public static void setDilution(double dilution) {
+		dilution = dilution;
 	}	
 
-	public Composition getOptimalComposition() {
+	public static Composition getOptimalComposition() {
 		return optimalComposition;
 	}
 
-	public void setOptimalComposition(Composition optimalComposition) {
-		this.optimalComposition = optimalComposition;
+	public static void setOptimalComposition(Composition optimalComposition) {
+		optimalComposition = optimalComposition;
 	}
 
-	public double[] getNj() {
+	public static double[] getNj() {
 		return nj;
 	}
 
-	public void setNj(double[] nj) {
-		this.nj = nj;
+	public static void setNj(double[] nj) {
+		nj = nj;
 	}	
 
-	public long getRuntime() {
+	public static long getRuntime() {
 		return runtime;
 	}
 
-	public double getOptimalUtility() {
+	public static double getOptimalUtility() {
 		return optimalComposition.getUtility();
 	}
 	
-	public List<AlgorithmSolutionTier> getAlgorithmSolutionTiers() {
+	public static List<AlgorithmSolutionTier> getAlgorithmSolutionTiers() {
 		return algorithmSolutionTiers;
 	}
 
-	public void setAlgorithmSolutionTiers(
+	public static void setAlgorithmSolutionTiers(
 			List<AlgorithmSolutionTier> algorithmSolutionTiers) {
-		this.algorithmSolutionTiers = algorithmSolutionTiers;
+		algorithmSolutionTiers = algorithmSolutionTiers;
 	}
 
-	public int getWorkPercentage() {
+	public static int getWorkPercentage() {
 		return workPercentage;
 	}
 
-	public List<Double> getOptUtilityPerIteration() {
+	public static List<Double> getOptUtilityPerIteration() {
 		return optUtilityPerIteration;
 	}	
 
