@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class AntAlgorithm {
+public class AntAlgorithm extends Algorithm{
 
 	private static List<ServiceClass> serviceClassesList;
 	private static List<ServiceCandidate> serviceCandidatesList;
@@ -36,13 +36,13 @@ public class AntAlgorithm {
 	private static int workPercentage;
 
 	public static void setParamsAntAlgorithm(List<ServiceClass> setServiceClassesList,
-			List<ServiceCandidate> setServiceCandidatesList,
-			Map<String, Constraint> setConstraintsMap, int setVariant,
+			List<ServiceCandidate> setServiceCandidatesList, Map<String, Constraint> setConstraintsMap, int setVariant,
 			int setIterations, int setAnts, double setAlpha, double setBeta, double setDilution, double setPiInit) {
+		
 		serviceClassesList = new LinkedList<ServiceClass>(setServiceClassesList);
 		serviceCandidatesList = new LinkedList<ServiceCandidate>(setServiceCandidatesList);
-		Collections.copy(serviceClassesList, serviceClassesList);
-		Collections.copy(serviceCandidatesList, serviceCandidatesList);	
+		Collections.copy(serviceClassesList, setServiceClassesList);
+		Collections.copy(serviceCandidatesList, setServiceCandidatesList);	
 		constraintsMap = setConstraintsMap;	
 
 		optimalComposition = null;
@@ -56,7 +56,8 @@ public class AntAlgorithm {
 	}
 	
 
-	public static void start() {	
+	public static void start() {
+
 		runtime = System.nanoTime();
 		workPercentage = 0;
 		initAlgo();
@@ -136,7 +137,8 @@ public class AntAlgorithm {
 		
 	}
 
-	private static void initAlgo() {	
+	private static void initAlgo() {
+		
 		// ADD PSEUDO NODES AT THE BEGINNING AND AT THE END
 		List<ServiceCandidate> tempServiceCandidateList =
 				new LinkedList<ServiceCandidate>();
@@ -766,8 +768,8 @@ public class AntAlgorithm {
 		return serviceClassesList;
 	}
 
-	public static void setServiceClassesList(List<ServiceClass> serviceClassesList) {
-		serviceClassesList = serviceClassesList;
+	public static void setServiceClassesList(List<ServiceClass> setserviceClassesList) {
+		serviceClassesList = setserviceClassesList;
 	}
 
 	public static List<ServiceCandidate> getServiceCandidatesList() {
@@ -775,80 +777,80 @@ public class AntAlgorithm {
 	}
 
 	public static void setServiceCandidatesList(
-			List<ServiceCandidate> serviceCandidatesList) {
-		serviceCandidatesList = serviceCandidatesList;
+			List<ServiceCandidate> setserviceCandidatesList) {
+		serviceCandidatesList = setserviceCandidatesList;
 	}
 
 	public static Map<String, Constraint> getConstraintsMap() {
 		return constraintsMap;
 	}
 
-	public static void setConstraintsMap(Map<String, Constraint> constraintsMap) {
-		constraintsMap = constraintsMap;
+	public static void setConstraintsMap(Map<String, Constraint> setconstraintsMap) {
+		constraintsMap = setconstraintsMap;
 	}
 
 	public static double getPiInit() {
 		return piInit;
 	}
 
-	public static void setPiInit(double piInit) {
-		piInit = piInit;
+	public static void setPiInit(double setpiInit) {
+		piInit = setpiInit;
 	}
 
 	public static int getAnts() {
 		return ants;
 	}
 
-	public static void setAnts(int ants) {
-		ants = ants;
+	public static void setAnts(int setants) {
+		ants = setants;
 	}
 
 	public static int getIterations() {
 		return iterations;
 	}
 
-	public static void setIterations(int iterations) {
-		iterations = iterations;
+	public static void setIterations(int setiterations) {
+		iterations = setiterations;
 	}
 
 	public static double getAlpha() {
 		return alpha;
 	}
 
-	public static void setAlpha(double alpha) {
-		alpha = alpha;
+	public static void setAlpha(double setalpha) {
+		alpha = setalpha;
 	}
 
 	public static double getBeta() {
 		return beta;
 	}
 
-	public static void setBeta(double beta) {
-		beta = beta;
+	public static void setBeta(double setbeta) {
+		beta = setbeta;
 	}
 
 	public static double getDilution() {
 		return dilution;
 	}
 
-	public static void setDilution(double dilution) {
-		dilution = dilution;
+	public static void setDilution(double setdilution) {
+		dilution = setdilution;
 	}	
 
 	public static Composition getOptimalComposition() {
 		return optimalComposition;
 	}
 
-	public static void setOptimalComposition(Composition optimalComposition) {
-		optimalComposition = optimalComposition;
+	public static void setOptimalComposition(Composition setoptimalComposition) {
+		optimalComposition = setoptimalComposition;
 	}
 
 	public static double[] getNj() {
 		return nj;
 	}
 
-	public static void setNj(double[] nj) {
-		nj = nj;
+	public static void setNj(double[] setnj) {
+		nj = setnj;
 	}	
 
 	public static long getRuntime() {
@@ -864,8 +866,8 @@ public class AntAlgorithm {
 	}
 
 	public static void setAlgorithmSolutionTiers(
-			List<AlgorithmSolutionTier> algorithmSolutionTiers) {
-		algorithmSolutionTiers = algorithmSolutionTiers;
+			List<AlgorithmSolutionTier> setalgorithmSolutionTiers) {
+		algorithmSolutionTiers = setalgorithmSolutionTiers;
 	}
 
 	public static int getWorkPercentage() {

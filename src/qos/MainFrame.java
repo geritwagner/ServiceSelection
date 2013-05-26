@@ -36,10 +36,6 @@ public class MainFrame extends JFrame {
 
 	
 	// Formats
-	private static final DecimalFormat DECIMAL_FORMAT_TWO = 
-		new DecimalFormat("###.##");
-	private static final DecimalFormat DECIMAL_FORMAT_FOUR = 
-		new DecimalFormat("###.####");
 	private static SimpleDateFormat dateFormatLog = 
 		new SimpleDateFormat("HH:mm:ss: ");
 	
@@ -58,11 +54,7 @@ public class MainFrame extends JFrame {
 	private static int minCosts = 0;
 	private static int minResponseTime = 0;
 	private static int minAvailability = 0;
-	private static double cumulatedRuntime;
 	private static double actualParameterTuningOptimalityResult = 100;
-	
-
-	
 	
 	/*	+-----------------------------------------------------------+
 	 * 	| +-------------------------------------------------------+ |
@@ -88,8 +80,6 @@ public class MainFrame extends JFrame {
 	 * 	| +-------------------------------------------------------+ |
 	 * 	+-----------------------------------------------------------+
 	 */
-
-
 	
 	private static double getRelaxationMinAvailability(double r){
 		return r* (minAvailability - maxAvailability) + maxAvailability;
@@ -102,7 +92,6 @@ public class MainFrame extends JFrame {
 	private static double getRelaxationMaxCost(double r){
 		return r*(maxCosts - minCosts) + minCosts;
 	}
-
 	
 		// The values are computed according to the approach of Gao et al., which
 		// can be found under "4. Simulation Analysis" in their paper 
@@ -168,6 +157,7 @@ public class MainFrame extends JFrame {
 		boolean geneticAlgo = false;
 		
 		int sizeTheta = 10;
+		int estimateIterations = 5;
 		
 		double[][] antAlgorithmSettings = null;
 		double[][] geneticAlgorithmSettings = null;
@@ -193,24 +183,21 @@ public class MainFrame extends JFrame {
 		
 		
 		// maximal tuning time in s
-		long maxTuningTime = 80;
+		long maxTuningTime = 200;
 		maxTuningTime*=1000000000;
 		// estimated average runtime for a single instance   (at the moment: without benchmarking)
 		long estimtedRuntimeSingleInstance = 1;
 		if(antAlgo){
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettings, 1000);
+			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettings, estimateIterations);
 			System.out.println("estimtedRuntimeSingleInstance: "+ estimtedRuntimeSingleInstance/1000000/sizeTheta + 
 					"ms, estimated time one run (all instances and the set of parameter configurations)="+estimtedRuntimeSingleInstance/1000000);
 		}
 		if(geneticAlgo){
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceGenetic(geneticAlgorithmSettings, 11);	
+			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceGenetic(geneticAlgorithmSettings, estimateIterations);	
 		}
 		
 		// determine the max. amount of tests
 		long N = (long) Math.floor(maxTuningTime/estimtedRuntimeSingleInstance);
-
-		// delete:
-		N = 20;
 		
 		// start parameter tuning
 		System.out.println(dateFormatLog.format(new Date()) + " Starting Tuning Phase, Durchläufe:" +N+"*"+sizeTheta);
@@ -219,7 +206,7 @@ public class MainFrame extends JFrame {
 			// generate random model setups
 			constraintsMap = sampleModelSetup();
 			
-//			System.out.println(dateFormatLog.format(new Date()) + ": test parameter configurations with model-setup");
+			System.out.println(dateFormatLog.format(new Date()) + ": test parameter configurations with model-setup");
 			
 			// run ant algorithm
 			if(antAlgo){
@@ -288,8 +275,6 @@ public class MainFrame extends JFrame {
 		     qosMaxServiceCandidate, qosMinServiceCandidate);
 		  }
 
-		Runtime rt = Runtime.getRuntime();
-		rt.gc();
 		int index = 0;		  
 		for(double[] antAlgorithmParameterConfiguration : antAlgorithmSettings) {
 			// run ant-algorithm
@@ -309,21 +294,20 @@ public class MainFrame extends JFrame {
 			}
 			
 			// update estimated expected utility for parameter configuration
-//			antAlgorithmSettings[index][7]= updateMean(antAlgorithmSettings[index][7], 
-//					utility, instanceNumber);
+			antAlgorithmSettings[index][7]= updateMean(antAlgorithmSettings[index][7], 
+					utility, instanceNumber);
 			System.out.print("utility;"+utility);
 			// update estimated expected runtime for parameter configuration
 			long runtime = AntAlgorithm.getRuntime()/1000000;
-//			antAlgorithmSettings[index][8]= (double) updateMean(antAlgorithmSettings[index][8], 
-//					(double) runtime, instanceNumber);
+			antAlgorithmSettings[index][8]= (double) updateMean(antAlgorithmSettings[index][8], 
+					(double) runtime, instanceNumber);
 			System.out.println(";runtime;"+runtime+";");
 			index++;
-			rt.gc();
 		}
 		return antAlgorithmSettings;
 	}
 
-	private double updateMean(double expected,
+	private static double updateMean(double expected,
 			double additionalValue, int instanceNumber) {
 		return (expected*(instanceNumber-1)+additionalValue)/instanceNumber;
 	}
@@ -347,7 +331,7 @@ public class MainFrame extends JFrame {
 		Binomial numberOfWebServices = new Binomial(20, 0.5);
 		serviceClassesList = new RandomSetGenerator().generateSet(
 				(int) numberOfServiceClasses.random(), (int) numberOfWebServices.random());
-		 
+		serviceCandidatesList.clear(); 
 		for (int i = 0 ; i < serviceClassesList.size() ; i++) {
 			ServiceClass serviceClass = serviceClassesList.get(i);  
 		    for (ServiceCandidate serviceCandidate : serviceClass.getServiceCandidateList()) {
@@ -566,33 +550,14 @@ public class MainFrame extends JFrame {
 		return new QosVector(costs, responseTime, availability);
 	}
 	
-	private static boolean checkOverwrite(File file, String customDescription) {
-		if (!file.getName().endsWith(".csv")) {
-			if (file.getName().contains(".")) {
-				file = new File(file.getPath().substring(
-						0, file.getPath().lastIndexOf(".")) + ".csv");
-			}
-			else {
-				file = new File(file.getPath() + ".csv");
-			}
-		}
-
-		
-		return true;
-	}
-
-	
 	public static double getActualParameterTuningOptimalityResult() {
 		return actualParameterTuningOptimalityResult;
 	}
-
-
 
 	public static void setActualParameterTuningOptimalityResult(
 			double utility) {
 		actualParameterTuningOptimalityResult = utility;
 	}
-
 
 
 }
