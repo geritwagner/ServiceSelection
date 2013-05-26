@@ -1,8 +1,11 @@
 package qos;
 
 
-import java.io.File;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,20 +13,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-
-
 import jsc.distributions.Beta;
 import jsc.distributions.Binomial;
 import jsc.distributions.Gamma;
 
 
-public class MainFrame extends JFrame {
-	
-	private static final long serialVersionUID = 1L;
-		
+public class MainFrame {		
 	
 	/*	+-----------------------------------------------------------+
 	 * 	| +-------------------------------------------------------+ |
@@ -44,7 +39,6 @@ public class MainFrame extends JFrame {
 		new LinkedList<ServiceClass>();
 	private static List<ServiceCandidate> serviceCandidatesList = 
 		new LinkedList<ServiceCandidate>();
-	private static List<String> saveResultList = new LinkedList<String>();
 	
 
 	// Integer & Double
@@ -55,6 +49,7 @@ public class MainFrame extends JFrame {
 	private static int minResponseTime = 0;
 	private static int minAvailability = 0;
 	private static double actualParameterTuningOptimalityResult = 100;
+	private static String filename;
 	
 	/*	+-----------------------------------------------------------+
 	 * 	| +-------------------------------------------------------+ |
@@ -65,12 +60,9 @@ public class MainFrame extends JFrame {
 	 * 	+-----------------------------------------------------------+
 	 */
 	
-	public static void main(String[] args) {
-		System.out.println(dateFormatLog.format(new Date()) + " Parameter Tuning Mode");
+	public static void main(String[] args) throws IOException {
 		parameterTuning();
-		System.exit(1);
 	}
-
 	
 	/*	+-----------------------------------------------------------+
 	 * 	| +-------------------------------------------------------+ |
@@ -123,7 +115,8 @@ public class MainFrame extends JFrame {
 	 * 	+-----------------------------------------------------------+
 	 */
 	
-	private static void parameterTuning() {
+	private static void parameterTuning() throws IOException {
+		System.out.println(dateFormatLog.format(new Date()) + " Parameter Tuning Mode");
 		/* Parameter-tuning algorithm: BRUTUS (Birattari 2009, pp.101)
 		 * F-RACE (Birattari 2009, pp.103) is a possible extension which is structurally similar to BRUTUS.
 		 * Pseudo-Code: BRUTUS
@@ -157,7 +150,9 @@ public class MainFrame extends JFrame {
 		boolean geneticAlgo = false;
 		
 		int sizeTheta = 10;
-		int estimateIterations = 5;
+		int estimateIterations = 10;
+		long maxTuningTime = 40;
+		filename = "C:\\Users\\Gerit\\Downloads\\temp\\results.csv";
 		
 		double[][] antAlgorithmSettings = null;
 		double[][] geneticAlgorithmSettings = null;
@@ -174,23 +169,18 @@ public class MainFrame extends JFrame {
 			geneticAlgorithmSettings = sampleGeneticAlgorithmSettings(sizeTheta);
 		}
 		
-		System.out.println("Sample algorithm parameters:");
-		for(double[] row : antAlgorithmSettings){
-			for(double column : row){
-				System.out.print(column +";");}
-			System.out.println();
-		}
-		
-		
+		System.out.println(dateFormatLog.format(new Date()) + "Estimate the runtime of a single instance to determine the amount of runs");
 		// maximal tuning time in s
-		long maxTuningTime = 200;
 		maxTuningTime*=1000000000;
 		// estimated average runtime for a single instance   (at the moment: without benchmarking)
 		long estimtedRuntimeSingleInstance = 1;
 		if(antAlgo){
+			// steady-state
+			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettings, 3);
+			// estimate
 			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettings, estimateIterations);
-			System.out.println("estimtedRuntimeSingleInstance: "+ estimtedRuntimeSingleInstance/1000000/sizeTheta + 
-					"ms, estimated time one run (all instances and the set of parameter configurations)="+estimtedRuntimeSingleInstance/1000000);
+			System.out.println(dateFormatLog.format(new Date()) + "estimtedRuntimeSingleInstance: "+ estimtedRuntimeSingleInstance/1000000/sizeTheta + 
+					"ms, estimated time one run (all instances and the set of parameter configurations)="+estimtedRuntimeSingleInstance/1000000+"ms");
 		}
 		if(geneticAlgo){
 			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceGenetic(geneticAlgorithmSettings, estimateIterations);	
@@ -206,7 +196,7 @@ public class MainFrame extends JFrame {
 			// generate random model setups
 			constraintsMap = sampleModelSetup();
 			
-			System.out.println(dateFormatLog.format(new Date()) + ": test parameter configurations with model-setup");
+			System.out.println(dateFormatLog.format(new Date()) + ": test parameter configurations with new model-setup");
 			
 			// run ant algorithm
 			if(antAlgo){
@@ -219,43 +209,15 @@ public class MainFrame extends JFrame {
 			}
 		}
 		
-		// save results
 		long elapsed = (System.currentTimeMillis()-ActualTuningTime)/1000;
 		long target = maxTuningTime/1000000000;
 		System.out.println(dateFormatLog.format(new Date()) + " Finished Tuning Phase , target runtime=" + target + 
 				"s, elapsed time="+elapsed);
-//		saveTuningResults(antAlgorithmSettings, antAlgo);
 		
-		//System.exit(1);
+		// save results
+		saveTuningResults(antAlgorithmSettings, antAlgo);
+		System.out.println(dateFormatLog.format(new Date()) + "saved results to "+filename);
 		return;
-	}
-	
-	private static long getEstimatedRuntimeSingleInstanceAnt(double[][] antAlgorithmSettings, int iterations){
-		long time = 0;
-		time = System.nanoTime();
-		for (int i = 1; i<iterations; i++){
-			Map<String, Constraint> constraintsMap = sampleModelSetup();
-			@SuppressWarnings("unused")
-			double[][] temp = tuneAntAlgo(antAlgorithmSettings, constraintsMap, 1);
-		}
-		time = (System.nanoTime() - time);
-		time/=iterations;
-		// instance must be tested for all parameter configuration -> no division by ParameterConfigurationList.length
-		return time;
-	}
-	
-	private static long getEstimatedRuntimeSingleInstanceGenetic(double[][] geneticAlgorithmSettings, int iterations){
-		long time = 0;
-		time = System.nanoTime();
-		for (int i = 1; i<iterations; i++){
-			Map<String, Constraint> constraintsMap = sampleModelSetup();
-			@SuppressWarnings("unused")
-			double[][] temp = tuneGeneticAlgo(geneticAlgorithmSettings, constraintsMap, 1);
-		}
-		time = (System.nanoTime() - time);
-		time/=iterations;
-		// instance must be tested for all parameter configuration -> no division by ParameterConfigurationList.length
-		return time;
 	}
 	
 	private static double[][] tuneGeneticAlgo(double[][] antAlgorithmSettings, Map<String, Constraint> constraintsMap, int instanceNumber){
@@ -447,27 +409,75 @@ public class MainFrame extends JFrame {
 		
 		// to do : does rounding alpha and beta to integers make a difference? (inefficient taylor series) 
 		
-		int id = 1;
-		for(double[] row : antAlgorithmSettings){
-			row[0] = id;
-			id++;
+		int setAnts;
+		double setAlpha;
+		double setBeta;
+		double setDilution;
+		double setPiInit;
+		
+		for(int r = 0; r< antAlgorithmSettings.length; r=r+2){
+			setAnts = (int) ants.random();
+			setAlpha = (double) alpha.random();
+			setBeta = (double) beta.random();
+			setDilution = (double) dilution.random();
+			setPiInit = (double) piInit.random();		
+			
+			antAlgorithmSettings[r][0] = r;
 			// row[1] = (int) iterations.random();
-			row[1] = iterations;
-			row[2] = (int) ants.random();
-			row[3] = (double) alpha.random();
-			row[4] = (double) beta.random();
-			row[5] = (double) dilution.random();
-			row[6] = (double) piInit.random();
+			antAlgorithmSettings[r][1] = iterations;
+			antAlgorithmSettings[r][2] = setAnts;
+			antAlgorithmSettings[r][3] = setAlpha;
+			antAlgorithmSettings[r][4] = setBeta;
+			antAlgorithmSettings[r][5] = setDilution;
+			antAlgorithmSettings[r][6] = setPiInit;
 			//row[7] := estimated expected utility
-			row[7] = 0;
+			antAlgorithmSettings[r][7] = 0;
 			//row[8] := estimated expected runtime
-			row[8] = 0;
+			antAlgorithmSettings[r][8] = 0;
+			// round alpha and beta
+			antAlgorithmSettings[r+1][0] = r+1;
+			// row[1] = (int) iterations.random();
+			antAlgorithmSettings[r+1][1] = iterations;
+			antAlgorithmSettings[r+1][2] = setAnts;
+			antAlgorithmSettings[r+1][3] = Math.round(setAlpha);
+			antAlgorithmSettings[r+1][4] = Math.round(setBeta);
+			antAlgorithmSettings[r+1][5] = setDilution;
+			antAlgorithmSettings[r+1][6] = setPiInit;
+			//row[7] := estimated expected utility
+			antAlgorithmSettings[r+1][7] = 0;
+			//row[8] := estimated expected runtime
+			antAlgorithmSettings[r+1][8] = 0;
 		}
 		return antAlgorithmSettings;
 	}
 	
+	private static long getEstimatedRuntimeSingleInstanceAnt(double[][] antAlgorithmSettings, int iterations){
+		long time = 0;
+		time = System.nanoTime();
+		for (int i = 1; i<iterations; i++){
+			Map<String, Constraint> constraintsMap = sampleModelSetup();
+			@SuppressWarnings("unused")
+			double[][] temp = tuneAntAlgo(antAlgorithmSettings, constraintsMap, 1);
+		}
+		time = (System.nanoTime() - time);
+		time/=iterations;
+		// instance must be tested for all parameter configuration -> no division by ParameterConfigurationList.length
+		return time;
+	}
 	
-	
+	private static long getEstimatedRuntimeSingleInstanceGenetic(double[][] geneticAlgorithmSettings, int iterations){
+		long time = 0;
+		time = System.nanoTime();
+		for (int i = 1; i<iterations; i++){
+			Map<String, Constraint> constraintsMap = sampleModelSetup();
+			@SuppressWarnings("unused")
+			double[][] temp = tuneGeneticAlgo(geneticAlgorithmSettings, constraintsMap, 1);
+		}
+		time = (System.nanoTime() - time);
+		time/=iterations;
+		// instance must be tested for all parameter configuration -> no division by ParameterConfigurationList.length
+		return time;
+	}
 	// Determine the maximum value for each QoS attribute over all 
 	// service candidates given to the method.
 	// Note that "maximum" really means "maximum" and not "best".
@@ -558,6 +568,26 @@ public class MainFrame extends JFrame {
 			double utility) {
 		actualParameterTuningOptimalityResult = utility;
 	}
-
+	
+	private static void saveTuningResults(double[][] results, boolean antAlgo) throws IOException{
+        FileWriter fw = new FileWriter(filename);
+    	BufferedWriter bufferedWriter = new BufferedWriter(fw);	
+    	if(antAlgo){bufferedWriter.write("id;iterations;ants;alpha;beta;dilution;piInit;e(utility);e(runtime in ms);");}
+    	if(!antAlgo){bufferedWriter.write("id; INSERT COLUMN DESCRIPTIONS");}
+    	for (double[] row : results) {	
+	    	String line = "";
+	    	for (double cell: row){
+		    	DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
+		    	dfs.setDecimalSeparator(',');
+		    	DecimalFormat dFormat = new DecimalFormat("0.0000", dfs);
+		    	String zahlString = dFormat.format(cell);
+		
+		    	line+= zahlString +";";
+	    	}
+	    	bufferedWriter.newLine();
+	    	bufferedWriter.write(line);
+    	}
+	    bufferedWriter.close();
+	}
 
 }
