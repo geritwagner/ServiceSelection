@@ -16,6 +16,7 @@ import java.util.Map;
 import jsc.distributions.Beta;
 import jsc.distributions.Binomial;
 import jsc.distributions.Gamma;
+import jsc.onesample.Ttest;
 
 
 public class MainFrame {		
@@ -40,7 +41,19 @@ public class MainFrame {
 	private static List<ServiceCandidate> serviceCandidatesList = 
 		new LinkedList<ServiceCandidate>();
 	
+	private static double[][] antAlgorithmSettings = null;
+	private static double[][] geneticAlgorithmSettings = null;
+	private static Map<String, Constraint> constraintsMap = null;
+	private static double[][] C = null;
+	private static boolean[] S = null;
+	private static int SLength;
+	private static int experimentsSoFar;
+	private static int sizeThetaStart;
+	private static int maxRunsM;
+	private static int maxInstances;
+	private static int instancesSoFar;
 
+	
 	// Integer & Double
 	private static int maxCosts = 10000;
 	private static int maxResponseTime = 10000;
@@ -119,100 +132,97 @@ public class MainFrame {
 		System.out.println(dateFormatLog.format(new Date()) + " Parameter Tuning Mode");
 		/* Parameter-tuning algorithm: BRUTUS (Birattari 2009, pp.101)
 		 * F-RACE (Birattari 2009, pp.103) is a possible extension which is structurally similar to BRUTUS.
-		 * Pseudo-Code: BRUTUS
+		 * Pseudo-Code: F-RACE
 
-					function Brutus(M)
-					# Number of experiments for each candidate
-					# M = [T/t] with T:= overall time available for tuning, t:= runtime for a single experiment (0.5s)
-					N = floor(M/|Theta|)
-					# Allocate array for storing estimated
-					# expected performance of candidates
-					A = allocate array(|Theta|)
-					for (k = 1; k <= N; k++) do
+					function generic race(M,use test)
+						# Number of experiments performed so far
+						experiments soFar = 0
+						# Number of instances considered so far
+						instances soFar = 0
+						# Allocate array for storing observed
+						# performance of candidates
+						C = allocate array(max instances, |Theta|)
+						# Surviving candidates
+						S = Theta
+						while(experiments soFar + |S| <= M and
+						instances soFar+ 1 <= max instances) do
 						# Sample an instance according to PI
 						i = sample instance()
-							foreach theta in Theta do
-								# Run candidate theta on instance i
-								s = run experiment(theta, i)
-								# Evaluate obtained solution
-								c = evaluate solution(s)
-								# Update estimate of expected
-								# performance of candidate theta
-								A[Theta] = update mean(A[Theta], c, k)
-							done
-					done
-					# Select best configuration
-					theta = which min(A)
-					return theta
+						instances soFar+= 1
+						foreach theta in S do
+						# Run candidate theta on instance i
+						s = run experiment(theta, i)
+						experiments soFar+= 1
+						# Evaluate solution and store result
+						C[instances soFar, theta] = evaluate solution(s)
+						done
+						# Drop inferior candidates according to
+						# the given statistical test
+						S = drop candidates(S, C, use test)
+						done
+
+			possible improvements: "Improvement strategies for the F-Race algorithm: sampling design and iterative refinement"
 		 */
 		
 		boolean antAlgo = true;
 		boolean geneticAlgo = false;
 		
-		int sizeTheta = 10;
-		int estimateIterations = 10;
-		long maxTuningTime = 40;
+		sizeThetaStart = 10;
+		maxRunsM = 10000;
+		maxInstances = 10000;
 		filename = "C:\\Users\\Gerit\\Downloads\\temp\\results.csv";
 		
-		double[][] antAlgorithmSettings = null;
-		double[][] geneticAlgorithmSettings = null;
+		// generic dimensions: [instances][id, parameters, runtime, utility]
 		
-		Map<String, Constraint> constraintsMap = null;
+		antAlgorithmSettings = sampleAntAlgorithmSettings(maxInstances, sizeThetaStart);
 		
-		// Sample/define candidate configurations/settings 
-		// & Allocate array for storing estimated expected performance of candidates
-		if(antAlgo){
-			antAlgorithmSettings = sampleAntAlgorithmSettings(sizeTheta);
+		C = new double[(int) maxInstances][sizeThetaStart];
+		
+		S = new boolean[sizeThetaStart];
+		for (int i = 0; i < S.length; i++) {
+			S[i] = true;
 		}
 		
-		if(geneticAlgo){
-			geneticAlgorithmSettings = sampleGeneticAlgorithmSettings(sizeTheta);
-		}
+		SLength = sizeThetaStart;
 		
-		System.out.println(dateFormatLog.format(new Date()) + "Estimate the runtime of a single instance to determine the amount of runs");
-		// maximal tuning time in s
-		maxTuningTime*=1000000000;
-		// estimated average runtime for a single instance   (at the moment: without benchmarking)
-		long estimtedRuntimeSingleInstance = 1;
-		if(antAlgo){
-			// steady-state
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettings, 3);
-			// estimate
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettings, estimateIterations);
-			System.out.println(dateFormatLog.format(new Date()) + "estimtedRuntimeSingleInstance: "+ estimtedRuntimeSingleInstance/1000000/sizeTheta + 
-					"ms, estimated time one run (all instances and the set of parameter configurations)="+estimtedRuntimeSingleInstance/1000000+"ms");
-		}
-		if(geneticAlgo){
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceGenetic(geneticAlgorithmSettings, estimateIterations);	
-		}
-		
-		// determine the max. amount of tests
-		long N = (long) Math.floor(maxTuningTime/estimtedRuntimeSingleInstance);
+		experimentsSoFar = 0;
+		instancesSoFar = 0;
 		
 		// start parameter tuning
-		System.out.println(dateFormatLog.format(new Date()) + " Starting Tuning Phase, Durchläufe:" +N+"*"+sizeTheta);
+		System.out.println(dateFormatLog.format(new Date()) + " tuning phase, starting with: " + sizeThetaStart);
 		long ActualTuningTime = System.currentTimeMillis();
-		for (int k = 1; k <= N; k++){
+		
+		while ((experimentsSoFar + SLength <= maxRunsM) && (instancesSoFar+1 <= maxInstances)){
+
 			// generate random model setups
-			constraintsMap = sampleModelSetup();
+			sampleModelSetup();
+			
+			instancesSoFar++;
 			
 			System.out.println(dateFormatLog.format(new Date()) + ": test parameter configurations with new model-setup");
 			
 			// run ant algorithm
 			if(antAlgo){
-				antAlgorithmSettings = tuneAntAlgo(antAlgorithmSettings, constraintsMap, k);
+				tuneAntAlgo(instancesSoFar);
 			}
 			
 			// run genetic algorithm
-			if(geneticAlgo){
-				geneticAlgorithmSettings = tuneGeneticAlgo(geneticAlgorithmSettings, constraintsMap, k);
+//			if(geneticAlgo){
+//				geneticAlgorithmSettings = tuneGeneticAlgo(geneticAlgorithmSettings);
+//			}
+			// alle 10 instance-durchläufe: Hypothesentest & bei drops SLength aktualisieren (true zählen)
+			if(antAlgo && instancesSoFar%3==0){
+				dropAntCandidates();
 			}
+			
+//			// run genetic algorithm
+//			if(geneticAlgo){
+//				geneticAlgorithmSettings = dropGeneticCandidates(geneticAlgorithmSettings, constraintsMap);
+//			}
 		}
 		
 		long elapsed = (System.currentTimeMillis()-ActualTuningTime)/1000;
-		long target = maxTuningTime/1000000000;
-		System.out.println(dateFormatLog.format(new Date()) + " Finished Tuning Phase , target runtime=" + target + 
-				"s, elapsed time="+elapsed);
+		System.out.println(dateFormatLog.format(new Date()) + " finished tuning phase, elapsed time="+elapsed);
 		
 		// save results
 		saveTuningResults(antAlgorithmSettings, antAlgo);
@@ -220,33 +230,56 @@ public class MainFrame {
 		return;
 	}
 	
-	private static double[][] tuneGeneticAlgo(double[][] antAlgorithmSettings, Map<String, Constraint> constraintsMap, int instanceNumber){
+	
+
+	private static void dropAntCandidates(){
+		// find highest expected utility as a reference \mu
+		double highestExpectedUtility = antAlgorithmSettings[0][7];
+		for(int t = 0; t<antAlgorithmSettings.length; t++){
+			if(antAlgorithmSettings[t][7]>highestExpectedUtility){
+				highestExpectedUtility = antAlgorithmSettings[t][7];
+			}
+		}
+		
+		System.out.println("highestExpectedUtility"+highestExpectedUtility);
+		
+		// for all parameter configurations in theta
+		for (int p = 0; p<C[0].length;p++){
+			// only if S[p] is still a candidate
+			if(S[p]!=true) {continue;}
+			// get x[]
+			double[] x = new double[instancesSoFar];
+			for(int k = 0; k<instancesSoFar; k++){
+				x[k] =C[k][p];
+			}
+			// get test statistic t (t-test)
+			Ttest test = new Ttest(x, highestExpectedUtility);
+			double tStatistic = test.getSP();
+			System.out.println("t-Statistik: "+tStatistic);
+		}
+		
+		
+	}
+	
+	
+	private static double[][] tuneGeneticAlgo(double[][] geneticAlgorithmSettings){
 		// to do
 		return null;
 	}
 	
-	private static double[][] tuneAntAlgo(double[][] antAlgorithmSettings, Map<String, Constraint> constraintsMap, int instanceNumber){
+	private static void tuneAntAlgo(int instancesSoFar){
 
-		// Calculate the utility value for all service candidates.
-		  QosVector qosMaxServiceCandidate = determineQosMaxServiceCandidate(
-		    serviceCandidatesList);
-		  QosVector qosMinServiceCandidate = determineQosMinServiceCandidate(
-		    serviceCandidatesList);
-		  for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
-		   serviceCandidate.determineUtilityValue(constraintsMap, 
-		     qosMaxServiceCandidate, qosMinServiceCandidate);
-		  }
+		for (int i = 0; i< sizeThetaStart; i++){
+			
+			if(S[i] != true) {continue;}
 
-		int index = 0;		  
-		for(double[] antAlgorithmParameterConfiguration : antAlgorithmSettings) {
-			// run ant-algorithm
 			int antVariant = 1;
 
 			AntAlgorithm.setParamsAntAlgorithm(
 					serviceClassesList, serviceCandidatesList, constraintsMap,
-					antVariant, (int) antAlgorithmParameterConfiguration[1], (int) antAlgorithmParameterConfiguration[2], 
-					antAlgorithmParameterConfiguration[3], antAlgorithmParameterConfiguration[4],
-					antAlgorithmParameterConfiguration[5], antAlgorithmParameterConfiguration[6]);
+					antVariant, (int) antAlgorithmSettings[i][1], (int) antAlgorithmSettings[i][2], 
+					antAlgorithmSettings[i][3], antAlgorithmSettings[i][4],
+					antAlgorithmSettings[i][5], antAlgorithmSettings[i][6]);
 			AntAlgorithm.start();
 			
 			double utility = AntAlgorithm.getOptimalUtility();
@@ -256,25 +289,29 @@ public class MainFrame {
 			}
 			
 			// update estimated expected utility for parameter configuration
-			antAlgorithmSettings[index][7]= updateMean(antAlgorithmSettings[index][7], 
-					utility, instanceNumber);
+			antAlgorithmSettings[instancesSoFar][7]= updateMean(antAlgorithmSettings[i][7], 
+					utility, instancesSoFar);
 			System.out.print("utility;"+utility);
 			// update estimated expected runtime for parameter configuration
 			long runtime = AntAlgorithm.getRuntime()/1000000;
-			antAlgorithmSettings[index][8]= (double) updateMean(antAlgorithmSettings[index][8], 
-					(double) runtime, instanceNumber);
+			antAlgorithmSettings[instancesSoFar][8]= (double) updateMean(antAlgorithmSettings[i][8], 
+					(double) runtime, instancesSoFar);
 			System.out.println(";runtime;"+runtime+";");
-			index++;
+			experimentsSoFar++;
+			
+			C[instancesSoFar][i] = utility;
+			
 		}
-		return antAlgorithmSettings;
+
 	}
+	
 
 	private static double updateMean(double expected,
 			double additionalValue, int instanceNumber) {
 		return (expected*(instanceNumber-1)+additionalValue)/instanceNumber;
 	}
 
-	private static Map<String, Constraint> sampleModelSetup() {
+	private static void sampleModelSetup() {
 		 /* Model setup distributions:
 		 * 		(no analytic solution, few classes with many candidates would also be feasible)
 		 * 		number of classes in [1;20], discrete: Binomial(20, 0.5)
@@ -343,7 +380,17 @@ public class MainFrame {
 //		System.out.println(dateFormatLog.format(new Date()) + ": Sample model-setup (relaxation="+relaxationValue+")");		
 //		System.out.println(constraintAvailability.toString()+";"+constraintCosts+";"+constraintResponseTime+";");
 		
-		return generatedConstraints;
+		constraintsMap = generatedConstraints;
+		
+		// Calculate the utility value for all service candidates.
+		  QosVector qosMaxServiceCandidate = determineQosMaxServiceCandidate(
+		    serviceCandidatesList);
+		  QosVector qosMinServiceCandidate = determineQosMinServiceCandidate(
+		    serviceCandidatesList);
+		  for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+		   serviceCandidate.determineUtilityValue(constraintsMap, 
+		     qosMaxServiceCandidate, qosMinServiceCandidate);
+		  }
 		
 	}
 
@@ -381,7 +428,7 @@ public class MainFrame {
 	}
 
 
-	private static double[][] sampleAntAlgorithmSettings(int thetaSetSize) {
+	private static double[][] sampleAntAlgorithmSettings(long maxInsances, int thetaSetSize) {
 		 /* Ant algorithm - parameter distribution details:
 		 * 		iterations in [100; 10000], discrete: Binomial(10000, 0.01)
 		 * 															>Mean: 1,000	[Graf 2003, p.86]
@@ -415,69 +462,43 @@ public class MainFrame {
 		double setDilution;
 		double setPiInit;
 		
-		for(int r = 0; r< antAlgorithmSettings.length; r=r+2){
-			setAnts = (int) ants.random();
-			setAlpha = (double) alpha.random();
-			setBeta = (double) beta.random();
-			setDilution = (double) dilution.random();
-			setPiInit = (double) piInit.random();		
-			
-			antAlgorithmSettings[r][0] = r;
-			// row[1] = (int) iterations.random();
-			antAlgorithmSettings[r][1] = iterations;
-			antAlgorithmSettings[r][2] = setAnts;
-			antAlgorithmSettings[r][3] = setAlpha;
-			antAlgorithmSettings[r][4] = setBeta;
-			antAlgorithmSettings[r][5] = setDilution;
-			antAlgorithmSettings[r][6] = setPiInit;
-			//row[7] := estimated expected utility
-			antAlgorithmSettings[r][7] = 0;
-			//row[8] := estimated expected runtime
-			antAlgorithmSettings[r][8] = 0;
-			// round alpha and beta
-			antAlgorithmSettings[r+1][0] = r+1;
-			// row[1] = (int) iterations.random();
-			antAlgorithmSettings[r+1][1] = iterations;
-			antAlgorithmSettings[r+1][2] = setAnts;
-			antAlgorithmSettings[r+1][3] = Math.round(setAlpha);
-			antAlgorithmSettings[r+1][4] = Math.round(setBeta);
-			antAlgorithmSettings[r+1][5] = setDilution;
-			antAlgorithmSettings[r+1][6] = setPiInit;
-			//row[7] := estimated expected utility
-			antAlgorithmSettings[r+1][7] = 0;
-			//row[8] := estimated expected runtime
-			antAlgorithmSettings[r+1][8] = 0;
+		
+		for(int r = 0; r< thetaSetSize; r=r+2){
+				setAnts = (int) ants.random();
+				setAlpha = (double) alpha.random();
+				setBeta = (double) beta.random();
+				setDilution = (double) dilution.random();
+				setPiInit = (double) piInit.random();		
+				
+				antAlgorithmSettings[r][0] = r;
+				// row[1] = (int) iterations.random();
+				antAlgorithmSettings[r][1] = iterations;
+				antAlgorithmSettings[r][2] = setAnts;
+				antAlgorithmSettings[r][3] = setAlpha;
+				antAlgorithmSettings[r][4] = setBeta;
+				antAlgorithmSettings[r][5] = setDilution;
+				antAlgorithmSettings[r][6] = setPiInit;
+				//row[7] := estimated expected utility
+				antAlgorithmSettings[r][7] = 0;
+				//row[8] := estimated expected runtime
+				antAlgorithmSettings[r][8] = 0;
+				// round alpha and beta
+				antAlgorithmSettings[r+1][0] = r+1;
+				// row[1] = (int) iterations.random();
+				antAlgorithmSettings[r+1][1] = iterations;
+				antAlgorithmSettings[r+1][2] = setAnts;
+				antAlgorithmSettings[r+1][3] = Math.round(setAlpha);
+				antAlgorithmSettings[r+1][4] = Math.round(setBeta);
+				antAlgorithmSettings[r+1][5] = setDilution;
+				antAlgorithmSettings[r+1][6] = setPiInit;
+				//row[7] := estimated expected utility
+				antAlgorithmSettings[r+1][7] = 0;
+				//row[8] := estimated expected runtime
+				antAlgorithmSettings[r+1][8] = 0;
 		}
 		return antAlgorithmSettings;
 	}
 	
-	private static long getEstimatedRuntimeSingleInstanceAnt(double[][] antAlgorithmSettings, int iterations){
-		long time = 0;
-		time = System.nanoTime();
-		for (int i = 1; i<iterations; i++){
-			Map<String, Constraint> constraintsMap = sampleModelSetup();
-			@SuppressWarnings("unused")
-			double[][] temp = tuneAntAlgo(antAlgorithmSettings, constraintsMap, 1);
-		}
-		time = (System.nanoTime() - time);
-		time/=iterations;
-		// instance must be tested for all parameter configuration -> no division by ParameterConfigurationList.length
-		return time;
-	}
-	
-	private static long getEstimatedRuntimeSingleInstanceGenetic(double[][] geneticAlgorithmSettings, int iterations){
-		long time = 0;
-		time = System.nanoTime();
-		for (int i = 1; i<iterations; i++){
-			Map<String, Constraint> constraintsMap = sampleModelSetup();
-			@SuppressWarnings("unused")
-			double[][] temp = tuneGeneticAlgo(geneticAlgorithmSettings, constraintsMap, 1);
-		}
-		time = (System.nanoTime() - time);
-		time/=iterations;
-		// instance must be tested for all parameter configuration -> no division by ParameterConfigurationList.length
-		return time;
-	}
 	// Determine the maximum value for each QoS attribute over all 
 	// service candidates given to the method.
 	// Note that "maximum" really means "maximum" and not "best".
