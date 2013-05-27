@@ -1,8 +1,12 @@
 package qos;
 
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,6 +59,7 @@ public class MainFrame extends JFrame {
 	private static int minResponseTime = 0;
 	private static int minAvailability = 0;
 	private static double actualParameterTuningOptimalityResult = 100;
+	private static String filename;
 	
 	/*	+-----------------------------------------------------------+
 	 * 	| +-------------------------------------------------------+ |
@@ -65,10 +70,9 @@ public class MainFrame extends JFrame {
 	 * 	+-----------------------------------------------------------+
 	 */
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		System.out.println(dateFormatLog.format(new Date()) + " Parameter Tuning Mode");
 		parameterTuning();
-		System.exit(1);
 	}
 
 	
@@ -123,7 +127,7 @@ public class MainFrame extends JFrame {
 	 * 	+-----------------------------------------------------------+
 	 */
 	
-	private static void parameterTuning() {
+	private static void parameterTuning() throws IOException {
 		/* Parameter-tuning algorithm: BRUTUS (Birattari 2009, pp.101)
 		 * F-RACE (Birattari 2009, pp.103) is a possible extension which is structurally similar to BRUTUS.
 		 * Pseudo-Code: BRUTUS
@@ -155,6 +159,8 @@ public class MainFrame extends JFrame {
 		
 		boolean antAlgo = true;
 		boolean geneticAlgo = false;
+		
+		filename = "C:\\Users\\Gerit\\Downloads\\temp\\results.csv";
 		
 		int sizeTheta = 10;
 		int estimateIterations = 5;
@@ -224,9 +230,11 @@ public class MainFrame extends JFrame {
 		long target = maxTuningTime/1000000000;
 		System.out.println(dateFormatLog.format(new Date()) + " Finished Tuning Phase , target runtime=" + target + 
 				"s, elapsed time="+elapsed);
-//		saveTuningResults(antAlgorithmSettings, antAlgo);
 		
-		//System.exit(1);
+		// save results
+		saveTuningResults(antAlgorithmSettings, antAlgo);
+		System.out.println(dateFormatLog.format(new Date()) + "saved results to "+filename);
+		
 		return;
 	}
 	
@@ -560,4 +568,24 @@ public class MainFrame extends JFrame {
 	}
 
 
+	private static void saveTuningResults(double[][] results, boolean antAlgo) throws IOException{
+        FileWriter fw = new FileWriter(filename);
+    	BufferedWriter bufferedWriter = new BufferedWriter(fw);	
+    	if(antAlgo){bufferedWriter.write("id;iterations;ants;alpha;beta;dilution;piInit;e(utility);e(runtime in ms);");}
+    	if(!antAlgo){bufferedWriter.write("id; INSERT COLUMN DESCRIPTIONS");}
+    	for (double[] row : results) {	
+	    	String line = "";
+	    	for (double cell: row){
+		    	DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
+		    	dfs.setDecimalSeparator(',');
+		    	DecimalFormat dFormat = new DecimalFormat("0.0000", dfs);
+		    	String zahlString = dFormat.format(cell);
+		
+		    	line+= zahlString +";";
+	    	}
+	    	bufferedWriter.newLine();
+	    	bufferedWriter.write(line);
+    	}
+	    bufferedWriter.close();
+}
 }
