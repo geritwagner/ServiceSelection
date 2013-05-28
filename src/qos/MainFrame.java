@@ -22,6 +22,7 @@ import javax.swing.JOptionPane;
 import jsc.distributions.Beta;
 import jsc.distributions.Binomial;
 import jsc.distributions.Gamma;
+import jsc.distributions.Uniform;
 
 
 public class MainFrame extends JFrame {
@@ -266,9 +267,47 @@ public class MainFrame extends JFrame {
 		return time;
 	}
 	
-	private static double[][] tuneGeneticAlgo(double[][] antAlgorithmSettings, Map<String, Constraint> constraintsMap, int instanceNumber){
-		// to do
-		return null;
+	private static double[][] tuneGeneticAlgo(double[][] geneticAlgorithmSettings, Map<String, Constraint> constraintsMap, int instanceNumber){
+		
+		// Calculate the utility value for all service candidates.
+		  QosVector qosMaxServiceCandidate = determineQosMaxServiceCandidate(
+		    serviceCandidatesList);
+		  QosVector qosMinServiceCandidate = determineQosMinServiceCandidate(
+		    serviceCandidatesList);
+		  for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+		   serviceCandidate.determineUtilityValue(constraintsMap, 
+		     qosMaxServiceCandidate, qosMinServiceCandidate);
+		  }
+
+		int index = 0;		  
+		for(double[] geneticAlgorithmParameterConfiguration : geneticAlgorithmSettings) {
+			// run genetic-algorithm
+
+			GeneticAlgorithm.setParamsAntAlgorithm(
+					serviceClassesList, serviceCandidatesList, constraintsMap,
+					(int) geneticAlgorithmParameterConfiguration[1], (int) geneticAlgorithmParameterConfiguration[2], 
+					geneticAlgorithmParameterConfiguration[3], geneticAlgorithmParameterConfiguration[4],
+					geneticAlgorithmParameterConfiguration[5], geneticAlgorithmParameterConfiguration[6]);
+			GeneticAlgorithm.start();
+			
+			double utility = GeneticAlgorithm.getOptimalUtility();
+			// no feasible solution: utility = 0
+			if(String.valueOf(utility).compareTo("NaN")==0){
+				utility = 0;
+			}
+			
+			// update estimated expected utility for parameter configuration
+			geneticAlgorithmSettings[index][7]= updateMean(geneticAlgorithmSettings[index][7], 
+					utility, instanceNumber);
+			System.out.print("utility;"+utility);
+			// update estimated expected runtime for parameter configuration
+			long runtime = GeneticAlgorithm.getRuntime()/1000000;
+			geneticAlgorithmSettings[index][8]= (double) updateMean(geneticAlgorithmSettings[index][8], 
+					(double) runtime, instanceNumber);
+			System.out.println(";runtime;"+runtime+";");
+			index++;
+		}
+		return geneticAlgorithmSettings;
 	}
 	
 	private static double[][] tuneAntAlgo(double[][] antAlgorithmSettings, Map<String, Constraint> constraintsMap, int instanceNumber){
@@ -409,20 +448,27 @@ public class MainFrame extends JFrame {
 		double[][] geneticAlgorithmSettings = new double[thetaSetSize][7];
 		
 		// define parameter distributions
-/*
+		Uniform elitismRate = new Uniform(0, 100);
+		Uniform crossoverRate = new Uniform(0,100);
+		Uniform mutationRate = new Uniform(0, 1000);
+		double populationSize = 100;
+		
+		
 		int id = 1;
 		for(double[] row : geneticAlgorithmSettings){
 			row[0] = id;
 			id++;
 			// row[1] = (int) iterations.random();
-			row[1] = (int) populationSize.random();
+			row[1] = populationSize;
 			row[2] = elitismRate.random();
 			row[3] = crossoverRate.random();
 			row[4] = mutationRate.random();
-			//row[5] := estimated expected utility
-			//row[6] := estimated expected runtime
+			// row[5] := estimated expected utility
+			row[5] = 0;
+			// row[6] := estimated expected runtime
+			row[6] = 0;
 		}	
-*/
+
 		return geneticAlgorithmSettings;
 	}
 
