@@ -52,8 +52,6 @@ public class GeneticAlgorithm extends Algorithm {
 		this.minEquality = minEquality / 100.0;
 	}
 
-	// If changes are made to this method, 
-	// startInBenchmarkMode() has to be updated!
 	@Override
 	public void start() {
 		workPercentage = 0;
@@ -191,91 +189,6 @@ public class GeneticAlgorithm extends Algorithm {
 		
 		runtime = System.nanoTime() - runtime;		
 	}
-	
-	// Pretty much copy/paste; so if changes are made to 
-	// the start()-method, this method has to be updated!
-	public void startInBenchmarkMode() {
-		terminationCounter = terminationCriterion;
-//		maxFitnessPerPopulation = new LinkedList<Double>();
-		runtime = System.nanoTime();
-		List<Composition> population = generateInitialPopulation();
-		int numberOfElites = (int) Math.round(
-				populationSize * elitismRate);
-		while (terminationCounter > 0) {
-			// Temporarily save the elite compositions.
-			List<Composition> elites = doSelectionElitismBased(
-					population, numberOfElites);
-			// SELECTION
-			List<Composition> matingPool;
-			// Roulette Wheel
-			matingPool = doSelectionRouletteWheel(population);
-			// Linear Ranking
-//			matingPool = doSelectionLinearRanking(population);
-			// Binary Tournament
-//			matingPool = doSelectionBinaryTournament(population);
-			// CROSSOVER
-			// One-Point Crossover
-			matingPool = doCrossoverOnePoint(matingPool, crossoverRate);
-//			matingPool = doCrossoverTwoPoint(matingPool, crossoverRate);
-//			matingPool = doCrossoverUniform(matingPool, crossoverRate);
-			// MUTATION
-			doMutation(matingPool, mutationRate);
-			// Replace the worst compositions with the elites.
-			matingPool = doElitePreservation(matingPool, elites);
-//			boolean hasPopulationChanged = true;
-//			if (terminationMethod.contains("Consecutive Equal Generations")) {
-//				hasPopulationChanged = 
-//						hasPopulationChanged(population, matingPool);
-//			}
-			// Update the population.
-			population.clear();
-			population.addAll(matingPool);
-			// Update the fitness values.
-			for (Composition composition : population) {
-				composition.computeFitness(constraintsMap);
-			}
-			// Save the values needed for visualization.
-//			setVisualizationValues(population);
-			
-			// TERMINATION CRITERION
-			// Number of Iterations
-			terminationCounter--;
-			// Consecutive Equal Generations
-//			if (hasPopulationChanged) {
-//				terminationCounter = terminationCriterion;
-//			}
-//			else {
-//				terminationCounter--;
-//			}
-			// Fitness Value Convergence
-//			if ((double) maxFitnessPerPopulation.get(
-//					maxFitnessPerPopulation.size() - 1) == (double)
-//					maxFitnessPerPopulation.get(
-//							maxFitnessPerPopulation.size() - 2)) {
-//				terminationCounter--;
-//			}
-//			else {
-//				terminationCounter = terminationCriterion;
-//			}
-		}
-		// Sort the population according to the fitness of the 
-		// compositions. Thus, the first elements are the elite 
-		// elements.
-		Collections.sort(population, new FitnessComparator());
-		// Show the best solution in the result table.
-		// But first, delete the best solution from the previous 
-		// benchmarking iteration.
-		algorithmSolutionTiers.clear();
-		if (population.get(0).isWithinConstraints(constraintsMap)) {
-			List<Composition> optimalComposition = 
-					new LinkedList<Composition>();
-			optimalComposition.add(population.get(0));
-			algorithmSolutionTiers.add(
-					new AlgorithmSolutionTier(optimalComposition, 1));
-		}
-		runtime = System.nanoTime() - runtime;		
-	}
-
 	
 	private List<Composition> generateInitialPopulation() {
 		// Randomly select the requested number of compositions.
@@ -482,12 +395,6 @@ public class GeneticAlgorithm extends Algorithm {
 			if (mutate) {
 				Composition composition = new Composition();
 				composition.setServiceCandidateList(serviceCandidates);
-				
-				// TODO: Kann man sich eigentlich sparen, da das 
-				//		 sowieso auﬂerhalb noch gemacht wird. 
-				//		 W‰hrend des Crossovers wird die Fitness 
-				//		 auch nicht aktualisiert.
-				composition.computeFitness(constraintsMap);
 				
 				population.set(i, composition);
 			}
