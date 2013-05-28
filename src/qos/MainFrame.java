@@ -453,23 +453,44 @@ public class MainFrame extends JFrame {
 		Beta dilution = new Beta(2, 5);
 		Gamma piInit = new Gamma(5, 1);
 		
-		// to do : does rounding alpha and beta to integers make a difference? (inefficient taylor series) 
+		int setAnts;
+		double setAlpha;
+		double setBeta;
+		double setDilution;
+		double setPiInit;
 		
-		int id = 1;
-		for(double[] row : antAlgorithmSettings){
-			row[0] = id;
-			id++;
+		for(int r = 0; r< antAlgorithmSettings.length; r=r+2){
+			setAnts = (int) ants.random();
+			setAlpha = (double) alpha.random();
+			setBeta = (double) beta.random();
+			setDilution = (double) dilution.random();
+			setPiInit = (double) piInit.random();		
+			
+			antAlgorithmSettings[r][0] = r;
 			// row[1] = (int) iterations.random();
-			row[1] = iterations;
-			row[2] = (int) ants.random();
-			row[3] = (double) alpha.random();
-			row[4] = (double) beta.random();
-			row[5] = (double) dilution.random();
-			row[6] = (double) piInit.random();
+			antAlgorithmSettings[r][1] = iterations;
+			antAlgorithmSettings[r][2] = setAnts;
+			antAlgorithmSettings[r][3] = setAlpha;
+			antAlgorithmSettings[r][4] = setBeta;
+			antAlgorithmSettings[r][5] = setDilution;
+			antAlgorithmSettings[r][6] = setPiInit;
 			//row[7] := estimated expected utility
-			row[7] = 0;
+			antAlgorithmSettings[r][7] = 0;
 			//row[8] := estimated expected runtime
-			row[8] = 0;
+			antAlgorithmSettings[r][8] = 0;
+			// round alpha and beta
+			antAlgorithmSettings[r+1][0] = r+1;
+			// row[1] = (int) iterations.random();
+			antAlgorithmSettings[r+1][1] = iterations;
+			antAlgorithmSettings[r+1][2] = setAnts;
+			antAlgorithmSettings[r+1][3] = Math.round(setAlpha);
+			antAlgorithmSettings[r+1][4] = Math.round(setBeta);
+			antAlgorithmSettings[r+1][5] = setDilution;
+			antAlgorithmSettings[r+1][6] = setPiInit;
+			//row[7] := estimated expected utility
+			antAlgorithmSettings[r+1][7] = 0;
+			//row[8] := estimated expected runtime
+			antAlgorithmSettings[r+1][8] = 0;
 		}
 		return antAlgorithmSettings;
 	}
