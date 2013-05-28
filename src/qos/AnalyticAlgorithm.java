@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class AnalyticAlgorithm extends Algorithm {
+public class AnalyticAlgorithm {
 	
 	private List<ServiceClass> serviceClassesList;
 	private Map<String, Constraint> constraintsMap;
@@ -34,7 +34,6 @@ public class AnalyticAlgorithm extends Algorithm {
 		this.numberOfRequestedResultTiers = numberOfRequestedResultTiers;
 	}
 	
-	@Override
 	public void start() {
 		runtime = System.nanoTime();
 		workPercentage = 0;

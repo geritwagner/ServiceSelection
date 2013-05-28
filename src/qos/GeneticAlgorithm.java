@@ -6,12 +6,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class GeneticAlgorithm extends Algorithm {
+public class GeneticAlgorithm {
 	
-	private int populationSize;
+	private double populationSize;
 	private int terminationCriterion;
 	private int terminationCounter;
-	private int workPercentage = 0;
 	
 	private long runtime = 0;
 
@@ -24,20 +23,16 @@ public class GeneticAlgorithm extends Algorithm {
 	private String crossoverMethod;
 	private String terminationMethod;
 	
-	private List<Integer> numberOfDifferentSolutions;
 	private List<Double> maxFitnessPerPopulation;
-	private List<Double> averageFitnessPerPopulation;
 	private List<ServiceClass> serviceClassesList;
-	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
-		new LinkedList<AlgorithmSolutionTier>();
 	
 	private Map<String, Constraint> constraintsMap;
 	
 	public GeneticAlgorithm(List<ServiceClass> serviceClassesList, 
-			Map<String, Constraint> constraintsMap, int populationSize, 
+			Map<String, Constraint> constraintsMap, double populationSize, 
 			int terminationCriterion, String selectionMethod, 
-			int elitismRate, String crossoverMethod,
-			int crossoverRate, int mutationRate,
+			double elitismRate, String crossoverMethod,
+			double crossoverRate, double mutationRate,
 			String terminationMethod, int minEquality) {
 		this.serviceClassesList = serviceClassesList;
 		this.constraintsMap = constraintsMap;
@@ -52,22 +47,13 @@ public class GeneticAlgorithm extends Algorithm {
 		this.minEquality = minEquality / 100.0;
 	}
 
-	// If changes are made to this method, 
-	// startInBenchmarkMode() has to be updated!
-	@Override
-	public void start() {
-		workPercentage = 0;
-		
+	public double[] start() {
 		terminationCounter = terminationCriterion;
-		
-		numberOfDifferentSolutions = new LinkedList<Integer>();
 		maxFitnessPerPopulation = new LinkedList<Double>();
-		averageFitnessPerPopulation = new LinkedList<Double>();
-		
 		runtime = System.nanoTime();
 		
 		List<Composition> population = generateInitialPopulation();
-		setVisualizationValues(population);
+		updateMaxFitness(population);
 		
 		int numberOfElites = (int) Math.round(
 				populationSize * elitismRate);
@@ -128,15 +114,10 @@ public class GeneticAlgorithm extends Algorithm {
 			population.clear();
 			population.addAll(matingPool);
 			
-			// Save the values needed for visualization.
-			setVisualizationValues(population);
-			
 			// TERMINATION CRITERION
 			// Number of Iterations
 			if (terminationMethod.contains("Iteration")) {
 				terminationCounter--;
-				workPercentage = (int) ((1.0 - 1.0 * terminationCounter / 
-						terminationCriterion) * 100.0);
 			}
 
 			// Consecutive Equal Generations
@@ -148,15 +129,12 @@ public class GeneticAlgorithm extends Algorithm {
 				else {
 					terminationCounter--;
 				}
-				workPercentage = Math.max(
-						(int) (((double) terminationCriterion - 
-								(double) terminationCounter) / 
-								(double) terminationCriterion * 100.0), 
-								workPercentage);
 			}
 			
 			// Fitness Value Convergence
 			else {
+				// Update the maximal fitness value.
+				updateMaxFitness(population);
 				// "Unnecessary cast" is not unnecessary at all!
 				if ((double) maxFitnessPerPopulation.get(
 						maxFitnessPerPopulation.size() - 1) == (double)
@@ -167,11 +145,6 @@ public class GeneticAlgorithm extends Algorithm {
 				else {
 					terminationCounter = terminationCriterion;
 				}
-				workPercentage = Math.max(
-						(int) (((double) terminationCriterion - 
-								(double) terminationCounter) / 
-								(double) terminationCriterion * 100.0), 
-								workPercentage);
 			}
 		}
 		
@@ -179,101 +152,15 @@ public class GeneticAlgorithm extends Algorithm {
 		// compositions. Thus, the first elements are the elite 
 		// elements.
 		Collections.sort(population, new FitnessComparator());
-		
-		// Show the best solution in the result table.
+
+		// Return the utility value of the best solution.
+		double utility;
 		if (population.get(0).isWithinConstraints(constraintsMap)) {
-			List<Composition> optimalComposition = 
-					new LinkedList<Composition>();
-			optimalComposition.add(population.get(0));
-			algorithmSolutionTiers.add(
-					new AlgorithmSolutionTier(optimalComposition, 1));
+			utility = population.get(0).getUtility();
 		}
-		
-		runtime = System.nanoTime() - runtime;		
-	}
-	
-	// Pretty much copy/paste; so if changes are made to 
-	// the start()-method, this method has to be updated!
-	public void startInBenchmarkMode() {
-		terminationCounter = terminationCriterion;
-//		maxFitnessPerPopulation = new LinkedList<Double>();
-		runtime = System.nanoTime();
-		List<Composition> population = generateInitialPopulation();
-		int numberOfElites = (int) Math.round(
-				populationSize * elitismRate);
-		while (terminationCounter > 0) {
-			// Temporarily save the elite compositions.
-			List<Composition> elites = doSelectionElitismBased(
-					population, numberOfElites);
-			// SELECTION
-			List<Composition> matingPool;
-			// Roulette Wheel
-			matingPool = doSelectionRouletteWheel(population);
-			// Linear Ranking
-//			matingPool = doSelectionLinearRanking(population);
-			// Binary Tournament
-//			matingPool = doSelectionBinaryTournament(population);
-			// CROSSOVER
-			// One-Point Crossover
-			matingPool = doCrossoverOnePoint(matingPool, crossoverRate);
-//			matingPool = doCrossoverTwoPoint(matingPool, crossoverRate);
-//			matingPool = doCrossoverUniform(matingPool, crossoverRate);
-			// MUTATION
-			doMutation(matingPool, mutationRate);
-			// Replace the worst compositions with the elites.
-			matingPool = doElitePreservation(matingPool, elites);
-//			boolean hasPopulationChanged = true;
-//			if (terminationMethod.contains("Consecutive Equal Generations")) {
-//				hasPopulationChanged = 
-//						hasPopulationChanged(population, matingPool);
-//			}
-			// Update the population.
-			population.clear();
-			population.addAll(matingPool);
-			// Update the fitness values.
-			for (Composition composition : population) {
-				composition.computeFitness(constraintsMap);
-			}
-			// Save the values needed for visualization.
-//			setVisualizationValues(population);
-			
-			// TERMINATION CRITERION
-			// Number of Iterations
-			terminationCounter--;
-			// Consecutive Equal Generations
-//			if (hasPopulationChanged) {
-//				terminationCounter = terminationCriterion;
-//			}
-//			else {
-//				terminationCounter--;
-//			}
-			// Fitness Value Convergence
-//			if ((double) maxFitnessPerPopulation.get(
-//					maxFitnessPerPopulation.size() - 1) == (double)
-//					maxFitnessPerPopulation.get(
-//							maxFitnessPerPopulation.size() - 2)) {
-//				terminationCounter--;
-//			}
-//			else {
-//				terminationCounter = terminationCriterion;
-//			}
-		}
-		// Sort the population according to the fitness of the 
-		// compositions. Thus, the first elements are the elite 
-		// elements.
-		Collections.sort(population, new FitnessComparator());
-		// Show the best solution in the result table.
-		// But first, delete the best solution from the previous 
-		// benchmarking iteration.
-		algorithmSolutionTiers.clear();
-		if (population.get(0).isWithinConstraints(constraintsMap)) {
-			List<Composition> optimalComposition = 
-					new LinkedList<Composition>();
-			optimalComposition.add(population.get(0));
-			algorithmSolutionTiers.add(
-					new AlgorithmSolutionTier(optimalComposition, 1));
-		}
-		runtime = System.nanoTime() - runtime;		
+		utility = 0;
+		runtime = System.nanoTime() - runtime;
+		return new double[]{utility, runtime};
 	}
 
 	
@@ -482,13 +369,6 @@ public class GeneticAlgorithm extends Algorithm {
 			if (mutate) {
 				Composition composition = new Composition();
 				composition.setServiceCandidateList(serviceCandidates);
-				
-				// TODO: Kann man sich eigentlich sparen, da das 
-				//		 sowieso auﬂerhalb noch gemacht wird. 
-				//		 W‰hrend des Crossovers wird die Fitness 
-				//		 auch nicht aktualisiert.
-				composition.computeFitness(constraintsMap);
-				
 				population.set(i, composition);
 			}
 		}
@@ -718,22 +598,14 @@ public class GeneticAlgorithm extends Algorithm {
 		return false;
 	}
 
-	private void setVisualizationValues(List<Composition> population) {
-		List<Composition> differentSolutions = new LinkedList<Composition>();
+	private void updateMaxFitness(List<Composition> population) {
 		double maxFitness = 0.0;
-		double totalFitness = 0.0;
 		for (int i = 0; i < population.size(); i++) {
-			if (!differentSolutions.contains(population.get(i))) {
-				differentSolutions.add(population.get(i));
-			}
 			if (population.get(i).getFitness() > maxFitness) {
 				maxFitness = population.get(i).getFitness();
 			}
-			totalFitness += population.get(i).getFitness();
 		}
-		numberOfDifferentSolutions.add(differentSolutions.size());
 		maxFitnessPerPopulation.add(maxFitness);
-		averageFitnessPerPopulation.add(totalFitness / population.size());
 	}
 	
 	private int[] permuteIndices(int populationSize) {
@@ -781,36 +653,15 @@ public class GeneticAlgorithm extends Algorithm {
 	public void setConstraintList(Map<String, Constraint> constraintsMap) {
 		this.constraintsMap = constraintsMap;
 	}
-	public List<AlgorithmSolutionTier> getAlgorithmSolutionTiers() {
-		return algorithmSolutionTiers;
-	}
-	public void setAlgorithmSolutionTiers(
-			List<AlgorithmSolutionTier> algorithmSolutionTiers) {
-		this.algorithmSolutionTiers = algorithmSolutionTiers;
-	}
 	public long getRuntime() {
 		return runtime;
 	}
 	public void setRuntime(long runtime) {
 		this.runtime = runtime;
 	}
-	public List<Integer> getNumberOfDifferentSolutions() {
-		return numberOfDifferentSolutions;
-	}
 	public List<Double> getMaxUtilityPerPopulation() {
 		return maxFitnessPerPopulation;
 	}
-	public List<Double> getAverageUtilityPerPopulation() {
-		return averageFitnessPerPopulation;
-	}
-	public int getWorkPercentage() {
-		return workPercentage;
-	}
-	public double getOptimalUtility() {
-		return algorithmSolutionTiers.get(0).
-				getServiceCompositionList().get(0).getUtility();
-	}
-	
 	
 	
 	// Nested comparator class

@@ -2,7 +2,6 @@ package qos;
 
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -14,10 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-
 
 import jsc.distributions.Beta;
 import jsc.distributions.Binomial;
@@ -280,31 +276,37 @@ public class MainFrame extends JFrame {
 		  }
 
 		int index = 0;		  
-		for(double[] geneticAlgorithmParameterConfiguration : geneticAlgorithmSettings) {
+		for(double[] parameter : geneticAlgorithmSettings) {
 			// run genetic-algorithm
 
-			GeneticAlgorithm.setParamsAntAlgorithm(
-					serviceClassesList, serviceCandidatesList, constraintsMap,
-					(int) geneticAlgorithmParameterConfiguration[1], (int) geneticAlgorithmParameterConfiguration[2], 
-					geneticAlgorithmParameterConfiguration[3], geneticAlgorithmParameterConfiguration[4],
-					geneticAlgorithmParameterConfiguration[5], geneticAlgorithmParameterConfiguration[6]);
-			GeneticAlgorithm.start();
+//			row[1] = populationSize;
+//			row[2] = elitismRate.random();
+//			row[3] = crossoverRate.random();
+//			row[4] = mutationRate.random();
+//			// row[5] := estimated expected utility
+//			row[5] = 0;
+//			// row[6] := estimated expected runtime
+//			row[6] = 0;
+			GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
+					serviceClassesList, constraintsMap, parameter[1], 
+					100, "Binary Tournament", parameter[2], 
+					"Two-Point", parameter[3], parameter[4], 
+					"Iteration", 80);
+			double[] utilityAndRuntime = geneticAlgorithm.start();
 			
-			double utility = GeneticAlgorithm.getOptimalUtility();
-			// no feasible solution: utility = 0
-			if(String.valueOf(utility).compareTo("NaN")==0){
-				utility = 0;
-			}
+			double utility = utilityAndRuntime[0];
+			double runtime = utilityAndRuntime[1];
 			
 			// update estimated expected utility for parameter configuration
-			geneticAlgorithmSettings[index][7]= updateMean(geneticAlgorithmSettings[index][7], 
-					utility, instanceNumber);
-			System.out.print("utility;"+utility);
+			geneticAlgorithmSettings[index][5] = updateMean(
+					geneticAlgorithmSettings[index][5], utility, 
+					instanceNumber);
+			System.out.print("utility;" + utility);
 			// update estimated expected runtime for parameter configuration
-			long runtime = GeneticAlgorithm.getRuntime()/1000000;
-			geneticAlgorithmSettings[index][8]= (double) updateMean(geneticAlgorithmSettings[index][8], 
-					(double) runtime, instanceNumber);
-			System.out.println(";runtime;"+runtime+";");
+			geneticAlgorithmSettings[index][6] = updateMean(
+					geneticAlgorithmSettings[index][6], runtime, 
+					instanceNumber);
+			System.out.println(";runtime;" + runtime + ";");
 			index++;
 		}
 		return geneticAlgorithmSettings;
@@ -458,7 +460,6 @@ public class MainFrame extends JFrame {
 		for(double[] row : geneticAlgorithmSettings){
 			row[0] = id;
 			id++;
-			// row[1] = (int) iterations.random();
 			row[1] = populationSize;
 			row[2] = elitismRate.random();
 			row[3] = crossoverRate.random();
