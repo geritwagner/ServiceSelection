@@ -158,7 +158,9 @@ public class GeneticAlgorithm {
 		if (population.get(0).isWithinConstraints(constraintsMap)) {
 			utility = population.get(0).getUtility();
 		}
-		utility = 0;
+		else {
+			utility = 0;
+		}
 		runtime = System.nanoTime() - runtime;
 		return new double[]{utility, runtime};
 	}

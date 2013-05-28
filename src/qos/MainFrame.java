@@ -295,7 +295,7 @@ public class MainFrame extends JFrame {
 			double[] utilityAndRuntime = geneticAlgorithm.start();
 			
 			double utility = utilityAndRuntime[0];
-			double runtime = utilityAndRuntime[1];
+			double runtime = utilityAndRuntime[1] / 1000000;
 			
 			// update estimated expected utility for parameter configuration
 			geneticAlgorithmSettings[index][5] = updateMean(
