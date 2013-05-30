@@ -170,7 +170,17 @@ public class MainFrame extends JFrame {
 		// Sample/define candidate configurations/settings 
 		// & Allocate array for storing estimated expected performance of candidates
 		if(antAlgo){
-			antAlgorithmSettings = sampleAntAlgorithmSettings(sizeTheta);
+//			for(int i = 0; i<1000;i++){
+				antAlgorithmSettings = sampleAntAlgorithmSettings(sizeTheta);
+//				for(double[] row : antAlgorithmSettings){
+//					for(double column : row){
+//				    	DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
+//				    	dfs.setDecimalSeparator(',');
+//				    	DecimalFormat dFormat = new DecimalFormat("0.0000", dfs);
+//						System.out.print(dFormat.format(column) +";");}
+//					System.out.println();
+//				}
+//				}
 		}
 		
 		if(geneticAlgo){
@@ -479,10 +489,10 @@ public class MainFrame extends JFrame {
 		 * 		iterations in [100; 10000], discrete: Binomial(10000, 0.01)
 		 * 															>Mean: 1,000	[Graf 2003, p.86]
 		 * 		ants in [1, 30], discrete: Binomial(1000;0.015)		>Mean: 15		[Dorigo und Gambardella 1997, p.57/58]
-		 * 		alpha in [0; infinite], continuous: Gamma(2, 1.33) 	>Mean: 1.5		[Yuan et al 2011, p.85]
-		 * 		beta in [0; infinite], continuous: Gamma(2, 1)		>Mean: 2		[Yuan et al 2011, p.85]
+		 * 		alpha in [0; infinite], continuous: Gamma(1, 1.5) 	>Mean: 1.5		[Yuan et al 2011, p.85]
+		 * 		beta in [0; infinite], continuous: Gamma(1, 2)		>Mean: 2		[Yuan et al 2011, p.85]
 		 * 		dilution in [0;1], continuous Beta(2,5) 			>Mean: 0.1 		[Graf 2003, p.85]
-		 * 		pi in [0; infinite], continuous Gamma(5, 1)			>Mean: 5		[Quelle??]
+		 * 		piInit in [0; infinite], continuous Gamma(2.5, 2)	>Mean: 5		[Quelle??]
 		*/	 
 		
 
@@ -494,11 +504,11 @@ public class MainFrame extends JFrame {
 		
 		// Exponential iterations = new Exponential(150);
 		int iterations = 100;
-		Binomial ants = new Binomial(1000, 0.015);
-		Gamma alpha = new Gamma(2, 2);
-		Gamma beta = new Gamma(2,2);
-		Beta dilution = new Beta(2, 5);
-		Gamma piInit = new Gamma(5, 1);
+		Binomial ants = new Binomial(1000,0.015);
+		Gamma alpha = new Gamma(1,1.5);
+		Gamma beta = new Gamma(1,2);
+		Beta dilution = new Beta(1,8);
+		Gamma piInit = new Gamma(2.5,2);
 		
 		int setAnts;
 		double setAlpha;
