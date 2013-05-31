@@ -158,6 +158,8 @@ public class MainFrame extends JFrame {
 					return theta
 		 */
 		
+		// cmd: go to path with cd ... , java -jar NAMEOFJARFILE.jar
+		
 		boolean antAlgo = false;
 		boolean geneticAlgo = true;
 		
