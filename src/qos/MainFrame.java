@@ -40,6 +40,8 @@ public class MainFrame extends JFrame {
 	// Formats
 	private static SimpleDateFormat dateFormatLog = 
 		new SimpleDateFormat("HH:mm:ss: ");
+	private static SimpleDateFormat dateFormaFile = 
+			new SimpleDateFormat("HH_mm_ss");
 	
 	// Lists
 	private static List<ServiceClass> serviceClassesList = 
@@ -660,7 +662,7 @@ public class MainFrame extends JFrame {
 
 
 	private static void saveTuningResults(double[][] results, boolean antAlgo, long N) throws IOException{
-		filename = filepath + "results" + String.valueOf((int) (Math.random()*1000))+".csv";
+		filename = filepath + "results " + dateFormaFile.format(new Date())+".csv";
         FileWriter fw = new FileWriter(filename);
     	BufferedWriter bufferedWriter = new BufferedWriter(fw);	
     	if(antAlgo){bufferedWriter.write("id;iterations;ants;alpha;beta;dilution;piInit;e(utility);e(runtime in ms);number of model-setups tested = "+N);
