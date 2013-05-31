@@ -420,8 +420,8 @@ public class MainFrame extends JFrame {
 		// restrictions
 		Beta relaxation = new Beta(2,2);
 		Map<String, Constraint> generatedConstraints = new HashMap<String, Constraint>();
-		// linear transformation: 2/5*Beta+0,6
-		double relaxationValue = relaxation.random()*0.5+0.5;
+		// linear transformation: 0,35*Beta+0,45
+		double relaxationValue = relaxation.random()*0.35+0.45;
 		
 		double maxCost = getRelaxationMaxCost(relaxationValue);
 		double maxResponseTime = getRelaxationMaxResponseTime(relaxationValue);
