@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 
 import jsc.distributions.Beta;
 import jsc.distributions.Binomial;
+import jsc.distributions.DiscreteUniform;
 import jsc.distributions.Gamma;
 import jsc.distributions.Uniform;
 
@@ -160,8 +161,8 @@ public class MainFrame extends JFrame {
 		
 		// cmd: go to path with cd ... , java -jar NAMEOFJARFILE.jar
 		
-		boolean antAlgo = false;
-		boolean geneticAlgo = true;
+		boolean antAlgo = true;
+		boolean geneticAlgo = false;
 		
 		filepath = "C:\\temp\\";
 		
@@ -174,7 +175,7 @@ public class MainFrame extends JFrame {
 		   throw new Exception("filepath does not exist.");
 		}
 		
-		int sizeTheta = 10;
+		int sizeTheta = 30;
 		int estimateIterations = 5;
 		long maxTuningTime = 200;
 		
@@ -354,13 +355,12 @@ public class MainFrame extends JFrame {
 		int index = 0;		  
 		for(double[] antAlgorithmParameterConfiguration : antAlgorithmSettings) {
 			// run ant-algorithm
-			int antVariant = 1;
 
 			AntAlgorithm.setParamsAntAlgorithm(
 					serviceClassesList, serviceCandidatesList, constraintsMap,
-					antVariant, (int) antAlgorithmParameterConfiguration[1], (int) antAlgorithmParameterConfiguration[2], 
-					antAlgorithmParameterConfiguration[3], antAlgorithmParameterConfiguration[4],
-					antAlgorithmParameterConfiguration[5], antAlgorithmParameterConfiguration[6]);
+					(int) antAlgorithmParameterConfiguration[3], (int) antAlgorithmParameterConfiguration[1], (int) antAlgorithmParameterConfiguration[2], 
+					antAlgorithmParameterConfiguration[4], antAlgorithmParameterConfiguration[5],
+					antAlgorithmParameterConfiguration[6], antAlgorithmParameterConfiguration[7]);
 			AntAlgorithm.start();
 			
 			double utility = AntAlgorithm.getOptimalUtility();
@@ -370,12 +370,12 @@ public class MainFrame extends JFrame {
 			}
 			
 			// update estimated expected utility for parameter configuration
-			antAlgorithmSettings[index][7]= updateMean(antAlgorithmSettings[index][7], 
+			antAlgorithmSettings[index][8]= updateMean(antAlgorithmSettings[index][8], 
 					utility, instanceNumber);
 //			System.out.print("utility;"+utility);
 			// update estimated expected runtime for parameter configuration
 			long runtime = AntAlgorithm.getRuntime()/1000000;
-			antAlgorithmSettings[index][8]= (double) updateMean(antAlgorithmSettings[index][8], 
+			antAlgorithmSettings[index][9]= (double) updateMean(antAlgorithmSettings[index][9], 
 					(double) runtime, instanceNumber);
 //			System.out.println(";runtime;"+runtime+";");
 			index++;
@@ -503,9 +503,9 @@ public class MainFrame extends JFrame {
 
 	private static double[][] sampleAntAlgorithmSettings(int thetaSetSize) {
 		 /* Ant algorithm - parameter distribution details:
-		 * 		iterations in [100; 10000], discrete: Binomial(10000, 0.01)
-		 * 															>Mean: 1,000	[Graf 2003, p.86]
-		 * 		ants in [1, 30], discrete: Binomial(1000;0.015)		>Mean: 15		[Dorigo und Gambardella 1997, p.57/58]
+		 * 		iterations = 100													[Graf 2003, p.86]
+		 * 		ants = 20															[Dorigo und Gambardella 1997, p.57/58]
+		 * 		variants = [1,6], discrete: DiscreteUniform
 		 * 		alpha in [0; infinite], continuous: Gamma(1, 1.5) 	>Mean: 1.5		[Yuan et al 2011, p.85]
 		 * 		beta in [0; infinite], continuous: Gamma(1, 2)		>Mean: 2		[Yuan et al 2011, p.85]
 		 * 		dilution in [0;1], continuous Beta(2,5) 			>Mean: 0.1 		[Graf 2003, p.85]
@@ -517,24 +517,25 @@ public class MainFrame extends JFrame {
 		// Birattari p.140:sample-values for Theta		
 		
 		
-		double[][] antAlgorithmSettings = new double[thetaSetSize][9];
+		double[][] antAlgorithmSettings = new double[thetaSetSize][10];
 		
 		// Exponential iterations = new Exponential(150);
 		int iterations = 100;
-		Binomial ants = new Binomial(1000,0.015);
 		Gamma alpha = new Gamma(1,1.5);
+		DiscreteUniform variant = new DiscreteUniform (1,6);
 		Gamma beta = new Gamma(1,2);
 		Beta dilution = new Beta(1,8);
-		Gamma piInit = new Gamma(2.5,2);
+		Uniform piInit = new Uniform(0,10);
 		
-		int setAnts;
+		int setAnts = 20;
 		double setAlpha;
+		int setVariant;
 		double setBeta;
 		double setDilution;
 		double setPiInit;
 		
 		for(int r = 0; r< antAlgorithmSettings.length; r=r+2){
-			setAnts = (int) ants.random();
+			setVariant = (int) variant.random();
 			setAlpha = (double) alpha.random();
 			setBeta = (double) beta.random();
 			setDilution = (double) dilution.random();
@@ -544,27 +545,28 @@ public class MainFrame extends JFrame {
 			// row[1] = (int) iterations.random();
 			antAlgorithmSettings[r][1] = iterations;
 			antAlgorithmSettings[r][2] = setAnts;
-			antAlgorithmSettings[r][3] = setAlpha;
-			antAlgorithmSettings[r][4] = setBeta;
-			antAlgorithmSettings[r][5] = setDilution;
-			antAlgorithmSettings[r][6] = setPiInit;
+			antAlgorithmSettings[r][3] = setVariant;	
+			antAlgorithmSettings[r][4] = setAlpha;
+			antAlgorithmSettings[r][5] = setBeta;
+			antAlgorithmSettings[r][6] = setDilution;
+			antAlgorithmSettings[r][7] = setPiInit;
 			//row[7] := estimated expected utility
-			antAlgorithmSettings[r][7] = 0;
-			//row[8] := estimated expected runtime
 			antAlgorithmSettings[r][8] = 0;
+			//row[8] := estimated expected runtime
+			antAlgorithmSettings[r][9] = 0;
 			// round alpha and beta
 			antAlgorithmSettings[r+1][0] = r+1;
-			// row[1] = (int) iterations.random();
 			antAlgorithmSettings[r+1][1] = iterations;
 			antAlgorithmSettings[r+1][2] = setAnts;
-			antAlgorithmSettings[r+1][3] = Math.round(setAlpha);
-			antAlgorithmSettings[r+1][4] = Math.round(setBeta);
-			antAlgorithmSettings[r+1][5] = setDilution;
-			antAlgorithmSettings[r+1][6] = setPiInit;
+			antAlgorithmSettings[r+1][3] = setVariant;	
+			antAlgorithmSettings[r+1][4] = Math.round(setAlpha);
+			antAlgorithmSettings[r+1][5] = Math.round(setBeta);
+			antAlgorithmSettings[r+1][6] = setDilution;
+			antAlgorithmSettings[r+1][7] = setPiInit;
 			//row[7] := estimated expected utility
-			antAlgorithmSettings[r+1][7] = 0;
-			//row[8] := estimated expected runtime
 			antAlgorithmSettings[r+1][8] = 0;
+			//row[8] := estimated expected runtime
+			antAlgorithmSettings[r+1][9] = 0;
 		}
 		return antAlgorithmSettings;
 	}
@@ -667,7 +669,7 @@ public class MainFrame extends JFrame {
 		filename = filepath + "results " + dateFormaFile.format(new Date())+".csv";
         FileWriter fw = new FileWriter(filename);
     	BufferedWriter bufferedWriter = new BufferedWriter(fw);	
-    	if(antAlgo){bufferedWriter.write("id;iterations;ants;alpha;beta;dilution;piInit;e(utility);e(runtime in ms);number of model-setups tested = "+N);
+    	if(antAlgo){bufferedWriter.write("id;iterations;ants;variant;alpha;beta;dilution;piInit;e(utility);e(runtime in ms);number of model-setups tested = "+N);
     	}else{
     		bufferedWriter.write("id;population size;elitism rate;crossover rate;muation rate;e(utility);e(runtime in ms);number of model-setups tested = "+N);
     	}
