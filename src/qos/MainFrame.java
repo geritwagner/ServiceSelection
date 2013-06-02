@@ -177,7 +177,7 @@ public class MainFrame extends JFrame {
 		
 		int sizeTheta = 30;
 		int estimateIterations = 5;
-		long maxTuningTime = 200;
+		long maxTuningTime = 20;
 		
 		double[][] antAlgorithmSettings = null;
 		double[][] geneticAlgorithmSettings = null;
@@ -522,7 +522,7 @@ public class MainFrame extends JFrame {
 		// Exponential iterations = new Exponential(150);
 		int iterations = 100;
 		Gamma alpha = new Gamma(1,1.5);
-		DiscreteUniform variant = new DiscreteUniform (1,6);
+		DiscreteUniform variant = new DiscreteUniform (4,6);
 		Gamma beta = new Gamma(1,2);
 		Beta dilution = new Beta(1,8);
 		Uniform piInit = new Uniform(0,10);
