@@ -201,14 +201,14 @@ public class MainFrame extends JFrame {
 		if(antAlgo){
 				antAlgorithmSettings = sampleAntAlgorithmSettings(sizeTheta);
 				for (int i=0; i<antAlgorithmSettings.length; i++) {
-					antAlgorithmSettingsTemp[i] = antAlgorithmSettings[i].clone();
+					antAlgorithmSettings[i] = antAlgorithmSettings[i].clone();
 				}
 		}
 
 		if(geneticAlgo){
 			geneticAlgorithmSettings = sampleGeneticAlgorithmSettings(sizeTheta);
 			for (int i=0; i<geneticAlgorithmSettings.length; i++) {
-				geneticAlgorithmSettingsTemp[i] = geneticAlgorithmSettings[i].clone();
+				geneticAlgorithmSettings[i] = geneticAlgorithmSettings[i].clone();
 			}
 		}
 
