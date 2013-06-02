@@ -445,10 +445,12 @@ public class MainFrame extends JFrame {
 		double maxResponseTime = getRelaxationMaxResponseTime(relaxationValue);
 		double minAvailability = getRelaxationMinAvailability(relaxationValue)/100;
 
+		Uniform randomVariable = new Uniform (0,1);
+		
 		// sample weights
-		double weightCost = Math.random();
-		double weightResponseTime = Math.random();
-		double weightAvailability = Math.random();
+		double weightCost = randomVariable.random();
+		double weightResponseTime = randomVariable.random();
+		double weightAvailability = randomVariable.random();
 		double weightSum = weightCost+weightResponseTime+weightAvailability;
 		//normalize weights
 		weightCost = (weightCost/weightSum)*100;
