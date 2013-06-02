@@ -179,18 +179,20 @@ public class MainFrame extends JFrame {
 		   throw new Exception("filepath does not exist.");
 		}
 
-		int sizeTheta = 3000;
+		int sizeTheta = 10;
 		int estimateIterations = 2;
-		long maxTuningTime = 12;
+		long maxTuningTime = 20;
 
 		// maxTuningTime in h
-		maxTuningTime *= 3600;
+		// maxTuningTime *= 3600;
 		// maxTuningTime in d
-//		maxTuningTime *= 24;
+		// maxTuningTime *= 24;
 
 
 		double[][] antAlgorithmSettings = null;
+		double[][] antAlgorithmSettingsTemp = new double[sizeTheta][];
 		double[][] geneticAlgorithmSettings = null;
+		double[][] geneticAlgorithmSettingsTemp = new double[sizeTheta][]; 
 
 		Map<String, Constraint> constraintsMap = null;
 
@@ -201,14 +203,14 @@ public class MainFrame extends JFrame {
 		if(antAlgo){
 				antAlgorithmSettings = sampleAntAlgorithmSettings(sizeTheta);
 				for (int i=0; i<antAlgorithmSettings.length; i++) {
-					antAlgorithmSettings[i] = antAlgorithmSettings[i].clone();
+					antAlgorithmSettingsTemp[i] = antAlgorithmSettings[i].clone();
 				}
 		}
 
 		if(geneticAlgo){
 			geneticAlgorithmSettings = sampleGeneticAlgorithmSettings(sizeTheta);
 			for (int i=0; i<geneticAlgorithmSettings.length; i++) {
-				geneticAlgorithmSettings[i] = geneticAlgorithmSettings[i].clone();
+				geneticAlgorithmSettingsTemp[i] = geneticAlgorithmSettings[i].clone();
 			}
 		}
 
@@ -219,10 +221,10 @@ public class MainFrame extends JFrame {
 		// estimated average runtime for a single instance   (at the moment: without benchmarking)
 		long estimtedRuntimeSingleInstance = 1;
 		if(antAlgo){
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt((double[][])antAlgorithmSettings.clone(), estimateIterations);
+			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettingsTemp, estimateIterations);
 		}
 		if(geneticAlgo){
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceGenetic((double[][])geneticAlgorithmSettings.clone(), estimateIterations);
+			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceGenetic(geneticAlgorithmSettingsTemp, estimateIterations);
 		}
 
 		long estimatedRuntimeOneRun = estimtedRuntimeSingleInstance/1000000;
