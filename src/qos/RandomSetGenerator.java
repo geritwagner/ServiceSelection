@@ -67,7 +67,7 @@ public class RandomSetGenerator {
 		// which are saved in a QosVector object
 		costs = costs * (MAX_COST - MIN_COST) + MIN_COST;
 		time = time * (MAX_TIME - MIN_TIME) + MIN_TIME;
-		double availability = Math.random() * (
+		double availability = RandomDistribution.random() * (
 				MAX_AVAILABILITY - MIN_AVAILABILITY) + MIN_AVAILABILITY;
 
 		return new QosVector(costs, time, availability);
