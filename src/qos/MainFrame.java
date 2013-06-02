@@ -179,9 +179,9 @@ public class MainFrame extends JFrame {
 		   throw new Exception("filepath does not exist.");
 		}
 
-		int sizeTheta = 10;
-		int estimateIterations = 2;
-		long maxTuningTime = 20;
+		int sizeTheta = 30;
+		int estimateIterations = 5;
+		long maxTuningTime = 60;
 
 		// maxTuningTime in h
 		// maxTuningTime *= 3600;
@@ -282,13 +282,12 @@ public class MainFrame extends JFrame {
 	}
 
 	private static long getEstimatedRuntimeSingleInstanceAnt(double[][] antAlgorithmSettings, int iterations){
-		long time = 0;
-		double[][] testSettings = antAlgorithmSettings;
+		long time = 0;		
 		time = System.nanoTime();
 		for (int i = 1; i<iterations; i++){
 			Map<String, Constraint> constraintsMap = sampleModelSetup();
 			@SuppressWarnings("unused")
-			double[][] temp = tuneAntAlgo(testSettings, constraintsMap, 1);
+			double[][] temp = tuneAntAlgo(antAlgorithmSettings, constraintsMap, 1);
 		}
 		time = (System.nanoTime() - time);
 		time/=iterations;
@@ -541,7 +540,7 @@ public class MainFrame extends JFrame {
 		// Exponential iterations = new Exponential(150);
 		int iterations = 100;
 		Gamma alpha = new Gamma(1,1.5);
-		DiscreteUniform variant = new DiscreteUniform (1,4);
+		DiscreteUniform variant = new DiscreteUniform (1,6);
 		Gamma beta = new Gamma(1,2);
 		Beta dilution = new Beta(1,8);
 		Uniform piInit = new Uniform(0,10);

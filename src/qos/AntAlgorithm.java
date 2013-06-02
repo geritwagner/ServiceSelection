@@ -51,7 +51,14 @@ public class AntAlgorithm extends Algorithm{
 		iterations = setIterations;
 		alpha = setAlpha;
 		beta = setBeta;
-		dilution = setDilution;						
+		dilution = setDilution;
+		nj = null;
+		pi = null;
+		convergent = false;
+		lambda = 0.4;
+		chaosFactor = 4;
+		piMax = 1;
+		piMin = 0;
 	}
 	
 
