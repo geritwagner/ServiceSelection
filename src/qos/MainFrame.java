@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -180,7 +181,9 @@ public class MainFrame extends JFrame {
 		long maxTuningTime = 20;
 		
 		double[][] antAlgorithmSettings = null;
+		double[][] antAlgorithmSettingsTemp = new double[sizeTheta][];
 		double[][] geneticAlgorithmSettings = null;
+		double[][] geneticAlgorithmSettingsTemp = new double[sizeTheta][];
 		
 		Map<String, Constraint> constraintsMap = null;
 
@@ -190,11 +193,17 @@ public class MainFrame extends JFrame {
 		// & Allocate array for storing estimated expected performance of candidates
 		if(antAlgo){
 				antAlgorithmSettings = sampleAntAlgorithmSettings(sizeTheta);
+				for (int i=0; i<antAlgorithmSettings.length; i++) {
+					antAlgorithmSettingsTemp[i] = antAlgorithmSettings[i].clone();
+				}
 		}
 		
 		if(geneticAlgo){
 			geneticAlgorithmSettings = sampleGeneticAlgorithmSettings(sizeTheta);
-		}
+			for (int i=0; i<geneticAlgorithmSettings.length; i++) {
+				geneticAlgorithmSettingsTemp[i] = geneticAlgorithmSettings[i].clone();
+			}
+		}			
 		
 		System.out.println(dateFormatLog.format(new Date()) + " Sample algorithm parameters ("+sizeTheta +")");
 
@@ -203,10 +212,10 @@ public class MainFrame extends JFrame {
 		// estimated average runtime for a single instance   (at the moment: without benchmarking)
 		long estimtedRuntimeSingleInstance = 1;
 		if(antAlgo){
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettings, estimateIterations);
+			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettingsTemp, estimateIterations);
 		}
 		if(geneticAlgo){
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceGenetic(geneticAlgorithmSettings, estimateIterations);	
+			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceGenetic(geneticAlgorithmSettingsTemp, estimateIterations);	
 		}
 		
 		long estimatedRuntimeOneRun = estimtedRuntimeSingleInstance/1000000;
@@ -265,11 +274,12 @@ public class MainFrame extends JFrame {
 	
 	private static long getEstimatedRuntimeSingleInstanceAnt(double[][] antAlgorithmSettings, int iterations){
 		long time = 0;
+		double[][] testSettings = antAlgorithmSettings;
 		time = System.nanoTime();
 		for (int i = 1; i<iterations; i++){
 			Map<String, Constraint> constraintsMap = sampleModelSetup();
 			@SuppressWarnings("unused")
-			double[][] temp = tuneAntAlgo(antAlgorithmSettings, constraintsMap, 1);
+			double[][] temp = tuneAntAlgo(testSettings, constraintsMap, 1);
 		}
 		time = (System.nanoTime() - time);
 		time/=iterations;
@@ -522,7 +532,7 @@ public class MainFrame extends JFrame {
 		// Exponential iterations = new Exponential(150);
 		int iterations = 100;
 		Gamma alpha = new Gamma(1,1.5);
-		DiscreteUniform variant = new DiscreteUniform (4,6);
+		DiscreteUniform variant = new DiscreteUniform (1,4);
 		Gamma beta = new Gamma(1,2);
 		Beta dilution = new Beta(1,8);
 		Uniform piInit = new Uniform(0,10);
