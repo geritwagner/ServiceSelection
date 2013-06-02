@@ -190,9 +190,7 @@ public class MainFrame extends JFrame {
 
 
 		double[][] antAlgorithmSettings = null;
-		double[][] antAlgorithmSettingsTemp = new double[sizeTheta][];
 		double[][] geneticAlgorithmSettings = null;
-		double[][] geneticAlgorithmSettingsTemp = new double[sizeTheta][];
 
 		Map<String, Constraint> constraintsMap = null;
 
@@ -221,10 +219,10 @@ public class MainFrame extends JFrame {
 		// estimated average runtime for a single instance   (at the moment: without benchmarking)
 		long estimtedRuntimeSingleInstance = 1;
 		if(antAlgo){
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettingsTemp, estimateIterations);
+			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt((double[][])antAlgorithmSettings.clone(), estimateIterations);
 		}
 		if(geneticAlgo){
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceGenetic(geneticAlgorithmSettingsTemp, estimateIterations);
+			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceGenetic((double[][])geneticAlgorithmSettings.clone(), estimateIterations);
 		}
 
 		long estimatedRuntimeOneRun = estimtedRuntimeSingleInstance/1000000;
