@@ -159,12 +159,15 @@ public class MainFrame extends JFrame {
 					return theta
 		 */
 		
-		// cmd: go to path with cd ... , java -jar NAMEOFJARFILE.jar
-		
 		boolean antAlgo = true;
 		boolean geneticAlgo = false;
 		
 		filepath = "C:\\temp\\";
+		
+		// create filepath-directory
+		// cmd: go to path with cd ... , java -jar NAMEOFJARFILE.jar
+		// set java filepath
+		// for large thetasize the estimateIterations must be reduced, apparently 1 does not work
 		
 		if(antAlgo == geneticAlgo){
 			throw new Exception("Ant or Genetic!!");
@@ -175,9 +178,14 @@ public class MainFrame extends JFrame {
 		   throw new Exception("filepath does not exist.");
 		}
 		
-		int sizeTheta = 30;
-		int estimateIterations = 5;
-		long maxTuningTime = 200;
+		int sizeTheta = 3000;
+		int estimateIterations = 2;
+		long maxTuningTime = 12;
+		
+		// maxTuningTime in h
+		maxTuningTime *= 3600;
+		// maxTuningTime in d
+//		maxTuningTime *= 24;
 		
 		double[][] antAlgorithmSettings = null;
 		double[][] geneticAlgorithmSettings = null;
