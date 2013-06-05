@@ -109,7 +109,7 @@ public class GeneticAlgorithm extends Algorithm {
 			doMutation(matingPool, mutationRate);
 			
 			// Update the fitness values.
-			for (Composition composition : population) {
+			for (Composition composition : matingPool) {
 				composition.computeFitness(constraintsMap);
 			}
 			
