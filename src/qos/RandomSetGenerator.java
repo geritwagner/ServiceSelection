@@ -2,6 +2,7 @@ package qos;
 
 import java.util.LinkedList;
 import java.util.List;
+import jsc.distributions.Beta;
 
 public class RandomSetGenerator {
 	
