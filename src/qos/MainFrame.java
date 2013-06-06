@@ -179,12 +179,12 @@ public class MainFrame extends JFrame {
 		   throw new Exception("filepath does not exist.");
 		}
 
-		int sizeTheta = 30;
-		int estimateIterations = 5;
-		long maxTuningTime = 60;
+		int sizeTheta = 300;
+		int estimateIterations = 1;
+		long maxTuningTime = 1;
 
 		// maxTuningTime in h
-		// maxTuningTime *= 3600;
+		 maxTuningTime *= 3600;
 		// maxTuningTime in d
 		// maxTuningTime *= 24;
 
@@ -284,7 +284,7 @@ public class MainFrame extends JFrame {
 	private static long getEstimatedRuntimeSingleInstanceAnt(double[][] antAlgorithmSettings, int iterations){
 		long time = 0;		
 		time = System.nanoTime();
-		for (int i = 1; i<iterations; i++){
+		for (int i = 1; i<(iterations+1); i++){
 			Map<String, Constraint> constraintsMap = sampleModelSetup();
 			@SuppressWarnings("unused")
 			double[][] temp = tuneAntAlgo(antAlgorithmSettings, constraintsMap, 1);
