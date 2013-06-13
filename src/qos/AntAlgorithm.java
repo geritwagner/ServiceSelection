@@ -69,13 +69,13 @@ public class AntAlgorithm extends Algorithm{
 				
 		if (variant == 5) {
 			int it = 1;
-			while (!convergent && (it < 2000)) {
+			while (!convergent && (it < 10000 )) {
 				doIterationV5();
 				it++;
 			}						
 		} else if (variant == 6) {
 			int it = 1;			
-			while (!convergent && (it < 2000)) {
+			while (!convergent && (it < 10000 )) {
 				doIterationV6();								
 				it++;
 			}			

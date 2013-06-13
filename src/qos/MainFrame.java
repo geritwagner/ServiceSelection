@@ -44,6 +44,8 @@ public class MainFrame extends JFrame {
 		new SimpleDateFormat("HH:mm:ss: ");
 	private static SimpleDateFormat dateFormaFile =
 			new SimpleDateFormat("HH_mm_ss");
+	private static SimpleDateFormat runDescription =
+			new SimpleDateFormat("dd.MM.yyyy - HH:mm:ss");
 
 	// Lists
 	private static List<ServiceClass> serviceClassesList =
@@ -63,7 +65,10 @@ public class MainFrame extends JFrame {
 	private static double actualParameterTuningOptimalityResult = 100;
 	private static String filepath;
 	private static String filename;
-
+	private static String comment = "";
+	private static int sizeTheta;
+	private static long N;
+	
 	/*	+-----------------------------------------------------------+
 	 * 	| +-------------------------------------------------------+ |
 	 * 	| |														  | |
@@ -163,6 +168,8 @@ public class MainFrame extends JFrame {
 		boolean antAlgo = true;
 		boolean geneticAlgo = false;
 
+		comment+="runVariants1234;";
+		
 		filepath = "C:\\temp\\";
 
 		// create filepath-directory
@@ -179,14 +186,12 @@ public class MainFrame extends JFrame {
 		   throw new Exception("filepath does not exist.");
 		}
 
-		int sizeTheta = 300;
+		sizeTheta = 720;
 		int estimateIterations = 1;
-		long maxTuningTime = 1;
+		long maxTuningTime = 48;
 
 		// maxTuningTime in h
 		 maxTuningTime *= 3600;
-		// maxTuningTime in d
-		// maxTuningTime *= 24;
 
 
 		double[][] antAlgorithmSettings = null;
@@ -233,13 +238,14 @@ public class MainFrame extends JFrame {
 				"ms, estimated time for one run (one instance and the whole set of parameter configurations) = "+ estimatedRuntimeOneRun/1000 + "s");
 
 		// determine the max. amount of tests
-		long N = (long) Math.floor(maxTuningTime/estimtedRuntimeSingleInstance);
+		N = (long) Math.floor(maxTuningTime/estimtedRuntimeSingleInstance);
 
 		// start parameter tuning
 		System.out.println(dateFormatLog.format(new Date()) + " Starting Tuning Phase, " +N+"*"+sizeTheta+ " runs, target runtime = " + maxTuningTime/1000000000);
 		long ActualTuningTime = System.currentTimeMillis();
 		long progressTimer = ActualTuningTime;
 		double progress;
+		comment += runDescription.format(new Date())+";";
 		for (int k = 1; k <= N; k++){
 			// generate random model setups
 			constraintsMap = sampleModelSetup();
@@ -269,7 +275,9 @@ public class MainFrame extends JFrame {
 		long target = maxTuningTime/1000000000;
 		System.out.println(dateFormatLog.format(new Date()) + " Finished Tuning Phase, target runtime = " + target +
 				"s, elapsed time = "+ elapsed + "s");
-
+		comment +=runDescription.format(new Date())+";";
+		
+		
 		// save results
 		if(antAlgo){
 			saveTuningResults(antAlgorithmSettings, antAlgo, N);
@@ -542,7 +550,7 @@ public class MainFrame extends JFrame {
 		// Exponential iterations = new Exponential(150);
 		int iterations = 100;
 		Gamma alpha = new Gamma(1,1.5);
-		DiscreteUniform variant = new DiscreteUniform (1,6);
+		DiscreteUniform variant = new DiscreteUniform (1,4);
 		Gamma beta = new Gamma(1,2);
 		Beta dilution = new Beta(1,8);
 		Uniform piInit = new Uniform(0,10);
@@ -689,6 +697,8 @@ public class MainFrame extends JFrame {
 		filename = filepath + "results " + dateFormaFile.format(new Date())+".csv";
         FileWriter fw = new FileWriter(filename);
     	BufferedWriter bufferedWriter = new BufferedWriter(fw);
+    	bufferedWriter.write(comment+sizeTheta+";"+N+";");
+    	bufferedWriter.newLine();
     	if(antAlgo){bufferedWriter.write("id;iterations;ants;variant;alpha;beta;dilution;piInit;e(utility);e(runtime in ms);number of model-setups tested = "+N);
     	}else{
     		bufferedWriter.write("id;population size;elitism rate;crossover rate;muation rate;e(utility);e(runtime in ms);number of model-setups tested = "+N);
