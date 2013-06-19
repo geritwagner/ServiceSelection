@@ -24,18 +24,17 @@ public class RandomSetGenerator {
 					new LinkedList<ServiceCandidate>();
 			// GENERATE SERVICE CANDIDATES
 			for (int j = 0; j < numCandidates; j++) {				
-				int serviceID = (j + 1) + (numCandidates * i);
+				int serviceID = (j + 1);
 				
 				QosVector qosVector = generateQosVector();
 				serviceCandidateList.add(new ServiceCandidate(
-						i+1, serviceID, 
-						"WebService"+serviceID, qosVector));
+						i + 1, (i + 1) + "." + serviceID, 
+						"WebService" + serviceID, qosVector));
 			}
 			
 			serviceClassList.add(new ServiceClass(i + 1, 
 					"ServiceClass" + (i + 1) + "", serviceCandidateList));
 		}
-		
 		
 		return serviceClassList;		
 	}
@@ -47,17 +46,20 @@ public class RandomSetGenerator {
 		
 		// http://www.sitmo.com/article/generating-correlated-random-numbers/
 		// min/max, spread for standardization
-		double maxRandomTime = Math.sqrt(1-Math.pow(CORRELATION_COST_TIME, 2))*1;
-		if(CORRELATION_COST_TIME > 0){
-			maxRandomTime+= CORRELATION_COST_TIME;
-		}
-		double minRandomTime = CORRELATION_COST_TIME*1;
-		if(CORRELATION_COST_TIME > 0){
-			minRandomTime = 0;
-		}
+		double maxRandomTime = Math.sqrt(1 - Math.pow(
+				CORRELATION_COST_TIME, 2)) * 1;
+//		if (CORRELATION_COST_TIME > 0) {
+//			maxRandomTime += CORRELATION_COST_TIME;
+//		}
+		double minRandomTime = CORRELATION_COST_TIME;
+//		if (CORRELATION_COST_TIME > 0) {
+//			minRandomTime = 0;
+//		}
 		double spread = maxRandomTime - minRandomTime;
 		
-		double time = CORRELATION_COST_TIME*costs+Math.sqrt(1-Math.pow(CORRELATION_COST_TIME, 2))*RandomDistribution.random();
+		double time = CORRELATION_COST_TIME * costs + Math.sqrt(
+				1 - Math.pow(CORRELATION_COST_TIME, 2)) * 
+				RandomDistribution.random();
 		// standardization:
 		time = time/spread + maxRandomTime;
 		

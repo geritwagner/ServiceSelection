@@ -5,7 +5,7 @@ import java.util.Map;
 public class ServiceCandidate {
 	
 	private int serviceClassId;
-	private int serviceCandidateId;
+	private String serviceCandidateId;
 	private String name;
 	private QosVector qosVector = new QosVector();
 	private double utility;
@@ -17,7 +17,7 @@ public class ServiceCandidate {
 	}
 	
 	public ServiceCandidate(int serviceClassId, 
-			int serviceCandidateId, String name, QosVector qosVector) {
+			String serviceCandidateId, String name, QosVector qosVector) {
 		this.serviceCandidateId = serviceCandidateId;
 		this.serviceClassId = serviceClassId;
 		this.name = name;
@@ -84,10 +84,10 @@ public class ServiceCandidate {
 	public void setServiceClassId(int serviceClassId) {
 		this.serviceClassId = serviceClassId;
 	}
-	public int getServiceCandidateId() {
+	public String getServiceCandidateId() {
 		return serviceCandidateId;
 	}
-	public void setServiceCandidateId(int serviceCandidateId) {
+	public void setServiceCandidateId(String serviceCandidateId) {
 		this.serviceCandidateId = serviceCandidateId;
 	}
 	public String getName() {
@@ -114,7 +114,7 @@ public class ServiceCandidate {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + serviceCandidateId;
+		result = prime * result + (int) Double.parseDouble(serviceCandidateId);
 		return result;
 	}
 
@@ -127,7 +127,7 @@ public class ServiceCandidate {
 		if (getClass() != obj.getClass())
 			return false;
 		ServiceCandidate other = (ServiceCandidate) obj;
-		if (serviceCandidateId != other.serviceCandidateId)
+		if (!serviceCandidateId.equals(other.serviceCandidateId))
 			return false;
 		return true;
 	}

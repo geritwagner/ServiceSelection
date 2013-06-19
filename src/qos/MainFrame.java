@@ -27,8 +27,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -2182,8 +2182,8 @@ public class MainFrame extends JFrame {
 				"     Genetic Algorithm",
 				"     Ant Algorithm", 
 				"     Analytic Algorithm",
-				" \u0394 Genetic Algorithm", 
-				" \u0394 Ant Algorithm"
+				" \u0394 (Utility) Genetic Algorithm", 
+				" \u0394 (Utility) Ant Algorithm"
 		};
 		JScrollPane jScrollPaneResults = new JScrollPane();
 		jScrollPaneResults.setVerticalScrollBarPolicy(
@@ -2202,7 +2202,7 @@ public class MainFrame extends JFrame {
 		for (int i = 0; i < generalResultsData.length; i++) {
 			jTableGeneralResults.setValueAt(generalResultsData[i], i, 0);
 		}
-		jTableGeneralResults.setColumnWidthRelative(new double[] {0.6, 0.4});
+		jTableGeneralResults.setColumnWidthRelative(new double[] {0.72, 0.25});
 		jTableGeneralResults.setColumnTextAlignment(
 				1, DefaultTableCellRenderer.RIGHT);
 		jTableGeneralResults.setEnabled(false);
@@ -2292,7 +2292,8 @@ public class MainFrame extends JFrame {
 				// Create and save service candidates.
 				ServiceCandidate serviceCandidate = new ServiceCandidate(
 						Integer.parseInt(serviceCandidateArray[0]), 
-						Integer.parseInt(serviceCandidateArray[2]), 
+						serviceCandidateArray[0] + "." + 
+						serviceCandidateArray[2], 
 						serviceCandidateArray[3], 
 						new QosVector(
 								Double.parseDouble(serviceCandidateArray[4]), 
@@ -2690,6 +2691,24 @@ public class MainFrame extends JFrame {
 			jTableWebServices.setColumnTextAlignment(
 					i, DefaultTableCellRenderer.RIGHT);
 		}
+		for (int i = 0; i < serviceClassesList.size(); i++) {
+			for (int k = 0; k < serviceClassesList.get(i).
+					getServiceCandidateList().size(); k++) {
+				ServiceCandidate serviceCandidate = serviceClassesList.get(i).
+						getServiceCandidateList().get(k);
+				QosVector qosVector = serviceCandidate.getQosVector();
+				jTableWebServices.setValueAt(
+						serviceCandidate.getServiceClassId(), k, 0);
+				jTableWebServices.setValueAt(
+						serviceCandidate.getServiceCandidateId(), k, 1);
+				jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
+				jTableWebServices.setValueAt(qosVector.getCosts(), k, 3);
+				jTableWebServices.setValueAt(
+						qosVector.getResponseTime(), k, 4);
+				jTableWebServices.setValueAt(
+						qosVector.getAvailability(), k, 5);
+			}
+		}
 		// Write service candidates data.
 		for (int k = 0 ; k < serviceCandidatesList.size() ; k++) {
 			ServiceCandidate serviceCandidate = 
@@ -2941,6 +2960,26 @@ public class MainFrame extends JFrame {
 	 */
 	
 	private void pressStartButton() {
+		// TODO: Dialog to confirm if analytic algorithm is chosen 
+		//		 and if the model is very large
+		if (jCheckBoxAnalyticAlgorithm.isSelected() && 
+				serviceClassesList.size() >= 10 && 
+				serviceCandidatesList.size() >= 100) {
+			if (JOptionPane.showConfirmDialog(this, 
+					"<html>Datasets with size <b>10x10</b> or bigger<br>" +
+							"require a lot of time!<br>It is strongly " +
+							"recommended to <i>deselect</i><br>" +
+							"the analytic algorithm in such cases.<br>" +
+							"Run Algorithm(s)?</html>", 
+					"Warning", JOptionPane.WARNING_MESSAGE) != 
+					JOptionPane.YES_OPTION) {
+				return;
+			}
+		}
+		
+		setEnabled(false);
+		jButtonStart.setEnabled(false);
+		
 		// Delete former results
 		jTableGeneralResults.setValueAt("", 0, 1);
 		jTableGeneralResults.setValueAt("", 1, 1);
@@ -3026,9 +3065,6 @@ public class MainFrame extends JFrame {
 					serviceClassesList, constraintsMap, 
 					(Integer) jSpinnerNumberResultTiers.getValue());
 		}
-
-		setEnabled(false);
-		jButtonStart.setEnabled(false);
 
 		// Progress Bar Thread
 		if (geneticAlgorithmExecuted || antAlgorithmExecuted || 
@@ -3154,11 +3190,12 @@ public class MainFrame extends JFrame {
 				buildResultTable();
 				jButtonVisualize.setEnabled(
 						geneticAlgorithmExecuted || antAlgorithmExecuted);
-				jButtonSaveResults.setEnabled(enableSaveResults);			
+				jButtonSaveResults.setEnabled(enableSaveResults);	
+				
+				jButtonStart.setEnabled(true);
+				setEnabled(true);	
 			}
 		}.start();
-		jButtonStart.setEnabled(true);
-		setEnabled(true);	
 	}			
 
 	private void doGeneticAlgorithm() {
@@ -3379,7 +3416,7 @@ public class MainFrame extends JFrame {
 			
 			// TABLE CONSTRUCTION
 			String[] tierTablesColumnNames = {"# Service", 
-					"Service Title", "Service Class", "Utility Value", "Costs", 
+					"Service Title", "Utility Value", "Costs", 
 					"Response Time", "Availability"};
 			ServiceSelectionTable jTableTier = new ServiceSelectionTable(
 					numberOfRows + tierServiceCompositionList.size(), 
@@ -3395,8 +3432,6 @@ public class MainFrame extends JFrame {
 					0, DefaultTableCellRenderer.CENTER);
 			jTableTier.setColumnTextAlignment(
 					2, DefaultTableCellRenderer.CENTER);
-			jTableTier.setColumnTextAlignment(
-					3, DefaultTableCellRenderer.CENTER);
 			
 			// COUNTER FOR CONSTRUCTION OF TABLE HEADERS
 			for (int columnCount = 0; columnCount < 
@@ -3420,7 +3455,7 @@ public class MainFrame extends JFrame {
 			for (int rowCount = 0; rowCount < numberOfRows; rowCount++) {
 				jTableTier.setValueAt("<html><b>" + DECIMAL_FORMAT_FOUR.format(
 						tierServiceCompositionList.get(rowCount).
-						getUtility()) + "</b></html>", rowCount, 3);
+						getUtility()) + "</b></html>", rowCount, 2);
 				// Build String for Result-Export
 				String resultLine = "";
 				resultLine += algorithmTitle;
@@ -3444,14 +3479,14 @@ public class MainFrame extends JFrame {
 							DECIMAL_FORMAT_TWO.format(
 									tierServiceCompositionList.get(rowCount).
 									getQosVectorAggregated().getCosts()) + 
-									"</font></b></html>", rowCount + x, 4);
+									"</font></b></html>", rowCount + x, 3);
 				}
 				else {
 					jTableTier.setValueAt("<html><b>" + 
 							DECIMAL_FORMAT_TWO.format(
 									tierServiceCompositionList.get(rowCount).
 									getQosVectorAggregated().getCosts()) + 
-									"</b></html>", rowCount + x, 4);
+									"</b></html>", rowCount + x, 3);
 				}
 				if (getChosenConstraints().get(Constraint.RESPONSE_TIME) != 
 						null && tierServiceCompositionList.get(rowCount).
@@ -3463,7 +3498,7 @@ public class MainFrame extends JFrame {
 									tierServiceCompositionList.get(rowCount).
 									getQosVectorAggregated().
 									getResponseTime()) + 
-									"</font></b></html>", rowCount + x, 5);
+									"</font></b></html>", rowCount + x, 4);
 				}
 				else {
 					jTableTier.setValueAt("<html><b>" + 
@@ -3471,7 +3506,7 @@ public class MainFrame extends JFrame {
 									tierServiceCompositionList.get(rowCount).
 									getQosVectorAggregated().
 									getResponseTime()) + 
-									"</b></html>", rowCount + x, 5);
+									"</b></html>", rowCount + x, 4);
 				}
 				if (getChosenConstraints().get(Constraint.AVAILABILITY) != 
 						null && tierServiceCompositionList.get(rowCount).
@@ -3483,7 +3518,7 @@ public class MainFrame extends JFrame {
 									tierServiceCompositionList.get(rowCount).
 									getQosVectorAggregated().
 									getAvailability()) + 
-									"</font></b></html>", rowCount + x, 6);
+									"</font></b></html>", rowCount + x, 5);
 				}
 				else {
 					jTableTier.setValueAt("<html><b>" + 
@@ -3491,7 +3526,7 @@ public class MainFrame extends JFrame {
 									tierServiceCompositionList.get(rowCount).
 									getQosVectorAggregated().
 									getAvailability()) + 
-									"</b></html>", rowCount + x, 6);
+									"</b></html>", rowCount + x, 5);
 				}
 				x++;
 				int candidateCount = 0;
@@ -3500,44 +3535,37 @@ public class MainFrame extends JFrame {
 				tierServiceCompositionList.get(rowCount).
 				getServiceCandidatesList().size(); candidateCount++) {
 					// SERVICE CANDIDATE ID
-					jTableTier.setValueAt(
-							tierServiceCompositionList.get(rowCount).
-							getServiceCandidatesList().
-							get(candidateCount).getServiceCandidateId(), 
-							rowCount + x + candidateCount, 0);
+					jTableTier.setValueAt(tierServiceCompositionList.get(
+							rowCount).getServiceCandidatesList().get(
+									candidateCount).getServiceCandidateId(), 
+									rowCount + x + candidateCount, 0);
 					// SERVICE CANDIDATE TITLE
 					jTableTier.setValueAt(
 							tierServiceCompositionList.get(rowCount).
 							getServiceCandidatesList().
 							get(candidateCount).getName(), 
 							rowCount + x + candidateCount, 1);
-					// SERVICE CLASS ID
-					jTableTier.setValueAt(
-							tierServiceCompositionList.get(rowCount).
-							getServiceCandidatesList().
-							get(candidateCount).getServiceClassId(), 
-							rowCount + x + candidateCount, 2);
 					// COSTS
 					jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
 							tierServiceCompositionList.get(rowCount).
 							getServiceCandidatesList().get(
 									candidateCount).getQosVector().
 									getCosts()), 
-									rowCount + x + candidateCount, 4);
+									rowCount + x + candidateCount, 3);
 					// RESPONSE TIME
 					jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
 							tierServiceCompositionList.get(rowCount).
 							getServiceCandidatesList().get(
 									candidateCount).getQosVector().
 									getResponseTime()), 
-									rowCount + x + candidateCount, 5);
+									rowCount + x + candidateCount, 4);
 					// AVAILABILITY
 					jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
 							tierServiceCompositionList.get(rowCount).
 							getServiceCandidatesList().get(
 									candidateCount).getQosVector().
 									getAvailability()), 
-									rowCount + x + candidateCount, 6);
+									rowCount + x + candidateCount, 5);
 				}
 				rowCount = rowCount + candidateCount - 1;
 			}

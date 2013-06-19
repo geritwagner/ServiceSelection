@@ -130,7 +130,7 @@ public class AntAlgorithm extends Algorithm {
 		}
 		else {
 			optimalComposition = new Composition();
-			optimalComposition.addServiceCandidate(new ServiceCandidate(0, 0, "keine Lösung", new QosVector()));	
+			optimalComposition.addServiceCandidate(new ServiceCandidate(0, "0.0", "keine Lösung", new QosVector()));	
 		}					
 	}
 
@@ -138,7 +138,7 @@ public class AntAlgorithm extends Algorithm {
 		// ADD PSEUDO NODES AT THE BEGINNING AND AT THE END
 		List<ServiceCandidate> tempServiceCandidateList =
 				new LinkedList<ServiceCandidate>();
-		ServiceCandidate tempServiceCandidate = new ServiceCandidate(0, 0, "S", new QosVector());
+		ServiceCandidate tempServiceCandidate = new ServiceCandidate(0, "0.0", "S", new QosVector());
 		tempServiceCandidateList.add(tempServiceCandidate);
 		ServiceClass tempServiceClass = new ServiceClass(0, "StartServiceClass", tempServiceCandidateList);
 		serviceCandidatesList.add(0, tempServiceCandidate);
@@ -146,7 +146,7 @@ public class AntAlgorithm extends Algorithm {
 
 		tempServiceCandidateList = new LinkedList<ServiceCandidate>();
 		tempServiceCandidate = new ServiceCandidate(serviceClassesList.size(),
-				serviceCandidatesList.size(), "T", new QosVector());
+				serviceClassesList.size() + "." + serviceCandidatesList.size(), "T", new QosVector());
 		tempServiceCandidateList.add(tempServiceCandidate);
 		tempServiceClass = new ServiceClass(serviceClassesList.size(),
 				"EndServiceClass", tempServiceCandidateList);
@@ -206,24 +206,28 @@ public class AntAlgorithm extends Algorithm {
 				double[] p = new double[nextServiceCandidatesList.size()];
 				double nenner = 0;
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
+					
 					nenner += Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta);
 				}
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 					p[x] = (Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta))
 							/ nenner;
 					//System.out.println("Iteration:"+i+",ant:"+k+",p["+currentService+"]["+nextID+"]:"+p[x]);
 				}
+				
+				
 				double randomNumber = Math.random();
 				double temp = 0;
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
 					temp += p[x];
 					if (randomNumber <= temp) {
-						currentService = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						currentService = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 						break;
 					}
 				}
+
 				antCompositions.get(k).addServiceCandidate(serviceCandidatesList.get(currentService));
 				currentClass++;
 			}
@@ -262,8 +266,8 @@ public class AntAlgorithm extends Algorithm {
 			if (composition.isWithinConstraints(constraintsMap)) {
 				double ratio = composition.getUtility() / optimalComposition.getUtility();
 				for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
-					int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
-					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
+					int currentID = Integer.parseInt(composition.getServiceCandidatesList().get(a).getServiceCandidateId().split("\\.")[1]);
+					int nextID = Integer.parseInt(composition.getServiceCandidatesList().get(a+1).getServiceCandidateId().split("\\.")[1]);
 					deltaPi[currentID][nextID] += ratio;
 				}
 			}
@@ -294,7 +298,7 @@ public class AntAlgorithm extends Algorithm {
 						serviceClassesList.get(currentClass+1).getServiceCandidateList();
 				double[] value = new double[nextServiceCandidatesList.size()];
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 					value[x] = pi[currentService][nextID] * Math.pow(nj[nextID], beta);
 				}
 				double q = Math.random();
@@ -308,16 +312,16 @@ public class AntAlgorithm extends Algorithm {
 							y = x;
 						}
 					}
-					currentService = nextServiceCandidatesList.get(y).getServiceCandidateId();
+					currentService = Integer.parseInt(nextServiceCandidatesList.get(y).getServiceCandidateId().split("\\.")[1]);
 				} else {
 					double[] p = new double[nextServiceCandidatesList.size()];
 					double nenner = 0;
 					for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-						int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 						nenner += pi[currentService][nextID] * Math.pow(nj[nextID], beta);
 					}
 					for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-						int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 						p[x] = pi[currentService][nextID] * Math.pow(nj[nextID], beta)
 								/ nenner;						
 					}
@@ -326,7 +330,7 @@ public class AntAlgorithm extends Algorithm {
 					for (int x=0; x<nextServiceCandidatesList.size(); x++) {
 						temp += p[x];
 						if (randomNumber <= temp) {
-							currentService = nextServiceCandidatesList.get(x).getServiceCandidateId();
+							currentService = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 							break;
 						}
 					}
@@ -375,8 +379,8 @@ public class AntAlgorithm extends Algorithm {
 					composition.getUtility() == optimalComposition.getUtility() && !pheromomeAlreadySet) {
 				double ratio = composition.getUtility();
 				for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
-					int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
-					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
+					int currentID = Integer.parseInt(composition.getServiceCandidatesList().get(a).getServiceCandidateId().split("\\.")[1]);
+					int nextID = Integer.parseInt(composition.getServiceCandidatesList().get(a+1).getServiceCandidateId().split("\\.")[1]);
 					deltaPi[currentID][nextID] += ratio;
 					pi[currentID][nextID] = (1-dilution)*pi[currentID][nextID] + deltaPi[currentID][nextID]*dilution;
 				}				
@@ -403,11 +407,11 @@ public class AntAlgorithm extends Algorithm {
 				double[] p = new double[nextServiceCandidatesList.size()];
 				double nenner = 0;
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 					nenner += Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta);
 				}
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 					p[x] = (Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta))
 							/ nenner;					
 				}
@@ -416,7 +420,7 @@ public class AntAlgorithm extends Algorithm {
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
 					temp += p[x];
 					if (randomNumber <= temp) {
-						currentService = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						currentService = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 						break;
 					}
 				}
@@ -457,8 +461,8 @@ public class AntAlgorithm extends Algorithm {
 					composition.getUtility() == optimalComposition.getUtility() && !pheromomeAlreadySet) {
 				double ratio = composition.getUtility();
 				for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
-					int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
-					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
+					int currentID = Integer.parseInt(composition.getServiceCandidatesList().get(a).getServiceCandidateId().split("\\.")[1]);
+					int nextID = Integer.parseInt(composition.getServiceCandidatesList().get(a+1).getServiceCandidateId().split("\\.")[1]);
 					deltaPi[currentID][nextID] += ratio;					
 				}				
 				pheromomeAlreadySet = true;
@@ -495,11 +499,11 @@ public class AntAlgorithm extends Algorithm {
 				double[] p = new double[nextServiceCandidatesList.size()];
 				double nenner = 0;
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 					nenner += Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta);
 				}
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 					p[x] = (Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta))
 							/ nenner;
 					//System.out.println("Iteration:"+i+",ant:"+k+",p["+currentService+"]["+nextID+"]:"+p[x]);
@@ -509,7 +513,7 @@ public class AntAlgorithm extends Algorithm {
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
 					temp += p[x];
 					if (randomNumber <= temp) {
-						currentService = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						currentService = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 						break;
 					}
 				}
@@ -559,8 +563,8 @@ public class AntAlgorithm extends Algorithm {
 			if (composition.isWithinConstraints(constraintsMap)) {
 				double ratio = composition.getUtility() / optimalComposition.getUtility();
 				for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
-					int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
-					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
+					int currentID = Integer.parseInt(composition.getServiceCandidatesList().get(a).getServiceCandidateId().split("\\.")[1]);
+					int nextID = Integer.parseInt(composition.getServiceCandidatesList().get(a+1).getServiceCandidateId().split("\\.")[1]);
 					deltaPi[currentID][nextID] += ratio;
 				}
 			}
@@ -590,11 +594,11 @@ public class AntAlgorithm extends Algorithm {
 				double[] p = new double[nextServiceCandidatesList.size()];
 				double nenner = 0;
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 					nenner += Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta);
 				}
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 					p[x] = (Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta))
 							/ nenner;
 					//System.out.println("Iteration:"+i+",ant:"+k+",p["+currentService+"]["+nextID+"]:"+p[x]);
@@ -604,7 +608,7 @@ public class AntAlgorithm extends Algorithm {
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
 					temp += p[x];
 					if (randomNumber <= temp) {
-						currentService = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						currentService = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 						break;
 					}
 				}
@@ -650,8 +654,8 @@ public class AntAlgorithm extends Algorithm {
 				if (composition.isWithinConstraints(constraintsMap)) {
 					double ratio = composition.getUtility();
 					for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
-						int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
-						int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
+						int currentID = Integer.parseInt(composition.getServiceCandidatesList().get(a).getServiceCandidateId().split("\\.")[1]);
+						int nextID = Integer.parseInt(composition.getServiceCandidatesList().get(a+1).getServiceCandidateId().split("\\.")[1]);
 						deltaPi[currentID][nextID] += ratio;
 					}
 				}
@@ -682,11 +686,11 @@ public class AntAlgorithm extends Algorithm {
 				double[] p = new double[nextServiceCandidatesList.size()];
 				double nenner = 0;
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 					nenner += Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta);
 				}
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-					int nextID = nextServiceCandidatesList.get(x).getServiceCandidateId();
+					int nextID = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 					p[x] = (Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta))
 							/ nenner;					
 				}
@@ -695,7 +699,7 @@ public class AntAlgorithm extends Algorithm {
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
 					temp += p[x];
 					if (randomNumber <= temp) {
-						currentService = nextServiceCandidatesList.get(x).getServiceCandidateId();
+						currentService = Integer.parseInt(nextServiceCandidatesList.get(x).getServiceCandidateId().split("\\.")[1]);
 						break;
 					}
 				}
@@ -743,8 +747,8 @@ public class AntAlgorithm extends Algorithm {
 			if (composition.isWithinConstraints(constraintsMap)) {
 				double ratio = composition.getUtility() / optimalComposition.getUtility();
 				for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
-					int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
-					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
+					int currentID = Integer.parseInt(composition.getServiceCandidatesList().get(a).getServiceCandidateId().split("\\.")[1]);
+					int nextID = Integer.parseInt(composition.getServiceCandidatesList().get(a+1).getServiceCandidateId().split("\\.")[1]);
 					deltaPi[currentID][nextID] += ratio;
 				}
 			}
