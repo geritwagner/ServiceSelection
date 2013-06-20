@@ -3710,7 +3710,7 @@ public class MainFrame extends JFrame {
 	private void checkInputValue(JTextField textField, 
 			int maxInput, int minInput, int defaultInput) {
 		if (textField.equals(jTextFieldPopulationSize) && 
-				serviceClassesList.size() <= 0) {
+				serviceClassesList != null) {
 			long maxPopulationSize = 1;
 			for (ServiceClass serviceClass : serviceClassesList) {
 				maxPopulationSize *= 
