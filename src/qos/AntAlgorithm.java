@@ -150,7 +150,7 @@ public class AntAlgorithm extends Algorithm {
 
 		tempServiceCandidateList = new LinkedList<ServiceCandidate>();
 		tempServiceCandidate = new ServiceCandidate(serviceClassesList.
-				size() + "." + serviceCandidatesList.size(), "T", new QosVector());
+				size() + ".1", "T", new QosVector());
 		tempServiceCandidateList.add(tempServiceCandidate);
 		tempServiceClass = new ServiceClass(serviceClassesList.size(),
 				"EndServiceClass", tempServiceCandidateList);
@@ -159,16 +159,14 @@ public class AntAlgorithm extends Algorithm {
 		
 		initPheromoneMatrix();
 		setUtilityArray();
-		
-		//TODO
-		int index = 0;
+				
+		int index = 0;		
 		for (ServiceClass serviceClass : serviceClassesList) {
 			for (ServiceCandidate candidate : serviceClass.getServiceCandidateList()) {
 				candidateIdMap.put(candidate.getServiceCandidateId(), index);
 				index++;
 			}
-		}
-		
+		}		
 	}
 	
 	private void initPheromoneMatrix() {
@@ -220,8 +218,7 @@ public class AntAlgorithm extends Algorithm {
 				double[] p = new double[nextServiceCandidatesList.size()];
 				double nenner = 0;
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
-					int nextID = candidateIdMap.get(nextServiceCandidatesList.get(x).getServiceCandidateId());
-					
+					int nextID = candidateIdMap.get(nextServiceCandidatesList.get(x).getServiceCandidateId());					
 					nenner += Math.pow(pi[currentService][nextID], alpha) * Math.pow(nj[nextID], beta);
 				}
 				for (int x=0; x<nextServiceCandidatesList.size(); x++) {
