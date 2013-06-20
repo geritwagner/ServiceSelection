@@ -28,8 +28,9 @@ public class RandomSetGenerator {
 				
 				QosVector qosVector = generateQosVector();
 				serviceCandidateList.add(new ServiceCandidate(
-						i + 1, (i + 1) + "." + serviceID, 
-						"WebService" + serviceID, qosVector));
+						(i + 1) + "." + serviceID, 
+						"WebService" + (serviceID + numCandidates * i), 
+						qosVector));
 			}
 			
 			serviceClassList.add(new ServiceClass(i + 1, 

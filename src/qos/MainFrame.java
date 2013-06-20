@@ -2291,7 +2291,6 @@ public class MainFrame extends JFrame {
 				serviceCandidateArray = bufferedReader.readLine().split(";");
 				// Create and save service candidates.
 				ServiceCandidate serviceCandidate = new ServiceCandidate(
-						Integer.parseInt(serviceCandidateArray[0]), 
 						serviceCandidateArray[0] + "." + 
 						serviceCandidateArray[2], 
 						serviceCandidateArray[3], 
@@ -2459,13 +2458,14 @@ public class MainFrame extends JFrame {
 						"Costs;Response Time;Availability";
 				bufferedWriter.write(header);			
 				for (ServiceCandidate sc : serviceCandidatesList) {
-					String line = sc.getServiceClassId() + ";ServiceClass" + 
-						sc.getServiceClassId() + ";" + 
-						sc.getServiceCandidateId() + ";" + 
-						sc.getName() + ";" + 
-						sc.getQosVector().getCosts() + ";" + 
-						sc.getQosVector().getResponseTime() + ";" + 
-						sc.getQosVector().getAvailability();
+					String line = sc.getServiceCandidateId().split("\\.")[0] + 
+							";ServiceClass" + sc.getServiceCandidateId().
+							split("\\.")[0] + ";" + 
+							sc.getServiceCandidateId() + ";" + 
+							sc.getName() + ";" + 
+							sc.getQosVector().getCosts() + ";" + 
+							sc.getQosVector().getResponseTime() + ";" + 
+							sc.getQosVector().getAvailability();
 					bufferedWriter.newLine();
 					bufferedWriter.write(line);
 				}
@@ -2698,7 +2698,8 @@ public class MainFrame extends JFrame {
 						getServiceCandidateList().get(k);
 				QosVector qosVector = serviceCandidate.getQosVector();
 				jTableWebServices.setValueAt(
-						serviceCandidate.getServiceClassId(), k, 0);
+						serviceCandidate.getServiceCandidateId().
+						split("\\.")[0], k, 0);
 				jTableWebServices.setValueAt(
 						serviceCandidate.getServiceCandidateId(), k, 1);
 				jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);
@@ -2715,7 +2716,8 @@ public class MainFrame extends JFrame {
 				serviceCandidatesList.get(k);
 			QosVector qosVector = serviceCandidate.getQosVector();
 			jTableWebServices.setValueAt(
-					serviceCandidate.getServiceClassId(), k, 0);
+					serviceCandidate.getServiceCandidateId().
+					split("\\.")[0], k, 0);
 			jTableWebServices.setValueAt(
 					serviceCandidate.getServiceCandidateId(), k, 1);
 			jTableWebServices.setValueAt(serviceCandidate.getName(), k, 2);

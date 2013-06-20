@@ -4,7 +4,6 @@ import java.util.Map;
 
 public class ServiceCandidate {
 	
-	private int serviceClassId;
 	private String serviceCandidateId;
 	private String name;
 	private QosVector qosVector = new QosVector();
@@ -16,10 +15,9 @@ public class ServiceCandidate {
 		
 	}
 	
-	public ServiceCandidate(int serviceClassId, 
-			String serviceCandidateId, String name, QosVector qosVector) {
+	public ServiceCandidate(String serviceCandidateId, 
+			String name, QosVector qosVector) {
 		this.serviceCandidateId = serviceCandidateId;
-		this.serviceClassId = serviceClassId;
 		this.name = name;
 		this.qosVector = qosVector;
 	}
@@ -78,12 +76,6 @@ public class ServiceCandidate {
 
 	
 	// GETTERS AND SETTERS
-	public int getServiceClassId() {
-		return serviceClassId;
-	}
-	public void setServiceClassId(int serviceClassId) {
-		this.serviceClassId = serviceClassId;
-	}
 	public String getServiceCandidateId() {
 		return serviceCandidateId;
 	}
