@@ -168,7 +168,6 @@ public class MainFrame extends JFrame {
 		boolean antAlgo = true;
 		boolean geneticAlgo = false;
 
-		comment+="runVariants1234;";
 		
 		filepath = "C:\\temp\\";
 
@@ -186,9 +185,12 @@ public class MainFrame extends JFrame {
 		   throw new Exception("filepath does not exist.");
 		}
 
-		sizeTheta = 720;
-		int estimateIterations = 1;
-		long maxTuningTime = 48;
+
+		comment+="runVariants1234 no2;";
+		
+		sizeTheta = 2000;
+		int estimateIterations = 3;
+		long maxTuningTime = 24;
 
 		// maxTuningTime in h
 		 maxTuningTime *= 3600;
