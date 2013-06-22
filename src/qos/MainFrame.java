@@ -81,6 +81,7 @@ public class MainFrame extends JFrame {
 	public static void main(String[] args) throws Exception {
 		System.out.println(dateFormatLog.format(new Date()) + " Parameter Tuning Mode");
 		parameterTuning();
+		//benchmarking();
 	}
 
 
@@ -134,6 +135,177 @@ public class MainFrame extends JFrame {
 	 * 	| +-------------------------------------------------------+ |
 	 * 	+-----------------------------------------------------------+
 	 */
+	
+	private static void benchmarking() throws Exception {
+		//filepath = "/home/ubuntu/";
+		filepath = "C:\\temp\\";
+		
+		if (!new File(filepath).exists())
+		{
+		   throw new Exception("filepath does not exist.");
+		}
+
+		serviceClassesList = new RandomSetGenerator().generateSet(
+				(int) 10, (int) 10);
+		serviceCandidatesList.clear();
+		for (int i = 0 ; i < serviceClassesList.size() ; i++) {
+			ServiceClass serviceClass = serviceClassesList.get(i);
+		    for (ServiceCandidate serviceCandidate : serviceClass.getServiceCandidateList()) {
+		    	serviceCandidatesList.add(serviceCandidate);
+		    }
+		}
+
+		determineMinMaxQosComposition();
+
+		
+		Map<String, Constraint> generatedConstraints = new HashMap<String, Constraint>();
+		// linear transformation: 0,35*Beta+0,45
+		double relaxationValue = 0.5;
+
+		double maxCost = getRelaxationMaxCost(relaxationValue);
+		double maxResponseTime = getRelaxationMaxResponseTime(relaxationValue);
+		double minAvailability = getRelaxationMinAvailability(relaxationValue)/100;
+
+				
+		// sample weights
+		double weightCost = 1;
+		double weightResponseTime = 1;
+		double weightAvailability = 1;
+		double weightSum = weightCost+weightResponseTime+weightAvailability;
+		//normalize weights
+		weightCost = (weightCost/weightSum)*100;
+		weightResponseTime = (weightResponseTime/weightSum)*100;
+		weightAvailability = (weightAvailability/weightSum)*100;
+
+
+		// generate constraints
+		Constraint constraintCosts = new Constraint(Constraint.COSTS,
+				maxCost,
+				weightCost);
+		generatedConstraints.put(constraintCosts.getTitle(), constraintCosts);
+
+		Constraint constraintResponseTime = new Constraint(Constraint.RESPONSE_TIME,
+				maxResponseTime,
+				weightResponseTime);
+		generatedConstraints.put(constraintResponseTime.getTitle(), constraintResponseTime);
+
+		Constraint constraintAvailability = new Constraint(Constraint.AVAILABILITY,
+				minAvailability,
+				weightAvailability);
+		generatedConstraints.put(constraintAvailability.getTitle(), constraintAvailability);		
+		
+		//////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////
+		
+		double[] antAlgorithmSettings = new double[10];
+
+		// Exponential iterations = new Exponential(150);
+		int iterations = 100;
+		int setAnts = 20;
+		double setAlpha = 1;
+		int setVariant = 2;
+		double setBeta = 1;
+		double setDilution = 0.05;
+		double setPiInit = 5;
+		
+		antAlgorithmSettings[0] = 0;
+		// row[1] = (int) iterations.random();
+		antAlgorithmSettings[1] = iterations;
+		antAlgorithmSettings[2] = setAnts;
+		antAlgorithmSettings[3] = setVariant;
+		antAlgorithmSettings[4] = setAlpha;
+		antAlgorithmSettings[5] = setBeta;
+		antAlgorithmSettings[6] = setDilution;
+		antAlgorithmSettings[7] = setPiInit;
+		//row[7] := estimated expected utility
+		antAlgorithmSettings[8] = 0;
+		//row[8] := estimated expected runtime
+		antAlgorithmSettings[9] = 0;
+
+		//////////////////////////////////////////////
+		//////////////////////////////////////////////
+		
+		// Calculate the utility value for all service candidates.
+		QosVector qosMaxServiceCandidate = determineQosMaxServiceCandidate(
+				serviceCandidatesList);
+		QosVector qosMinServiceCandidate = determineQosMinServiceCandidate(
+				serviceCandidatesList);
+		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+			serviceCandidate.determineUtilityValue(generatedConstraints,
+					qosMaxServiceCandidate, qosMinServiceCandidate);
+		}
+		
+		List<Double> utilityList = new LinkedList<Double>();
+		List<Long> runtimeList = new LinkedList<Long>();
+
+		
+		long ActualTuningTime = System.currentTimeMillis();
+		int N = 1000;
+		System.out.println(dateFormatLog.format(new Date()) + " Starting Benchmarking, " +
+				"" +N+" runs");
+		
+		for (int i=0; i<N; i++) {
+			// run ant-algorithm
+
+			AntAlgorithm.setParamsAntAlgorithm(
+					serviceClassesList, serviceCandidatesList, generatedConstraints,
+					(int) antAlgorithmSettings[3], (int) antAlgorithmSettings[1], (int) antAlgorithmSettings[2],
+					antAlgorithmSettings[4], antAlgorithmSettings[5],
+					antAlgorithmSettings[6], antAlgorithmSettings[7]);
+			AntAlgorithm.start();
+
+			double utility = AntAlgorithm.getOptimalUtility();
+			// no feasible solution: utility = 0
+			if(String.valueOf(utility).compareTo("NaN")==0){
+				utility = 0;
+			}
+
+			// update estimated expected utility for parameter configuration
+			utilityList.add(utility);
+//			System.out.print("utility;"+utility);
+			// update estimated expected runtime for parameter configuration
+			long runtime = AntAlgorithm.getRuntime()/1000000;
+			runtimeList.add(runtime);
+//			System.out.println(";runtime;"+runtime+";");
+			
+			// progress
+			double progress = (double) i/ (double) N;
+			if((progress*100)%10 == 0) {				
+				System.out.println("    " + dateFormatLog.format(new Date()) + " Progress = " + (int)(progress*100) + " %");
+			}			
+		}
+		
+		
+		long elapsed = (System.currentTimeMillis()-ActualTuningTime)/1000;		
+		System.out.println(dateFormatLog.format(new Date()) + " Finished Tuning Phase, elapsed time = "+ elapsed + "s");
+
+		// save results		
+		filename = filepath + "results " + dateFormaFile.format(new Date())+".csv";
+        FileWriter fw = new FileWriter(filename);
+    	BufferedWriter bufferedWriter = new BufferedWriter(fw);
+    	bufferedWriter.write("run;utility;runtime in ms;");
+    	
+    	for (int i=0; i<utilityList.size(); i++) {
+	    	String line = "";	    	
+		    DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
+		    dfs.setDecimalSeparator(',');
+		    DecimalFormat dFormat = new DecimalFormat("0.0000", dfs);
+		    String zahlString = dFormat.format(i);
+	    	line+= zahlString +";";
+	    	zahlString = dFormat.format(utilityList.get(i));
+	    	line+= zahlString +";";
+	    	zahlString = dFormat.format(runtimeList.get(i));
+	    	line+= zahlString +";";	    	
+	    	bufferedWriter.newLine();
+	    	bufferedWriter.write(line);
+    	}
+	    bufferedWriter.close();
+		
+		System.out.println(dateFormatLog.format(new Date()) + " Saved results to "+filename);
+
+		return;
+		
+	}
 
 	private static void parameterTuning() throws Exception {
 		/* Parameter-tuning algorithm: BRUTUS (Birattari 2009, pp.101)
@@ -188,12 +360,12 @@ public class MainFrame extends JFrame {
 
 		comment+="runVariants1234 no2;";
 		
-		sizeTheta = 2000;
+		sizeTheta = 40;
 		int estimateIterations = 3;
-		long maxTuningTime = 24;
+		long maxTuningTime = 120;
 
 		// maxTuningTime in h
-		 maxTuningTime *= 3600;
+		// maxTuningTime *= 3600;
 
 
 		double[][] antAlgorithmSettings = null;

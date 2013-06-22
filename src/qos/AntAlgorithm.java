@@ -21,7 +21,8 @@ public class AntAlgorithm extends Algorithm{
 	private static double dilution;	
 	private static Composition optimalComposition;
 	private static double[] nj;
-	private static double[][] pi;		
+	private static double[][] pi;
+	private static double[][] deltaPi;
 	// variant: Ant System = 1, Ant Colony System = 2, MAX-MIN Ant System = 3
 	// (Qiqing et al. 2009) = 4, Convergent Variant = 5, (Li und Yan-xiang 2011) = 6	
 	private static int variant = 4;
@@ -54,11 +55,13 @@ public class AntAlgorithm extends Algorithm{
 		dilution = setDilution;
 		nj = null;
 		pi = null;
+		deltaPi = null;
 		convergent = false;
 		lambda = 0.4;
 		chaosFactor = 4;
 		piMax = 1;
 		piMin = 0;
+		runtime = 0;
 	}
 	
 
@@ -108,7 +111,7 @@ public class AntAlgorithm extends Algorithm{
 				sCList.add(optimalComposition.getServiceCandidatesList().get(i));
 			}	
 			optimalComposition.setServiceCandidateList(sCList);
-			buildSolutionTiers();
+			//buildSolutionTiers();
 		}
 		else {
 			optimalComposition = new Composition();
@@ -234,7 +237,7 @@ public class AntAlgorithm extends Algorithm{
 			}
 		}
 		// PHEROMONE UPDATE FUNCTION
-		double[][] deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
+		deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
 		for (int a=0; a<deltaPi.length; a++) {
 			for (int b=0; b<deltaPi[a].length; b++) {
 				deltaPi[a][b] = 0;
@@ -344,14 +347,7 @@ public class AntAlgorithm extends Algorithm{
 				}
 			}
 		}
-		// PHEROMONE UPDATE FUNCTION
-		double[][] deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
-		for (int a=0; a<deltaPi.length; a++) {
-			for (int b=0; b<deltaPi[a].length; b++) {
-				deltaPi[a][b] = 0;
-			}
-		}
-		
+		// PHEROMONE UPDATE FUNCTION				
 		boolean pheromomeAlreadySet = false;
 		for (int k=0; k<ants; k++) {
 			Composition composition = antCompositions.get(k);			
@@ -360,9 +356,8 @@ public class AntAlgorithm extends Algorithm{
 				double ratio = composition.getUtility();
 				for (int a=0; a<composition.getServiceCandidatesList().size()-1; a++) {
 					int currentID = composition.getServiceCandidatesList().get(a).getServiceCandidateId();
-					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();
-					deltaPi[currentID][nextID] += ratio;
-					pi[currentID][nextID] = (1-dilution)*pi[currentID][nextID] + deltaPi[currentID][nextID]*dilution;
+					int nextID = composition.getServiceCandidatesList().get(a+1).getServiceCandidateId();					
+					pi[currentID][nextID] = (1-dilution)*pi[currentID][nextID] + ratio*dilution;
 				}				
 				pheromomeAlreadySet = true;
 			}
@@ -428,7 +423,7 @@ public class AntAlgorithm extends Algorithm{
 			}
 		}
 		// PHEROMONE UPDATE FUNCTION
-		double[][] deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
+		deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
 		for (int a=0; a<deltaPi.length; a++) {
 			for (int b=0; b<deltaPi[a].length; b++) {
 				deltaPi[a][b] = 0;
@@ -529,7 +524,7 @@ public class AntAlgorithm extends Algorithm{
 		}
 		else {
 			// PHEROMONE UPDATE FUNCTION
-			double[][] deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
+			deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
 			for (int a=0; a<deltaPi.length; a++) {
 				for (int b=0; b<deltaPi[a].length; b++) {
 					deltaPi[a][b] = 0;
@@ -625,7 +620,7 @@ public class AntAlgorithm extends Algorithm{
 			}
 		}		
 		// PHEROMONE UPDATE FUNCTION
-		double[][] deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
+		deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
 		for (int a=0; a<deltaPi.length; a++) {
 			for (int b=0; b<deltaPi[a].length; b++) {
 				deltaPi[a][b] = 0;
@@ -717,7 +712,7 @@ public class AntAlgorithm extends Algorithm{
 			}
 		}		
 		// PHEROMONE UPDATE FUNCTION
-		double[][] deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
+		deltaPi = new double[serviceCandidatesList.size()][serviceCandidatesList.size()];
 		for (int a=0; a<deltaPi.length; a++) {
 			for (int b=0; b<deltaPi[a].length; b++) {
 				deltaPi[a][b] = 0;
