@@ -68,6 +68,8 @@ public class MainFrame extends JFrame {
 	private static String comment = "";
 	private static int sizeTheta;
 	private static long N;
+	private static int classes;
+	private static int candidates;
 	
 	/*	+-----------------------------------------------------------+
 	 * 	| +-------------------------------------------------------+ |
@@ -80,7 +82,13 @@ public class MainFrame extends JFrame {
 
 	public static void main(String[] args) throws Exception {
 		System.out.println(dateFormatLog.format(new Date()) + " Parameter Tuning Mode");
-		parameterTuning();
+		for (int i=2; i<=9; i++) {
+			for (int j=2; j<=9; j++) {
+				classes = i;
+				candidates = j;
+				parameterTuning();
+			}
+		}		
 		//benchmarking();
 	}
 
