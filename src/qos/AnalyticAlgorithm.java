@@ -7,49 +7,30 @@ import java.util.Map;
 
 public class AnalyticAlgorithm {
 	
-	private List<ServiceClass> serviceClassesList;
-	private Map<String, Constraint> constraintsMap;
+	private static List<ServiceClass> serviceClassesList;
+	private static Map<String, Constraint> constraintsMap;
 	
-	private List<Composition> compositionsList = new LinkedList<Composition>();
-	private List<AlgorithmSolutionTier> algorithmSolutionTiers = 
+	private static List<Composition> compositionsList = new LinkedList<Composition>();
+	private static List<AlgorithmSolutionTier> algorithmSolutionTiers = 
 		new LinkedList<AlgorithmSolutionTier>();
 	
-	private int numberOfRequestedResultTiers;
+	private static int numberOfRequestedResultTiers = 1;	
+	private static long runtime = 0;	
 	
-	private long runtime = 0;
-	
-	private int workPercentage;
 
 	
-	// CONSTRUCTORS
-	public AnalyticAlgorithm() {
-		
-	}
 	
-	public AnalyticAlgorithm(List<ServiceClass> serviceClassesList, 
-			Map<String, Constraint> constraintsMap, 
-			int numberOfRequestedResultTiers) {
-		this.serviceClassesList = serviceClassesList;
-		this.constraintsMap = constraintsMap;
-		this.numberOfRequestedResultTiers = numberOfRequestedResultTiers;
-	}
+	public static void initAnalytic(List<ServiceClass> setServiceClassesList, 
+			Map<String, Constraint> setConstraintsMap) {
+		serviceClassesList = setServiceClassesList;
+		constraintsMap = setConstraintsMap;
+		compositionsList = new LinkedList<Composition>();
+		algorithmSolutionTiers = new LinkedList<AlgorithmSolutionTier>();
+		runtime = 0;
+	}	
 	
-	public void start() {
-		runtime = System.nanoTime();
-		workPercentage = 0;
-		// Do complete enumeration.
-		for (int i = 0; i < serviceClassesList.get(0).
-				getServiceCandidateList().size(); i++) {
-			doCompleteEnumeration(new Composition(), 0, i);
-			workPercentage = (int) (100.0 * i / serviceClassesList.size());
-		}	
-		for (int i = 0; i < algorithmSolutionTiers.size(); i++) {
-			algorithmSolutionTiers.get(i).setTierTitle(i + 1);
-		}
-		runtime = System.nanoTime() - runtime;
-	}
 	
-	public void startInBenchmarkMode() {
+	public static void startInBenchmarkMode() {
 		runtime = System.nanoTime();
 		// Do complete enumeration.
 		for (int i = 0; i < serviceClassesList.get(0).
@@ -63,7 +44,7 @@ public class AnalyticAlgorithm {
 	}
 	
 	// ENUMERATION
-	private void doCompleteEnumeration(Composition composition, 
+	private static void doCompleteEnumeration(Composition composition, 
 			int serviceClassNumber, int serviceCandidateNumber) {
 		composition = forward(composition, serviceClassNumber, 
 				serviceCandidateNumber);
@@ -86,7 +67,7 @@ public class AnalyticAlgorithm {
 		return;
 	}
 	
-	private Composition forward(Composition composition, 
+	private static Composition forward(Composition composition, 
 			int serviceClassNumber, int serviceCandidateNumber) {
 		ServiceClass serviceClass = serviceClassesList.get(serviceClassNumber);
 		ServiceCandidate serviceCandidate = 
@@ -96,14 +77,14 @@ public class AnalyticAlgorithm {
 		return composition;
 	}
 	
-	private Composition backward(Composition composition) {
+	private static Composition backward(Composition composition) {
 		composition.removeServiceCandidate();
 		return composition;
 	}
 	
 	// Check is done by comparing the size of the composition with the number
 	// of available service classes.
-	private boolean isComplete(Composition composition) {
+	private static boolean isComplete(Composition composition) {
 		if (composition.getServiceCandidatesList().size() == 
 				serviceClassesList.size()) {
 			return true;
@@ -111,7 +92,7 @@ public class AnalyticAlgorithm {
 		return false;
 	}
 	
-	private void changeAlgorithmSolutionTiers(Composition composition) {
+	private static void changeAlgorithmSolutionTiers(Composition composition) {
 		List<ServiceCandidate> serviceCandidates = 
 			new LinkedList<ServiceCandidate>(
 					composition.getServiceCandidatesList());						
@@ -175,38 +156,39 @@ public class AnalyticAlgorithm {
 //	}
 
 	// GETTERS AND SETTERS
-	public List<ServiceClass> getServiceClassesList() {
+	public static List<ServiceClass> getServiceClassesList() {
 		return serviceClassesList;
 	}
-	public void setServiceClassesList(List<ServiceClass> serviceClassesList) {
-		this.serviceClassesList = serviceClassesList;
+	public static void setServiceClassesList(List<ServiceClass> setServiceClassesList) {
+		serviceClassesList = setServiceClassesList;
 	}
-	public Map<String, Constraint> getConstraintList() {
+	public static Map<String, Constraint> getConstraintList() {
 		return constraintsMap;
 	}
-	public void setConstraintList(Map<String, Constraint> constraintsMap) {
-		this.constraintsMap = constraintsMap;
+	public static void setConstraintList(Map<String, Constraint> setConstraintsMap) {
+		constraintsMap = setConstraintsMap;
 	}
-	public List<Composition> getCompositionsList() {
+	public static List<Composition> getCompositionsList() {
 		return compositionsList;
 	}
-	public void setCompositionsList(List<Composition> compositionsList) {
-		this.compositionsList = compositionsList;
+	public static void setCompositionsList(List<Composition> setCompositionsList) {
+		compositionsList = setCompositionsList;
 	}
-	public List<AlgorithmSolutionTier> getAlgorithmSolutionTiers() {
+	public static List<AlgorithmSolutionTier> getAlgorithmSolutionTiers() {
 		return algorithmSolutionTiers;
 	}
-	public void setAlgorithmSolutionTiers(
-			List<AlgorithmSolutionTier> algorithmSolutionTiers) {
-		this.algorithmSolutionTiers = algorithmSolutionTiers;
+	public static void setAlgorithmSolutionTiers(
+			List<AlgorithmSolutionTier> setAlgorithmSolutionTiers) {
+		algorithmSolutionTiers = setAlgorithmSolutionTiers;
 	}
-	public long getRuntime() {
+	public static long getRuntime() {
 		return runtime;
 	}
-	public int getWorkPercentage() {
-		return workPercentage;
-	}
-	public double getOptimalUtility(){
+	
+	public static double getOptimalUtility(){
+		if (algorithmSolutionTiers.isEmpty()) {
+			return 0.0;
+		}
 		return algorithmSolutionTiers.get(0).
 				getServiceCompositionList().get(0).getUtility();
 	}

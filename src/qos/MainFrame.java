@@ -345,8 +345,7 @@ public class MainFrame extends JFrame {
 					return theta
 		 */
 
-		boolean antAlgo = true;
-		boolean geneticAlgo = false;
+		boolean antAlgo = true;		
 
 		
 		filepath = "C:\\temp\\";
@@ -355,21 +354,17 @@ public class MainFrame extends JFrame {
 		// cmd: go to path with cd ... , java -jar NAMEOFJARFILE.jar
 		// set java filepath
 		// for large thetasize the estimateIterations must be reduced, apparently 1 does not work
-
-		if(antAlgo == geneticAlgo){
-			throw new Exception("Ant or Genetic!!");
-		}
+		
 
 		if (!new File(filepath).exists())
 		{
 		   throw new Exception("filepath does not exist.");
 		}
 
-
-		comment+="runVariants1234 no2;";
-		
-		sizeTheta = 40;
-		int estimateIterations = 3;
+		comment = "";
+				
+		sizeTheta = 1;
+		int estimateIterations = 10;
 		long maxTuningTime = 120;
 
 		// maxTuningTime in h
@@ -378,8 +373,8 @@ public class MainFrame extends JFrame {
 
 		double[][] antAlgorithmSettings = null;
 		double[][] antAlgorithmSettingsTemp = new double[sizeTheta][];
-		double[][] geneticAlgorithmSettings = null;
-		double[][] geneticAlgorithmSettingsTemp = new double[sizeTheta][]; 
+		double[] analyticSettings = new double[2];
+		 
 
 		Map<String, Constraint> constraintsMap = null;
 
@@ -392,14 +387,7 @@ public class MainFrame extends JFrame {
 				for (int i=0; i<antAlgorithmSettings.length; i++) {
 					antAlgorithmSettingsTemp[i] = antAlgorithmSettings[i].clone();
 				}
-		}
-
-		if(geneticAlgo){
-			geneticAlgorithmSettings = sampleGeneticAlgorithmSettings(sizeTheta);
-			for (int i=0; i<geneticAlgorithmSettings.length; i++) {
-				geneticAlgorithmSettingsTemp[i] = geneticAlgorithmSettings[i].clone();
-			}
-		}
+		}	
 
 		System.out.println(dateFormatLog.format(new Date()) + " Sample algorithm parameters ("+sizeTheta +")");
 
@@ -409,10 +397,7 @@ public class MainFrame extends JFrame {
 		long estimtedRuntimeSingleInstance = 1;
 		if(antAlgo){
 			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceAnt(antAlgorithmSettingsTemp, estimateIterations);
-		}
-		if(geneticAlgo){
-			estimtedRuntimeSingleInstance = getEstimatedRuntimeSingleInstanceGenetic(geneticAlgorithmSettingsTemp, estimateIterations);
-		}
+		}		
 
 		long estimatedRuntimeOneRun = estimtedRuntimeSingleInstance/1000000;
 
@@ -420,10 +405,11 @@ public class MainFrame extends JFrame {
 				"ms, estimated time for one run (one instance and the whole set of parameter configurations) = "+ estimatedRuntimeOneRun/1000 + "s");
 
 		// determine the max. amount of tests
-		N = (long) Math.floor(maxTuningTime/estimtedRuntimeSingleInstance);
+		N = 50;
 
 		// start parameter tuning
-		System.out.println(dateFormatLog.format(new Date()) + " Starting Tuning Phase, " +N+"*"+sizeTheta+ " runs, target runtime = " + maxTuningTime/1000000000);
+		System.out.println(dateFormatLog.format(new Date()) + " Starting Tuning Phase, " +N+" runs with AntAlgo and AnalyticAlgo");
+		System.out.println(dateFormatLog.format(new Date()) + " Size: classes="+classes+", candidates="+candidates);
 		long ActualTuningTime = System.currentTimeMillis();
 		long progressTimer = ActualTuningTime;
 		double progress;
@@ -437,12 +423,9 @@ public class MainFrame extends JFrame {
 			// run ant algorithm
 			if(antAlgo){
 				antAlgorithmSettings = tuneAntAlgo(antAlgorithmSettings, constraintsMap, k);
+				analyticSettings = tuneAnalytic(analyticSettings, constraintsMap, k);
 			}
-
-			// run genetic algorithm
-			if(geneticAlgo){
-				geneticAlgorithmSettings = tuneGeneticAlgo(geneticAlgorithmSettings, constraintsMap, k);
-			}
+			
 
 			// progress
 			if(Math.abs((System.currentTimeMillis()-progressTimer)) > (maxTuningTime/20)/1000000  ) {
@@ -462,9 +445,7 @@ public class MainFrame extends JFrame {
 		
 		// save results
 		if(antAlgo){
-			saveTuningResults(antAlgorithmSettings, antAlgo, N);
-		}else{
-			saveTuningResults(geneticAlgorithmSettings, antAlgo, N);
+			saveTuningResults(antAlgorithmSettings, analyticSettings, N);
 		}
 		System.out.println(dateFormatLog.format(new Date()) + " Saved results to "+filename);
 
@@ -477,7 +458,19 @@ public class MainFrame extends JFrame {
 		for (int i = 1; i<(iterations+1); i++){
 			Map<String, Constraint> constraintsMap = sampleModelSetup();
 			@SuppressWarnings("unused")
-			double[][] temp = tuneAntAlgo(antAlgorithmSettings, constraintsMap, 1);
+			double[][] temp = tuneAntAlgo(antAlgorithmSettings, constraintsMap, 1);	
+			QosVector qosMaxServiceCandidate = determineQosMaxServiceCandidate(
+					serviceCandidatesList);
+			QosVector qosMinServiceCandidate = determineQosMinServiceCandidate(
+					serviceCandidatesList);
+			for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+				serviceCandidate.determineUtilityValue(constraintsMap,
+						qosMaxServiceCandidate, qosMinServiceCandidate);
+			}
+
+			AnalyticAlgorithm.initAnalytic(
+					serviceClassesList, constraintsMap);
+			AnalyticAlgorithm.startInBenchmarkMode();
 		}
 		time = (System.nanoTime() - time);
 		time/=iterations;
@@ -485,68 +478,7 @@ public class MainFrame extends JFrame {
 		return time;
 	}
 
-	private static long getEstimatedRuntimeSingleInstanceGenetic(double[][] geneticAlgorithmSettings, int iterations){
-		long time = 0;
-		time = System.nanoTime();
-		for (int i = 1; i<iterations; i++){
-			Map<String, Constraint> constraintsMap = sampleModelSetup();
-			@SuppressWarnings("unused")
-			double[][] temp = tuneGeneticAlgo(geneticAlgorithmSettings, constraintsMap, 1);
-		}
-		time = (System.nanoTime() - time);
-		time/=iterations;
-		// instance must be tested for all parameter configuration -> no division by ParameterConfigurationList.length
-		return time;
-	}
-
-	private static double[][] tuneGeneticAlgo(double[][] geneticAlgorithmSettings, Map<String, Constraint> constraintsMap, int instanceNumber){
-
-		// Calculate the utility value for all service candidates.
-		  QosVector qosMaxServiceCandidate = determineQosMaxServiceCandidate(
-		    serviceCandidatesList);
-		  QosVector qosMinServiceCandidate = determineQosMinServiceCandidate(
-		    serviceCandidatesList);
-		  for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
-		   serviceCandidate.determineUtilityValue(constraintsMap,
-		     qosMaxServiceCandidate, qosMinServiceCandidate);
-		  }
-
-		int index = 0;
-		for(double[] parameter : geneticAlgorithmSettings) {
-			// run genetic-algorithm
-
-//			row[1] = populationSize;
-//			row[2] = elitismRate.random();
-//			row[3] = crossoverRate.random();
-//			row[4] = mutationRate.random();
-//			// row[5] := estimated expected utility
-//			row[5] = 0;
-//			// row[6] := estimated expected runtime
-//			row[6] = 0;
-			GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-					serviceClassesList, constraintsMap, parameter[1],
-					100, "Binary Tournament", parameter[2],
-					"Two-Point", parameter[3], parameter[4],
-					"Iteration", 80);
-			double[] utilityAndRuntime = geneticAlgorithm.start();
-
-			double utility = utilityAndRuntime[0];
-			double runtime = utilityAndRuntime[1] / 1000000;
-
-			// update estimated expected utility for parameter configuration
-			geneticAlgorithmSettings[index][5] = updateMean(
-					geneticAlgorithmSettings[index][5], utility,
-					instanceNumber);
-//			System.out.print("utility;" + utility);
-			// update estimated expected runtime for parameter configuration
-			geneticAlgorithmSettings[index][6] = updateMean(
-					geneticAlgorithmSettings[index][6], runtime,
-					instanceNumber);
-//			System.out.println(";runtime;" + runtime + ";");
-			index++;
-		}
-		return geneticAlgorithmSettings;
-	}
+	
 
 	private static double[][] tuneAntAlgo(double[][] antAlgorithmSettings, Map<String, Constraint> constraintsMap, int instanceNumber){
 
@@ -580,16 +512,52 @@ public class MainFrame extends JFrame {
 			// update estimated expected utility for parameter configuration
 			antAlgorithmSettings[index][8]= updateMean(antAlgorithmSettings[index][8],
 					utility, instanceNumber);
-//			System.out.print("utility;"+utility);
+			//System.out.print("Ants: utility:"+utility);
 			// update estimated expected runtime for parameter configuration
-			long runtime = AntAlgorithm.getRuntime()/1000000;
+			double runtime = AntAlgorithm.getRuntime()/1000000;
 			antAlgorithmSettings[index][9]= (double) updateMean(antAlgorithmSettings[index][9],
 					(double) runtime, instanceNumber);
-//			System.out.println(";runtime;"+runtime+";");
-			index++;
+			//System.out.println(";runtime:"+runtime+";");
+			index++;			
 		}
 		return antAlgorithmSettings;
 	}
+	
+	private static double[] tuneAnalytic(double[] analyticSettings, Map<String, Constraint> constraintsMap, int instanceNumber){
+
+		// Calculate the utility value for all service candidates.
+		QosVector qosMaxServiceCandidate = determineQosMaxServiceCandidate(
+				serviceCandidatesList);
+		QosVector qosMinServiceCandidate = determineQosMinServiceCandidate(
+				serviceCandidatesList);
+		for (ServiceCandidate serviceCandidate : serviceCandidatesList) {
+			serviceCandidate.determineUtilityValue(constraintsMap,
+					qosMaxServiceCandidate, qosMinServiceCandidate);
+		}
+
+		AnalyticAlgorithm.initAnalytic(
+				serviceClassesList, constraintsMap);
+		AnalyticAlgorithm.startInBenchmarkMode();
+
+		double utility = AnalyticAlgorithm.getOptimalUtility();
+		// no feasible solution: utility = 0
+		if(String.valueOf(utility).compareTo("NaN")==0){
+			utility = 0;
+		}
+
+		// update estimated expected utility for parameter configuration
+		analyticSettings[0]= updateMean(analyticSettings[0],
+				utility, instanceNumber);
+		//System.out.print("Analytic: utility:"+utility);
+		// update estimated expected runtime for parameter configuration
+		double runtime = AnalyticAlgorithm.getRuntime()/1000000;
+		analyticSettings[1]= (double) updateMean(analyticSettings[1],
+				(double) runtime, instanceNumber);
+		//System.out.println(";runtime:"+AnalyticAlgorithm.getRuntime()+";");
+
+		return analyticSettings;
+	}
+
 
 	private static double updateMean(double expected,
 			double additionalValue, int instanceNumber) {
@@ -611,10 +579,9 @@ public class MainFrame extends JFrame {
 //		Binomial numberOfServiceClasses = new Binomial(10, 0.7);
 //		Binomial numberOfWebServices = new Binomial(10, 0.7);
 
-		Binomial numberOfServiceClasses = new Binomial(20, 0.5);
-		Binomial numberOfWebServices = new Binomial(20, 0.5);
+		
 		serviceClassesList = new RandomSetGenerator().generateSet(
-				(int) numberOfServiceClasses.random(), (int) numberOfWebServices.random());
+				classes, candidates);
 		serviceCandidatesList.clear();
 		for (int i = 0 ; i < serviceClassesList.size() ; i++) {
 			ServiceClass serviceClass = serviceClassesList.get(i);
@@ -670,47 +637,7 @@ public class MainFrame extends JFrame {
 		return generatedConstraints;
 
 	}
-
-
-	private static double[][] sampleGeneticAlgorithmSettings(int thetaSetSize) {
-		 /* Genetic algorithm - parameter distribution details:
-		  * 	population size
-		  * 	elitism rate
-		  * 	crossover-rate
-		  * 	mutation rate
-		  *
-		*/
-
-		// Birattari p.85: sampling/discretizing Theta
-		// Birattari p.140:sample-values for Theta
-
-		double[][] geneticAlgorithmSettings = new double[thetaSetSize][7];
-
-		// define parameter distributions
-		Uniform elitismRate = new Uniform(0, 100);
-		Uniform crossoverRate = new Uniform(0,100);
-		Uniform mutationRate = new Uniform(0, 1000);
-		double populationSize = 100;
-
-
-		int id = 1;
-		for(double[] row : geneticAlgorithmSettings){
-			row[0] = id;
-			id++;
-			row[1] = populationSize;
-			row[2] = elitismRate.random();
-			row[3] = crossoverRate.random();
-			row[4] = mutationRate.random();
-			// row[5] := estimated expected utility
-			row[5] = 0;
-			// row[6] := estimated expected runtime
-			row[6] = 0;
-		}
-
-		return geneticAlgorithmSettings;
-	}
-
-
+	
 	private static double[][] sampleAntAlgorithmSettings(int thetaSetSize) {
 		 /* Ant algorithm - parameter distribution details:
 		 * 		iterations = 100													[Graf 2003, p.86]
@@ -744,12 +671,12 @@ public class MainFrame extends JFrame {
 		double setDilution;
 		double setPiInit;
 
-		for(int r = 0; r< antAlgorithmSettings.length; r=r+2){
-			setVariant = (int) variant.random();
-			setAlpha = (double) alpha.random();
-			setBeta = (double) beta.random();
-			setDilution = (double) dilution.random();
-			setPiInit = (double) piInit.random();
+		for(int r = 0; r<antAlgorithmSettings.length; r++){
+			setVariant = 1;
+			setAlpha = 1;
+			setBeta = 2;
+			setDilution = 0.05;
+			setPiInit = 5.0;
 
 			antAlgorithmSettings[r][0] = r;
 			// row[1] = (int) iterations.random();
@@ -763,20 +690,7 @@ public class MainFrame extends JFrame {
 			//row[7] := estimated expected utility
 			antAlgorithmSettings[r][8] = 0;
 			//row[8] := estimated expected runtime
-			antAlgorithmSettings[r][9] = 0;
-			// round alpha and beta
-			antAlgorithmSettings[r+1][0] = r+1;
-			antAlgorithmSettings[r+1][1] = iterations;
-			antAlgorithmSettings[r+1][2] = setAnts;
-			antAlgorithmSettings[r+1][3] = setVariant;
-			antAlgorithmSettings[r+1][4] = Math.round(setAlpha);
-			antAlgorithmSettings[r+1][5] = Math.round(setBeta);
-			antAlgorithmSettings[r+1][6] = setDilution;
-			antAlgorithmSettings[r+1][7] = setPiInit;
-			//row[7] := estimated expected utility
-			antAlgorithmSettings[r+1][8] = 0;
-			//row[8] := estimated expected runtime
-			antAlgorithmSettings[r+1][9] = 0;
+			antAlgorithmSettings[r][9] = 0;					
 		}
 		return antAlgorithmSettings;
 	}
@@ -875,29 +789,37 @@ public class MainFrame extends JFrame {
 	}
 
 
-	private static void saveTuningResults(double[][] results, boolean antAlgo, long N) throws IOException{
-		filename = filepath + "results " + dateFormaFile.format(new Date())+".csv";
+	private static void saveTuningResults(double[][] antResults, double[] analyticResults, 
+			long N) throws IOException{
+		filename = filepath + "results " + classes+"_"+candidates+".csv";
         FileWriter fw = new FileWriter(filename);
     	BufferedWriter bufferedWriter = new BufferedWriter(fw);
-    	bufferedWriter.write(comment+sizeTheta+";"+N+";");
+    	bufferedWriter.write(comment+";runs:"+N+";classes: "+classes+";candidates: "+candidates);
+    	bufferedWriter.newLine();    	
+    	bufferedWriter.write("Algorithm;e(utility);e(runtime in ms);");
+    	
+    	// AntAlgo
+    	String line = "";
+    	line += "AntAlgorithm;";
+    	DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
+    	dfs.setDecimalSeparator(',');
+    	DecimalFormat dFormat = new DecimalFormat("0.0000", dfs);
+    	String zahlString = dFormat.format(antResults[0][8]);
+    	line+= zahlString +";";
+    	zahlString = dFormat.format(antResults[0][9]);
+    	line+= zahlString +";";
     	bufferedWriter.newLine();
-    	if(antAlgo){bufferedWriter.write("id;iterations;ants;variant;alpha;beta;dilution;piInit;e(utility);e(runtime in ms);number of model-setups tested = "+N);
-    	}else{
-    		bufferedWriter.write("id;population size;elitism rate;crossover rate;muation rate;e(utility);e(runtime in ms);number of model-setups tested = "+N);
-    	}
-    	for (double[] row : results) {
-	    	String line = "";
-	    	for (double cell: row){
-		    	DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
-		    	dfs.setDecimalSeparator(',');
-		    	DecimalFormat dFormat = new DecimalFormat("0.0000", dfs);
-		    	String zahlString = dFormat.format(cell);
+    	bufferedWriter.write(line);
+    	
+    	// AnalyticAlgo
+    	line = "AnalyticAlgo;";    	
+    	zahlString = dFormat.format(analyticResults[0]);
+    	line+= zahlString +";";
+    	zahlString = dFormat.format(analyticResults[1]);
+    	line+= zahlString +";";
+    	bufferedWriter.newLine();
+    	bufferedWriter.write(line);
 
-		    	line+= zahlString +";";
-	    	}
-	    	bufferedWriter.newLine();
-	    	bufferedWriter.write(line);
-    	}
-	    bufferedWriter.close();
+    	bufferedWriter.close();
 }
 }
