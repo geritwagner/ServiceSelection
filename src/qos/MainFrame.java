@@ -405,7 +405,7 @@ public class MainFrame extends JFrame {
 				"ms, estimated time for one run (one instance and the whole set of parameter configurations) = "+ estimatedRuntimeOneRun/1000 + "s");
 
 		// determine the max. amount of tests
-		N = 50;
+		N = 100;
 
 		// start parameter tuning
 		System.out.println(dateFormatLog.format(new Date()) + " Starting Tuning Phase, " +N+" runs with AntAlgo and AnalyticAlgo");
