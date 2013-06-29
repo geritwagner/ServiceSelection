@@ -2280,6 +2280,14 @@ public class MainFrame extends JFrame {
 			bufferedReader.readLine().split(";");
 			String[] constraintsValues = bufferedReader.readLine().split(";");
 			String[] constraintsWeights = bufferedReader.readLine().split(";");
+			// 3 constraint values/weights are usually stored
+			// in a model setup save file
+			if (constraintsValues.length != 3 || 
+					constraintsWeights.length != 3) {
+				writeErrorLogEntry("Chosen file has the " +
+						"wrong (internal) format");
+				return;
+			}
 
 			// skip header and empty line
 			bufferedReader.readLine();
@@ -2289,6 +2297,13 @@ public class MainFrame extends JFrame {
 			String[] serviceCandidateArray;
 			while (bufferedReader.ready()) {
 				serviceCandidateArray = bufferedReader.readLine().split(";");
+				// 7 service candidate values are usually stored in
+				// one service candidate of an model setup save file
+				if (serviceCandidateArray.length != 7) {
+					writeErrorLogEntry("Chosen file has the " +
+							"wrong (internal) format");
+					return;
+				}
 				// Create and save service candidates.
 				ServiceCandidate serviceCandidate = new ServiceCandidate(
 						serviceCandidateArray[2], 
@@ -2299,8 +2314,8 @@ public class MainFrame extends JFrame {
 								Double.parseDouble(serviceCandidateArray[6])));
 				serviceCandidatesList.add(serviceCandidate);
 
-				// Create and save service classes. Assign service candidates 
-				// to service classes.
+				// Create and save service classes. 
+				// Assign service candidates to service classes.
 				boolean serviceClassAlreadyCreated = false;
 				for (ServiceClass serviceClass : serviceClassesList) {
 					if (serviceClass.getServiceClassId() == Integer.parseInt(
@@ -2347,12 +2362,10 @@ public class MainFrame extends JFrame {
 			disableRelaxationSlider();
 			changeWeight(jTextFieldCostsWeight);
 		} catch (IOException e) {
-			e.printStackTrace();
+			writeErrorLogEntry("Algorithm settings could not be loaded " +
+					"successfully due to an Input/Output Error");
 		} catch (NullPointerException e) {
 			writeErrorLogEntry("Chosen file has the wrong (internal) format");
-		} catch (Exception e) {
-			writeErrorLogEntry("Data from chosen file isn't proper! " +
-					"Data couldn't be loaded correctly");
 		}
 		finally {
 			try {
@@ -2512,6 +2525,13 @@ public class MainFrame extends JFrame {
 			// skip headers
 			bufferedReader.readLine().split(";");
 			String[] values = bufferedReader.readLine().split(";");
+			// 16 algorithm variables are usually stored in
+			// in a algorithm settings save file
+			if (values.length != 16) {
+				writeErrorLogEntry("Chosen file has the " +
+						"wrong (internal) format");
+				return;
+			}
 			txtAntVariant.setText(values[0]);
 			txtAntIterations.setText(values[1]);
 			txtAntAnts.setText(values[2]);
@@ -2528,16 +2548,10 @@ public class MainFrame extends JFrame {
 			jComboBoxTerminationCriterion.setSelectedItem(values[13]);
 			jTextFieldTerminationCriterion.setText(values[14]);
 			jTextFieldTerminationDegree.setText(values[15]);
-			
 		} catch (IOException e) {			
-			writeErrorLogEntry(
-					"Algorithm settings could not be loaded successfully");
-		} catch (NullPointerException e) {
-			writeErrorLogEntry("Chosen file has the wrong (internal) format");
-		} catch (Exception e) {
-			writeErrorLogEntry("Data from chosen file isn't proper! " +
-					"Data couldn't be loaded correctly");
-		} 
+			writeErrorLogEntry("Algorithm settings could not be loaded " +
+					"successfully due to an Input/Output Error");
+		}
 		finally {
 			try {
 				bufferedReader.close();
