@@ -212,9 +212,9 @@ public class MainFrame extends JFrame {
 		int setAnts = 20;
 		double setAlpha = 1;
 		int setVariant = 1;
-		double setBeta = 1;
-		double setDilution = 0.0629;
-		double setPiInit = 8.1395;
+		double setBeta = 2;
+		double setDilution = 0.03059;
+		double setPiInit = 7.4233;
 		
 		antAlgorithmSettings[0] = 0;
 		// row[1] = (int) iterations.random();
@@ -365,10 +365,10 @@ public class MainFrame extends JFrame {
 				
 		sizeTheta = 1;
 		int estimateIterations = 10;
-		long maxTuningTime = 120;
+		long maxTuningTime = 48;
 
 		// maxTuningTime in h
-		// maxTuningTime *= 3600;
+		 maxTuningTime *= 3600;
 
 
 		double[][] antAlgorithmSettings = null;
