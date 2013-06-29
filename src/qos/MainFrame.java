@@ -1527,7 +1527,7 @@ public class MainFrame extends JFrame {
 		});
 		jTextFieldCrossoverRate.setToolTipText("<html>Probability for the " +
 				"crossover to actually happen " +
-				"<br>Typical value: 70-100%</html>");
+				"<br>Typical value: ~70%</html>");
 		GridBagConstraints gbcJTextFieldCrossoverRate = 
 				new GridBagConstraints();
 		gbcJTextFieldCrossoverRate.insets = new Insets(5, 5, 5, 5);
@@ -1595,7 +1595,7 @@ public class MainFrame extends JFrame {
 		});
 		jTextFieldMutationRate.setToolTipText("<html>Probability for the " +
 				"mutation of a service candidate " +
-				"<br>Typical value: 1-80\u2030</html>");
+				"<br>Typical value: ~90\u2030</html>");
 		GridBagConstraints gbcJTextFieldMutationRate = 
 			new GridBagConstraints();
 		gbcJTextFieldMutationRate.insets = new Insets(5, 5, 5, 0);
@@ -2291,7 +2291,6 @@ public class MainFrame extends JFrame {
 				serviceCandidateArray = bufferedReader.readLine().split(";");
 				// Create and save service candidates.
 				ServiceCandidate serviceCandidate = new ServiceCandidate(
-						serviceCandidateArray[0] + "." + 
 						serviceCandidateArray[2], 
 						serviceCandidateArray[3], 
 						new QosVector(
