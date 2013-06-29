@@ -211,10 +211,10 @@ public class MainFrame extends JFrame {
 		int iterations = 100;
 		int setAnts = 20;
 		double setAlpha = 1;
-		int setVariant = 2;
+		int setVariant = 1;
 		double setBeta = 1;
-		double setDilution = 0.05;
-		double setPiInit = 5;
+		double setDilution = 0.0629;
+		double setPiInit = 8.1395;
 		
 		antAlgorithmSettings[0] = 0;
 		// row[1] = (int) iterations.random();
