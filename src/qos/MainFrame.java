@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.swing.JCheckBox;
 import javax.swing.JButton;
@@ -2288,6 +2289,20 @@ public class MainFrame extends JFrame {
 						"wrong (internal) format");
 				return;
 			}
+			for (String loadValue : constraintsValues) { 
+				if (!checkLoadValue(loadValue, "Double")) {
+					writeErrorLogEntry("Chosen file has the " +
+							"wrong (internal) format");
+					return;
+				}
+			}
+			for (String loadValue : constraintsWeights) {
+				if (!checkLoadValue(loadValue, "Double")) {
+					writeErrorLogEntry("Chosen file has the " +
+							"wrong (internal) format");
+					return;
+				}
+			}
 
 			// skip header and empty line
 			bufferedReader.readLine();
@@ -2305,6 +2320,15 @@ public class MainFrame extends JFrame {
 					return;
 				}
 				// Create and save service candidates.
+				if (!checkLoadValue(serviceCandidateArray[2], 
+						"ServiceCandidateId") || 
+						!checkLoadValue(serviceCandidateArray[4], "Double") || 
+						!checkLoadValue(serviceCandidateArray[5], "Double") ||
+						!checkLoadValue(serviceCandidateArray[6], "Double")) {
+					writeErrorLogEntry("Chosen file has the " +
+							"wrong (internal) format");
+					return;
+				}
 				ServiceCandidate serviceCandidate = new ServiceCandidate(
 						serviceCandidateArray[2], 
 						serviceCandidateArray[3], 
@@ -2361,8 +2385,9 @@ public class MainFrame extends JFrame {
 							Double.parseDouble(constraintsWeights[2]))));	
 			disableRelaxationSlider();
 			changeWeight(jTextFieldCostsWeight);
+			writeErrorLogEntry("Model Setup successfully loaded");
 		} catch (IOException e) {
-			writeErrorLogEntry("Algorithm settings could not be loaded " +
+			writeErrorLogEntry("Model Setup could not be loaded " +
 					"successfully due to an Input/Output Error");
 		} catch (NullPointerException e) {
 			writeErrorLogEntry("Chosen file has the wrong (internal) format");
@@ -2481,10 +2506,10 @@ public class MainFrame extends JFrame {
 					bufferedWriter.newLine();
 					bufferedWriter.write(line);
 				}
-				writeErrorLogEntry("Model Setup successfully saved to File!");
+				writeErrorLogEntry("Model Setup successfully saved to File");
 			} catch (IOException e) {	
-				writeErrorLogEntry(
-						"Model Setup has not been saved successfully");
+				writeErrorLogEntry("Model Setup has not been saved " +
+						"successfully due to an Input/Output Error");
 			} finally {
 				try {
 					bufferedWriter.close();					
@@ -2525,9 +2550,19 @@ public class MainFrame extends JFrame {
 			// skip headers
 			bufferedReader.readLine().split(";");
 			String[] values = bufferedReader.readLine().split(";");
+			// TODO: CheckLoadValue auch bei Ant Algorithm verwenden
 			// 16 algorithm variables are usually stored in
 			// in a algorithm settings save file
-			if (values.length != 16) {
+			if (values.length != 16 || 
+					!checkLoadValue(values[7], "Integer") || 
+					!checkLoadValue(values[8], "SelectionMethod") || 
+					!checkLoadValue(values[9], "Integer") || 
+					!checkLoadValue(values[10], "CrossoverMethod") || 
+					!checkLoadValue(values[11], "Integer") || 
+					!checkLoadValue(values[12], "Integer") || 
+					!checkLoadValue(values[13], "TerminationCriterion") || 
+					!checkLoadValue(values[14], "Integer") || 
+					!checkLoadValue(values[15], "Integer")) {
 				writeErrorLogEntry("Chosen file has the " +
 						"wrong (internal) format");
 				return;
@@ -2548,6 +2583,7 @@ public class MainFrame extends JFrame {
 			jComboBoxTerminationCriterion.setSelectedItem(values[13]);
 			jTextFieldTerminationCriterion.setText(values[14]);
 			jTextFieldTerminationDegree.setText(values[15]);
+			writeErrorLogEntry("Algorithm settings successfully loaded");
 		} catch (IOException e) {			
 			writeErrorLogEntry("Algorithm settings could not be loaded " +
 					"successfully due to an Input/Output Error");
@@ -2606,10 +2642,10 @@ public class MainFrame extends JFrame {
 				bufferedWriter.write(values);
 				
 				writeErrorLogEntry("Algorithm-Settings successfully " +
-						"saved to File!");
+						"saved to File");
 			} catch (IOException e) {			
-				writeErrorLogEntry("Algorithm settings have not " +
-						"been saved successfully");
+				writeErrorLogEntry("Algorithm settings have not been saved " +
+						"successfully due to an Input/Output Error");
 			} finally {
 				try {
 					bufferedWriter.close();
@@ -2648,7 +2684,7 @@ public class MainFrame extends JFrame {
 	private void showAboutDialog() {
 		JOptionPane.showMessageDialog(this, 
 				"<html><h1>Service Selection Tool</h1><br>" +
-				"<h2><i>Version 1.0 (10.05.2013)</i></h2><br><br>" +
+				"<h2><i>Version 1.0 (30.06.2013)</i></h2><br><br>" +
 				"<h3>Developed by:</h3>" +
 				"<ul style=\"list-style-type: none;\">" +
 				"<li>Christian Deml</li>" +
@@ -2799,7 +2835,7 @@ public class MainFrame extends JFrame {
 		} catch (NumberFormatException e) {
 			textField.setText(String.valueOf(average));
 			slider.setValue(average);
-			writeErrorLogEntry("Value has to be from the type Integer!");
+			writeErrorLogEntry("Value has to be from the type Integer");
 		}
 		if (Integer.parseInt(textField.getText()) < minValue || 
 				Integer.parseInt(textField.getText()) > maxValue) {
@@ -2924,7 +2960,7 @@ public class MainFrame extends JFrame {
 			Integer.parseInt(textField.getText());
 		} catch (NumberFormatException e) {
 			textField.setText("0");
-			writeErrorLogEntry("Value has to be from the type Integer!");
+			writeErrorLogEntry("Value has to be from the type Integer");
 		}
 		if (Integer.parseInt(textField.getText()) < 0 || 
 				Integer.parseInt(textField.getText()) > 100) {
@@ -2975,8 +3011,6 @@ public class MainFrame extends JFrame {
 	 */
 	
 	private void pressStartButton() {
-		// TODO: Dialog to confirm if analytic algorithm is chosen 
-		//		 and if the model is very large
 		if (jCheckBoxAnalyticAlgorithm.isSelected() && 
 				serviceClassesList.size() >= 10 && 
 				serviceCandidatesList.size() >= 100) {
@@ -3338,9 +3372,9 @@ public class MainFrame extends JFrame {
 			jTextFieldTerminationDegree.setVisible(true);
 			// TODO: Find a typical value.
 			jTextFieldTerminationCriterion.setToolTipText("<html>Number of " +
-			"consecutive generations which contain<br>(almost) the same " +
-			"compositions<br>" +
-			"Typical value: 20</html>");
+					"consecutive generations which contain<br>" +
+					"(almost) the same compositions<br>" +
+					"Typical value: 20</html>");
 		}
 		else {
 			if (jComboBoxTerminationCriterion.getSelectedIndex() == 0) {
@@ -3349,11 +3383,10 @@ public class MainFrame extends JFrame {
 						"Typical value: 100-1000</html>");
 			}
 			else {
-				// TODO: Find a typical value.
 				jTextFieldTerminationCriterion.setToolTipText(
 						"<html>Number of consecutive generations with the" +
 						"same maximal fitness value<br>" +
-						"Typical value: 20</html>");
+						"Typical value: 50</html>");
 			}
 			jLabelTerminationDegree.setVisible(false);
 			jLabelTerminationDegreeClose.setVisible(false);
@@ -3628,6 +3661,7 @@ public class MainFrame extends JFrame {
 					bufferedWriter.newLine();
 					bufferedWriter.write(line);
 				}
+				writeErrorLogEntry("File has been created successfully");
 			} catch (IOException e) {			
 				writeErrorLogEntry("File has not been created successfully");
 			} finally {
@@ -3775,6 +3809,66 @@ public class MainFrame extends JFrame {
 		} catch (NumberFormatException e) {
 			textField.setText(String.valueOf(defaultInput));
 			writeErrorLogEntry("Value has to be from the type Integer");
+		}
+	}
+	
+	private boolean checkLoadValue(String loadValue, String dataType) {
+		if (dataType.equals("Integer")) {
+			try {
+				Integer.parseInt(loadValue);
+				return true;
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		}
+		else if (dataType.equals("Double")) {
+			try {
+				Double.parseDouble(loadValue);
+				return true;
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		}
+		else if (dataType.equals("ServiceCandidateId")) {
+			if (Pattern.matches("\\d+.\\d+", loadValue)) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else if (dataType.equals("SelectionMethod")) {
+			if (loadValue.equals("Roulette Wheel Selection") || 
+					loadValue.equals("Linear Ranking Selection") || 
+					loadValue.equals("Tournament Selection")) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else if (dataType.equals("CrossoverMethod")) {
+			if (loadValue.equals("One-Point Crossover") || 
+					loadValue.equals("Two-Point Crossover") || 
+					loadValue.equals("Uniform Crossover")) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else if (dataType.equals("TerminationCriterion")) {
+			if (loadValue.equals("Number of Iterations") || 
+					loadValue.equals("Consecutive Equal Generations") || 
+					loadValue.equals("Fitness Value Convergence")) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return true;
 		}
 	}
 	

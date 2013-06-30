@@ -440,29 +440,16 @@ public class GeneticAlgorithm extends Algorithm {
 				int crossoverPoint = (int) (Math.random() * 
 						(serviceClassesList.size() - 1) + 1);
 
-				// Do the crossover.
 				Composition compositionC = new Composition();
-				for (ServiceCandidate serviceCandidate : compositionA.
-						getServiceCandidatesList().subList(0, crossoverPoint)) {
-					compositionC.addServiceCandidate(serviceCandidate);
-				}
-				for (ServiceCandidate serviceCandidate : compositionB.
-						getServiceCandidatesList().subList(
-								crossoverPoint, serviceClassesList.size())) {
-					compositionC.addServiceCandidate(serviceCandidate);
-				}
-
 				Composition compositionD = new Composition();
-				for (ServiceCandidate serviceCandidate : compositionB.
-						getServiceCandidatesList().subList(0, crossoverPoint)) {
-					compositionD.addServiceCandidate(serviceCandidate);
-				}
-				for (ServiceCandidate serviceCandidate : compositionA.
-						getServiceCandidatesList().subList(
-								crossoverPoint, serviceClassesList.size())) {
-					compositionD.addServiceCandidate(serviceCandidate);
-				}
-				
+
+				// Do the crossover.
+				crossOverAtPoint(compositionA, compositionB, compositionC, 
+						compositionD, 0, crossoverPoint);
+				crossOverAtPoint(compositionA, compositionB, compositionD, 
+						compositionC, crossoverPoint, 
+						serviceClassesList.size());
+
 				populationNew.add(compositionC);
 				populationNew.add(compositionD);
 			}
@@ -489,56 +476,49 @@ public class GeneticAlgorithm extends Algorithm {
 			// Randomly select the second composition for crossover.
 			Composition compositionB = matingPool.remove(
 					(int) (Math.random() * matingPool.size()));
+
+			// Randomly select the crossover points.
+			int crossoverPoint1 = 
+				(int) ((Math.random() * 
+						(serviceClassesList.size() - 2)) + 1);
+			int crossoverPoint2 = (int) ((Math.random() * 
+					(serviceClassesList.size() - crossoverPoint1 - 1)) + 
+					(crossoverPoint1 + 1));				
+			// Do the crossover.
+			Composition compositionC = new Composition();
+			Composition compositionD = new Composition();
+			crossOverAtPoint(compositionA, compositionB, compositionC, 
+					compositionD, 0, crossoverPoint1);
+			// Variable to adjust the crossover rate dynamically.
+			// This is necessary because if there is a crossover at 
+			// point one, the probability for a crossover at the 
+			// second point has to be reverted (because the method 
+			// crossOverAtPoint(...) is called with the same
+			// parameters).
+			double secondCrossover = crossoverRate;
+			// Crossover Point One
 			if (Math.random() < crossoverRate) {
-				// Randomly select the crossover points.
-				int crossoverPoint1 = 
-						(int) ((Math.random() * 
-								(serviceClassesList.size() - 2)) + 1);
-				int crossoverPoint2 = (int) ((Math.random() * 
-						(serviceClassesList.size() - crossoverPoint1 - 1)) + 
-						(crossoverPoint1 + 1));				
-				// Do the crossover.
-				Composition compositionC = new Composition();
-				for (ServiceCandidate serviceCandidate : compositionA.
-						getServiceCandidatesList().subList(
-								0, crossoverPoint1)) {
-					compositionC.addServiceCandidate(serviceCandidate);
-				}
-				for (ServiceCandidate serviceCandidate : compositionB.
-						getServiceCandidatesList().subList(
-								crossoverPoint1, crossoverPoint2)) {
-					compositionC.addServiceCandidate(serviceCandidate);
-				}
-				for (ServiceCandidate serviceCandidate : compositionA.
-						getServiceCandidatesList().subList(crossoverPoint2, 
-								serviceClassesList.size())) {
-					compositionC.addServiceCandidate(serviceCandidate);
-				} 
-
-				Composition compositionD = new Composition();
-				for (ServiceCandidate serviceCandidate : compositionB.
-						getServiceCandidatesList().subList(
-								0, crossoverPoint1)) {
-					compositionD.addServiceCandidate(serviceCandidate);
-				}
-				for (ServiceCandidate serviceCandidate : compositionA.
-						getServiceCandidatesList().subList(
-								crossoverPoint1, crossoverPoint2)) {
-					compositionD.addServiceCandidate(serviceCandidate);
-				}
-				for (ServiceCandidate serviceCandidate : compositionB.
-						getServiceCandidatesList().subList(crossoverPoint2, 
-								serviceClassesList.size())) {
-					compositionD.addServiceCandidate(serviceCandidate);
-				} 
-
-				populationNew.add(compositionC);
-				populationNew.add(compositionD);
+				crossOverAtPoint(compositionA, compositionB, compositionD, 
+						compositionC, crossoverPoint1, crossoverPoint2);
+				secondCrossover = 1.0 - crossoverRate;
 			}
 			else {
-				populationNew.add(compositionA);
-				populationNew.add(compositionB);
+				crossOverAtPoint(compositionA, compositionB, compositionC, 
+						compositionD, crossoverPoint1, crossoverPoint2);
 			}
+			// Crossover Point Two
+			if (Math.random() < secondCrossover) {
+				crossOverAtPoint(compositionA, compositionB, compositionD, 
+						compositionC, crossoverPoint2, 
+						serviceClassesList.size());
+			}
+			else {
+				crossOverAtPoint(compositionA, compositionB, compositionC, 
+						compositionD, crossoverPoint2, 
+						serviceClassesList.size());
+			}
+			populationNew.add(compositionC);
+			populationNew.add(compositionD);
 		}
 		return populationNew;
 	}
@@ -558,39 +538,72 @@ public class GeneticAlgorithm extends Algorithm {
 			// Randomly select the second composition for crossover.
 			Composition compositionB = matingPool.remove(
 					(int) (Math.random() * matingPool.size()));
-			if (Math.random() < crossoverRate) {
-				// Do the crossover.
-				Composition compositionC = new Composition();
-				Composition compositionD = new Composition();
-				for (int i = 0; i < 
-						compositionA.getServiceCandidatesList().size(); i++) {
-					if (Math.random() < 0.5) {
-						compositionC.addServiceCandidate(
-								compositionA.getServiceCandidatesList().
-								get(i));
-						compositionD.addServiceCandidate(
-								compositionB.getServiceCandidatesList().
-								get(i));
+			// Do the crossover.
+			Composition compositionC = new Composition();
+			Composition compositionD = new Composition();
+			int lastStep = 0;
+			int nextStep = 1;
+			// Variable to adjust the crossover rate dynamically.
+			// This is necessary because if there is a crossover at 
+			// one point, the probability for a crossover at the 
+			// following point has to be reverted (because the 
+			// method crossOverAtPoint(...) is called with the same 
+			// parameters).
+			double actualCrossoverRate = crossoverRate;
+			for (int i = 0; i < 
+			compositionA.getServiceCandidatesList().size(); i++) {
+				// Dynamic adjustment of the variable 
+				// actualCrossoverRate (as described above).
+				if (lastStep != nextStep) {
+					if (actualCrossoverRate == crossoverRate) {
+						actualCrossoverRate = 1.0 - crossoverRate;
 					}
 					else {
-						compositionD.addServiceCandidate(
-								compositionB.getServiceCandidatesList().
-								get(i));
-						compositionC.addServiceCandidate(
-								compositionA.getServiceCandidatesList().
-								get(i));
+						actualCrossoverRate = crossoverRate;
 					}
 				}
-				
-				populationNew.add(compositionC);
-				populationNew.add(compositionD);
+				lastStep = nextStep;
+				// Decision about crossing over.
+				if (Math.random() < actualCrossoverRate) {
+					nextStep = 0;
+					compositionC.addServiceCandidate(
+							compositionA.getServiceCandidatesList().
+							get(i));
+					compositionD.addServiceCandidate(
+							compositionB.getServiceCandidatesList().
+							get(i));
+				}
+				else {
+					nextStep = 1;
+					compositionD.addServiceCandidate(
+							compositionB.getServiceCandidatesList().
+							get(i));
+					compositionC.addServiceCandidate(
+							compositionA.getServiceCandidatesList().
+							get(i));
+				}
 			}
-			else {
-				populationNew.add(compositionA);
-				populationNew.add(compositionB);
-			}
+
+			populationNew.add(compositionC);
+			populationNew.add(compositionD);
 		}
 		return populationNew;
+	}
+	
+	private void crossOverAtPoint(Composition compositionA, 
+			Composition compositionB, Composition compositionC,
+			Composition compositionD, int crossoverPointStart, 
+			int crossoverPointEnd) {
+		for (ServiceCandidate serviceCandidate : compositionA.
+				getServiceCandidatesList().subList(crossoverPointStart, 
+						crossoverPointEnd)) {
+			compositionC.addServiceCandidate(serviceCandidate);
+		} 
+		for (ServiceCandidate serviceCandidate : compositionB.
+				getServiceCandidatesList().subList(crossoverPointStart, 
+						crossoverPointEnd)) {
+			compositionD.addServiceCandidate(serviceCandidate);
+		}
 	}
 	
 	
