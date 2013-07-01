@@ -541,8 +541,8 @@ public class GeneticAlgorithm extends Algorithm {
 			// Do the crossover.
 			Composition compositionC = new Composition();
 			Composition compositionD = new Composition();
-			int lastStep = 0;
-			int nextStep = 1;
+			int lastStep = 1;
+			int nextStep = 0;
 			// Variable to adjust the crossover rate dynamically.
 			// This is necessary because if there is a crossover at 
 			// one point, the probability for a crossover at the 
@@ -576,10 +576,10 @@ public class GeneticAlgorithm extends Algorithm {
 				else {
 					nextStep = 1;
 					compositionD.addServiceCandidate(
-							compositionB.getServiceCandidatesList().
+							compositionA.getServiceCandidatesList().
 							get(i));
 					compositionC.addServiceCandidate(
-							compositionA.getServiceCandidatesList().
+							compositionB.getServiceCandidatesList().
 							get(i));
 				}
 			}
