@@ -2549,11 +2549,15 @@ public class MainFrame extends JFrame {
 			bufferedReader = new BufferedReader(new FileReader(file));			
 			// skip headers
 			bufferedReader.readLine().split(";");
-			String[] values = bufferedReader.readLine().split(";");
-			// TODO: CheckLoadValue auch bei Ant Algorithm verwenden
-			// 16 algorithm variables are usually stored in
-			// in a algorithm settings save file
+			String[] values = bufferedReader.readLine().split(";");			
 			if (values.length != 16 || 
+					!checkLoadValue(values[0], "Integer") ||
+					!checkLoadValue(values[1], "Integer") ||
+					!checkLoadValue(values[2], "Integer") ||
+					!checkLoadValue(values[3], "Double") ||
+					!checkLoadValue(values[4], "Double") ||
+					!checkLoadValue(values[5], "Double") ||
+					!checkLoadValue(values[6], "Double") ||
 					!checkLoadValue(values[7], "Integer") || 
 					!checkLoadValue(values[8], "SelectionMethod") || 
 					!checkLoadValue(values[9], "Integer") || 
@@ -3828,7 +3832,7 @@ public class MainFrame extends JFrame {
 			} catch (NumberFormatException e) {
 				return false;
 			}
-		}
+		}		
 		else if (dataType.equals("ServiceCandidateId")) {
 			if (Pattern.matches("\\d+.\\d+", loadValue)) {
 				return true;
