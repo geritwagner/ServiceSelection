@@ -3425,9 +3425,9 @@ public class MainFrame extends JFrame {
 	
 	private void showAlgorithmResults(Algorithm algorithm, 
 			String algorithmTitle) {
+		// Construction of the algorithm panel
 		JScrollPane jScrollPane = new JScrollPane();
 		this.jTabbedPane.addTab(algorithmTitle, jScrollPane);
-
 		JPanel jPanelAlgorithmResult = new JPanel();
 		GridBagLayout gblJPanelAlgorithmResult = new GridBagLayout();
 		gblJPanelAlgorithmResult.columnWeights = new double[]{1.0};
@@ -3447,26 +3447,26 @@ public class MainFrame extends JFrame {
 				}
 			}
 		}
-		
 		gblJPanelAlgorithmResult.rowWeights = rows;
 		jPanelAlgorithmResult.setLayout(gblJPanelAlgorithmResult);
 		jScrollPane.setViewportView(jPanelAlgorithmResult);
 
-		// COUNTER FOR ALL TIER TABLES
-		for (int i = 1; i < rows.length; i = i + 2) {
+		int currentObject = 1;
+		// Counter for every solution tier (of one algorithm)
+		for (AlgorithmSolutionTier tier : 
+			algorithm.getAlgorithmSolutionTiers()) {
+			int currentRow = 0;
 			List<Composition> tierServiceCompositionList = 
-				new LinkedList<Composition>(
-						algorithm.getAlgorithmSolutionTiers().get(
-								i / 2).getServiceCompositionList());
+				new LinkedList<Composition>(tier.getServiceCompositionList());
 			int numberOfRows = 0;
-			// COUNTER FOR COMPUTING THE NUMBER OF COMPOSITIONS PER TIER
+			// Computation of the number of necessary table rows
 			for (int rowCount = 0; rowCount < 
 			tierServiceCompositionList.size(); rowCount++) {
 				numberOfRows += tierServiceCompositionList.get(
 						rowCount).getServiceCandidatesList().size();
 			}
 			
-			// TABLE CONSTRUCTION
+			// Table construction
 			String[] tierTablesColumnNames = {"# Service", 
 					"Service Title", "Utility Value", "Costs", 
 					"Response Time", "Availability"};
@@ -3475,7 +3475,7 @@ public class MainFrame extends JFrame {
 					tierTablesColumnNames.length, false);
 			GridBagConstraints gbcJTableTier = new GridBagConstraints();
 			gbcJTableTier.gridx = 0;
-			gbcJTableTier.gridy = i;
+			gbcJTableTier.gridy = currentObject;
 			gbcJTableTier.fill = GridBagConstraints.HORIZONTAL;
 			gbcJTableTier.anchor = GridBagConstraints.NORTH;
 			jPanelAlgorithmResult.add(jTableTier, gbcJTableTier);
@@ -3484,15 +3484,17 @@ public class MainFrame extends JFrame {
 					0, DefaultTableCellRenderer.CENTER);
 			jTableTier.setColumnTextAlignment(
 					2, DefaultTableCellRenderer.CENTER);
+			jTableTier.setEnabled(false);
 			
-			// COUNTER FOR CONSTRUCTION OF TABLE HEADERS
-			for (int columnCount = 0; columnCount < 
-			tierTablesColumnNames.length; columnCount++) {
-				jTableTier.getColumnModel().getColumn(
-						columnCount).setHeaderValue(
-								tierTablesColumnNames[columnCount]);
-			}
-			if (i == 1) {
+			// Construction of the table header
+			// (only for the first table of an algorithm)
+			if (currentObject == 1) {
+				for (int columnCount = 0; columnCount < 
+				tierTablesColumnNames.length; columnCount++) {
+					jTableTier.getColumnModel().getColumn(
+							columnCount).setHeaderValue(
+									tierTablesColumnNames[columnCount]);
+				}
 				GridBagConstraints gbc_tableHeader = new GridBagConstraints();
 				gbc_tableHeader.gridx = 0;
 				gbc_tableHeader.gridy = 0;
@@ -3502,140 +3504,73 @@ public class MainFrame extends JFrame {
 				jPanelAlgorithmResult.add(
 						jTableTier.getTableHeader(), gbc_tableHeader);
 			}
-			int x = 0;
-			// COUNTER FOR ALL ROWS OF A TIER
-			for (int rowCount = 0; rowCount < numberOfRows; rowCount++) {
+			for (Composition composition : tier.getServiceCompositionList()) {
 				jTableTier.setValueAt("<html><b>" + DECIMAL_FORMAT_FOUR.format(
-						tierServiceCompositionList.get(rowCount).
-						getUtility()) + "</b></html>", rowCount, 2);
+						composition.getUtility()) + "</b></html>", 
+						currentRow, 2);
+				jTableTier.setValueAt("<html><b>" + DECIMAL_FORMAT_TWO.format(
+						composition.getQosVectorAggregated().getCosts()) + 
+						"</b></html>", currentRow, 3);
+				jTableTier.setValueAt("<html><b>" + DECIMAL_FORMAT_TWO.format(
+						composition.getQosVectorAggregated().
+						getResponseTime()) + "</b></html>", currentRow, 4);
+				jTableTier.setValueAt("<html><b>" + DECIMAL_FORMAT_TWO.format(
+						composition.getQosVectorAggregated().
+						getAvailability()) + "</b></html>", currentRow, 5);
+				
 				// Build String for Result-Export
 				String resultLine = "";
 				resultLine += algorithmTitle;
 				resultLine += ";" + algorithm.getRuntime();
-				resultLine += ";" + tierServiceCompositionList.get(rowCount).
-						getUtility();
-				resultLine += ";" + tierServiceCompositionList.get(rowCount).
+				resultLine += ";" + composition.getUtility();
+				resultLine += ";" + composition.
 						getQosVectorAggregated().getCosts();
-				resultLine += ";" + tierServiceCompositionList.get(rowCount).
+				resultLine += ";" + composition.
 						getQosVectorAggregated().getResponseTime();
-				resultLine += ";" + tierServiceCompositionList.get(rowCount).
+				resultLine += ";" + composition.
 						getQosVectorAggregated().getAvailability();				
 				saveResultList.add(resultLine);
-				
-				if (getChosenConstraints().get(Constraint.COSTS) != null && 
-						tierServiceCompositionList.get(rowCount).
-						getQosVectorAggregated().getCosts() > 
-						getChosenConstraints().get(Constraint.COSTS).
-						getValue()) {
-					jTableTier.setValueAt("<html><b><font color=red>" + 
-							DECIMAL_FORMAT_TWO.format(
-									tierServiceCompositionList.get(rowCount).
-									getQosVectorAggregated().getCosts()) + 
-									"</font></b></html>", rowCount + x, 3);
-				}
-				else {
-					jTableTier.setValueAt("<html><b>" + 
-							DECIMAL_FORMAT_TWO.format(
-									tierServiceCompositionList.get(rowCount).
-									getQosVectorAggregated().getCosts()) + 
-									"</b></html>", rowCount + x, 3);
-				}
-				if (getChosenConstraints().get(Constraint.RESPONSE_TIME) != 
-						null && tierServiceCompositionList.get(rowCount).
-						getQosVectorAggregated().getResponseTime() > 
-						getChosenConstraints().get(Constraint.RESPONSE_TIME).
-						getValue()) {
-					jTableTier.setValueAt("<html><b><font color=red>" + 
-							DECIMAL_FORMAT_TWO.format(
-									tierServiceCompositionList.get(rowCount).
-									getQosVectorAggregated().
-									getResponseTime()) + 
-									"</font></b></html>", rowCount + x, 4);
-				}
-				else {
-					jTableTier.setValueAt("<html><b>" + 
-							DECIMAL_FORMAT_TWO.format(
-									tierServiceCompositionList.get(rowCount).
-									getQosVectorAggregated().
-									getResponseTime()) + 
-									"</b></html>", rowCount + x, 4);
-				}
-				if (getChosenConstraints().get(Constraint.AVAILABILITY) != 
-						null && tierServiceCompositionList.get(rowCount).
-						getQosVectorAggregated().getAvailability() < 
-						getChosenConstraints().get(Constraint.AVAILABILITY).
-						getValue()) {
-					jTableTier.setValueAt("<html><b><font color=red>" + 
-							DECIMAL_FORMAT_TWO.format(
-									tierServiceCompositionList.get(rowCount).
-									getQosVectorAggregated().
-									getAvailability()) + 
-									"</font></b></html>", rowCount + x, 5);
-				}
-				else {
-					jTableTier.setValueAt("<html><b>" + 
-							DECIMAL_FORMAT_TWO.format(
-									tierServiceCompositionList.get(rowCount).
-									getQosVectorAggregated().
-									getAvailability()) + 
-									"</b></html>", rowCount + x, 5);
-				}
-				x++;
-				int candidateCount = 0;
-				// COUNTER FOR ALL SERVICE CANDIDATES PER COMPOSITION
-				for (candidateCount = 0; candidateCount < 
-				tierServiceCompositionList.get(rowCount).
-				getServiceCandidatesList().size(); candidateCount++) {
+
+				currentRow++;
+				for (ServiceCandidate candidate : 
+					composition.getServiceCandidatesList()) {
 					// SERVICE CANDIDATE ID
-					jTableTier.setValueAt(tierServiceCompositionList.get(
-							rowCount).getServiceCandidatesList().get(
-									candidateCount).getServiceCandidateId(), 
-									rowCount + x + candidateCount, 0);
+					jTableTier.setValueAt(candidate.getServiceCandidateId(), 
+							currentRow, 0);
 					// SERVICE CANDIDATE TITLE
-					jTableTier.setValueAt(
-							tierServiceCompositionList.get(rowCount).
-							getServiceCandidatesList().
-							get(candidateCount).getName(), 
-							rowCount + x + candidateCount, 1);
+					jTableTier.setValueAt(candidate.getName(), 
+							currentRow, 1);
 					// COSTS
 					jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
-							tierServiceCompositionList.get(rowCount).
-							getServiceCandidatesList().get(
-									candidateCount).getQosVector().
-									getCosts()), 
-									rowCount + x + candidateCount, 3);
+							candidate.getQosVector().getCosts()), 
+							currentRow, 3);
 					// RESPONSE TIME
 					jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
-							tierServiceCompositionList.get(rowCount).
-							getServiceCandidatesList().get(
-									candidateCount).getQosVector().
-									getResponseTime()), 
-									rowCount + x + candidateCount, 4);
+							candidate.getQosVector().getResponseTime()), 
+							currentRow, 4);
 					// AVAILABILITY
 					jTableTier.setValueAt(DECIMAL_FORMAT_TWO.format(
-							tierServiceCompositionList.get(rowCount).
-							getServiceCandidatesList().get(
-									candidateCount).getQosVector().
-									getAvailability()), 
-									rowCount + x + candidateCount, 5);
+							candidate.getQosVector().getAvailability()), 
+							currentRow, 5);
+					currentRow++;
 				}
-				rowCount = rowCount + candidateCount - 1;
 			}
-			jTableTier.setEnabled(false);
-			
-			if (i + 1 < rows.length) {
+			// Decision about printing a separator
+			if (++currentObject < 
+					algorithm.getAlgorithmSolutionTiers().size() * 2) {
 				JSeparator jSeparatorTierTables = new JSeparator();
 				GridBagConstraints gbcJSeparatorTierTables = 
 					new GridBagConstraints();
 				gbcJSeparatorTierTables.gridx = 0;
-				gbcJSeparatorTierTables.gridy = i + 1;
+				gbcJSeparatorTierTables.gridy = currentObject++;
 				gbcJSeparatorTierTables.fill = GridBagConstraints.HORIZONTAL;
 				gbcJSeparatorTierTables.anchor = GridBagConstraints.NORTH;
 				gbcJSeparatorTierTables.insets = new Insets(10, 5, 10, 5);
 				jPanelAlgorithmResult.add(
 						jSeparatorTierTables, gbcJSeparatorTierTables);
-			}
+			}	
 		}
+		// Content of the panel if no solution was found
 		if (jPanelAlgorithmResult.getComponents().length == 0) {
 			jPanelAlgorithmResult.add(new JLabel("<html><h1 color=red>" +
 					"No Solution</h1></html>"));
